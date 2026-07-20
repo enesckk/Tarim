@@ -1,0 +1,37 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+    <PackageReference Include="Serilog.Settings.Configuration" Version="9.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Modules\Identity\Agriculture.Modules.Identity.Infrastructure\Agriculture.Modules.Identity.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Producers\Agriculture.Modules.Producers.Infrastructure\Agriculture.Modules.Producers.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Lands\Agriculture.Modules.Lands.Infrastructure\Agriculture.Modules.Lands.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Seasons\Agriculture.Modules.Seasons.Infrastructure\Agriculture.Modules.Seasons.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflows\Agriculture.Modules.Workflows.Infrastructure\Agriculture.Modules.Workflows.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Tasks\Agriculture.Modules.Tasks.Infrastructure\Agriculture.Modules.Tasks.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Inspections\Agriculture.Modules.Inspections.Infrastructure\Agriculture.Modules.Inspections.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Harvest\Agriculture.Modules.Harvest.Infrastructure\Agriculture.Modules.Harvest.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Support\Agriculture.Modules.Support.Infrastructure\Agriculture.Modules.Support.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Agriculture.Modules.Notifications.Infrastructure\Agriculture.Modules.Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Modules\Communication\Agriculture.Modules.Communication.Infrastructure\Agriculture.Modules.Communication.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\BuildingBlocks\Agriculture.Infrastructure\Agriculture.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Agriculture.Application.Abstractions\Agriculture.Application.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Modules\Producers\Agriculture.Modules.Producers.Domain\Agriculture.Modules.Producers.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Producers\Agriculture.Modules.Producers.Application\Agriculture.Modules.Producers.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Lands\Agriculture.Modules.Lands.Domain\Agriculture.Modules.Lands.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Lands\Agriculture.Modules.Lands.Application\Agriculture.Modules.Lands.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Seasons\Agriculture.Modules.Seasons.Domain\Agriculture.Modules.Seasons.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Seasons\Agriculture.Modules.Seasons.Application\Agriculture.Modules.Seasons.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflows\Agriculture.Modules.Workflows.Domain\Agriculture.Modules.Workflows.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Workflows\Agriculture.Modules.Workflows.Application\Agriculture.Modules.Workflows.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Tasks\Agriculture.Modules.Tasks.Domain\Agriculture.Modules.Tasks.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Tasks\Agriculture.Modules.Tasks.Application\Agriculture.Modules.Tasks.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Inspections\Agriculture.Modules.Inspections.Domain\Agriculture.Modules.Inspections.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Inspections\Agriculture.Modules.Inspections.Application\Agriculture.Modules.Inspections.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Harvest\Agriculture.Modules.Harvest.Domain\Agriculture.Modules.Harvest.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Harvest\Agriculture.Modules.Harvest.Application\Agriculture.Modules.Harvest.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Support\Agriculture.Modules.Support.Domain\Agriculture.Modules.Support.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Support\Agriculture.Modules.Support.Application\Agriculture.Modules.Support.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Agriculture.Modules.Notifications.Domain\Agriculture.Modules.Notifications.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\Agriculture.Modules.Notifications.Application\Agriculture.Modules.Notifications.Application.csproj" />
+    <ProjectReference Include="..\..\Modules\Communication\Agriculture.Modules.Communication.Domain\Agriculture.Modules.Communication.Domain.csproj" />
+    <ProjectReference Include="..\..\Modules\Communication\Agriculture.Modules.Communication.Application\Agriculture.Modules.Communication.Application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
+    <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+  </ItemGroup>
+
+</Project>
