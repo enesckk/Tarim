@@ -34,6 +34,7 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
     public DbSet<SupportProgram> SupportPrograms => Set<SupportProgram>();
     public DbSet<SupportAssignment> SupportAssignments => Set<SupportAssignment>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<DevicePushToken> DevicePushTokens => Set<DevicePushToken>();
     public DbSet<Conversation> Conversations => Set<Conversation>();
     public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
@@ -105,6 +106,8 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).HasMaxLength(200).IsRequired();
             e.Property(x => x.QuantityUnit).HasMaxLength(32);
+            e.Property(x => x.VideoUrl).HasMaxLength(500);
+            e.Property(x => x.ImageUrl).HasMaxLength(500);
             e.Ignore(x => x.DomainEvents);
         });
 
@@ -121,6 +124,9 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.HasKey(x => x.Id);
             e.Property(x => x.Title).HasMaxLength(200).IsRequired();
             e.Property(x => x.QuantityUnit).HasMaxLength(32);
+            e.Property(x => x.VideoUrl).HasMaxLength(500);
+            e.Property(x => x.ImageUrl).HasMaxLength(500);
+            e.Property(x => x.RevisionReason).HasMaxLength(1000);
             e.HasMany(x => x.Photos).WithOne().HasForeignKey(x => x.TaskId);
             e.Ignore(x => x.DomainEvents);
             e.Navigation(x => x.Photos).UsePropertyAccessMode(PropertyAccessMode.Field);
@@ -190,6 +196,17 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.HasKey(x => x.Id);
             e.Property(x => x.Title).HasMaxLength(200).IsRequired();
             e.Property(x => x.Body).HasMaxLength(2000).IsRequired();
+            e.Ignore(x => x.DomainEvents);
+        });
+
+        modelBuilder.Entity<DevicePushToken>(e =>
+        {
+            e.ToTable("DevicePushTokens");
+            e.HasKey(x => x.Id);
+            e.Property(x => x.Token).HasMaxLength(500).IsRequired();
+            e.Property(x => x.Platform).HasMaxLength(32).IsRequired();
+            e.HasIndex(x => x.UserId);
+            e.HasIndex(x => x.Token).IsUnique();
             e.Ignore(x => x.DomainEvents);
         });
 

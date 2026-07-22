@@ -14,9 +14,8 @@ import { ApiError } from '../api/client';
 
 export function LoginScreen() {
   const { signIn } = useAuth();
-  // Seed demo: phone or email both work (Identity looks up PhoneNumber / Email).
-  const [email, setEmail] = useState('05559876543');
-  const [password, setPassword] = useState('Producer123!');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -28,8 +27,10 @@ export function LoginScreen() {
     } catch (e) {
       const message =
         e instanceof ApiError
-          ? 'Telefon veya şifre hatalı. Belediyenizle iletişime geçin.'
-          : 'Giriş yapılamadı. Bağlantınızı kontrol edin.';
+          ? e.status === 403
+            ? e.message
+            : 'Telefon / e-posta veya şifre hatalı.'
+          : 'Bağlantı yok. Tekrar dene.';
       setError(message);
     } finally {
       setLoading(false);
@@ -44,29 +45,29 @@ export function LoginScreen() {
       >
         <View style={styles.hero}>
           <Text style={styles.brand}>Tarım</Text>
-          <Text style={styles.subtitle}>Belediye hesabınızla giriş yapın.</Text>
+          <Text style={styles.subtitle}>Hesabınla devam et</Text>
         </View>
 
-        <Text style={styles.label}>Telefon / kullanıcı adı</Text>
         <TextInput
           autoCapitalize="none"
           autoCorrect={false}
           keyboardType="email-address"
           value={email}
           onChangeText={setEmail}
-          placeholder="0555… veya e-posta"
+          placeholder="Telefon veya e-posta"
           placeholderTextColor={colors.muted}
           style={styles.input}
+          accessibilityLabel="Telefon veya e-posta"
         />
 
-        <Text style={styles.label}>Şifre</Text>
         <TextInput
           secureTextEntry
           value={password}
           onChangeText={setPassword}
-          placeholder="Şifreniz"
+          placeholder="Şifre"
           placeholderTextColor={colors.muted}
           style={styles.input}
+          accessibilityLabel="Şifre"
         />
 
         {error ? <Text style={styles.error}>{error}</Text> : null}
@@ -74,10 +75,6 @@ export function LoginScreen() {
         <View style={styles.cta}>
           <PrimaryButton label="Giriş yap" onPress={onSubmit} loading={loading} />
         </View>
-
-        <Text style={styles.help}>
-          Hesabınız yoksa belediyenizin tarım birimini arayın.
-        </Text>
       </KeyboardAvoidingView>
     </Screen>
   );
@@ -86,47 +83,38 @@ export function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: spacing.xxl,
+    paddingHorizontal: spacing.screen,
     paddingBottom: spacing.xxxl,
     justifyContent: 'center',
   },
   hero: {
-    marginBottom: spacing.xxxl,
+    marginBottom: spacing.xxxl + spacing.md,
   },
   brand: {
     ...typography.brand,
     marginBottom: spacing.sm,
   },
   subtitle: {
-    ...typography.body,
-  },
-  label: {
-    ...typography.label,
-    marginBottom: spacing.sm,
-    marginTop: spacing.md,
+    ...typography.helper,
   },
   input: {
-    minHeight: tap.primary,
-    borderWidth: 1.5,
-    borderColor: colors.border,
+    ...typography.body,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderStrong,
+    backgroundColor: colors.surface,
     borderRadius: radii.md,
     paddingHorizontal: spacing.lg,
-    fontSize: 17,
-    backgroundColor: colors.surface,
+    paddingVertical: Platform.OS === 'ios' ? 16 : 14,
     color: colors.text,
+    minHeight: tap.min,
+    marginBottom: spacing.md,
   },
   error: {
+    ...typography.helper,
     color: colors.danger,
-    fontSize: 15,
-    lineHeight: 22,
-    marginTop: spacing.md,
+    marginBottom: spacing.sm,
   },
   cta: {
-    marginTop: spacing.xxl,
-  },
-  help: {
-    ...typography.helper,
-    marginTop: spacing.xxl,
-    textAlign: 'center',
+    marginTop: spacing.lg,
   },
 });

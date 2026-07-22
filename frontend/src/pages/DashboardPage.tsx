@@ -90,6 +90,11 @@ export function DashboardPage() {
       <header className="ops-hero">
         <div className="ops-hero-text">
           <h2>{title}</h2>
+          <p>
+            {admin
+              ? 'Belediye Tarım Operasyon Platformu'
+              : 'Atandığınız arazilerdeki saha operasyonları'}
+          </p>
         </div>
       </header>
 
@@ -226,11 +231,13 @@ export function DashboardPage() {
             <aside className="ops-people">
               <Link to="/producers" className="ops-nav-card">
                 <div className="ops-nav-card-text">
-                  <strong>Üreticiler</strong>
+                  <strong>{admin ? 'Üreticiler' : 'Atanan üreticiler'}</strong>
                   <span>
                     {data.producers > 0
                       ? `${data.producers} üretici`
-                      : 'Listeye git'}
+                      : admin
+                        ? 'Listeye git'
+                        : 'Atama bekleniyor'}
                   </span>
                 </div>
                 <ChevronRight className="ops-nav-card-chevron" aria-hidden />
@@ -255,15 +262,15 @@ export function DashboardPage() {
                 <span className="ops-shortcut-icon" aria-hidden>
                   <Map className="size-4" />
                 </span>
-                <strong>Araziler</strong>
-                <span>Liste ve detay</span>
+                <strong>{admin ? 'Araziler' : 'Arazilerim'}</strong>
+                <span>{admin ? 'Liste ve detay' : 'Atanan araziler'}</span>
               </Link>
               <Link to="/messages" className="ops-shortcut">
                 <span className="ops-shortcut-icon" aria-hidden>
                   <MessageSquare className="size-4" />
                 </span>
                 <strong>Mesajlar</strong>
-                <span>Personel sohbeti</span>
+                <span>{admin ? 'Personel sohbeti' : 'Yöneticiye yaz'}</span>
               </Link>
               <Link to="/#uyarilar" className="ops-shortcut">
                 <span className="ops-shortcut-icon ops-shortcut-icon-warn" aria-hidden>
@@ -277,7 +284,7 @@ export function DashboardPage() {
                   <Workflow className="size-4" />
                 </span>
                 <strong>İş akışları</strong>
-                <span>Şablonlar</span>
+                <span>{admin ? 'Şablonlar' : 'Şablon ekle / ata'}</span>
               </Link>
               {admin ? (
                 <Link to="/lands#yeni" className="ops-shortcut">

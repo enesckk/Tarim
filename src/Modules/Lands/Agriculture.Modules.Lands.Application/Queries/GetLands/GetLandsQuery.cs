@@ -1,5 +1,6 @@
 using Agriculture.Application.Abstractions.Messaging;
 using Agriculture.Modules.Lands.Application.Abstractions;
+using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.SharedKernel.Results;
 
 namespace Agriculture.Modules.Lands.Application.Queries.GetLands;
@@ -21,25 +22,35 @@ public sealed record LandDto(
     string? Neighborhood = null,
     string? CadastralBlock = null,
     string? SoilNotes = null,
-    string? MapStatus = null);
+    string? MapStatus = null,
+    string? City = null,
+    string? District = null);
 
-public sealed record GetLandsQuery(Guid? OfficerUserIdFilter = null) : IQuery<IReadOnlyList<LandDto>>;
+public sealed record GetLandsQuery(
+    Guid? OfficerUserIdFilter = null,
+    Guid? ProducerIdFilter = null) : IQuery<IReadOnlyList<LandDto>>;
 
 internal sealed class GetLandsQueryHandler(ILandRepository repository)
     : IQueryHandler<GetLandsQuery, IReadOnlyList<LandDto>>
 {
     public async Task<Result<IReadOnlyList<LandDto>>> Handle(GetLandsQuery request, CancellationToken cancellationToken)
     {
-        var lands = request.OfficerUserIdFilter.HasValue
-            ? await repository.GetByOfficerUserIdAsync(request.OfficerUserIdFilter.Value, cancellationToken)
-            : await repository.GetAllAsync(cancellationToken);
+        IReadOnlyList<Land> lands;
+        if (request.ProducerIdFilter.HasValue)
+            lands = await repository.GetByProducerIdAsync(request.ProducerIdFilter.Value, cancellationToken);
+        else if (request.OfficerUserIdFilter.HasValue)
+            lands = await repository.GetByOfficerUserIdAsync(request.OfficerUserIdFilter.Value, cancellationToken);
+        else
+            lands = await repository.GetAllAsync(cancellationToken);
 
         var dtos = lands.Select(l => new LandDto(
             l.Id, l.Name, l.ParcelNumber, l.SizeInDecares, l.Latitude, l.Longitude,
             l.SoilType, l.ProducerId, l.AssignedOfficerUserId, l.IsActive,
             Neighborhood: l.Neighborhood,
             CadastralBlock: l.CadastralBlock,
-            SoilNotes: l.SoilNotes)).ToList();
+            SoilNotes: l.SoilNotes,
+            City: l.City,
+            District: l.District)).ToList();
         return Result.Success<IReadOnlyList<LandDto>>(dtos);
     }
 }

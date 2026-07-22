@@ -6,9 +6,14 @@ public enum ProductionTaskStatus
 {
     Pending = 0,
     InProgress = 1,
+    /// <summary>Uzman/admin onayladı — nihai tamamlanma.</summary>
     Completed = 2,
     Overdue = 3,
-    Cancelled = 4
+    Cancelled = 4,
+    /// <summary>Üretici gönderdi; uzman/admin onayı bekleniyor.</summary>
+    AwaitingApproval = 5,
+    /// <summary>Uzman düzeltme istedi — üretici yeniden göndermeli.</summary>
+    NeedsRevision = 6
 }
 
 public sealed class ProductionTask : AuditableEntity
@@ -29,7 +34,13 @@ public sealed class ProductionTask : AuditableEntity
     public bool RequiresQuantity { get; private set; }
     public bool RequiresDate { get; private set; }
     public string? QuantityUnit { get; private set; }
+    /// <summary>Copied from workflow step — training video for the producer.</summary>
+    public string? VideoUrl { get; private set; }
+    /// <summary>Copied from workflow step — guidance image for the producer.</summary>
+    public string? ImageUrl { get; private set; }
     public string? CompletionNotes { get; private set; }
+    /// <summary>Officer feedback when requesting revision.</summary>
+    public string? RevisionReason { get; private set; }
     public DateTime? CompletedAtUtc { get; private set; }
     public IReadOnlyCollection<TaskPhoto> Photos => _photos.AsReadOnly();
 
@@ -44,7 +55,9 @@ public sealed class ProductionTask : AuditableEntity
         bool requiresPhoto = false,
         bool requiresQuantity = false,
         bool requiresDate = false,
-        string? quantityUnit = null)
+        string? quantityUnit = null,
+        string? videoUrl = null,
+        string? imageUrl = null)
     {
         return new ProductionTask
         {
@@ -58,13 +71,23 @@ public sealed class ProductionTask : AuditableEntity
             RequiresPhoto = requiresPhoto,
             RequiresQuantity = requiresQuantity,
             RequiresDate = requiresDate,
-            QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null
+            QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null,
+            VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim(),
+            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim()
         };
     }
 
+    public bool IsOpenWork =>
+        Status is ProductionTaskStatus.Pending
+            or ProductionTaskStatus.InProgress
+            or ProductionTaskStatus.Overdue
+            or ProductionTaskStatus.NeedsRevision;
+
     public void ReassignProducer(Guid producerId)
     {
-        if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
+        if (Status is ProductionTaskStatus.Completed
+            or ProductionTaskStatus.Cancelled
+            or ProductionTaskStatus.AwaitingApproval)
             return;
 
         ProducerId = producerId;
@@ -77,19 +100,73 @@ public sealed class ProductionTask : AuditableEntity
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
+    /// <summary>Producer submits work for uzman/admin approval (not final yet).</summary>
     public void Complete(string? notes = null)
     {
+        if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
+            throw new InvalidOperationException("Bu görev zaten kapanmış.");
+
+        if (Status is ProductionTaskStatus.AwaitingApproval)
+            throw new InvalidOperationException("Bu görev zaten onay bekliyor.");
+
         if (RequiresPhoto && _photos.Count == 0)
             throw new InvalidOperationException("Photo is required to complete this task.");
 
-        Status = ProductionTaskStatus.Completed;
+        Status = ProductionTaskStatus.AwaitingApproval;
         CompletionNotes = notes;
+        RevisionReason = null;
         CompletedAtUtc = DateTime.UtcNow;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    public void Approve()
+    {
+        if (Status is not ProductionTaskStatus.AwaitingApproval)
+            throw new InvalidOperationException("Yalnızca onay bekleyen görevler onaylanabilir.");
+
+        Status = ProductionTaskStatus.Completed;
+        RevisionReason = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    /// <summary>Officer sends task back to producer for fixes.</summary>
+    public void RequestRevision(string reason)
+    {
+        if (Status is not ProductionTaskStatus.AwaitingApproval)
+            throw new InvalidOperationException("Yalnızca onay bekleyen görevler düzeltmeye gönderilebilir.");
+
+        if (string.IsNullOrWhiteSpace(reason))
+            throw new InvalidOperationException("Düzeltme nedeni gerekli.");
+
+        Status = ProductionTaskStatus.NeedsRevision;
+        RevisionReason = reason.Trim();
+        CompletedAtUtc = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    /// <summary>Sync producer-facing guidance from updated workflow step.</summary>
+    public void UpdateGuidance(
+        string? description,
+        string? videoUrl,
+        string? imageUrl,
+        Guid? workflowStepId = null)
+    {
+        if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
+            return;
+
+        Description = description;
+        VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim();
+        ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+        if (workflowStepId.HasValue)
+            WorkflowStepId = workflowStepId;
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
     public TaskPhoto AddPhoto(string storageKey, string fileName, string contentType)
     {
+        if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
+            throw new InvalidOperationException("Kapalı göreve fotoğraf eklenemez.");
+
         var photo = TaskPhoto.Create(Id, storageKey, fileName, contentType);
         _photos.Add(photo);
         UpdatedAtUtc = DateTime.UtcNow;
@@ -98,7 +175,9 @@ public sealed class ProductionTask : AuditableEntity
 
     public void MarkOverdue()
     {
-        if (Status is ProductionTaskStatus.Pending or ProductionTaskStatus.InProgress)
+        if (Status is ProductionTaskStatus.Pending
+            or ProductionTaskStatus.InProgress
+            or ProductionTaskStatus.NeedsRevision)
             Status = ProductionTaskStatus.Overdue;
     }
 }

@@ -29,6 +29,8 @@ type StepDraft = {
   requiresQuantity: boolean
   requiresDate: boolean
   quantityUnit: string
+  videoUrl: string
+  imageUrl: string
   expanded: boolean
 }
 
@@ -45,6 +47,8 @@ const blankStep = (
   requiresQuantity: false,
   requiresDate: false,
   quantityUnit: '',
+  videoUrl: '',
+  imageUrl: '',
   expanded,
 })
 
@@ -234,6 +238,8 @@ function createDomatesTemplateSteps(): StepDraft[] {
     requiresQuantity: Boolean(r.quantity),
     requiresDate: Boolean(r.date),
     quantityUnit: r.unit ?? '',
+    videoUrl: '',
+    imageUrl: '',
     expanded: i === 0,
   }))
 }
@@ -251,6 +257,8 @@ function toDrafts(steps: WorkflowStep[]): StepDraft[] {
       requiresQuantity: Boolean(s.requiresQuantity),
       requiresDate: Boolean(s.requiresDate),
       quantityUnit: s.quantityUnit ?? '',
+      videoUrl: s.videoUrl ?? '',
+      imageUrl: s.imageUrl ?? '',
       expanded: false,
     }))
 }
@@ -264,6 +272,8 @@ function evidenceChips(step: StepDraft | WorkflowStep): string[] {
     chips.push(unit ? `Miktar (${unit})` : 'Miktar')
   }
   if ('requiresDate' in step && step.requiresDate) chips.push('Tarih')
+  if ('videoUrl' in step && step.videoUrl) chips.push('Video')
+  if ('imageUrl' in step && step.imageUrl) chips.push('Görsel')
   return chips
 }
 
@@ -325,6 +335,8 @@ export function WorkflowsPage() {
           requiresQuantity: s.requiresQuantity,
           requiresDate: s.requiresDate,
           quantityUnit: s.requiresQuantity ? s.quantityUnit.trim() || null : null,
+          videoUrl: s.videoUrl.trim() || null,
+          imageUrl: s.imageUrl.trim() || null,
         })),
       }
       if (editingId) {
@@ -732,6 +744,68 @@ export function WorkflowsPage() {
                             rows={2}
                           />
                         </label>
+
+                        <div className="wf-step-grid">
+                          <label className="wf-field">
+                            Eğitim videosu (URL)
+                            <input
+                              value={step.videoUrl}
+                              onChange={(e) =>
+                                updateStep(index, { videoUrl: e.target.value })
+                              }
+                              placeholder="https://youtube.com/… veya video linki"
+                            />
+                          </label>
+                          <label className="wf-field">
+                            Eğitim görseli
+                            <input
+                              value={step.imageUrl}
+                              onChange={(e) =>
+                                updateStep(index, { imageUrl: e.target.value })
+                              }
+                              placeholder="Görsel URL veya yükleyin"
+                            />
+                            <input
+                              type="file"
+                              accept="image/jpeg,image/png,image/webp,image/gif"
+                              className="wf-file"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (!file || !token) return
+                                void (async () => {
+                                  const form = new FormData()
+                                  form.append('file', file)
+                                  const res = await fetch(
+                                    `${import.meta.env.VITE_API_URL ?? 'http://localhost:5109'}/api/workflows/media`,
+                                    {
+                                      method: 'POST',
+                                      headers: { Authorization: `Bearer ${token}` },
+                                      body: form,
+                                    },
+                                  )
+                                  if (!res.ok) return
+                                  const body = (await res.json()) as {
+                                    storageKey?: string
+                                    url?: string
+                                  }
+                                  const key = body.storageKey || body.url
+                                  if (key) updateStep(index, { imageUrl: key })
+                                })()
+                              }}
+                            />
+                            {step.imageUrl ? (
+                              <img
+                                src={
+                                  step.imageUrl.startsWith('http')
+                                    ? step.imageUrl
+                                    : `${import.meta.env.VITE_API_URL ?? 'http://localhost:5109'}/${step.imageUrl.replace(/^\//, '')}`
+                                }
+                                alt=""
+                                className="wf-guidance-thumb"
+                              />
+                            ) : null}
+                          </label>
+                        </div>
 
                         <div className="wf-evidence">
                           <span className="wf-evidence-label">Zorunlu alanlar</span>

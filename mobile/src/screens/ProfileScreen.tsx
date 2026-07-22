@@ -1,14 +1,38 @@
 import React, { useCallback, useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import {
+  Alert,
+  Linking,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../auth/AuthContext';
-import type { MeResponse } from '../api/client';
-import { LoadingBlock, PrimaryButton, Screen, ScreenHeader } from '../components/ui';
-import { colors, radii, spacing, typography } from '../theme';
+import { isOfficer, roleLabel } from '../auth/roles';
+import type { LandDto, MeResponse } from '../api/client';
+import { LoadingBlock, PrimaryButton, Screen } from '../components/ui';
+import { colors, radii, spacing, tap, typography } from '../theme';
+import type { RootStackParamList } from '../navigation/types';
+
+function landLocation(land: LandDto) {
+  return [land.neighborhood, land.district, land.city].filter(Boolean).join(', ');
+}
+
+function openLandOnMap(land: LandDto) {
+  if (land.latitude == null || land.longitude == null) return;
+  const url = `https://maps.apple.com/?ll=${land.latitude},${land.longitude}&q=${encodeURIComponent(land.name)}`;
+  void Linking.openURL(url);
+}
 
 export function ProfileScreen() {
   const { user, authFetch, signOut } = useAuth();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const officer = isOfficer(user?.roles);
   const [me, setMe] = useState<MeResponse | null>(null);
+  const [lands, setLands] = useState<LandDto[]>([]);
   const [loading, setLoading] = useState(true);
 
   useFocusEffect(
@@ -17,10 +41,15 @@ export function ProfileScreen() {
       setLoading(true);
       (async () => {
         try {
-          const data = await authFetch<MeResponse>('/api/me');
-          if (!cancelled) setMe(data);
+          const meData = await authFetch<MeResponse>('/api/me');
+          if (!cancelled) setMe(meData);
+          const landData = await authFetch<LandDto[]>('/api/lands');
+          if (!cancelled) setLands(landData);
         } catch {
-          if (!cancelled) setMe(null);
+          if (!cancelled) {
+            setMe(null);
+            setLands([]);
+          }
         } finally {
           if (!cancelled) setLoading(false);
         }
@@ -46,58 +75,163 @@ export function ProfileScreen() {
 
   if (loading) return <LoadingBlock />;
 
+  const roles = me?.roles ?? user?.roles;
+  const displayName =
+    me?.fullName || user?.fullName || (officer ? 'Tarım Uzmanı' : 'Üretici');
+  const contact = me?.phone || me?.email || user?.email || '';
+
   return (
     <Screen>
-      <ScreenHeader title="Profil" subtitle="Hesap bilgileriniz." />
-      <View style={styles.container}>
-        <View style={styles.card}>
-          <Text style={styles.name}>{me?.fullName || user?.fullName || 'Üretici'}</Text>
-          <Text style={styles.meta}>{me?.phone || me?.email || user?.email}</Text>
-          {me?.email && me?.phone ? (
-            <Text style={styles.meta}>{me.email}</Text>
-          ) : null}
-        </View>
-        <Text style={styles.help}>
-          Yardım: Belediyenizin tarım birimini arayın.
-        </Text>
-        <Text style={styles.version}>Sürüm 1.0.0</Text>
-        <View style={styles.actions}>
-          <PrimaryButton label="Çıkış yap" tone="danger" onPress={logout} />
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Profil</Text>
       </View>
+
+      <ScrollView
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.identity}>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.meta}>
+            {[roleLabel(roles), contact].filter(Boolean).join(' · ')}
+          </Text>
+        </View>
+
+        <View style={styles.landsBlock}>
+          <Text style={styles.landsTitle}>
+            {officer ? 'Arazilerim' : 'Arazilerim'}
+          </Text>
+          {lands.length === 0 ? (
+            <Text style={styles.emptyLands}>
+              {officer ? 'Henüz atanmış arazi yok' : 'Kayıtlı arazi bulunamadı'}
+            </Text>
+          ) : (
+            lands.map((land) => {
+              const location = landLocation(land);
+              const hasCoords = land.latitude != null && land.longitude != null;
+              const meta = [
+                land.parcelNumber ? `Parsel ${land.parcelNumber}` : null,
+                land.sizeInDecares != null
+                  ? `${Number(land.sizeInDecares).toLocaleString('tr-TR')} da`
+                  : null,
+                land.activeCropType,
+                land.activeWorkflowName,
+              ].filter(Boolean);
+
+              return (
+                <View key={land.id} style={styles.landCard}>
+                  <Text style={styles.landName}>{land.name}</Text>
+                  {location ? (
+                    <Text style={styles.landLine}>{location}</Text>
+                  ) : null}
+                  {meta.length > 0 ? (
+                    <Text style={styles.landLine}>{meta.join(' · ')}</Text>
+                  ) : null}
+                  {land.soilType ? (
+                    <Text style={styles.landLine}>Toprak: {land.soilType}</Text>
+                  ) : null}
+                  {hasCoords ? (
+                    <Pressable
+                      onPress={() => openLandOnMap(land)}
+                      style={({ pressed }) => [
+                        styles.mapLink,
+                        pressed && styles.mapLinkPressed,
+                      ]}
+                      accessibilityRole="link"
+                      accessibilityLabel="Haritada göster"
+                    >
+                      <Text style={styles.mapLinkText}>Haritada göster</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              );
+            })
+          )}
+        </View>
+
+        <View style={styles.actions}>
+          {officer ? (
+            <PrimaryButton
+              label="Üretici ara / ara"
+              onPress={() => navigation.navigate('ProducerSearch')}
+            />
+          ) : (
+            <PrimaryButton
+              label="Uzmana mesaj yaz"
+              onPress={() =>
+                navigation.navigate('MainTabs', { screen: 'Messages' })
+              }
+            />
+          )}
+          <PrimaryButton label="Çıkış yap" tone="secondary" onPress={logout} />
+        </View>
+      </ScrollView>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  header: {
     paddingHorizontal: spacing.screen,
+    paddingTop: spacing.sm,
+    paddingBottom: spacing.xl,
   },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: radii.lg,
-    padding: spacing.xl,
-    borderWidth: 1,
-    borderColor: colors.border,
+  headerTitle: { ...typography.screenTitle },
+  container: {
+    flexGrow: 1,
+    paddingHorizontal: spacing.screen,
+    paddingBottom: spacing.xxxl,
   },
-  name: {
-    ...typography.sectionTitle,
+  identity: {
+    paddingVertical: spacing.lg,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
+    marginBottom: spacing.xl,
   },
+  name: { ...typography.sectionTitle },
   meta: {
     ...typography.helper,
     marginTop: spacing.sm,
   },
-  help: {
-    ...typography.helper,
-    marginTop: spacing.xxl,
+  landsBlock: {
+    gap: spacing.md,
+    marginBottom: spacing.xl,
   },
-  version: {
+  landsTitle: {
     ...typography.caption,
-    marginTop: spacing.md,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  emptyLands: { ...typography.helper },
+  landCard: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    padding: spacing.lg,
+    gap: 4,
+  },
+  landName: {
+    ...typography.bodyStrong,
+    marginBottom: 2,
+  },
+  landLine: {
+    ...typography.helper,
+  },
+  mapLink: {
+    alignSelf: 'flex-start',
+    marginTop: spacing.sm,
+    minHeight: tap.min,
+    justifyContent: 'center',
+  },
+  mapLinkPressed: { opacity: 0.7 },
+  mapLinkText: {
+    ...typography.bodyStrong,
+    color: colors.primary,
   },
   actions: {
     marginTop: 'auto',
     paddingBottom: spacing.lg,
+    gap: spacing.md,
   },
 });

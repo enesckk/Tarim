@@ -23,7 +23,7 @@ internal sealed class CompleteTaskCommandHandler(ITaskRepository repository, IUn
         catch (InvalidOperationException ex)
         {
             var message = ex.Message.Contains("Photo", StringComparison.OrdinalIgnoreCase)
-                ? "Bu görevi tamamlamak için önce fotoğraf yükleyin."
+                ? "Bu görevi göndermek için önce fotoğraf yükleyin."
                 : ex.Message;
             return Result.Failure(new Error("Task.InvalidState", message));
         }

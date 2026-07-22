@@ -731,6 +731,10 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly?>("DueDate")
                         .HasColumnType("date");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
@@ -769,6 +773,10 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid?>("WorkflowStepId")
                         .HasColumnType("uniqueidentifier");
@@ -911,6 +919,10 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                     b.Property<int?>("DueDaysFromStart")
                         .HasColumnType("int");
 
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -931,6 +943,10 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("RequiresQuantity")
                         .HasColumnType("bit");
+
+                    b.Property<string>("VideoUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<Guid>("WorkflowId")
                         .HasColumnType("uniqueidentifier");

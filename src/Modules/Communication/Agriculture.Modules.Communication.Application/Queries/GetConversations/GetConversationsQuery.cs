@@ -14,7 +14,8 @@ public sealed record ConversationListItemDto(
     ConversationType Type = ConversationType.Expert,
     Guid? LandId = null,
     Guid? OfficerUserId = null,
-    Guid? AdminUserId = null);
+    Guid? AdminUserId = null,
+    bool HasUnread = false);
 
 public sealed record GetConversationsQuery(Guid UserId) : IQuery<IReadOnlyList<ConversationListItemDto>>;
 
@@ -26,13 +27,16 @@ internal sealed class GetConversationsQueryHandler(IConversationRepository repos
         CancellationToken cancellationToken)
     {
         var items = await repository.GetByParticipantAsync(request.UserId, cancellationToken);
-        var dtos = items.Select(Map).ToList();
+        var dtos = items.Select(c => Map(c, request.UserId)).ToList();
         return Result.Success<IReadOnlyList<ConversationListItemDto>>(dtos);
     }
 
-    internal static ConversationListItemDto Map(Conversation c)
+    internal static ConversationListItemDto Map(Conversation c, Guid? viewerUserId = null)
     {
         var last = c.Messages.OrderByDescending(m => m.SentAtUtc).FirstOrDefault();
+        var hasUnread = viewerUserId.HasValue
+            && last is not null
+            && last.SenderUserId != viewerUserId.Value;
         return new ConversationListItemDto(
             c.Id,
             c.Subject,
@@ -42,6 +46,7 @@ internal sealed class GetConversationsQueryHandler(IConversationRepository repos
             c.Type,
             c.LandId,
             c.OfficerUserId,
-            c.AdminUserId);
+            c.AdminUserId,
+            hasUnread);
     }
 }

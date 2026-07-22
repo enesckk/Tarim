@@ -20,7 +20,7 @@ internal sealed class GetStaffConversationsQueryHandler(IConversationRepository 
             ? await repository.GetForOfficerAsync(request.OfficerUserIdFilter.Value, cancellationToken)
             : await repository.GetAllAsync(cancellationToken);
 
-        var dtos = items.Select(GetConversationsQueryHandler.Map).ToList();
+        var dtos = items.Select(c => GetConversationsQueryHandler.Map(c)).ToList();
         return Result.Success<IReadOnlyList<ConversationListItemDto>>(dtos);
     }
 }

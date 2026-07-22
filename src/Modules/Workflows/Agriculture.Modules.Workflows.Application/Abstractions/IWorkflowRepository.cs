@@ -7,7 +7,7 @@ public interface IWorkflowRepository
     Task<Workflow?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Workflow>> GetAllAsync(CancellationToken cancellationToken = default);
     Task AddAsync(Workflow workflow, CancellationToken cancellationToken = default);
-    void Update(Workflow workflow);
+    void Update(Workflow workflow, IReadOnlyList<WorkflowStep>? removedSteps = null);
 }
 
 public interface IProductionWorkflowRepository

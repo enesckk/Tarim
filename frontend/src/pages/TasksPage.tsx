@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { API_BASE, api } from '../api/client'
 import type { Producer, TaskItem } from '../api/types'
 import { TASK_STATUS } from '../api/types'
@@ -11,8 +11,11 @@ function photoUrl(storageKey: string) {
   return `${API_BASE}${path}`
 }
 
+const AWAITING_APPROVAL = 5
+
 export function TasksPage() {
   const { token } = useAuth()
+  const queryClient = useQueryClient()
   const [producerId, setProducerId] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
@@ -31,6 +34,14 @@ export function TasksPage() {
     enabled: Boolean(token),
   })
 
+  const approveMutation = useMutation({
+    mutationFn: (taskId: string) =>
+      api(`/api/tasks/${taskId}/approve`, { method: 'POST' }, token),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['tasks'] })
+    },
+  })
+
   const items = useMemo(() => {
     const list = tasksQuery.data ?? []
     if (statusFilter === 'all') return list
@@ -43,7 +54,7 @@ export function TasksPage() {
         <div>
           <h1>Görevler</h1>
           <p>
-            Üreticilere atanan görevlerin operasyon görünümü — vadeler ve durumlar.
+            Üreticilere atanan görevlerin operasyon görünümü — vadeler, kanıt ve onay.
           </p>
         </div>
       </div>
@@ -77,6 +88,9 @@ export function TasksPage() {
         {tasksQuery.error && (
           <p className="error empty">{(tasksQuery.error as Error).message}</p>
         )}
+        {approveMutation.error && (
+          <p className="error empty">{(approveMutation.error as Error).message}</p>
+        )}
 
         {tasksQuery.isLoading ? (
           <p className="empty">Yükleniyor…</p>
@@ -90,21 +104,23 @@ export function TasksPage() {
                 <th>Vade</th>
                 <th>Durum</th>
                 <th>Fotoğraf</th>
+                <th>İşlem</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => {
                 const count = item.photoCount ?? item.photos?.length ?? 0
                 const first = item.photos?.[0]
+                const awaiting = item.status === AWAITING_APPROVAL
                 return (
                   <tr key={item.id}>
                     <td>
-                      <strong>{item.title}</strong>
-                      {item.description && (
-                        <div style={{ color: 'var(--muted)', fontSize: '0.92rem' }}>
-                          {item.description}
-                        </div>
-                      )}
+                      <div className="table-cell-stack">
+                        <strong>{item.title}</strong>
+                        {item.description ? (
+                          <span className="table-cell-sub">{item.description}</span>
+                        ) : null}
+                      </div>
                     </td>
                     <td>{item.dueDate ?? '—'}</td>
                     <td>
@@ -121,6 +137,20 @@ export function TasksPage() {
                         'Zorunlu — henüz yok'
                       ) : (
                         'Yok'
+                      )}
+                    </td>
+                    <td>
+                      {awaiting ? (
+                        <button
+                          type="button"
+                          className="btn primary"
+                          disabled={approveMutation.isPending}
+                          onClick={() => approveMutation.mutate(item.id)}
+                        >
+                          Onayla
+                        </button>
+                      ) : (
+                        '—'
                       )}
                     </td>
                   </tr>

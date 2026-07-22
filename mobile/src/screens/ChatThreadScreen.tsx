@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { useFocusEffect, useRoute, type RouteProp } from '@react-navigation/native';
 import { useAuth } from '../auth/AuthContext';
+import { isOfficer } from '../auth/roles';
 import type { ConversationDetail } from '../api/client';
 import { EmptyState, LoadingBlock, PrimaryButton, Screen } from '../components/ui';
 import { colors, radii, spacing, tap, typography } from '../theme';
@@ -17,6 +18,7 @@ import type { RootStackParamList } from '../navigation/types';
 
 export function ChatThreadScreen() {
   const { authFetch, user } = useAuth();
+  const officer = isOfficer(user?.roles);
   const route = useRoute<RouteProp<RootStackParamList, 'ChatThread'>>();
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
   const [body, setBody] = useState('');
@@ -96,7 +98,9 @@ export function ChatThreadScreen() {
           contentContainerStyle={styles.list}
           ListEmptyComponent={
             <Text style={styles.empty}>
-              Uzmanınıza yazın. Genelde aynı gün yanıtlanır.
+              {officer
+                ? 'Üreticiye yazın. Mesaj arazi sohbetine düşer.'
+                : 'Uzmanınıza yazın. Genelde aynı gün yanıtlanır.'}
             </Text>
           }
           renderItem={({ item }) => {

@@ -198,8 +198,9 @@ export function MessagesPage() {
         <div>
           <h1>Mesajlar</h1>
           <p>
-            Yönetici ↔ Tarım Uzmanı personel kanalı. Üretici sohbetleri ilgili{' '}
-            <strong>arazi merkezi</strong> sayfasındadır.
+            {admin
+              ? 'Tarım uzmanına yazın. Uzman Mesajlar’dan görür ve yanıtlar. Üretici sohbetleri arazi merkezindedir.'
+              : 'Yöneticiden gelen personel mesajları burada. Üretici sohbetleri atandığınız arazi merkezindedir.'}
           </p>
         </div>
       </div>

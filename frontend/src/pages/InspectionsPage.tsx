@@ -1,15 +1,18 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import type { Inspection, Land, Producer } from '../api/types'
+import type { Inspection, Land, Producer, StaffUser } from '../api/types'
 import { INSPECTION_RESULT, INSPECTION_STATUS } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import { isAdmin, isOfficer } from '../auth/roles'
 import '../layout/layout.css'
 
 export function InspectionsPage() {
   const { token, user } = useAuth()
+  const admin = isAdmin(user?.roles)
+  const officer = isOfficer(user?.roles) && !admin
   const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
   const [showForm, setShowForm] = useState(false)
@@ -17,6 +20,7 @@ export function InspectionsPage() {
     title: '',
     landId: '',
     producerId: '',
+    inspectorUserId: '',
     scheduledDate: new Date().toISOString().slice(0, 10),
     description: '',
   })
@@ -41,18 +45,25 @@ export function InspectionsPage() {
     enabled: Boolean(token),
   })
 
+  const officersQuery = useQuery({
+    queryKey: ['officers', 'inspections'],
+    queryFn: () => api<StaffUser[]>('/api/users/officers', {}, token),
+    enabled: Boolean(token && admin),
+  })
+
   /** Deep link from arazi merkezi: /inspections?landId=… */
   useEffect(() => {
     const landId = searchParams.get('landId')
-    if (!landId) return
+    if (!landId || !admin) return
     const land = (landsQuery.data ?? []).find((l) => l.id === landId)
     setShowForm(true)
     setForm((prev) => ({
       ...prev,
       landId,
       producerId: land?.producerId ?? prev.producerId,
+      inspectorUserId: land?.assignedOfficerUserId ?? prev.inspectorUserId,
     }))
-  }, [searchParams, landsQuery.data])
+  }, [searchParams, landsQuery.data, admin])
 
   const create = useMutation({
     mutationFn: () =>
@@ -64,7 +75,7 @@ export function InspectionsPage() {
             title: form.title,
             landId: form.landId,
             producerId: form.producerId,
-            inspectorUserId: user?.userId,
+            inspectorUserId: form.inspectorUserId || user?.userId,
             scheduledDate: form.scheduledDate,
             description: form.description || null,
             seasonId: null,
@@ -79,11 +90,13 @@ export function InspectionsPage() {
         title: '',
         landId: '',
         producerId: '',
+        inspectorUserId: '',
         scheduledDate: new Date().toISOString().slice(0, 10),
         description: '',
       })
       await queryClient.invalidateQueries({ queryKey: ['inspections'] })
       await queryClient.invalidateQueries({ queryKey: ['operations-center'] })
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
     },
   })
 
@@ -118,27 +131,48 @@ export function InspectionsPage() {
     complete.mutate()
   }
 
-  const items = inspectionsQuery.data ?? []
   const producers = producersQuery.data ?? []
   const lands = landsQuery.data ?? []
+  const officers = officersQuery.data ?? []
+
+  const items = useMemo(() => {
+    const all = inspectionsQuery.data ?? []
+    if (!officer || !user?.userId) return all
+    // Officer: assigned to them as inspector, or on their lands (API already scopes lands)
+    return all.filter(
+      (i) =>
+        i.inspectorUserId === user.userId ||
+        lands.some((l) => l.id === i.landId && l.assignedOfficerUserId === user.userId),
+    )
+  }, [inspectionsQuery.data, officer, user?.userId, lands])
+
+  const landName = (id: string) => lands.find((l) => l.id === id)?.name ?? id.slice(0, 8)
+  const officerName = (id: string) =>
+    officers.find((o) => o.id === id)?.fullName ?? (id === user?.userId ? 'Siz' : 'Uzman')
 
   return (
     <section>
       <div className="page-header">
         <div>
-          <h1>Denetimler</h1>
-          <p>Saha doğrulamalarını planlayın ve tamamlayın — hasat uygunluğunu etkiler.</p>
+          <h1>{officer ? 'Denetimlerim' : 'Denetimler'}</h1>
+          <p>
+            {officer
+              ? 'Size atanan saha denetimleri — planlananları tamamlayın.'
+              : 'Tarım uzmanına denetim atayın; uzman Denetimlerim listesinde görür.'}
+          </p>
         </div>
-        <button type="button" className="primary-btn" onClick={() => setShowForm((v) => !v)}>
-          {showForm ? 'Formu kapat' : 'Denetim planla'}
-        </button>
+        {admin ? (
+          <button type="button" className="primary-btn" onClick={() => setShowForm((v) => !v)}>
+            {showForm ? 'Formu kapat' : 'Denetim ata'}
+          </button>
+        ) : null}
       </div>
 
       {create.error && <p className="error">{(create.error as Error).message}</p>}
       {complete.error && <p className="error">{(complete.error as Error).message}</p>}
 
       <div className="panel">
-        {showForm && (
+        {showForm && admin && (
           <form className="form-grid two-col" onSubmit={onSubmit}>
             <label>
               Başlık
@@ -183,6 +217,7 @@ export function InspectionsPage() {
                     ...form,
                     landId,
                     producerId: land?.producerId || form.producerId,
+                    inspectorUserId: land?.assignedOfficerUserId || form.inspectorUserId,
                   })
                 }}
                 required
@@ -191,6 +226,21 @@ export function InspectionsPage() {
                 {lands.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Atanan uzman
+              <select
+                value={form.inspectorUserId}
+                onChange={(e) => setForm({ ...form, inspectorUserId: e.target.value })}
+                required
+              >
+                <option value="">Seçin</option>
+                {officers.map((o) => (
+                  <option key={o.id} value={o.id}>
+                    {o.fullName} ({o.email})
                   </option>
                 ))}
               </select>
@@ -204,7 +254,7 @@ export function InspectionsPage() {
             </label>
             <div className="full-span">
               <button type="submit" className="primary-btn" disabled={create.isPending}>
-                Kaydet
+                {create.isPending ? 'Atanıyor…' : 'Uzmana ata'}
               </button>
             </div>
           </form>
@@ -252,37 +302,51 @@ export function InspectionsPage() {
           <p className="error">{(inspectionsQuery.error as Error).message}</p>
         )}
         {!inspectionsQuery.isLoading && items.length === 0 && (
-          <p className="empty">Henüz denetim yok.</p>
+          <p className="empty">
+            {officer
+              ? 'Size atanmış denetim yok. Yönetici atayınca burada görünür.'
+              : 'Henüz denetim yok.'}
+          </p>
         )}
         {items.length > 0 && (
           <table className="table">
             <thead>
               <tr>
                 <th>Başlık</th>
+                <th>Arazi</th>
                 <th>Tarih</th>
                 <th>Durum</th>
+                {admin ? <th>Uzman</th> : null}
                 <th>Sonuç</th>
-                <th />
+                <th>İşlem</th>
               </tr>
             </thead>
             <tbody>
               {items.map((item) => (
                 <tr key={item.id}>
-                  <td>{item.title}</td>
+                  <td>
+                    <div className="table-cell-stack">
+                      <strong>{item.title}</strong>
+                    </div>
+                  </td>
+                  <td>{landName(item.landId)}</td>
                   <td>{item.scheduledDate}</td>
                   <td>
                     <span className="badge">{INSPECTION_STATUS[item.status] ?? '—'}</span>
                   </td>
+                  {admin ? <td>{officerName(item.inspectorUserId)}</td> : null}
                   <td>{INSPECTION_RESULT[item.result] ?? '—'}</td>
                   <td>
-                    {item.status !== 2 && item.status !== 3 && (
+                    {item.status !== 2 && item.status !== 3 ? (
                       <button
                         type="button"
-                        className="ghost-btn"
+                        className="primary-btn"
                         onClick={() => setCompleteId(item.id)}
                       >
                         Tamamla
                       </button>
+                    ) : (
+                      '—'
                     )}
                   </td>
                 </tr>

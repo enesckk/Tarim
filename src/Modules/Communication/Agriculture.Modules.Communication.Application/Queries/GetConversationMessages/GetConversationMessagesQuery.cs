@@ -34,20 +34,17 @@ internal sealed class GetConversationMessagesQueryHandler(IConversationRepositor
             return Result.Failure<ConversationDetailDto>(
                 new Error("Conversation.NotFound", "Conversation was not found."));
 
-        if (!request.StaffAccess && !conversation.IsParticipant(request.UserId))
+        if (!conversation.IsParticipant(request.UserId) && !request.StaffAccess)
             return Result.Failure<ConversationDetailDto>(
                 new Error("Conversation.Forbidden", "You are not a participant."));
 
-        // Admin staff access: always OK. Officer staff access: must be assigned officer or admin participant.
+        // StaffAccess is Admin-only bypass (set at endpoint). Officers must be participants.
         if (request.StaffAccess
             && conversation.Type == ConversationType.Expert
             && conversation.OfficerUserId.HasValue
-            && conversation.OfficerUserId != request.UserId
-            && conversation.AdminUserId != request.UserId)
+            && conversation.OfficerUserId != request.UserId)
         {
-            // Allow any Administrator via StaffAccess when OfficerUserId filter is not enforced here;
-            // endpoint passes StaffAccess for both Admin and Officer — Officer-only threads filtered in list.
-            // Keep detail readable for Admin (StaffAccess) even if not the assigned officer.
+            // Admin may open any expert thread; non-admin StaffAccess should not occur.
         }
 
         var messages = conversation.Messages

@@ -1,14 +1,17 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
+import { Navigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type { Season } from '../api/types'
 import { SEASON_STATUS } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import { isAdmin } from '../auth/roles'
 import '../layout/layout.css'
 
 export function SeasonsPage() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
+  const admin = isAdmin(user?.roles)
   const queryClient = useQueryClient()
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({
@@ -21,7 +24,7 @@ export function SeasonsPage() {
   const { data: items = [], error, isLoading } = useQuery({
     queryKey: ['seasons'],
     queryFn: () => api<Season[]>('/api/seasons', {}, token),
-    enabled: Boolean(token),
+    enabled: Boolean(token && admin),
   })
 
   const create = useMutation({
@@ -42,6 +45,8 @@ export function SeasonsPage() {
     },
   })
 
+  if (!admin) return <Navigate to="/" replace />
+
   function onSubmit(event: FormEvent) {
     event.preventDefault()
     create.mutate()
@@ -52,7 +57,7 @@ export function SeasonsPage() {
       <div className="page-header">
         <div>
           <h1>Sezonlar</h1>
-          <p>Üretim sezonlarını oluşturun ve başlatın.</p>
+          <p>Üretim sezonları — yalnızca yönetici oluşturur ve başlatır.</p>
         </div>
         <button type="button" className="primary-btn" onClick={() => setShowForm((v) => !v)}>
           {showForm ? 'Formu kapat' : 'Yeni sezon'}
@@ -95,7 +100,8 @@ export function SeasonsPage() {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
               />
             </label>
-            <div style={{ gridColumn: '1 / -1' }}>
+            {create.error && <p className="error">{(create.error as Error).message}</p>}
+            <div className="row-actions" style={{ gridColumn: '1 / -1' }}>
               <button className="primary-btn" type="submit" disabled={create.isPending}>
                 {create.isPending ? 'Kaydediliyor…' : 'Kaydet'}
               </button>
@@ -103,25 +109,19 @@ export function SeasonsPage() {
           </form>
         )}
 
-        {(error || create.error || start.error) && (
-          <p className="error empty">
-            {((start.error ?? create.error ?? error) as Error).message}
-          </p>
-        )}
-
+        {error && <p className="error empty">{(error as Error).message}</p>}
         {isLoading ? (
           <p className="empty">Yükleniyor…</p>
         ) : items.length === 0 ? (
-          <p className="empty">Henüz sezon kaydı yok.</p>
+          <p className="empty">Henüz sezon yok.</p>
         ) : (
           <table className="table">
             <thead>
               <tr>
                 <th>Ad</th>
                 <th>Yıl</th>
-                <th>Başlangıç</th>
                 <th>Durum</th>
-                <th></th>
+                <th />
               </tr>
             </thead>
             <tbody>
@@ -129,22 +129,18 @@ export function SeasonsPage() {
                 <tr key={item.id}>
                   <td>{item.name}</td>
                   <td>{item.year}</td>
-                  <td>{item.startDate}</td>
+                  <td>{SEASON_STATUS[item.status] ?? item.status}</td>
                   <td>
-                    <span className="badge">
-                      {SEASON_STATUS[item.status] ?? item.status}
-                    </span>
-                  </td>
-                  <td>
-                    {item.status === 0 && (
+                    {item.status === 0 ? (
                       <button
                         type="button"
                         className="ghost-btn"
+                        disabled={start.isPending}
                         onClick={() => start.mutate(item.id)}
                       >
                         Başlat
                       </button>
-                    )}
+                    ) : null}
                   </td>
                 </tr>
               ))}

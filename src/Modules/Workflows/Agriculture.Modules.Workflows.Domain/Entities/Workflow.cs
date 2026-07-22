@@ -39,7 +39,9 @@ public sealed class Workflow : AuditableEntity
         bool requiresPhoto = false,
         bool requiresQuantity = false,
         bool requiresDate = false,
-        string? quantityUnit = null)
+        string? quantityUnit = null,
+        string? videoUrl = null,
+        string? imageUrl = null)
     {
         var step = WorkflowStep.Create(
             Id,
@@ -50,7 +52,9 @@ public sealed class Workflow : AuditableEntity
             requiresPhoto,
             requiresQuantity,
             requiresDate,
-            quantityUnit);
+            quantityUnit,
+            videoUrl,
+            imageUrl);
         _steps.Add(step);
         UpdatedAtUtc = DateTime.UtcNow;
         return step;
@@ -68,6 +72,74 @@ public sealed class Workflow : AuditableEntity
     {
         _steps.Clear();
         UpdatedAtUtc = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Update steps in place (stable IDs) so open tasks keep WorkflowStepId.
+    /// Returns removed step entities for the repository to delete.
+    /// </summary>
+    public IReadOnlyList<WorkflowStep> SyncSteps(
+        IReadOnlyList<(
+            string Name,
+            string? Description,
+            int Order,
+            int? DueDaysFromStart,
+            bool RequiresPhoto,
+            bool RequiresQuantity,
+            bool RequiresDate,
+            string? QuantityUnit,
+            string? VideoUrl,
+            string? ImageUrl)> incoming)
+    {
+        var ordered = incoming.OrderBy(s => s.Order).ToList();
+        var removed = new List<WorkflowStep>();
+
+        // Update overlapping by position in order
+        var existingOrdered = _steps.OrderBy(s => s.Order).ToList();
+        var overlap = Math.Min(existingOrdered.Count, ordered.Count);
+        for (var i = 0; i < overlap; i++)
+        {
+            var cur = ordered[i];
+            existingOrdered[i].Update(
+                cur.Name,
+                cur.Description,
+                cur.Order,
+                cur.DueDaysFromStart,
+                cur.RequiresPhoto,
+                cur.RequiresQuantity,
+                cur.RequiresDate,
+                cur.QuantityUnit,
+                cur.VideoUrl,
+                cur.ImageUrl);
+        }
+
+        // Remove extras
+        for (var i = ordered.Count; i < existingOrdered.Count; i++)
+        {
+            var step = existingOrdered[i];
+            _steps.Remove(step);
+            removed.Add(step);
+        }
+
+        // Add new
+        for (var i = existingOrdered.Count; i < ordered.Count; i++)
+        {
+            var cur = ordered[i];
+            AddStep(
+                cur.Name,
+                cur.Description,
+                cur.Order,
+                cur.DueDaysFromStart,
+                cur.RequiresPhoto,
+                cur.RequiresQuantity,
+                cur.RequiresDate,
+                cur.QuantityUnit,
+                cur.VideoUrl,
+                cur.ImageUrl);
+        }
+
+        UpdatedAtUtc = DateTime.UtcNow;
+        return removed;
     }
 
     public void Activate()
@@ -95,6 +167,10 @@ public sealed class WorkflowStep : Entity
     public bool RequiresQuantity { get; private set; }
     public bool RequiresDate { get; private set; }
     public string? QuantityUnit { get; private set; }
+    /// <summary>Optional training video URL (YouTube / direct) shown to the producer.</summary>
+    public string? VideoUrl { get; private set; }
+    /// <summary>Optional guidance image path/URL shown to the producer.</summary>
+    public string? ImageUrl { get; private set; }
 
     public static WorkflowStep Create(
         Guid workflowId,
@@ -105,7 +181,9 @@ public sealed class WorkflowStep : Entity
         bool requiresPhoto,
         bool requiresQuantity = false,
         bool requiresDate = false,
-        string? quantityUnit = null)
+        string? quantityUnit = null,
+        string? videoUrl = null,
+        string? imageUrl = null)
     {
         return new WorkflowStep
         {
@@ -117,8 +195,34 @@ public sealed class WorkflowStep : Entity
             RequiresPhoto = requiresPhoto,
             RequiresQuantity = requiresQuantity,
             RequiresDate = requiresDate,
-            QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null
+            QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null,
+            VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim(),
+            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim()
         };
+    }
+
+    public void Update(
+        string name,
+        string? description,
+        int order,
+        int? dueDaysFromStart,
+        bool requiresPhoto,
+        bool requiresQuantity,
+        bool requiresDate,
+        string? quantityUnit,
+        string? videoUrl,
+        string? imageUrl)
+    {
+        Name = name.Trim();
+        Description = description;
+        Order = order;
+        DueDaysFromStart = dueDaysFromStart;
+        RequiresPhoto = requiresPhoto;
+        RequiresQuantity = requiresQuantity;
+        RequiresDate = requiresDate;
+        QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null;
+        VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim();
+        ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
     }
 }
 

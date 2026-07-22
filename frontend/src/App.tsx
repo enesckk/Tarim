@@ -18,6 +18,7 @@ import { InspectionsPage } from './pages/InspectionsPage'
 import { HarvestPage } from './pages/HarvestPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { ReportsPage } from './pages/ReportsPage'
+import { ApprovalsPage } from './pages/ApprovalsPage'
 
 function Protected({ children }: { children: ReactNode }) {
   const { token, user } = useAuth()
@@ -48,6 +49,7 @@ export default function App() {
           <Route path="lands/:landId" element={<LandDetailPage />} />
           <Route path="seasons" element={<SeasonsPage />} />
           <Route path="workflows" element={<WorkflowsPage />} />
+          <Route path="approvals" element={<ApprovalsPage />} />
           <Route path="tasks" element={<TasksPage />} />
           <Route path="inspections" element={<InspectionsPage />} />
           <Route path="harvest" element={<HarvestPage />} />

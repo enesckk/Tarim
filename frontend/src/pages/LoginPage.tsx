@@ -9,8 +9,8 @@ import '../layout/layout.css'
 export function LoginPage() {
   const { token, user, login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('admin@agriculture.local')
-  const [password, setPassword] = useState('Admin123!')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -78,9 +78,9 @@ export function LoginPage() {
           </button>
         </form>
         <div className="login-hint">
-          Demo: <code>admin@agriculture.local</code> / <code>Admin123!</code>
+          Demo yönetici: <code>admin@agriculture.local</code> / <code>Admin123!</code>
           <br />
-          Uzman: <code>uzman@agriculture.local</code> / <code>Officer123!</code>
+          Demo uzman (web + mobil): <code>uzman@agriculture.local</code> / <code>Officer123!</code>
         </div>
       </div>
     </div>

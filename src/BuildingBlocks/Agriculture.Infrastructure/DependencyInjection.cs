@@ -27,7 +27,9 @@ public static class DependencyInjection
         services.AddScoped<IUserContext, UserContext>();
 
         services.AddDbContext<AgricultureDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
+                .ConfigureWarnings(w =>
+                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AgricultureDbContext>());
         services.AddScoped<IProducerRepository, ProducerRepository>();

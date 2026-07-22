@@ -55,6 +55,9 @@ public sealed class ProducerNoteRepository(AgricultureDbContext db) : IProducerN
 
 public sealed class NotificationRepository(AgricultureDbContext db) : INotificationRepository
 {
+    public Task<Notification?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+        => db.Notifications.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
+
     public async Task<IReadOnlyList<Notification>> GetByUserAsync(
         Guid userId,
         CancellationToken cancellationToken = default)
@@ -63,8 +66,18 @@ public sealed class NotificationRepository(AgricultureDbContext db) : INotificat
             .OrderByDescending(x => x.CreatedAtUtc)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Notification>> GetUnreadByUserAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default)
+        => await db.Notifications
+            .Where(x => x.UserId == userId && !x.IsDeleted && !x.IsRead)
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(Notification notification, CancellationToken cancellationToken = default)
         => await db.Notifications.AddAsync(notification, cancellationToken);
+
+    public void Update(Notification notification) => db.Notifications.Update(notification);
 }
 
 public sealed class ConversationRepository(AgricultureDbContext db) : IConversationRepository
@@ -171,6 +184,14 @@ public sealed class LandRepository(AgricultureDbContext db) : ILandRepository
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<Land>> GetByProducerIdAsync(
+        Guid producerId,
+        CancellationToken cancellationToken = default)
+        => await db.Lands.AsNoTracking()
+            .Where(x => x.ProducerId == producerId)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
+
     public async Task AddAsync(Land land, CancellationToken cancellationToken = default)
         => await db.Lands.AddAsync(land, cancellationToken);
 
@@ -216,14 +237,10 @@ public sealed class WorkflowRepository(AgricultureDbContext db) : IWorkflowRepos
     public async Task AddAsync(Workflow workflow, CancellationToken cancellationToken = default)
         => await db.Workflows.AddAsync(workflow, cancellationToken);
 
-    public void Update(Workflow workflow)
+    public void Update(Workflow workflow, IReadOnlyList<WorkflowStep>? removedSteps = null)
     {
-        var keepIds = workflow.Steps.Select(s => s.Id).ToHashSet();
-        var orphans = db.WorkflowSteps.Local
-            .Where(s => s.WorkflowId == workflow.Id && !keepIds.Contains(s.Id))
-            .ToList();
-        if (orphans.Count > 0)
-            db.WorkflowSteps.RemoveRange(orphans);
+        if (removedSteps is { Count: > 0 })
+            db.WorkflowSteps.RemoveRange(removedSteps);
         db.Workflows.Update(workflow);
     }
 }

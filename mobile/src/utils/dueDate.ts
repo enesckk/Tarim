@@ -1,3 +1,5 @@
+import { TaskStatus } from './taskStatus';
+
 /** Parse API DateOnly (`YYYY-MM-DD`) as local calendar day. */
 export function parseDueDate(value: string): Date | null {
   const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(value.trim());
@@ -33,4 +35,34 @@ export function formatDueLabel(dueDate: string, now = new Date()): string {
   if (diff > 1) return `Son tarih: ${formatted} (${diff} gün sonra)`;
   if (diff === -1) return `Son tarih: ${formatted} (1 gün gecikti)`;
   return `Son tarih: ${formatted} (${Math.abs(diff)} gün gecikti)`;
+}
+
+/** Short card label matching producer design: "Bugün", "2 gün gecikti". */
+export function shortDueLabel(dueDate: string | null | undefined, now = new Date()): string {
+  if (!dueDate) return 'Tarih yok';
+  const diff = daysUntilDue(dueDate, now);
+  if (diff == null) return dueDate;
+  if (diff === 0) return 'Bugün';
+  if (diff === 1) return 'Yarın';
+  if (diff > 1) return `${diff} gün sonra`;
+  if (diff === -1) return '1 gün gecikti';
+  return `${Math.abs(diff)} gün gecikti`;
+}
+
+export function isOverdueTask(
+  status: number,
+  dueDate: string | null | undefined,
+  now = new Date(),
+): boolean {
+  if (
+    status === TaskStatus.Approved ||
+    status === TaskStatus.Cancelled ||
+    status === TaskStatus.AwaitingApproval
+  ) {
+    return false;
+  }
+  if (status === TaskStatus.Overdue) return true;
+  if (!dueDate) return false;
+  const diff = daysUntilDue(dueDate, now);
+  return diff != null && diff < 0;
 }

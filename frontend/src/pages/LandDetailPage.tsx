@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, ArrowLeft, MessageSquare, NotebookPen, ShieldCheck, Sprout } from 'lucide-react'
-import { api } from '../api/client'
+import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, MessageSquare, NotebookPen, ShieldCheck, Sprout } from 'lucide-react'
+import { api, API_BASE } from '../api/client'
 import type {
   ChatMessage,
   ConversationDetail,
@@ -15,9 +15,10 @@ import type {
   Producer,
   Season,
   StaffUser,
+  TaskItem,
   Workflow,
 } from '../api/types'
-import { PRODUCTION_WORKFLOW_STATUS } from '../api/types'
+import { PRODUCTION_WORKFLOW_STATUS, TASK_STATUS } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin, isOfficer } from '../auth/roles'
 import '../layout/layout.css'
@@ -42,6 +43,12 @@ export function LandDetailPage() {
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null)
   const [chatBody, setChatBody] = useState('')
   const [coordsForm, setCoordsForm] = useState({ latitude: '', longitude: '' })
+  const [taskForm, setTaskForm] = useState({
+    title: '',
+    description: '',
+    dueDate: '',
+    requiresPhoto: true,
+  })
 
   const landQuery = useQuery({
     queryKey: ['land', landId],
@@ -58,6 +65,12 @@ export function LandDetailPage() {
   const alertsQuery = useQuery({
     queryKey: ['land-alerts', landId],
     queryFn: () => api<LandAlert[]>(`/api/lands/${landId}/alerts`, {}, token),
+    enabled: Boolean(token && landId),
+  })
+
+  const landTasksQuery = useQuery({
+    queryKey: ['land-tasks', landId],
+    queryFn: () => api<TaskItem[]>(`/api/lands/${landId}/tasks`, {}, token),
     enabled: Boolean(token && landId),
   })
 
@@ -112,6 +125,9 @@ export function LandDetailPage() {
   const alerts = alertsQuery.data ?? []
   const notes = notesQuery.data ?? []
   const landThreads = conversationsQuery.data ?? []
+  const landTasks = landTasksQuery.data ?? []
+  const unreadChatCount = landThreads.filter((t) => t.hasUnread).length
+  const awaitingCount = landTasks.filter((t) => t.status === 5).length
 
   const cropOptions = useMemo(() => {
     const set = new Set<string>()
@@ -256,6 +272,44 @@ export function LandDetailPage() {
     },
   })
 
+  const approveLandTask = useMutation({
+    mutationFn: (taskId: string) =>
+      api(`/api/tasks/${taskId}/approve`, { method: 'POST' }, token),
+    onSuccess: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['land-tasks', landId] }),
+        queryClient.invalidateQueries({ queryKey: ['land-alerts', landId] }),
+        queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+        queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+      ])
+    },
+  })
+
+  const sendLandTask = useMutation({
+    mutationFn: () =>
+      api(
+        `/api/lands/${landId}/tasks`,
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            title: taskForm.title.trim(),
+            description: taskForm.description.trim() || null,
+            dueDate: taskForm.dueDate || null,
+            requiresPhoto: taskForm.requiresPhoto,
+          }),
+        },
+        token,
+      ),
+    onSuccess: async () => {
+      setTaskForm({ title: '', description: '', dueDate: '', requiresPhoto: true })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['land-tasks', landId] }),
+        queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+        queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+      ])
+    },
+  })
+
   useEffect(() => {
     const threads = conversationsQuery.data
     if (!selectedThreadId && threads && threads.length > 0) {
@@ -277,16 +331,20 @@ export function LandDetailPage() {
   }, [landQuery.data])
 
   useEffect(() => {
-    if (location.hash !== '#uretim') return
-    const el = document.getElementById('uretim')
+    if (!location.hash) return
+    const id = location.hash.replace('#', '')
+    if (!id) return
+    const el = document.getElementById(id)
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }, [location.hash, landQuery.data])
+  }, [location.hash, landQuery.data, landTasksQuery.data, conversationsQuery.data])
 
   async function invalidateLand() {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['land', landId] }),
       queryClient.invalidateQueries({ queryKey: ['land-productions', landId] }),
       queryClient.invalidateQueries({ queryKey: ['land-alerts', landId] }),
+      queryClient.invalidateQueries({ queryKey: ['land-tasks', landId] }),
+      queryClient.invalidateQueries({ queryKey: ['land-conversations', landId] }),
       queryClient.invalidateQueries({ queryKey: ['lands'] }),
       queryClient.invalidateQueries({ queryKey: ['tasks'] }),
       queryClient.invalidateQueries({ queryKey: ['operations-center'] }),
@@ -373,6 +431,14 @@ export function LandDetailPage() {
               <Sprout size={16} /> İş Akışı / Üretim Ekle
             </a>
           )}
+          <a href="#gorevler" className="ghost-btn">
+            <ClipboardList size={16} /> Görevler
+            {awaitingCount > 0 ? ` (${awaitingCount})` : ''}
+          </a>
+          <a href="#sohbet" className="ghost-btn">
+            <MessageSquare size={16} /> Üretici sohbeti
+            {unreadChatCount > 0 ? ` (${unreadChatCount})` : ''}
+          </a>
           <Link to={`/inspections?landId=${land.id}`} className="ghost-btn">
             <ShieldCheck size={16} /> Denetimler
           </Link>
@@ -409,6 +475,272 @@ export function LandDetailPage() {
           </ul>
         </div>
       )}
+
+      <div className="panel" id="gorevler">
+        <p className="panel-title with-icon">
+          <ClipboardList size={16} aria-hidden />
+          Arazi görevleri
+          {awaitingCount > 0 ? (
+            <span className="badge" style={{ marginLeft: 8 }}>
+              {awaitingCount} onay bekliyor
+            </span>
+          ) : null}
+        </p>
+        <p className="muted-copy">
+          Bu arazideki üretici görevlerini görün, yeni görev gönderin ve onay bekleyenleri
+          buradan onaylayın.
+        </p>
+
+        {canEditOps && (
+          <form
+            className="form-grid"
+            style={{ marginBottom: 16 }}
+            onSubmit={(e) => {
+              e.preventDefault()
+              if (!taskForm.title.trim()) return
+              sendLandTask.mutate()
+            }}
+          >
+            <label>
+              Yeni görev başlığı
+              <input
+                value={taskForm.title}
+                onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                placeholder="Örn. Sulama kontrolü"
+                required
+              />
+            </label>
+            <label>
+              Açıklama (isteğe bağlı)
+              <input
+                value={taskForm.description}
+                onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                placeholder="Üreticiye kısa yönerge"
+              />
+            </label>
+            <div className="form-grid two-col">
+              <label>
+                Son tarih
+                <input
+                  type="date"
+                  value={taskForm.dueDate}
+                  onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                />
+              </label>
+              <label className="checkbox-row" style={{ alignSelf: 'end', marginBottom: 8 }}>
+                <input
+                  type="checkbox"
+                  checked={taskForm.requiresPhoto}
+                  onChange={(e) =>
+                    setTaskForm({ ...taskForm, requiresPhoto: e.target.checked })
+                  }
+                />
+                Fotoğraf zorunlu
+              </label>
+            </div>
+            {sendLandTask.error && (
+              <p className="error">{(sendLandTask.error as Error).message}</p>
+            )}
+            {sendLandTask.isSuccess && (
+              <p className="success-inline">Görev üreticiye gönderildi.</p>
+            )}
+            <div className="row-actions">
+              <button
+                className="primary-btn"
+                type="submit"
+                disabled={sendLandTask.isPending || !land.producerId}
+              >
+                {sendLandTask.isPending ? 'Gönderiliyor…' : 'Görevi gönder'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {landTasksQuery.isLoading ? (
+          <p className="empty">Yükleniyor…</p>
+        ) : landTasks.length === 0 ? (
+          <p className="empty">Bu arazide henüz görev yok.</p>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Başlık</th>
+                <th>Vade</th>
+                <th>Durum</th>
+                <th>Foto</th>
+                <th>İşlem</th>
+              </tr>
+            </thead>
+            <tbody>
+              {landTasks.map((t) => {
+                const awaiting = t.status === 5
+                const photo = t.photos?.[0]
+                const count = t.photoCount ?? t.photos?.length ?? 0
+                return (
+                  <tr key={t.id}>
+                    <td>
+                      <div className="table-cell-stack">
+                        <strong>{t.title}</strong>
+                        {t.description ? (
+                          <span className="table-cell-sub">{t.description}</span>
+                        ) : null}
+                      </div>
+                    </td>
+                    <td>{t.dueDate ?? '—'}</td>
+                    <td>
+                      <span
+                        className={
+                          awaiting
+                            ? 'badge badge-warn'
+                            : t.status === 2
+                              ? 'badge badge-ok'
+                              : 'badge'
+                        }
+                      >
+                        {TASK_STATUS[t.status] ?? t.status}
+                      </span>
+                    </td>
+                    <td>
+                      {count > 0 && photo ? (
+                        <a
+                          href={`${API_BASE}${photo.storageKey.startsWith('/') ? '' : '/'}${photo.storageKey}`}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          {count} foto
+                        </a>
+                      ) : t.requiresPhoto ? (
+                        <span className="table-cell-emphasis">Zorunlu</span>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td>
+                      {awaiting && canEditOps ? (
+                        <button
+                          type="button"
+                          className="primary-btn"
+                          disabled={approveLandTask.isPending}
+                          onClick={() => approveLandTask.mutate(t.id)}
+                        >
+                          <CheckCircle2 size={14} style={{ marginRight: 4 }} />
+                          Onayla
+                        </button>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        )}
+        {approveLandTask.error && (
+          <p className="error empty">{(approveLandTask.error as Error).message}</p>
+        )}
+      </div>
+
+      <div className="panel" id="sohbet">
+        <p className="panel-title with-icon">
+          <MessageSquare size={16} aria-hidden />
+          Üretici Sohbeti
+          {unreadChatCount > 0 ? (
+            <span className="badge" style={{ marginLeft: 8 }}>
+              {unreadChatCount} yeni
+            </span>
+          ) : null}
+        </p>
+        <p className="muted-copy">
+          Bu araziye ait üretici yazışmaları burada. Yönetici–uzman mesajları{' '}
+          <Link to="/messages">Mesajlar</Link> panelindedir.
+        </p>
+        {conversationsQuery.isLoading ? (
+          <p className="empty">Yükleniyor…</p>
+        ) : landThreads.length === 0 ? (
+          <p className="empty">
+            Henüz sohbet yok. Üretici mobil uygulamadan «Uzmana sor» ile başlatır.
+          </p>
+        ) : (
+          <div className="messages-layout land-chat-layout">
+            <div className="thread-list">
+              {landThreads.map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  className={`thread-item${selectedThreadId === t.id ? ' active' : ''}${t.hasUnread ? ' unread' : ''}`}
+                  onClick={() => setSelectedThreadId(t.id)}
+                >
+                  <strong>
+                    {t.hasUnread ? '● ' : ''}
+                    {t.subject}
+                  </strong>
+                  <span>{t.lastMessagePreview ?? 'Mesaj yok'}</span>
+                </button>
+              ))}
+            </div>
+            <div className="chat-pane">
+              {!selectedThreadId ? (
+                <p className="empty">Sohbet seçin.</p>
+              ) : threadDetailQuery.isLoading ? (
+                <p className="empty">Yükleniyor…</p>
+              ) : threadDetailQuery.error ? (
+                <p className="error empty">{(threadDetailQuery.error as Error).message}</p>
+              ) : threadDetailQuery.data ? (
+                <>
+                  <div className="chat-header">{threadDetailQuery.data.subject}</div>
+                  <div className="chat-messages">
+                    {threadDetailQuery.data.messages.length === 0 && (
+                      <p className="empty">Bu sohbette henüz mesaj yok.</p>
+                    )}
+                    {threadDetailQuery.data.messages.map((msg: ChatMessage) => {
+                      const mine = msg.senderUserId === user?.userId
+                      return (
+                        <div key={msg.id} className={`bubble${mine ? ' mine' : ''}`}>
+                          {msg.body}
+                          <time>
+                            {new Date(msg.sentAtUtc).toLocaleString('tr-TR', {
+                              dateStyle: 'short',
+                              timeStyle: 'short',
+                            })}
+                          </time>
+                        </div>
+                      )
+                    })}
+                  </div>
+                  {canEditOps && (
+                    <form
+                      className="chat-compose"
+                      onSubmit={(e) => {
+                        e.preventDefault()
+                        if (!chatBody.trim() || !selectedThreadId) return
+                        sendLandChat.mutate()
+                      }}
+                    >
+                      <input
+                        value={chatBody}
+                        onChange={(e) => setChatBody(e.target.value)}
+                        placeholder="Üreticiye yanıt yazın…"
+                        required
+                      />
+                      <button
+                        className="primary-btn"
+                        type="submit"
+                        disabled={sendLandChat.isPending}
+                      >
+                        {sendLandChat.isPending ? 'Gönderiliyor…' : 'Gönder'}
+                      </button>
+                    </form>
+                  )}
+                  {sendLandChat.error && (
+                    <p className="error empty">{(sendLandChat.error as Error).message}</p>
+                  )}
+                </>
+              ) : null}
+            </div>
+          </div>
+        )}
+      </div>
 
       {(admin || officer) && (
         <div className="panel">
@@ -648,9 +980,11 @@ export function LandDetailPage() {
               >
                 {startProduction.isPending ? 'Başlatılıyor…' : 'Üretimi başlat'}
               </button>
-              <Link to="/workflows" className="ghost-btn">
-                Şablonları yönet
-              </Link>
+              {admin ? (
+                <Link to="/workflows" className="ghost-btn">
+                  Şablonları yönet
+                </Link>
+              ) : null}
             </div>
           </form>
         </div>
@@ -798,99 +1132,6 @@ export function LandDetailPage() {
               </li>
             ))}
           </ul>
-        )}
-      </div>
-
-      <div className="panel">
-        <p className="panel-title with-icon">
-          <MessageSquare size={16} aria-hidden />
-          Üretici Sohbeti
-        </p>
-        <p className="muted-copy">
-          Bu araziye ait üretici yazışmaları. Yönetici–uzman mesajları{' '}
-          <Link to="/messages">Mesajlar</Link> panelindedir.
-        </p>
-        {conversationsQuery.isLoading ? (
-          <p className="empty">Yükleniyor…</p>
-        ) : landThreads.length === 0 ? (
-          <p className="empty">
-            Henüz sohbet yok. Üretici mobil uygulamadan «Uzmana sor» ile başlatır.
-          </p>
-        ) : (
-          <div className="messages-layout land-chat-layout">
-            <div className="thread-list">
-              {landThreads.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  className={`thread-item${selectedThreadId === t.id ? ' active' : ''}`}
-                  onClick={() => setSelectedThreadId(t.id)}
-                >
-                  <strong>{t.subject}</strong>
-                  <span>{t.lastMessagePreview ?? 'Mesaj yok'}</span>
-                </button>
-              ))}
-            </div>
-            <div className="chat-pane">
-              {!selectedThreadId ? (
-                <p className="empty">Sohbet seçin.</p>
-              ) : threadDetailQuery.isLoading ? (
-                <p className="empty">Yükleniyor…</p>
-              ) : threadDetailQuery.error ? (
-                <p className="error empty">{(threadDetailQuery.error as Error).message}</p>
-              ) : threadDetailQuery.data ? (
-                <>
-                  <div className="chat-header">{threadDetailQuery.data.subject}</div>
-                  <div className="chat-messages">
-                    {threadDetailQuery.data.messages.length === 0 && (
-                      <p className="empty">Bu sohbette henüz mesaj yok.</p>
-                    )}
-                    {threadDetailQuery.data.messages.map((msg: ChatMessage) => {
-                      const mine = msg.senderUserId === user?.userId
-                      return (
-                        <div key={msg.id} className={`bubble${mine ? ' mine' : ''}`}>
-                          {msg.body}
-                          <time>
-                            {new Date(msg.sentAtUtc).toLocaleString('tr-TR', {
-                              dateStyle: 'short',
-                              timeStyle: 'short',
-                            })}
-                          </time>
-                        </div>
-                      )
-                    })}
-                  </div>
-                  {canEditOps && (
-                    <form
-                      className="chat-compose"
-                      onSubmit={(e) => {
-                        e.preventDefault()
-                        if (!chatBody.trim() || !selectedThreadId) return
-                        sendLandChat.mutate()
-                      }}
-                    >
-                      <input
-                        value={chatBody}
-                        onChange={(e) => setChatBody(e.target.value)}
-                        placeholder="Üreticiye yanıt yazın…"
-                        required
-                      />
-                      <button
-                        className="primary-btn"
-                        type="submit"
-                        disabled={sendLandChat.isPending}
-                      >
-                        {sendLandChat.isPending ? 'Gönderiliyor…' : 'Gönder'}
-                      </button>
-                    </form>
-                  )}
-                  {sendLandChat.error && (
-                    <p className="error empty">{(sendLandChat.error as Error).message}</p>
-                  )}
-                </>
-              ) : null}
-            </div>
-          </div>
         )}
       </div>
     </section>

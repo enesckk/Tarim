@@ -3,6 +3,7 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
   ChevronDown,
+  CheckCircle2,
   LayoutDashboard,
   LogOut,
   Map,
@@ -28,41 +29,32 @@ type NavItem = {
   label: string
   end?: boolean
   adminOnly?: boolean
+  officerLabel?: string
   icon: ComponentType<{ className?: string }>
 }
 type NavGroup = { id: string; label: string; items: NavItem[] }
 
-/** SDS-R16 land-first navigation */
+/** Flat sidebar — no Merkez / Saha / İzleme group headers. */
 const groups: NavGroup[] = [
   {
-    id: 'hub',
-    label: 'Merkez',
+    id: 'main',
+    label: '',
     items: [
       { to: '/', label: 'Operasyon Merkezi', end: true, icon: LayoutDashboard },
-      { to: '/lands', label: 'Araziler', icon: Map },
+      { to: '/approvals', label: 'Onay kuyruğu', icon: CheckCircle2 },
+      { to: '/lands', label: 'Araziler', officerLabel: 'Arazilerim', icon: Map },
       { to: '/messages', label: 'Mesajlar', icon: MessageSquare },
-    ],
-  },
-  {
-    id: 'ops',
-    label: 'Saha ve üretim',
-    items: [
-      { to: '/inspections', label: 'Denetimler', icon: ShieldCheck },
+      { to: '/inspections', label: 'Denetimler', officerLabel: 'Denetimlerim', icon: ShieldCheck },
       { to: '/harvest', label: 'Hasat ve teslimat', icon: Wheat },
       { to: '/workflows', label: 'İş akışı şablonları', icon: Workflow },
-    ],
-  },
-  {
-    id: 'monitoring',
-    label: 'İzleme',
-    items: [
-      { to: '/reports', label: 'Raporlar', icon: BarChart3 },
+      { to: '/reports', label: 'Raporlar', adminOnly: true, icon: BarChart3 },
     ],
   },
 ]
 
 const pageTitles: Record<string, string> = {
   '/': 'Operasyon Merkezi',
+  '/approvals': 'Onay kuyruğu',
   '/lands': 'Araziler',
   '/workflows': 'İş akışı şablonları',
   '/inspections': 'Denetimler',
@@ -122,6 +114,8 @@ export function AppLayout() {
   const [menuOpen, setMenuOpen] = useState(false)
 
   const title = useMemo(() => {
+    if (location.pathname === '/lands') return admin ? 'Araziler' : 'Arazilerim'
+    if (location.pathname === '/inspections') return admin ? 'Denetimler' : 'Denetimlerim'
     if (pageTitles[location.pathname]) return pageTitles[location.pathname]
     if (location.pathname.startsWith('/lands/')) return 'Arazi Merkezi'
     if (location.pathname.startsWith('/producers/')) return 'Üretici detayı'
@@ -129,7 +123,7 @@ export function AppLayout() {
       .filter((k) => k !== '/')
       .find((k) => location.pathname.startsWith(k))
     return pageTitles[match ?? '/']
-  }, [location.pathname])
+  }, [location.pathname, admin])
 
   function onLogout() {
     logout()
@@ -154,29 +148,26 @@ export function AppLayout() {
       </div>
 
       <nav className="sidebar-nav">
-        {groups.map((group) => {
-          const items = group.items.filter((l) => !l.adminOnly || admin)
-          if (!items.length) return null
-          return (
-            <div key={group.id} className="nav-group">
-              <p className="nav-group-label">{group.label}</p>
-              {items.map((link) => {
-                const Icon = link.icon
-                return (
-                  <NavLink
-                    key={link.to}
-                    to={link.to}
-                    end={link.end}
-                    className={({ isActive }) => cn('nav-link', isActive && 'active')}
-                  >
-                    <Icon className="nav-icon" />
-                    <span>{link.label}</span>
-                  </NavLink>
-                )
-              })}
-            </div>
-          )
-        })}
+        <div className="nav-group nav-group-flat">
+          {groups
+            .flatMap((g) => g.items)
+            .filter((l) => !l.adminOnly || admin)
+            .map((link) => {
+              const Icon = link.icon
+              const label = !admin && link.officerLabel ? link.officerLabel : link.label
+              return (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  end={link.end}
+                  className={({ isActive }) => cn('nav-link', isActive && 'active')}
+                >
+                  <Icon className="nav-icon" />
+                  <span>{label}</span>
+                </NavLink>
+              )
+            })}
+        </div>
       </nav>
 
       <div className="sidebar-footer">
@@ -232,7 +223,7 @@ export function AppLayout() {
 
           <div className="topbar-title">
             <h1>{title}</h1>
-            <p>Belediye Tarım Operasyon Platformu</p>
+            <p>{panelSubtitle(user?.roles)}</p>
           </div>
 
           <div className="topbar-actions">

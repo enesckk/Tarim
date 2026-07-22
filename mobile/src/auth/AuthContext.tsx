@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import {
   api,
+  ApiError,
   login as apiLogin,
   refresh as apiRefresh,
   setRefreshHandler,
@@ -13,6 +14,7 @@ import {
   updateTokens,
   type StoredUser,
 } from './tokenStorage';
+import { canUseMobileApp } from './roles';
 
 type AuthState = {
   ready: boolean;
@@ -46,9 +48,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     (async () => {
       const session = await loadSession();
       if (!cancelled && session) {
-        setAccessToken(session.accessToken);
-        setRefreshToken(session.refreshToken);
-        setUser(session.user);
+        if (!canUseMobileApp(session.user.roles)) {
+          await clearSession();
+        } else {
+          setAccessToken(session.accessToken);
+          setRefreshToken(session.refreshToken);
+          setUser(session.user);
+        }
       }
       if (!cancelled) setReady(true);
     })();
@@ -61,6 +67,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setRefreshHandler(async (token) => {
       try {
         const response = await apiRefresh(token);
+        if (!canUseMobileApp(response.roles)) {
+          await clearSession();
+          setAccessToken(null);
+          setRefreshToken(null);
+          setUser(null);
+          return null;
+        }
         await updateTokens(response.accessToken, response.refreshToken);
         setAccessToken(response.accessToken);
         setRefreshToken(response.refreshToken);
@@ -78,12 +91,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = useCallback(async (email: string, password: string) => {
     const response = await apiLogin(email.trim(), password);
+    const roles = response.roles ?? [];
+    if (!canUseMobileApp(roles)) {
+      throw new ApiError(
+        'Bu uygulama üretici ve tarım uzmanı içindir. Yönetici web panelini kullanır.',
+        403,
+      );
+    }
     const stored = toStoredUser(response);
     await saveSession(response.accessToken, response.refreshToken, stored);
     setAccessToken(response.accessToken);
     setRefreshToken(response.refreshToken);
     setUser(stored);
+    void import('../notifications/registerPush').then((m) =>
+      m.registerForPushNotificationsAsync(response.accessToken),
+    );
+    void import('../offline/photoQueue').then((m) =>
+      m.flushPhotoQueue(response.accessToken, response.refreshToken),
+    );
   }, []);
+
+  useEffect(() => {
+    if (!accessToken || !user) return;
+    void import('../notifications/registerPush').then((m) =>
+      m.registerForPushNotificationsAsync(accessToken),
+    );
+    void import('../offline/photoQueue').then((m) =>
+      m.flushPhotoQueue(accessToken, refreshToken),
+    );
+    const id = setInterval(() => {
+      void import('../offline/photoQueue').then((m) =>
+        m.flushPhotoQueue(accessToken, refreshToken),
+      );
+    }, 45_000);
+    return () => clearInterval(id);
+  }, [accessToken, refreshToken, user]);
 
   const signOut = useCallback(async () => {
     await clearSession();

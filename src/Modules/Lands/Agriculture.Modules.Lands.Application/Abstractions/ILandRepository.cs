@@ -7,6 +7,7 @@ public interface ILandRepository
     Task<Land?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Land>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IReadOnlyList<Land>> GetByOfficerUserIdAsync(Guid officerUserId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<Land>> GetByProducerIdAsync(Guid producerId, CancellationToken cancellationToken = default);
     Task AddAsync(Land land, CancellationToken cancellationToken = default);
     void Update(Land land);
 }

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type { NotificationItem } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
@@ -7,12 +7,30 @@ import '../layout/layout.css'
 
 export function NotificationsPage() {
   const { token } = useAuth()
+  const queryClient = useQueryClient()
   const { data: items = [], error, isLoading } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => api<NotificationItem[]>('/api/notifications', {}, token),
     enabled: Boolean(token),
     refetchInterval: 60_000,
   })
+
+  const markRead = useMutation({
+    mutationFn: (id: string) =>
+      api(`/api/notifications/${id}/read`, { method: 'POST' }, token),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+  })
+
+  const markAll = useMutation({
+    mutationFn: () => api('/api/notifications/read-all', { method: 'POST' }, token),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] })
+    },
+  })
+
+  const unread = items.filter((n) => !n.isRead).length
 
   return (
     <section>
@@ -24,6 +42,16 @@ export function NotificationsPage() {
             üretici sohbeti arazi merkezinde, personel yazışması Mesajlar’dadır.
           </p>
         </div>
+        {unread > 0 && (
+          <button
+            type="button"
+            className="ghost-btn"
+            disabled={markAll.isPending}
+            onClick={() => markAll.mutate()}
+          >
+            Tümünü okundu işaretle ({unread})
+          </button>
+        )}
       </div>
 
       <div className="panel">
@@ -33,13 +61,29 @@ export function NotificationsPage() {
         {items.length > 0 && (
           <ul className="notification-list">
             {items.map((n) => (
-              <li key={n.id} className={n.isRead ? '' : 'unread'}>
+              <li
+                key={n.id}
+                className={n.isRead ? '' : 'unread'}
+                onClick={() => {
+                  if (!n.isRead) markRead.mutate(n.id)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !n.isRead) markRead.mutate(n.id)
+                }}
+                role="button"
+                tabIndex={0}
+              >
                 <div>
                   <strong>{n.title}</strong>
                   <p>{n.body}</p>
                   {n.relatedEntityType === 'Land' && n.relatedEntityId && (
                     <Link to={`/lands/${n.relatedEntityId}`} className="text-link">
                       Arazi Merkezine git
+                    </Link>
+                  )}
+                  {n.relatedEntityType === 'Task' && n.relatedEntityId && (
+                    <Link to="/lands" className="text-link">
+                      Arazilere git
                     </Link>
                   )}
                 </div>

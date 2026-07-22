@@ -4,10 +4,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type { DeliveryRecord, HarvestRecord, Land, Producer, Season } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
+import { isAdmin } from '../auth/roles'
 import '../layout/layout.css'
 
 export function HarvestPage() {
-  const { token } = useAuth()
+  const { token, user } = useAuth()
+  const admin = isAdmin(user?.roles)
   const queryClient = useQueryClient()
   const [showHarvest, setShowHarvest] = useState(false)
   const [showDelivery, setShowDelivery] = useState(false)
@@ -72,7 +74,7 @@ export function HarvestPage() {
   const recordHarvest = useMutation({
     mutationFn: () => {
       const unitPriceRaw =
-        harvestForm.unitPrice === '' || harvestForm.unitPrice === null
+        !admin || harvestForm.unitPrice === '' || harvestForm.unitPrice === null
           ? null
           : Number(harvestForm.unitPrice)
       const unitPrice =
@@ -93,9 +95,9 @@ export function HarvestPage() {
             landId: harvestForm.landId,
             productionWorkflowId: null,
             notes: harvestForm.notes || null,
-            buyerName: harvestForm.buyerName.trim() || null,
-            unitPrice,
-            totalAmount,
+            buyerName: admin ? harvestForm.buyerName.trim() || null : null,
+            unitPrice: admin ? unitPrice : null,
+            totalAmount: admin ? totalAmount : null,
           }),
         },
         token,
@@ -140,7 +142,11 @@ export function HarvestPage() {
       <div className="page-header">
         <div>
           <h1>Hasat ve teslimat</h1>
-          <p>Hasat kaydı ve teslimat aynı süreçte yönetilir (teslimat hasada bağlıdır).</p>
+          <p>
+            {admin
+              ? 'Hasat kaydı, alıcı/fiyat ve teslimat aynı süreçte yönetilir.'
+              : 'Atandığınız arazilerde hasat miktarı ve teslimat — fiyat bilgisi yönetici panelindedir.'}
+          </p>
         </div>
         <div className="row-actions">
           <button type="button" className="primary-btn" onClick={() => setShowHarvest((v) => !v)}>
@@ -250,45 +256,53 @@ export function HarvestPage() {
                 ))}
               </select>
             </label>
-            <label>
-              Alıcı
-              <input
-                value={harvestForm.buyerName}
-                onChange={(e) => setHarvestForm({ ...harvestForm, buyerName: e.target.value })}
-                placeholder="Kim aldı? (kişi / kuruluş)"
-              />
-            </label>
-            <label>
-              Birim fiyat (₺)
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={harvestForm.unitPrice}
-                onChange={(e) =>
-                  setHarvestForm({
-                    ...harvestForm,
-                    unitPrice: e.target.value === '' ? '' : Number(e.target.value),
-                  })
-                }
-                placeholder="Ne kadara?"
-              />
-            </label>
-            <label>
-              Toplam tutar (₺)
-              <input
-                type="text"
-                readOnly
-                value={
-                  harvestForm.unitPrice === '' || harvestForm.unitPrice === null
-                    ? '—'
-                    : (
-                        Math.round(Number(harvestForm.unitPrice) * Number(harvestForm.quantity) * 100) /
-                        100
-                      ).toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-                }
-              />
-            </label>
+            {admin ? (
+              <>
+                <label>
+                  Alıcı
+                  <input
+                    value={harvestForm.buyerName}
+                    onChange={(e) => setHarvestForm({ ...harvestForm, buyerName: e.target.value })}
+                    placeholder="Kim aldı? (kişi / kuruluş)"
+                  />
+                </label>
+                <label>
+                  Birim fiyat (₺)
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={harvestForm.unitPrice}
+                    onChange={(e) =>
+                      setHarvestForm({
+                        ...harvestForm,
+                        unitPrice: e.target.value === '' ? '' : Number(e.target.value),
+                      })
+                    }
+                    placeholder="Ne kadara?"
+                  />
+                </label>
+                <label>
+                  Toplam tutar (₺)
+                  <input
+                    type="text"
+                    readOnly
+                    value={
+                      harvestForm.unitPrice === '' || harvestForm.unitPrice === null
+                        ? '—'
+                        : (
+                            Math.round(
+                              Number(harvestForm.unitPrice) * Number(harvestForm.quantity) * 100,
+                            ) / 100
+                          ).toLocaleString('tr-TR', {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })
+                    }
+                  />
+                </label>
+              </>
+            ) : null}
             <label>
               Not
               <input
@@ -390,9 +404,13 @@ export function HarvestPage() {
                 <th>Ürün</th>
                 <th>Tarih</th>
                 <th>Miktar</th>
-                <th>Alıcı</th>
-                <th>Birim fiyat</th>
-                <th>Toplam</th>
+                {admin ? (
+                  <>
+                    <th>Alıcı</th>
+                    <th>Birim fiyat</th>
+                    <th>Toplam</th>
+                  </>
+                ) : null}
                 <th>Teslim</th>
                 <th>Kalan</th>
               </tr>
@@ -407,17 +425,21 @@ export function HarvestPage() {
                     <td>
                       {h.quantity} {h.unit}
                     </td>
-                    <td>{h.buyerName || '—'}</td>
-                    <td>
-                      {h.unitPrice != null
-                        ? `${h.unitPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺/${h.unit}`
-                        : '—'}
-                    </td>
-                    <td>
-                      {h.totalAmount != null
-                        ? `${h.totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`
-                        : '—'}
-                    </td>
+                    {admin ? (
+                      <>
+                        <td>{h.buyerName || '—'}</td>
+                        <td>
+                          {h.unitPrice != null
+                            ? `${h.unitPrice.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺/${h.unit}`
+                            : '—'}
+                        </td>
+                        <td>
+                          {h.totalAmount != null
+                            ? `${h.totalAmount.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ₺`
+                            : '—'}
+                        </td>
+                      </>
+                    ) : null}
                     <td>
                       {delivered} {h.unit}
                     </td>

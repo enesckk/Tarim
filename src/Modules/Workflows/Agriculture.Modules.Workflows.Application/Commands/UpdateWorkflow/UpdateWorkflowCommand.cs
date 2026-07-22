@@ -32,6 +32,8 @@ public sealed class UpdateWorkflowCommandValidator : AbstractValidator<UpdateWor
                 .NotEmpty()
                 .MaximumLength(32)
                 .When(s => s.RequiresQuantity);
+            step.RuleFor(s => s.VideoUrl).MaximumLength(500);
+            step.RuleFor(s => s.ImageUrl).MaximumLength(500);
         });
         RuleFor(x => x.Steps)
             .Must(steps => steps.Select(s => s.Order).Distinct().Count() == steps.Count)
@@ -66,10 +68,8 @@ internal sealed class UpdateWorkflowCommandHandler(IWorkflowRepository repositor
             return Result.Failure(new Error("Workflow.NotFound", "İş akışı bulunamadı."));
 
         workflow.UpdateDetails(request.Name, request.Description, request.CropType);
-        workflow.ClearSteps();
-        foreach (var step in request.Steps.OrderBy(s => s.Order))
-        {
-            workflow.AddStep(
+        var removed = workflow.SyncSteps(
+            request.Steps.Select(step => (
                 step.Name,
                 step.Description,
                 step.Order,
@@ -77,10 +77,11 @@ internal sealed class UpdateWorkflowCommandHandler(IWorkflowRepository repositor
                 step.RequiresPhoto,
                 step.RequiresQuantity,
                 step.RequiresDate,
-                step.QuantityUnit);
-        }
+                step.QuantityUnit,
+                step.VideoUrl,
+                step.ImageUrl)).ToList());
 
-        repository.Update(workflow);
+        repository.Update(workflow, removed);
         await uow.SaveChangesAsync(cancellationToken);
         return Result.Success();
     }

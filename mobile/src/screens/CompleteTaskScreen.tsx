@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Alert, StyleSheet, Text, View } from 'react-native';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../auth/AuthContext';
@@ -15,6 +15,7 @@ export function CompleteTaskScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const photoAttached = route.params.photoAttached === true;
+  const notes = route.params.notes?.trim() || 'Mobil uygulamadan gönderildi';
 
   const complete = async () => {
     setLoading(true);
@@ -22,15 +23,19 @@ export function CompleteTaskScreen() {
     try {
       await authFetch(`/api/tasks/${route.params.taskId}/complete`, {
         method: 'POST',
-        body: JSON.stringify({ notes: 'Mobil uygulamadan tamamlandı' }),
+        body: JSON.stringify({ notes }),
       });
-      // Back to tabs so TodayTasksScreen useFocusEffect refreshes the list.
-      navigation.popToTop();
+      Alert.alert('Gönderildi', 'Göreviniz uzman onayına gönderildi.', [
+        {
+          text: 'Tamam',
+          onPress: () => navigation.popToTop(),
+        },
+      ]);
     } catch (e) {
       setError(
         e instanceof ApiError
-          ? e.message || 'Görev tamamlanamadı.'
-          : 'Görev tamamlanamadı. Bağlantınızı kontrol edin.',
+          ? e.message || 'Görev gönderilemedi.'
+          : 'Görev gönderilemedi. Bağlantınızı kontrol edin.',
       );
     } finally {
       setLoading(false);
@@ -40,9 +45,10 @@ export function CompleteTaskScreen() {
   return (
     <Screen>
       <View style={styles.container}>
-        <Text style={styles.title}>Görevi tamamla</Text>
+        <Text style={styles.title}>Onaya gönder</Text>
         <Text style={styles.body}>
-          Bu görevi tamamlamak istediğinize emin misiniz?
+          Görevi uzmana göndermek istediğinize emin misiniz? Uzman onaylayınca
+          “Onaylandı” olarak görünecek.
         </Text>
         {photoAttached ? (
           <View style={styles.check}>
@@ -51,8 +57,17 @@ export function CompleteTaskScreen() {
         ) : null}
         {error ? <Text style={styles.error}>{error}</Text> : null}
         <View style={styles.actions}>
-          <PrimaryButton label="Evet, tamamla" onPress={complete} loading={loading} />
-          <PrimaryButton label="Vazgeç" tone="secondary" onPress={() => navigation.goBack()} />
+          <PrimaryButton
+            label="Evet, onaya gönder"
+            onPress={() => void complete()}
+            loading={loading}
+          />
+          <PrimaryButton
+            label="Vazgeç"
+            tone="secondary"
+            onPress={() => navigation.goBack()}
+            disabled={loading}
+          />
         </View>
       </View>
     </Screen>

@@ -18,7 +18,9 @@ public sealed record CreateTaskCommand(
     bool RequiresPhoto,
     bool RequiresQuantity = false,
     bool RequiresDate = false,
-    string? QuantityUnit = null) : ICommand<Guid>;
+    string? QuantityUnit = null,
+    string? VideoUrl = null,
+    string? ImageUrl = null) : ICommand<Guid>;
 
 public sealed class CreateTaskCommandValidator : AbstractValidator<CreateTaskCommand>
 {
@@ -50,7 +52,9 @@ internal sealed class CreateTaskCommandHandler(ITaskRepository repository, IUnit
             request.RequiresPhoto,
             request.RequiresQuantity,
             request.RequiresDate,
-            request.QuantityUnit);
+            request.QuantityUnit,
+            request.VideoUrl,
+            request.ImageUrl);
 
         await repository.AddAsync(task, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);

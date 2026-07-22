@@ -24,7 +24,10 @@ export function AskExpertScreen() {
     try {
       const id = await authFetch<string>('/api/conversations/ask-expert', {
         method: 'POST',
-        body: JSON.stringify({ subject }),
+        body: JSON.stringify({
+          subject,
+          landId: route.params?.landId ?? null,
+        }),
       });
       const conversationId = typeof id === 'string' ? id : String(id);
       navigation.replace('ChatThread', { conversationId });

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, Navigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
@@ -52,7 +52,7 @@ export function ReportsPage() {
   const producersQuery = useQuery({
     queryKey: ['producers', 'reports'],
     queryFn: () => api<Producer[]>('/api/producers', {}, token),
-    enabled: Boolean(token),
+    enabled: Boolean(token && admin),
   })
 
   const officersQuery = useQuery({
@@ -64,13 +64,13 @@ export function ReportsPage() {
   const landsQuery = useQuery({
     queryKey: ['lands', 'reports'],
     queryFn: () => api<Land[]>('/api/lands', {}, token),
-    enabled: Boolean(token),
+    enabled: Boolean(token && admin),
   })
 
   const harvestsQuery = useQuery({
     queryKey: ['harvests', 'reports'],
     queryFn: () => api<HarvestRecord[]>('/api/harvest', {}, token),
-    enabled: Boolean(token),
+    enabled: Boolean(token && admin),
   })
 
   const producers = producersQuery.data ?? []
@@ -184,7 +184,9 @@ export function ReportsPage() {
     {
       id: 'lands',
       title: 'Arazi Listesi',
-      desc: 'Tüm araziler — parsel, mahalle, büyüklük',
+      desc: admin
+        ? 'Tüm araziler — parsel, mahalle, büyüklük'
+        : 'Atandığınız araziler — parsel, mahalle, büyüklük',
       count: lands.length,
       loading: landsQuery.isLoading,
       icon: MapPin,
@@ -202,6 +204,8 @@ export function ReportsPage() {
   ]
 
   const visibleCards = cards.filter((c) => !c.adminOnly || admin)
+
+  if (!admin) return <Navigate to="/" replace />
 
   if (active) {
     return (

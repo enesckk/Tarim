@@ -38,6 +38,8 @@ internal sealed class GetLandByIdQueryHandler(ILandRepository repository)
             land.IsActive,
             Neighborhood: land.Neighborhood,
             CadastralBlock: land.CadastralBlock,
-            SoilNotes: land.SoilNotes));
+            SoilNotes: land.SoilNotes,
+            City: land.City,
+            District: land.District));
     }
 }

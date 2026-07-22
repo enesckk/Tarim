@@ -5,6 +5,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../auth/AuthContext';
 import { ApiError, uploadTaskPhoto } from '../api/client';
+import { enqueuePhotoUpload } from '../offline/photoQueue';
 import { PrimaryButton, Screen } from '../components/ui';
 import { colors, radii, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
@@ -75,13 +76,18 @@ export function CapturePhotoScreen() {
       navigation.replace('CompleteTask', {
         taskId: route.params.taskId,
         photoAttached: true,
+        notes: route.params.notes,
       });
-    } catch (e) {
-      const message =
-        e instanceof ApiError
-          ? e.message || 'Fotoğraf yüklenemedi'
-          : 'Fotoğraf yüklenemedi. Bağlantınızı kontrol edin.';
-      setError(message);
+    } catch {
+      await enqueuePhotoUpload({
+        taskId: route.params.taskId,
+        localUri: uri,
+      });
+      navigation.replace('CompleteTask', {
+        taskId: route.params.taskId,
+        photoAttached: true,
+        notes: route.params.notes,
+      });
     } finally {
       setLoading(false);
     }
@@ -104,7 +110,7 @@ export function CapturePhotoScreen() {
         <View style={styles.actions}>
           {!uri ? (
             <>
-              <PrimaryButton label="Kamera ile çek" onPress={takePhoto} loading={picking} />
+              <PrimaryButton label="Fotoğraf çek" onPress={takePhoto} loading={picking} />
               <PrimaryButton
                 label="Galeriden seç"
                 tone="secondary"

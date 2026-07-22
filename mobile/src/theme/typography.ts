@@ -1,34 +1,35 @@
 import { TextStyle } from 'react-native';
 import { colors } from './colors';
 
-/** Large, outdoor-readable type for low digital literacy. */
+/** Three levels: Heading · Body · Caption — outdoor-readable. */
 export const typography = {
   brand: {
-    fontSize: 40,
+    fontSize: 36,
     fontWeight: '700',
-    letterSpacing: -0.5,
+    letterSpacing: -0.6,
     color: colors.primary,
   } satisfies TextStyle,
   screenTitle: {
     fontSize: 28,
     fontWeight: '700',
-    letterSpacing: -0.3,
+    letterSpacing: -0.5,
     color: colors.text,
   } satisfies TextStyle,
   sectionTitle: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 20,
+    fontWeight: '600',
+    letterSpacing: -0.2,
     color: colors.text,
   } satisfies TextStyle,
   body: {
-    fontSize: 17,
-    lineHeight: 26,
+    fontSize: 16,
+    lineHeight: 24,
     fontWeight: '400',
     color: colors.textSecondary,
   } satisfies TextStyle,
   bodyStrong: {
-    fontSize: 17,
-    lineHeight: 24,
+    fontSize: 16,
+    lineHeight: 22,
     fontWeight: '600',
     color: colors.text,
   } satisfies TextStyle,
@@ -39,7 +40,7 @@ export const typography = {
     color: colors.muted,
   } satisfies TextStyle,
   label: {
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '600',
     color: colors.text,
   } satisfies TextStyle,
@@ -50,13 +51,13 @@ export const typography = {
     color: colors.muted,
   } satisfies TextStyle,
   button: {
-    fontSize: 18,
-    fontWeight: '700',
-    letterSpacing: 0.1,
+    fontSize: 17,
+    fontWeight: '600',
+    letterSpacing: 0,
   } satisfies TextStyle,
   tab: {
     fontSize: 11,
     fontWeight: '600',
-    letterSpacing: 0.2,
+    letterSpacing: 0.15,
   } satisfies TextStyle,
 };

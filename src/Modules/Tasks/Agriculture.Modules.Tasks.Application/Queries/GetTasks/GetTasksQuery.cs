@@ -24,6 +24,9 @@ public sealed record TaskDto(
     bool RequiresQuantity,
     bool RequiresDate,
     string? QuantityUnit,
+    string? VideoUrl,
+    string? ImageUrl,
+    string? RevisionReason,
     DateTime? CompletedAtUtc,
     int PhotoCount,
     IReadOnlyList<TaskPhotoDto> Photos);
@@ -59,6 +62,9 @@ internal static class TaskDtoMapper
         t.RequiresQuantity,
         t.RequiresDate,
         t.QuantityUnit,
+        t.VideoUrl,
+        t.ImageUrl,
+        t.RevisionReason,
         t.CompletedAtUtc,
         t.Photos.Count,
         t.Photos

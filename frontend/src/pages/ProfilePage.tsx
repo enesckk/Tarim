@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/AuthContext'
-import { displayFullName, roleLabel } from '../auth/roles'
+import { displayFullName, isAdmin, roleLabel } from '../auth/roles'
 import '../layout/layout.css'
 
 export function ProfilePage() {
@@ -35,11 +35,21 @@ export function ProfilePage() {
           <div className="seed-note">
             <strong>Demo hesaplar (seed)</strong>
             <br />
-            Yönetici: admin@agriculture.local / Admin123!
-            <br />
-            Tarım Uzmanı: uzman@agriculture.local / Officer123!
-            <br />
-            Üretici (mobil): uretici@agriculture.local / Producer123!
+            {isAdmin(user?.roles) ? (
+              <>
+                Yönetici: admin@agriculture.local / Admin123!
+                <br />
+                Tarım Uzmanı (web + mobil): uzman@agriculture.local / Officer123!
+                <br />
+                Üretici (mobil): uretici@agriculture.local / Producer123!
+              </>
+            ) : (
+              <>
+                Tarım Uzmanı (web + mobil): uzman@agriculture.local / Officer123!
+                <br />
+                Üretici mobil hesabı yönetici tarafından verilir.
+              </>
+            )}
           </div>
 
           <div>

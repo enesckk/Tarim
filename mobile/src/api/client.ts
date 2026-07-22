@@ -14,6 +14,7 @@ export type TaskDto = {
   id: string;
   producerId: string;
   landId: string;
+  landName?: string | null;
   title: string;
   description?: string | null;
   dueDate?: string | null;
@@ -22,6 +23,9 @@ export type TaskDto = {
   requiresQuantity?: boolean;
   requiresDate?: boolean;
   quantityUnit?: string | null;
+  videoUrl?: string | null;
+  imageUrl?: string | null;
+  revisionReason?: string | null;
   completedAtUtc?: string | null;
   photoCount?: number;
   photos?: Array<{
@@ -49,6 +53,31 @@ export type ConversationListItem = {
   lastMessagePreview?: string | null;
   lastMessageAtUtc?: string | null;
   status: number;
+  hasUnread?: boolean;
+  landId?: string | null;
+  landName?: string | null;
+};
+
+export type LandDto = {
+  id: string;
+  name: string;
+  parcelNumber?: string | null;
+  sizeInDecares?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  soilType?: string | null;
+  producerId?: string | null;
+  assignedOfficerUserId?: string | null;
+  isActive?: boolean;
+  alertCount?: number;
+  activeCropType?: string | null;
+  activeWorkflowName?: string | null;
+  neighborhood?: string | null;
+  cadastralBlock?: string | null;
+  soilNotes?: string | null;
+  mapStatus?: string | null;
+  city?: string | null;
+  district?: string | null;
 };
 
 export type ChatMessageDto = {

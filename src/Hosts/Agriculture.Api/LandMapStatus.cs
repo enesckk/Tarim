@@ -37,6 +37,7 @@ internal static class LandMapStatus
             .Where(t => landIds.Contains(t.LandId)
                 && t.Status != ProductionTaskStatus.Completed
                 && t.Status != ProductionTaskStatus.Cancelled
+                && t.Status != ProductionTaskStatus.AwaitingApproval
                 && (t.Status == ProductionTaskStatus.Overdue
                     || (t.DueDate != null && t.DueDate < today)))
             .Select(t => t.LandId)

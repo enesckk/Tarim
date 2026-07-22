@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   StyleSheet,
   Text,
@@ -75,7 +74,7 @@ export function PrimaryButton({
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={textColor} />
+        <Text style={[styles.buttonText, { color: textColor, opacity: 0.7 }]}>…</Text>
       ) : (
         <Text style={[styles.buttonText, { color: textColor }]}>{label}</Text>
       )}
@@ -129,11 +128,15 @@ export function EmptyState({
   );
 }
 
-export function LoadingBlock({ label = 'Yükleniyor…' }: { label?: string }) {
+/** Soft skeleton — prefer over spinner (premium loading). */
+export function LoadingBlock({ label }: { label?: string }) {
   return (
-    <View style={styles.loading}>
-      <ActivityIndicator size="large" color={colors.primary} />
-      <Text style={styles.loadingText}>{label}</Text>
+    <View style={styles.loading} accessibilityLabel={label ?? 'Yükleniyor'}>
+      <View style={styles.skelBlock} />
+      <View style={[styles.skelBlock, styles.skelShort]} />
+      <View style={styles.skelCard} />
+      <View style={styles.skelCard} />
+      <View style={styles.skelCard} />
     </View>
   );
 }
@@ -145,8 +148,8 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: spacing.screen,
-    paddingTop: spacing.sm,
-    paddingBottom: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.xl,
   },
   headerTitle: {
     ...typography.screenTitle,
@@ -154,24 +157,24 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     ...typography.helper,
     marginTop: spacing.sm,
+    maxWidth: 320,
   },
   button: {
     minHeight: tap.primary,
     borderRadius: radii.md,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: spacing.lg,
+    paddingHorizontal: spacing.xl,
   },
   buttonPressed: {
-    opacity: 0.92,
-    transform: [{ scale: 0.995 }],
+    opacity: 0.9,
   },
   buttonDisabled: {
-    opacity: 0.45,
+    opacity: 0.4,
   },
   secondaryBorder: {
-    borderWidth: 1.5,
-    borderColor: colors.primary,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.borderStrong,
   },
   buttonText: {
     ...typography.button,
@@ -179,25 +182,22 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.surface,
     borderRadius: radii.lg,
-    padding: spacing.xl,
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.xl,
     minHeight: tap.row,
-    borderWidth: 1,
-    borderColor: colors.border,
     marginBottom: spacing.md,
-    shadowColor: colors.text,
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.04,
-    shadowRadius: 4,
-    elevation: 1,
+    // Breath over borders — hairline only
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
   cardPressed: {
-    opacity: 0.92,
-    backgroundColor: colors.primarySoft,
+    backgroundColor: colors.bgWarm,
   },
   empty: {
     flex: 1,
     justifyContent: 'center',
-    padding: spacing.xxl,
+    paddingHorizontal: spacing.xxxl,
+    paddingVertical: spacing.xxxl,
   },
   emptyTitle: {
     ...typography.sectionTitle,
@@ -205,19 +205,36 @@ const styles = StyleSheet.create({
   },
   emptyBody: {
     ...typography.body,
+    maxWidth: 280,
   },
   emptyAction: {
-    marginTop: spacing.xl,
+    marginTop: spacing.xxl,
     alignSelf: 'stretch',
   },
   loading: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: spacing.screen,
+    paddingTop: spacing.xxxl,
     gap: spacing.md,
     backgroundColor: colors.bg,
   },
-  loadingText: {
-    ...typography.helper,
+  skelBlock: {
+    height: 28,
+    borderRadius: radii.sm,
+    backgroundColor: colors.sageSoft,
+    opacity: 0.55,
+    width: '55%',
+  },
+  skelShort: {
+    width: '38%',
+    height: 16,
+    marginBottom: spacing.lg,
+  },
+  skelCard: {
+    height: 76,
+    borderRadius: radii.lg,
+    backgroundColor: colors.surface,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
   },
 });

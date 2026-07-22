@@ -104,10 +104,11 @@ export function LandsPage() {
     <section>
       <div className="page-header">
         <div>
-          <h1>Araziler</h1>
+          <h1>{admin ? 'Araziler' : 'Arazilerim'}</h1>
           <p>
-            Operasyonun merkezi. Arazi detayında üretici/uzman ataması, üretim planı,
-            uyarılar ve notlar yönetilir.
+            {admin
+              ? 'Operasyonun merkezi. Arazi detayında üretici/uzman ataması, üretim planı, uyarılar ve notlar yönetilir.'
+              : 'Size atanan araziler. Görev gönderimi, onay, üretici sohbeti ve saha işlemleri burada.'}
           </p>
         </div>
         {admin && (

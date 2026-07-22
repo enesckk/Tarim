@@ -199,6 +199,8 @@ export type WorkflowStep = {
   requiresQuantity: boolean
   requiresDate: boolean
   quantityUnit?: string | null
+  videoUrl?: string | null
+  imageUrl?: string | null
 }
 
 export type Workflow = {
@@ -230,6 +232,9 @@ export type TaskItem = {
   requiresQuantity?: boolean
   requiresDate?: boolean
   quantityUnit?: string | null
+  videoUrl?: string | null
+  imageUrl?: string | null
+  revisionReason?: string | null
   completedAtUtc?: string
   photoCount: number
   photos: TaskPhoto[]
@@ -245,6 +250,7 @@ export type ConversationListItem = {
   landId?: string
   officerUserId?: string
   adminUserId?: string
+  hasUnread?: boolean
 }
 
 export type ChatMessage = {
@@ -327,7 +333,15 @@ export type NotificationItem = {
   relatedEntityId?: string
 }
 
-export const TASK_STATUS = ['Bekliyor', 'Devam ediyor', 'Tamamlandı', 'Gecikmiş', 'İptal'] as const
+export const TASK_STATUS = [
+  'Bekliyor',
+  'Devam ediyor',
+  'Onaylandı',
+  'Gecikmiş',
+  'İptal',
+  'Onay bekliyor',
+  'Düzeltme gerekli',
+] as const
 export const SEASON_STATUS = ['Taslak', 'Aktif', 'Tamamlandı', 'İptal'] as const
 export const WORKFLOW_STATUS = ['Taslak', 'Aktif', 'Arşiv'] as const
 export const INSPECTION_STATUS = ['Planlandı', 'Devam ediyor', 'Tamamlandı', 'İptal'] as const

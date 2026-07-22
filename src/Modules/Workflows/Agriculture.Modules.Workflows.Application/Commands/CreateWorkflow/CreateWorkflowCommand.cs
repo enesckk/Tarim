@@ -15,7 +15,9 @@ public sealed record WorkflowStepInput(
     bool RequiresPhoto,
     bool RequiresQuantity = false,
     bool RequiresDate = false,
-    string? QuantityUnit = null);
+    string? QuantityUnit = null,
+    string? VideoUrl = null,
+    string? ImageUrl = null);
 
 public sealed record CreateWorkflowCommand(
     string Name,
@@ -40,6 +42,8 @@ public sealed class CreateWorkflowCommandValidator : AbstractValidator<CreateWor
                 .NotEmpty()
                 .MaximumLength(32)
                 .When(s => s.RequiresQuantity);
+            step.RuleFor(s => s.VideoUrl).MaximumLength(500);
+            step.RuleFor(s => s.ImageUrl).MaximumLength(500);
         });
         RuleFor(x => x.Steps)
             .Must(steps => steps.Select(s => s.Order).Distinct().Count() == steps.Count)
@@ -80,7 +84,9 @@ internal sealed class CreateWorkflowCommandHandler(IWorkflowRepository repositor
                 step.RequiresPhoto,
                 step.RequiresQuantity,
                 step.RequiresDate,
-                step.QuantityUnit);
+                step.QuantityUnit,
+                step.VideoUrl,
+                step.ImageUrl);
         }
 
         await repository.AddAsync(workflow, cancellationToken);
