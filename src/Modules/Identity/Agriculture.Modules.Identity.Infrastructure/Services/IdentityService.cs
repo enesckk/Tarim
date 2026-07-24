@@ -18,9 +18,10 @@ public sealed class IdentityService(
     public async Task<(bool Success, string? Error, LoginResponse? Response)> LoginAsync(
         string email, string password, CancellationToken cancellationToken = default)
     {
-        var user = await userManager.FindByEmailAsync(email)
-            ?? await userManager.FindByNameAsync(email)
-            ?? await userManager.Users.FirstOrDefaultAsync(u => u.PhoneNumber == email, cancellationToken);
+        var login = email.Trim();
+        var user = await userManager.FindByEmailAsync(login)
+            ?? await userManager.FindByNameAsync(login)
+            ?? await FindByPhoneAsync(login, cancellationToken);
         if (user is null || !user.IsActive)
             return (false, "Invalid email or password.", null);
 
@@ -31,15 +32,71 @@ public sealed class IdentityService(
         return (true, null, response);
     }
 
+    private async Task<ApplicationUser?> FindByPhoneAsync(string login, CancellationToken cancellationToken)
+    {
+        var exact = await userManager.Users.FirstOrDefaultAsync(
+            u => u.PhoneNumber == login, cancellationToken);
+        if (exact is not null)
+            return exact;
+
+        var want = NormalizePhoneDigits(login);
+        if (want is null)
+            return null;
+
+        var candidates = await userManager.Users
+            .Where(u => u.PhoneNumber != null)
+            .ToListAsync(cancellationToken);
+        return candidates.FirstOrDefault(u => NormalizePhoneDigits(u.PhoneNumber) == want);
+    }
+
+    private static string? NormalizePhoneDigits(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return null;
+        var digits = new string(value.Where(char.IsDigit).ToArray());
+        if (digits.Length >= 10)
+            return digits[^10..];
+        return digits.Length > 0 ? digits : null;
+    }
+
     public async Task<(bool Success, string? Error, Guid UserId)> RegisterAsync(
         string email, string password, string firstName, string lastName, string role,
+        string? phone = null,
         CancellationToken cancellationToken = default)
     {
         if (!AppRoles.All.Contains(role))
             return (false, $"Role must be one of: {string.Join(", ", AppRoles.All)}", Guid.Empty);
 
-        if (await userManager.FindByEmailAsync(email) is not null)
-            return (false, "Email is already registered.", Guid.Empty);
+        var firstNameTrim = firstName?.Trim() ?? string.Empty;
+        var lastNameTrim = lastName?.Trim() ?? string.Empty;
+        var passwordTrim = password?.Trim() ?? string.Empty;
+        var normalizedEmail = email?.Trim() ?? string.Empty;
+
+        if (string.IsNullOrWhiteSpace(firstNameTrim))
+            return (false, "Ad zorunludur.", Guid.Empty);
+        if (string.IsNullOrWhiteSpace(lastNameTrim))
+            return (false, "Soyad zorunludur.", Guid.Empty);
+        if (string.IsNullOrWhiteSpace(passwordTrim))
+            return (false, "Şifre zorunludur.", Guid.Empty);
+        if (string.IsNullOrWhiteSpace(normalizedEmail))
+            return (false, "E-posta zorunludur.", Guid.Empty);
+
+        if (await userManager.FindByEmailAsync(normalizedEmail) is not null)
+            return (false, "Bu e-posta zaten kayıtlı.", Guid.Empty);
+
+        var phoneTrim = phone?.Trim();
+        if (!string.IsNullOrWhiteSpace(phoneTrim))
+        {
+            var want = NormalizePhoneDigits(phoneTrim);
+            if (want is not null)
+            {
+                var phoneTaken = await userManager.Users
+                    .Where(u => u.PhoneNumber != null)
+                    .ToListAsync(cancellationToken);
+                if (phoneTaken.Any(u => NormalizePhoneDigits(u.PhoneNumber) == want))
+                    return (false, "Bu telefon numarası zaten kayıtlı.", Guid.Empty);
+            }
+        }
 
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole<Guid>(role));
@@ -47,14 +104,16 @@ public sealed class IdentityService(
         var user = new ApplicationUser
         {
             Id = Guid.NewGuid(),
-            UserName = email,
-            Email = email,
+            UserName = normalizedEmail,
+            Email = normalizedEmail,
             EmailConfirmed = true,
-            FirstName = firstName.Trim(),
-            LastName = lastName.Trim()
+            FirstName = firstNameTrim,
+            LastName = lastNameTrim,
+            PhoneNumber = string.IsNullOrWhiteSpace(phoneTrim) ? null : phoneTrim,
+            IsActive = true
         };
 
-        var result = await userManager.CreateAsync(user, password);
+        var result = await userManager.CreateAsync(user, passwordTrim);
         if (!result.Succeeded)
             return (false, string.Join("; ", result.Errors.Select(e => e.Description)), Guid.Empty);
 

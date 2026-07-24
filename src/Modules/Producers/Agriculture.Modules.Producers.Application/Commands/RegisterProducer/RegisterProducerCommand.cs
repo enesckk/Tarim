@@ -13,7 +13,8 @@ public sealed record RegisterProducerCommand(
     string NationalId,
     string Phone,
     string? Email,
-    string? Address) : ICommand<Guid>;
+    string? Address,
+    Guid? UserId = null) : ICommand<Guid>;
 
 public sealed class RegisterProducerCommandValidator : AbstractValidator<RegisterProducerCommand>
 {
@@ -38,7 +39,8 @@ internal sealed class RegisterProducerCommandHandler(IProducerRepository reposit
             request.NationalId,
             request.Phone,
             request.Email,
-            request.Address);
+            request.Address,
+            request.UserId);
 
         await repository.AddAsync(producer, cancellationToken);
         await uow.SaveChangesAsync(cancellationToken);

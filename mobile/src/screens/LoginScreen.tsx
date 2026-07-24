@@ -8,15 +8,16 @@ import {
   View,
 } from 'react-native';
 import { useAuth } from '../auth/AuthContext';
+import { LeafMark } from '../components/design';
 import { PrimaryButton, Screen } from '../components/ui';
 import { colors, radii, spacing, tap, typography } from '../theme';
 import { ApiError } from '../api/client';
+import { API_BASE_URL } from '../api/config';
 
 export function LoginScreen() {
   const { signIn } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState(__DEV__ ? '5537472823' : '');
+  const [password, setPassword] = useState(__DEV__ ? 'asd' : '');  const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
@@ -44,14 +45,20 @@ export function LoginScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.hero}>
+          <LeafMark size={44} />
           <Text style={styles.brand}>Tarım</Text>
           <Text style={styles.subtitle}>Hesabınla devam et</Text>
+          {__DEV__ ? (
+            <Text style={styles.devUrl} numberOfLines={1}>
+              Sunucu: {API_BASE_URL}
+            </Text>
+          ) : null}
         </View>
 
         <TextInput
           autoCapitalize="none"
           autoCorrect={false}
-          keyboardType="email-address"
+          keyboardType="phone-pad"
           value={email}
           onChangeText={setEmail}
           placeholder="Telefon veya e-posta"
@@ -92,10 +99,17 @@ const styles = StyleSheet.create({
   },
   brand: {
     ...typography.brand,
+    marginTop: spacing.md,
     marginBottom: spacing.sm,
   },
   subtitle: {
     ...typography.helper,
+  },
+  devUrl: {
+    ...typography.helper,
+    fontSize: 11,
+    color: colors.muted,
+    marginTop: spacing.sm,
   },
   input: {
     ...typography.body,

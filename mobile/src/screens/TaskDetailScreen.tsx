@@ -21,6 +21,7 @@ import {
   uploadTaskPhoto,
 } from '../api/client';
 import { API_BASE_URL } from '../api/config';
+import { StatusBadge } from '../components/design';
 import {
   EmptyState,
   LoadingBlock,
@@ -34,20 +35,29 @@ import {
   isApproved,
   isAwaitingApproval,
   isNeedsRevision,
-  taskStatusLabel,
+  taskBadge,
 } from '../utils/taskStatus';
 import * as ImagePicker from 'expo-image-picker';
 import { enqueuePhotoUpload } from '../offline/photoQueue';
 
+function meaningfulText(value?: string | null) {
+  const t = value?.trim() ?? '';
+  if (t.length < 2) return null;
+  // Tek harf / anlamsız placeholder (ör. "x") gösterme
+  if (/^[a-zA-ZığüşöçİĞÜŞÖÇ]$/u.test(t)) return null;
+  return t;
+}
+
 export function TaskDetailScreen() {
   const { authFetch, accessToken, refreshToken, user } = useAuth();
   const officer = isOfficer(user?.roles);
-  const route = useRoute<RouteProp<RootStackParamList, 'TaskDetail'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'GorevDetay'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [task, setTask] = useState<TaskDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [quantity, setQuantity] = useState('');
+  const [producerNote, setProducerNote] = useState('');
   const [localPhotos, setLocalPhotos] = useState<string[]>([]);
   const [saving, setSaving] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -76,7 +86,7 @@ export function TaskDetailScreen() {
   if (loading) return <LoadingBlock />;
   if (error || !task) {
     return (
-      <Screen>
+      <Screen edges={['left', 'right', 'bottom']}>
         <EmptyState
           title="Görev yüklenemedi"
           body="Bağlantınızı kontrol edin."
@@ -94,15 +104,28 @@ export function TaskDetailScreen() {
   const awaiting = isAwaitingApproval(task.status);
   const needsRevision = isNeedsRevision(task.status);
   const overdue = isOverdueTask(task.status, task.dueDate);
+  const badge = taskBadge(task, overdue);
   const serverPhotoCount = task.photoCount ?? task.photos?.length ?? 0;
-  const hasPhoto = serverPhotoCount > 0 || localPhotos.length > 0;
+  const hasPhoto = serverPhotoCount > 0;
+  const pendingLocalPhoto = localPhotos.length > 0 && serverPhotoCount === 0;
   const needsPhoto = task.requiresPhoto && !hasPhoto;
   const needsQuantity = Boolean(task.requiresQuantity);
   const quantityOk = !needsQuantity || quantity.trim().length > 0;
-  // Producer cannot edit after submit; officer acts on awaiting.
   const closed = approved || (awaiting && !officer);
   const canSubmit = !officer && !closed && !needsPhoto && quantityOk;
-  const statusText = taskStatusLabel(task, overdue);
+  const guidance = meaningfulText(task.description);
+  const revisionReason = meaningfulText(task.revisionReason);
+
+  const buildNotes = () =>
+    [
+      producerNote.trim() || null,
+      needsQuantity && quantity.trim()
+        ? `Miktar: ${quantity.trim()}${task.quantityUnit ? ` ${task.quantityUnit}` : ''}`
+        : null,
+      'Mobil uygulamadan gönderildi',
+    ]
+      .filter(Boolean)
+      .join('\n');
 
   const approve = async () => {
     setSaving(true);
@@ -161,23 +184,13 @@ export function TaskDetailScreen() {
         );
         return;
       }
-      navigation.navigate('ChatThread', { conversationId: thread.id });
+      navigation.navigate('SohbetKonu', { conversationId: thread.id });
     } catch (e) {
       setActionError(
         e instanceof ApiError ? e.message : 'Sohbet açılamadı.',
       );
     }
   };
-
-  const buildNotes = () =>
-    [
-      'Mobil uygulamadan gönderildi',
-      needsQuantity && quantity.trim()
-        ? `Miktar: ${quantity.trim()}${task.quantityUnit ? ` ${task.quantityUnit}` : ''}`
-        : null,
-    ]
-      .filter(Boolean)
-      .join(' · ');
 
   const pickFromGallery = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -195,7 +208,7 @@ export function TaskDetailScreen() {
       });
       setLocalPhotos((prev) => [...prev, asset.uri]);
       await load();
-    } catch (e) {
+    } catch {
       await enqueuePhotoUpload({
         taskId: task.id,
         localUri: asset.uri,
@@ -216,7 +229,7 @@ export function TaskDetailScreen() {
       setActionError('Önce miktarı girin.');
       return;
     }
-    navigation.navigate('CapturePhoto', {
+    navigation.navigate('FotografCek', {
       taskId: task.id,
       notes: buildNotes(),
     });
@@ -224,14 +237,13 @@ export function TaskDetailScreen() {
 
   const goComplete = () => {
     if (!canSubmit) return;
-    navigation.navigate('CompleteTask', {
+    navigation.navigate('OnayaGonder', {
       taskId: task.id,
-      photoAttached: hasPhoto || !task.requiresPhoto,
+      photoAttached: hasPhoto,
       notes: buildNotes(),
     });
   };
 
-  const guidance = task.description?.trim();
   const videoUrl = task.videoUrl?.trim() || null;
   const imageRaw = task.imageUrl?.trim() || null;
   const guidanceImage = imageRaw
@@ -247,23 +259,38 @@ export function TaskDetailScreen() {
     ) ?? [];
 
   return (
-    <Screen>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        <Text style={styles.title}>{task.title}</Text>
-        <Text
-          style={[
-            styles.metaLine,
-            awaiting && styles.metaWarn,
-            approved && styles.metaOk,
-            overdue && !closed && styles.metaDanger,
-          ]}
-        >
-          {[statusText, task.dueDate ? formatDueLabel(task.dueDate) : null]
-            .filter(Boolean)
-            .join(' · ')}
-        </Text>
+    <Screen edges={['left', 'right', 'bottom']}>
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.hero}>
+          <View style={styles.heroTop}>
+            <Text style={styles.title}>{task.title}</Text>
+            <StatusBadge label={badge.label} tone={badge.tone} />
+          </View>
+          {task.dueDate ? (
+            <Text
+              style={[
+                styles.dueLine,
+                overdue && !closed && styles.dueDanger,
+                approved && styles.dueOk,
+              ]}
+            >
+              {formatDueLabel(task.dueDate)}
+            </Text>
+          ) : null}
+          {task.landName ? (
+            <Text style={styles.landLine}>{task.landName}</Text>
+          ) : null}
+        </View>
 
-        {guidance ? <Text style={styles.body}>{guidance}</Text> : null}
+        {guidance ? (
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>Açıklama</Text>
+            <Text style={styles.cardBody}>{guidance}</Text>
+          </View>
+        ) : null}
 
         {guidanceImage ? (
           <Image
@@ -283,44 +310,52 @@ export function TaskDetailScreen() {
           </Pressable>
         ) : null}
 
-        {approved ? (
-          <Text style={styles.hint}>
-            Onaylandı
-            {task.completedAtUtc
-              ? ` · ${new Date(task.completedAtUtc).toLocaleDateString('tr-TR')}`
-              : ''}
-          </Text>
-        ) : null}
-
-        {needsRevision && task.revisionReason ? (
-          <Text style={[styles.hint, styles.metaWarn]}>
-            Düzeltme: {task.revisionReason}
-          </Text>
-        ) : null}
-
         {needsRevision && !officer ? (
-          <Text style={[styles.hint, styles.metaWarn]}>
-            Uzman düzeltme istedi — fotoğrafı yenile ve tekrar gönder
-          </Text>
+          <View style={styles.alertCard}>
+            <Text style={styles.alertTitle}>Düzeltme istendi</Text>
+            {revisionReason ? (
+              <Text style={styles.alertBody}>{revisionReason}</Text>
+            ) : null}
+            <Text style={styles.alertHint}>
+              Fotoğrafı yenileyip tekrar onaya gönderin.
+            </Text>
+          </View>
         ) : null}
 
-        {awaiting && officer ? (
-          <Text style={[styles.hint, styles.metaWarn]}>
-            Kanıtı kontrol et — onayla veya düzeltme iste
-          </Text>
+        {approved ? (
+          <View style={[styles.card, styles.okCard]}>
+            <Text style={styles.okTitle}>Onaylandı</Text>
+            {task.completedAtUtc ? (
+              <Text style={styles.okBody}>
+                {new Date(task.completedAtUtc).toLocaleDateString('tr-TR')}
+              </Text>
+            ) : null}
+          </View>
         ) : null}
 
         {awaiting && !officer ? (
-          <Text style={[styles.hint, styles.metaWarn]}>
-            Uzmana gönderildi — onay gelince burada
-          </Text>
+          <View style={styles.waitCard}>
+            <Text style={styles.waitTitle}>Uzman onayı bekleniyor</Text>
+            <Text style={styles.waitBody}>
+              Gönderiniz incelenir; sonuç burada ve bildirimlerde görünür.
+            </Text>
+          </View>
+        ) : null}
+
+        {awaiting && officer ? (
+          <View style={styles.waitCard}>
+            <Text style={styles.waitTitle}>Onay bekliyor</Text>
+            <Text style={styles.waitBody}>
+              Kanıtı kontrol edin — onaylayın veya düzeltme isteyin.
+            </Text>
+          </View>
         ) : null}
 
         {officer && awaiting ? (
           <View style={styles.actions}>
             {(photoUrls.length > 0 || localPhotos.length > 0) && (
-              <View style={styles.field}>
-                <Text style={styles.label}>Kanıt fotoğrafları</Text>
+              <View style={styles.card}>
+                <Text style={styles.cardLabel}>Kanıt fotoğrafları</Text>
                 <View style={styles.photos}>
                   {photoUrls.map((uri) => (
                     <Image key={uri} source={{ uri }} style={styles.thumb} />
@@ -349,14 +384,15 @@ export function TaskDetailScreen() {
               </>
             ) : (
               <>
-                <Text style={styles.label}>Düzeltme nedeni</Text>
+                <Text style={styles.fieldLabel}>Düzeltme nedeni</Text>
                 <TextInput
                   value={rejectReason}
                   onChangeText={setRejectReason}
                   placeholder="Örn. Fotoğraf net değil, yakından çekin"
                   placeholderTextColor={colors.muted}
-                  style={styles.input}
+                  style={[styles.input, styles.area]}
                   multiline
+                  textAlignVertical="top"
                 />
                 <PrimaryButton
                   label="Üreticiye gönder"
@@ -380,8 +416,8 @@ export function TaskDetailScreen() {
         {!closed && !officer ? (
           <>
             {needsQuantity ? (
-              <View style={styles.field}>
-                <Text style={styles.label}>
+              <View style={styles.card}>
+                <Text style={styles.fieldLabel}>
                   {task.quantityUnit
                     ? `Miktar (${task.quantityUnit})`
                     : 'Miktar'}
@@ -397,23 +433,52 @@ export function TaskDetailScreen() {
               </View>
             ) : null}
 
-            {(task.requiresPhoto || photoUrls.length > 0 || localPhotos.length > 0) && (
-              <View style={styles.field}>
-                <Text style={styles.label}>
+            {(task.requiresPhoto ||
+              photoUrls.length > 0 ||
+              localPhotos.length > 0) && (
+              <View style={styles.card}>
+                <Text style={styles.cardLabel}>
                   {task.requiresPhoto ? 'Fotoğraf (gerekli)' : 'Fotoğraf'}
                 </Text>
-                <View style={styles.photos}>
-                  {photoUrls.map((uri) => (
-                    <Image key={uri} source={{ uri }} style={styles.thumb} />
-                  ))}
-                  {localPhotos.map((uri) => (
-                    <Image key={uri} source={{ uri }} style={styles.thumb} />
-                  ))}
-                </View>
+                {photoUrls.length > 0 || localPhotos.length > 0 ? (
+                  <View style={styles.photos}>
+                    {photoUrls.map((uri) => (
+                      <Image key={uri} source={{ uri }} style={styles.thumb} />
+                    ))}
+                    {localPhotos.map((uri) => (
+                      <Image key={uri} source={{ uri }} style={styles.thumb} />
+                    ))}
+                  </View>
+                ) : (
+                  <Text style={styles.cardHint}>
+                    Onaya göndermeden önce fotoğraf ekleyin.
+                  </Text>
+                )}
               </View>
             )}
 
+            {!needsPhoto ? (
+              <View style={styles.card}>
+                <Text style={styles.fieldLabel}>Açıklama (isteğe bağlı)</Text>
+                <TextInput
+                  value={producerNote}
+                  onChangeText={setProducerNote}
+                  placeholder="Uzmana not yazın…"
+                  placeholderTextColor={colors.muted}
+                  style={[styles.input, styles.area]}
+                  multiline
+                  textAlignVertical="top"
+                />
+              </View>
+            ) : null}
+
             {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
+            {pendingLocalPhoto ? (
+              <Text style={styles.error}>
+                Fotoğraf henüz sunucuya yüklenmedi. Bağlantı gelince yükleyin;
+                onaya göndermek için sunucu fotoğrafı gerekli.
+              </Text>
+            ) : null}
 
             <View style={styles.actions}>
               {needsPhoto ? (
@@ -452,8 +517,9 @@ export function TaskDetailScreen() {
                 label="Uzmana sor"
                 tone="secondary"
                 onPress={() =>
-                  navigation.navigate('AskExpert', {
+                  navigation.navigate('UzmanaSor', {
                     taskId: task.id,
+                    taskTitle: task.title,
                     landId: task.landId,
                   })
                 }
@@ -462,7 +528,7 @@ export function TaskDetailScreen() {
               <Pressable
                 accessibilityRole="button"
                 onPress={() =>
-                  navigation.navigate('ReportProblem', {
+                  navigation.navigate('SorunBildir', {
                     taskId: task.id,
                     taskTitle: task.title,
                     landId: task.landId,
@@ -480,8 +546,9 @@ export function TaskDetailScreen() {
               label="Uzmana sor"
               tone="secondary"
               onPress={() =>
-                navigation.navigate('AskExpert', {
+                navigation.navigate('UzmanaSor', {
                   taskId: task.id,
+                  taskTitle: task.title,
                   landId: task.landId,
                 })
               }
@@ -498,29 +565,104 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screen,
     paddingTop: spacing.md,
     paddingBottom: spacing.xxxl,
+    gap: spacing.md,
+  },
+  hero: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    padding: spacing.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
     gap: spacing.sm,
+  },
+  heroTop: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: spacing.md,
   },
   title: {
     ...typography.screenTitle,
-    fontSize: 26,
+    fontSize: 24,
+    flex: 1,
   },
-  metaLine: {
+  dueLine: {
     ...typography.helper,
-    marginBottom: spacing.md,
+    fontWeight: '600',
   },
-  metaWarn: { color: colors.warning, fontWeight: '600' },
-  metaOk: { color: colors.success, fontWeight: '600' },
-  metaDanger: { color: colors.danger, fontWeight: '600' },
-  body: {
+  dueDanger: { color: colors.danger },
+  dueOk: { color: colors.success },
+  landLine: {
+    ...typography.caption,
+    color: colors.muted,
+  },
+  card: {
+    backgroundColor: colors.surface,
+    borderRadius: radii.lg,
+    padding: spacing.xl,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    gap: spacing.sm,
+  },
+  cardLabel: {
+    ...typography.label,
+  },
+  cardBody: {
     ...typography.body,
-    marginBottom: spacing.md,
+  },
+  cardHint: {
+    ...typography.helper,
+  },
+  okCard: {
+    backgroundColor: colors.successSoft,
+    borderColor: colors.primarySoft,
+  },
+  okTitle: {
+    ...typography.bodyStrong,
+    color: colors.success,
+  },
+  okBody: {
+    ...typography.helper,
+    color: colors.success,
+  },
+  alertCard: {
+    backgroundColor: colors.warningSoft,
+    borderRadius: radii.lg,
+    padding: spacing.xl,
+    borderWidth: 1,
+    borderColor: '#FFCC80',
+    gap: spacing.sm,
+  },
+  alertTitle: {
+    ...typography.bodyStrong,
+    color: colors.warning,
+  },
+  alertBody: {
+    ...typography.body,
+    color: colors.text,
+  },
+  alertHint: {
+    ...typography.helper,
+    color: colors.warning,
+    fontWeight: '600',
+  },
+  waitCard: {
+    backgroundColor: colors.badgeTodaySoft,
+    borderRadius: radii.lg,
+    padding: spacing.xl,
+    gap: spacing.xs,
+  },
+  waitTitle: {
+    ...typography.bodyStrong,
+    color: colors.badgeToday,
+  },
+  waitBody: {
+    ...typography.helper,
   },
   guidanceImage: {
     width: '100%',
     height: 200,
     borderRadius: radii.lg,
     backgroundColor: colors.bgWarm,
-    marginBottom: spacing.md,
   },
   videoBtn: {
     minHeight: 48,
@@ -530,33 +672,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.lg,
     paddingHorizontal: spacing.lg,
   },
   videoBtnText: {
     ...typography.bodyStrong,
     color: colors.primary,
   },
-  hint: {
-    ...typography.helper,
-    marginBottom: spacing.md,
-  },
-  field: {
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-  label: {
-    ...typography.caption,
+  fieldLabel: {
+    ...typography.label,
+    marginBottom: 4,
   },
   input: {
     minHeight: tap.primary,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.borderStrong,
+    borderWidth: 1.5,
+    borderColor: colors.border,
     borderRadius: radii.md,
     paddingHorizontal: spacing.lg,
     fontSize: 17,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.bg,
     color: colors.text,
+  },
+  area: {
+    minHeight: 110,
+    paddingTop: spacing.md,
   },
   photos: {
     gap: spacing.sm,
@@ -570,10 +708,10 @@ const styles = StyleSheet.create({
   error: {
     color: colors.danger,
     fontSize: 15,
-    marginTop: spacing.sm,
+    lineHeight: 22,
   },
   actions: {
-    marginTop: spacing.xl,
+    marginTop: spacing.sm,
     gap: spacing.md,
   },
   linkBtn: {

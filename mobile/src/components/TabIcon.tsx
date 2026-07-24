@@ -1,18 +1,19 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 import { colors } from '../theme/colors';
+import type { MainTabParamList } from '../navigation/types';
 
-type TabName = 'Today' | 'Messages' | 'Notifications' | 'Profile';
+type TabName = keyof MainTabParamList;
 
 /**
- * Lightweight geometric tab icons — no vector-icon dependency.
- * Active = filled forest; inactive = muted outline weight.
+ * Çizimli sekme ikonları — emoji yok.
+ * Aktif = dolu yeşil; pasif = soluk çerçeve.
  */
 export function TabIcon({ name, focused }: { name: TabName; focused: boolean }) {
   const stroke = focused ? colors.primary : colors.tabInactive;
   const fill = focused ? colors.primarySoft : 'transparent';
 
-  if (name === 'Today') {
+  if (name === 'Gorevler') {
     return (
       <View style={[styles.box, { borderColor: stroke, backgroundColor: fill }]}>
         <View style={[styles.checkBar, { backgroundColor: stroke }]} />
@@ -21,7 +22,7 @@ export function TabIcon({ name, focused }: { name: TabName; focused: boolean }) 
     );
   }
 
-  if (name === 'Messages') {
+  if (name === 'Sohbet') {
     return (
       <View style={[styles.bubble, { borderColor: stroke, backgroundColor: fill }]}>
         <View style={[styles.bubbleTail, { borderTopColor: stroke }]} />
@@ -29,7 +30,7 @@ export function TabIcon({ name, focused }: { name: TabName; focused: boolean }) 
     );
   }
 
-  if (name === 'Notifications') {
+  if (name === 'Bildirimler') {
     return (
       <View style={styles.bellWrap}>
         <View style={[styles.bell, { borderColor: stroke, backgroundColor: fill }]} />

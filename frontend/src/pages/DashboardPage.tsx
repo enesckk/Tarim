@@ -14,7 +14,7 @@ import {
   Workflow,
 } from 'lucide-react'
 import { api } from '../api/client'
-import type { OperationsSummary } from '../api/types'
+import type { OperationsSummary, TaskItem } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin } from '../auth/roles'
 import { LandStatusMap } from '../components/LandStatusMap'
@@ -69,6 +69,14 @@ export function DashboardPage() {
     enabled: Boolean(token),
     refetchInterval: 60_000,
   })
+
+  const pendingApprovals = useQuery({
+    queryKey: ['pending-approval'],
+    queryFn: () => api<TaskItem[]>('/api/tasks/pending-approval', {}, token),
+    enabled: Boolean(token),
+    refetchInterval: 30_000,
+  })
+  const pendingCount = (pendingApprovals.data ?? []).filter((t) => t.status === 5).length
 
   const allAlerts = data?.landAlerts ?? data?.overdueTaskItems ?? []
   const visibleAlerts = alertsExpanded
@@ -229,6 +237,18 @@ export function DashboardPage() {
             </section>
 
             <aside className="ops-people">
+              <Link to="/approvals" className="ops-nav-card">
+                <div className="ops-nav-card-text">
+                  <strong>Onaylar</strong>
+                  <span>
+                    {pendingCount > 0
+                      ? `${pendingCount} bekleyen onay`
+                      : 'Kanıt onay kuyruğu'}
+                  </span>
+                </div>
+                <ChevronRight className="ops-nav-card-chevron" aria-hidden />
+              </Link>
+
               <Link to="/producers" className="ops-nav-card">
                 <div className="ops-nav-card-text">
                   <strong>{admin ? 'Üreticiler' : 'Atanan üreticiler'}</strong>
@@ -271,6 +291,15 @@ export function DashboardPage() {
                 </span>
                 <strong>Mesajlar</strong>
                 <span>{admin ? 'Personel sohbeti' : 'Yöneticiye yaz'}</span>
+              </Link>
+              <Link to="/approvals" className="ops-shortcut">
+                <span className="ops-shortcut-icon" aria-hidden>
+                  <CheckCircle2 className="size-4" />
+                </span>
+                <strong>Onaylar</strong>
+                <span>
+                  {pendingCount > 0 ? `${pendingCount} bekleyen` : 'Onay kuyruğu'}
+                </span>
               </Link>
               <Link to="/#uyarilar" className="ops-shortcut">
                 <span className="ops-shortcut-icon ops-shortcut-icon-warn" aria-hidden>

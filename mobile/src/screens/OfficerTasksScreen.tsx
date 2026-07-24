@@ -100,7 +100,7 @@ export function OfficerTasksScreen() {
         renderItem={({ item }) => (
           <Pressable
             accessibilityRole="button"
-            onPress={() => navigation.navigate('TaskDetail', { taskId: item.id })}
+            onPress={() => navigation.navigate('GorevDetay', { taskId: item.id })}
             style={({ pressed }) => [styles.row, pressed && styles.rowPressed]}
           >
             <View style={styles.rowBody}>

@@ -25,9 +25,9 @@ public sealed class RegisterLandCommandValidator : AbstractValidator<RegisterLan
 {
     public RegisterLandCommandValidator()
     {
-        RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
-        RuleFor(x => x.ParcelNumber).NotEmpty().MaximumLength(50);
-        RuleFor(x => x.SizeInDecares).GreaterThan(0);
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(200).WithName("Arazi adı");
+        RuleFor(x => x.ParcelNumber).NotEmpty().MaximumLength(50).WithName("Parsel numarası");
+        RuleFor(x => x.SizeInDecares).GreaterThan(0).WithName("Alan (dekar)");
     }
 }
 

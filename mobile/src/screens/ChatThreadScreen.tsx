@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   FlatList,
   KeyboardAvoidingView,
@@ -16,29 +16,38 @@ import { EmptyState, LoadingBlock, PrimaryButton, Screen } from '../components/u
 import { colors, radii, spacing, tap, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
+function formatMsgTime(iso: string) {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' });
+}
+
 export function ChatThreadScreen() {
   const { authFetch, user } = useAuth();
   const officer = isOfficer(user?.roles);
-  const route = useRoute<RouteProp<RootStackParamList, 'ChatThread'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'SohbetKonu'>>();
   const [detail, setDetail] = useState<ConversationDetail | null>(null);
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState<string | null>(null);
+  const listRef = useRef<FlatList>(null);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (silent = false) => {
     try {
-      setError(false);
+      if (!silent) setError(false);
       const data = await authFetch<ConversationDetail>(
         `/api/conversations/${route.params.conversationId}`,
       );
       setDetail(data);
     } catch {
-      setError(true);
-      setDetail(null);
+      if (!silent) {
+        setError(true);
+        setDetail(null);
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [authFetch, route.params.conversationId]);
 
@@ -46,8 +55,18 @@ export function ChatThreadScreen() {
     useCallback(() => {
       setLoading(true);
       void load();
+      const id = setInterval(() => void load(true), 12_000);
+      return () => clearInterval(id);
     }, [load]),
   );
+
+  useEffect(() => {
+    if (!detail?.messages.length) return;
+    const t = setTimeout(() => {
+      listRef.current?.scrollToEnd({ animated: true });
+    }, 80);
+    return () => clearTimeout(t);
+  }, [detail?.messages.length]);
 
   const send = async () => {
     if (!body.trim()) return;
@@ -59,7 +78,7 @@ export function ChatThreadScreen() {
         body: JSON.stringify({ body: body.trim() }),
       });
       setBody('');
-      await load();
+      await load(true);
     } catch {
       setSendError('Mesaj gönderilemedi. Tekrar deneyin.');
     } finally {
@@ -70,7 +89,7 @@ export function ChatThreadScreen() {
   if (loading) return <LoadingBlock />;
   if (error || !detail) {
     return (
-      <Screen>
+      <Screen edges={['left', 'right', 'bottom']}>
         <EmptyState
           title="Sohbet yüklenemedi"
           body="Bağlantınızı kontrol edin."
@@ -85,7 +104,7 @@ export function ChatThreadScreen() {
   }
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -93,9 +112,13 @@ export function ChatThreadScreen() {
       >
         <Text style={styles.title}>{detail.subject}</Text>
         <FlatList
+          ref={listRef}
           data={detail.messages}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.list}
+          onContentSizeChange={() =>
+            listRef.current?.scrollToEnd({ animated: false })
+          }
           ListEmptyComponent={
             <Text style={styles.empty}>
               {officer
@@ -107,7 +130,14 @@ export function ChatThreadScreen() {
             const mine = item.senderUserId === user?.userId;
             return (
               <View style={[styles.bubble, mine ? styles.mine : styles.theirs]}>
-                <Text style={[styles.bubbleText, mine && styles.mineText]}>{item.body}</Text>
+                <Text style={[styles.bubbleText, mine && styles.mineText]}>
+                  {item.body}
+                </Text>
+                {item.sentAtUtc ? (
+                  <Text style={[styles.time, mine && styles.timeMine]}>
+                    {formatMsgTime(item.sentAtUtc)}
+                  </Text>
+                ) : null}
               </View>
             );
           }}
@@ -138,17 +168,20 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   list: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.screen,
+    paddingBottom: spacing.lg,
     flexGrow: 1,
   },
   empty: {
-    ...typography.body,
-    padding: spacing.sm,
+    ...typography.helper,
+    marginTop: spacing.xxl,
+    textAlign: 'center',
   },
   bubble: {
-    maxWidth: '85%',
-    borderRadius: radii.md,
-    padding: spacing.md,
+    maxWidth: '82%',
+    borderRadius: radii.lg,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
     marginBottom: spacing.sm,
   },
   mine: {
@@ -158,20 +191,30 @@ const styles = StyleSheet.create({
   theirs: {
     alignSelf: 'flex-start',
     backgroundColor: colors.surface,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
   },
   bubbleText: {
-    fontSize: 16,
+    ...typography.body,
     color: colors.text,
-    lineHeight: 22,
   },
   mineText: {
     color: colors.onPrimary,
   },
+  time: {
+    marginTop: 4,
+    fontSize: 11,
+    color: colors.muted,
+  },
+  timeMine: {
+    color: 'rgba(255,255,255,0.75)',
+    textAlign: 'right',
+  },
   composer: {
-    padding: spacing.lg,
-    gap: spacing.md,
+    paddingHorizontal: spacing.screen,
+    paddingBottom: spacing.lg,
+    paddingTop: spacing.sm,
+    gap: spacing.sm,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: colors.border,
     backgroundColor: colors.bg,
@@ -184,13 +227,12 @@ const styles = StyleSheet.create({
     borderRadius: radii.md,
     paddingHorizontal: spacing.lg,
     paddingVertical: spacing.md,
-    fontSize: 16,
+    fontSize: 17,
     backgroundColor: colors.surface,
     color: colors.text,
   },
   sendError: {
     color: colors.danger,
     fontSize: 14,
-    marginBottom: spacing.xs,
   },
 });

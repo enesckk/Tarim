@@ -141,7 +141,7 @@ async function doFetch(path: string, options: RequestInit, accessToken?: string 
       headers,
     });
   } catch {
-    throw new ApiError('Bağlantı kurulamadı. İnternetinizi veya API adresini kontrol edin.', 0);
+    throw new ApiError('Bağlantı kurulamadı. İnternetinizi veya sunucu adresini kontrol edin.', 0);
   }
 }
 

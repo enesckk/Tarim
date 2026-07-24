@@ -10,6 +10,10 @@ dist/
 build/
 .env
 .env.local
+mobile/.env
+appsettings.*.local.json
+backups/
+*.bak
 *.log
 .DS_Store
 coverage/

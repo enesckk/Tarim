@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, MessageSquare, NotebookPen, ShieldCheck, Sprout } from 'lucide-react'
+import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, MessageSquare, NotebookPen, RotateCcw, ShieldCheck, Sprout, XCircle } from 'lucide-react'
 import { api, API_BASE } from '../api/client'
 import type {
   ChatMessage,
@@ -18,10 +18,34 @@ import type {
   TaskItem,
   Workflow,
 } from '../api/types'
+import type { TaskPhoto } from '../api/types'
 import { PRODUCTION_WORKFLOW_STATUS, TASK_STATUS } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin, isOfficer } from '../auth/roles'
+import { Lightbox, type LightboxImage } from '../components/Lightbox'
 import '../layout/layout.css'
+
+function taskPhotoSrc(p: TaskPhoto) {
+  const key = p.storageKey
+  if (key.startsWith('http')) return key
+  return `${API_BASE}/${key.replace(/^\//, '')}`
+}
+
+function normalizeDateOnly(value: string): string | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+
+  const isoMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed)
+  if (isoMatch) return trimmed
+
+  const localMatch = /^(\d{1,2})[./-](\d{1,2})[./-](\d{4})$/.exec(trimmed)
+  if (!localMatch) {
+    throw new Error('Son tarihi gün.ay.yıl biçiminde girin.')
+  }
+
+  const [, day, month, year] = localMatch
+  return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+}
 
 export function LandDetailPage() {
   const { landId } = useParams<{ landId: string }>()
@@ -42,6 +66,11 @@ export function LandDetailPage() {
   const [noteBody, setNoteBody] = useState('')
   const [selectedThreadId, setSelectedThreadId] = useState<string | null>(null)
   const [chatBody, setChatBody] = useState('')
+  const [reviseFor, setReviseFor] = useState<string | null>(null)
+  const [revisionReason, setRevisionReason] = useState('')
+  const [lightbox, setLightbox] = useState<{ images: LightboxImage[]; index: number } | null>(
+    null,
+  )
   const [coordsForm, setCoordsForm] = useState({ latitude: '', longitude: '' })
   const [taskForm, setTaskForm] = useState({
     title: '',
@@ -285,28 +314,53 @@ export function LandDetailPage() {
     },
   })
 
-  const sendLandTask = useMutation({
-    mutationFn: () =>
+  const reviseLandTask = useMutation({
+    mutationFn: ({ taskId, reason }: { taskId: string; reason: string }) =>
       api(
+        `/api/tasks/${taskId}/reject`,
+        { method: 'POST', body: JSON.stringify({ reason }) },
+        token,
+      ),
+    onSuccess: async () => {
+      setReviseFor(null)
+      setRevisionReason('')
+      await invalidateTaskActions()
+    },
+  })
+
+  const cancelLandTask = useMutation({
+    mutationFn: (taskId: string) =>
+      api(`/api/tasks/${taskId}/cancel`, { method: 'POST' }, token),
+    onSuccess: invalidateTaskActions,
+  })
+
+  const sendLandTask = useMutation({
+    mutationFn: () => {
+      const dueDate = normalizeDateOnly(taskForm.dueDate)
+      return api(
         `/api/lands/${landId}/tasks`,
         {
           method: 'POST',
           body: JSON.stringify({
             title: taskForm.title.trim(),
             description: taskForm.description.trim() || null,
-            dueDate: taskForm.dueDate || null,
+            dueDate,
             requiresPhoto: taskForm.requiresPhoto,
           }),
         },
         token,
-      ),
+      )
+    },
     onSuccess: async () => {
       setTaskForm({ title: '', description: '', dueDate: '', requiresPhoto: true })
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['land-tasks', landId] }),
         queryClient.invalidateQueries({ queryKey: ['tasks'] }),
         queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+        queryClient.invalidateQueries({ queryKey: ['land-alerts', landId] }),
+        queryClient.invalidateQueries({ queryKey: ['land', landId] }),
       ])
+      window.setTimeout(() => sendLandTask.reset(), 2500)
     },
   })
 
@@ -348,6 +402,16 @@ export function LandDetailPage() {
       queryClient.invalidateQueries({ queryKey: ['lands'] }),
       queryClient.invalidateQueries({ queryKey: ['tasks'] }),
       queryClient.invalidateQueries({ queryKey: ['operations-center'] }),
+    ])
+  }
+
+  async function invalidateTaskActions() {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['land-tasks', landId] }),
+      queryClient.invalidateQueries({ queryKey: ['land-alerts', landId] }),
+      queryClient.invalidateQueries({ queryKey: ['tasks'] }),
+      queryClient.invalidateQueries({ queryKey: ['notifications'] }),
+      queryClient.invalidateQueries({ queryKey: ['pending-approval'] }),
     ])
   }
 
@@ -454,6 +518,7 @@ export function LandDetailPage() {
             <p className="panel-title land-alerts-title">
               <AlertTriangle size={16} aria-hidden />
               Uyarılar
+              <span className="land-section-count">{alerts.length}</span>
             </p>
             <p className="land-alerts-intro">
               Geciken veya eksik görev adımları.{' '}
@@ -476,67 +541,75 @@ export function LandDetailPage() {
         </div>
       )}
 
-      <div className="panel" id="gorevler">
-        <p className="panel-title with-icon">
-          <ClipboardList size={16} aria-hidden />
-          Arazi görevleri
-          {awaitingCount > 0 ? (
-            <span className="badge" style={{ marginLeft: 8 }}>
-              {awaitingCount} onay bekliyor
-            </span>
-          ) : null}
-        </p>
-        <p className="muted-copy">
-          Bu arazideki üretici görevlerini görün, yeni görev gönderin ve onay bekleyenleri
-          buradan onaylayın.
-        </p>
+      <div className="panel land-tasks-panel" id="gorevler">
+        <div className="land-section-head">
+          <p className="panel-title with-icon">
+            <ClipboardList size={16} aria-hidden />
+            Arazi görevleri
+            {awaitingCount > 0 ? (
+              <span className="badge badge-warn">{awaitingCount} onay bekliyor</span>
+            ) : null}
+          </p>
+          <p className="muted-copy">
+            Bu arazideki üretici görevlerini görün, yeni görev gönderin ve onay bekleyenleri
+            buradan onaylayın, revize edin veya reddedin.
+          </p>
+        </div>
 
         {canEditOps && (
           <form
-            className="form-grid"
-            style={{ marginBottom: 16 }}
+            className="land-task-form"
             onSubmit={(e) => {
               e.preventDefault()
               if (!taskForm.title.trim()) return
               sendLandTask.mutate()
             }}
           >
-            <label>
-              Yeni görev başlığı
-              <input
-                value={taskForm.title}
-                onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                placeholder="Örn. Sulama kontrolü"
-                required
-              />
-            </label>
-            <label>
-              Açıklama (isteğe bağlı)
-              <input
-                value={taskForm.description}
-                onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
-                placeholder="Üreticiye kısa yönerge"
-              />
-            </label>
-            <div className="form-grid two-col">
-              <label>
-                Son tarih
+            <p className="land-task-form-heading">Yeni görev</p>
+            <div className="land-task-fields">
+              <label className="land-task-field">
+                <span>Görev başlığı</span>
                 <input
-                  type="date"
-                  value={taskForm.dueDate}
-                  onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                  value={taskForm.title}
+                  onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
+                  placeholder="Örn. Sulama kontrolü"
+                  required
                 />
               </label>
-              <label className="checkbox-row" style={{ alignSelf: 'end', marginBottom: 8 }}>
-                <input
-                  type="checkbox"
-                  checked={taskForm.requiresPhoto}
-                  onChange={(e) =>
-                    setTaskForm({ ...taskForm, requiresPhoto: e.target.checked })
-                  }
+              <label className="land-task-field">
+                <span>
+                  Açıklama <em>(isteğe bağlı)</em>
+                </span>
+                <textarea
+                  value={taskForm.description}
+                  onChange={(e) => setTaskForm({ ...taskForm, description: e.target.value })}
+                  placeholder="Üreticiye kısa yönerge"
+                  rows={2}
                 />
-                Fotoğraf zorunlu
               </label>
+              <div className="land-task-meta">
+                <label className="land-task-field">
+                  <span>Son tarih</span>
+                  <input
+                    type="date"
+                    value={taskForm.dueDate}
+                    onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
+                  />
+                </label>
+                <label className={`land-task-toggle${taskForm.requiresPhoto ? ' is-on' : ''}`}>
+                  <input
+                    type="checkbox"
+                    checked={taskForm.requiresPhoto}
+                    onChange={(e) =>
+                      setTaskForm({ ...taskForm, requiresPhoto: e.target.checked })
+                    }
+                  />
+                  <span className="land-task-toggle-copy">
+                    <strong>Fotoğraf zorunlu</strong>
+                    <span>Tamamlarken kanıt fotoğrafı istenir</span>
+                  </span>
+                </label>
+              </div>
             </div>
             {sendLandTask.error && (
               <p className="error">{(sendLandTask.error as Error).message}</p>
@@ -544,7 +617,12 @@ export function LandDetailPage() {
             {sendLandTask.isSuccess && (
               <p className="success-inline">Görev üreticiye gönderildi.</p>
             )}
-            <div className="row-actions">
+            {!land.producerId && (
+              <p className="muted-copy land-task-hint">
+                Görev göndermek için önce bu araziye üretici atayın.
+              </p>
+            )}
+            <div className="land-task-actions">
               <button
                 className="primary-btn"
                 type="submit"
@@ -561,83 +639,177 @@ export function LandDetailPage() {
         ) : landTasks.length === 0 ? (
           <p className="empty">Bu arazide henüz görev yok.</p>
         ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Başlık</th>
-                <th>Vade</th>
-                <th>Durum</th>
-                <th>Foto</th>
-                <th>İşlem</th>
-              </tr>
-            </thead>
-            <tbody>
-              {landTasks.map((t) => {
-                const awaiting = t.status === 5
-                const photo = t.photos?.[0]
-                const count = t.photoCount ?? t.photos?.length ?? 0
-                return (
-                  <tr key={t.id}>
-                    <td>
-                      <div className="table-cell-stack">
-                        <strong>{t.title}</strong>
-                        {t.description ? (
-                          <span className="table-cell-sub">{t.description}</span>
-                        ) : null}
-                      </div>
-                    </td>
-                    <td>{t.dueDate ?? '—'}</td>
-                    <td>
-                      <span
-                        className={
-                          awaiting
-                            ? 'badge badge-warn'
-                            : t.status === 2
-                              ? 'badge badge-ok'
-                              : 'badge'
-                        }
-                      >
-                        {TASK_STATUS[t.status] ?? t.status}
-                      </span>
-                    </td>
-                    <td>
-                      {count > 0 && photo ? (
-                        <a
-                          href={`${API_BASE}${photo.storageKey.startsWith('/') ? '' : '/'}${photo.storageKey}`}
-                          target="_blank"
-                          rel="noreferrer"
+          <div className="land-task-table-wrap">
+            <table className="table land-task-table">
+              <thead>
+                <tr>
+                  <th>Başlık</th>
+                  <th>Vade</th>
+                  <th>Durum</th>
+                  <th>Foto</th>
+                  <th>İşlem</th>
+                </tr>
+              </thead>
+              <tbody>
+                {landTasks.map((t) => {
+                  const awaiting = t.status === 5
+                  const photo = t.photos?.[0]
+                  const count = t.photoCount ?? t.photos?.length ?? 0
+                  const dueLabel = t.dueDate
+                    ? new Date(t.dueDate).toLocaleDateString('tr-TR', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      })
+                    : '—'
+                  return (
+                    <tr key={t.id} className={awaiting ? 'is-awaiting' : undefined}>
+                      <td>
+                        <div className="table-cell-stack">
+                          <strong>{t.title}</strong>
+                          {t.description ? (
+                            <span className="table-cell-sub">{t.description}</span>
+                          ) : null}
+                        </div>
+                      </td>
+                      <td className="land-task-due">{dueLabel}</td>
+                      <td>
+                        <span
+                          className={
+                            awaiting
+                              ? 'badge badge-warn'
+                              : t.status === 2
+                                ? 'badge badge-ok'
+                                : 'badge'
+                          }
                         >
-                          {count} foto
-                        </a>
-                      ) : t.requiresPhoto ? (
-                        <span className="table-cell-emphasis">Zorunlu</span>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                    <td>
-                      {awaiting && canEditOps ? (
-                        <button
-                          type="button"
-                          className="primary-btn"
-                          disabled={approveLandTask.isPending}
-                          onClick={() => approveLandTask.mutate(t.id)}
-                        >
-                          <CheckCircle2 size={14} style={{ marginRight: 4 }} />
-                          Onayla
-                        </button>
-                      ) : (
-                        '—'
-                      )}
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+                          {TASK_STATUS[t.status] ?? t.status}
+                        </span>
+                      </td>
+                      <td>
+                        {count > 0 && photo ? (
+                          <button
+                            type="button"
+                            className="text-link land-task-photo-link"
+                            onClick={() =>
+                              setLightbox({
+                                images: (t.photos ?? []).map((p) => ({
+                                  src: taskPhotoSrc(p),
+                                  alt: p.fileName,
+                                  caption: p.fileName,
+                                })),
+                                index: 0,
+                              })
+                            }
+                          >
+                            {count} foto
+                          </button>
+                        ) : t.requiresPhoto ? (
+                          <span className="table-cell-emphasis">Zorunlu</span>
+                        ) : (
+                          <span className="table-cell-sub">—</span>
+                        )}
+                      </td>
+                      <td>
+                        {awaiting && canEditOps ? (
+                          reviseFor === t.id ? (
+                            <div className="land-task-review-form">
+                              <textarea
+                                value={revisionReason}
+                                onChange={(e) => setRevisionReason(e.target.value)}
+                                rows={2}
+                                placeholder="Üreticiye düzeltme notu (zorunlu)"
+                              />
+                              <div className="land-task-review-actions">
+                                <button
+                                  type="button"
+                                  className="primary-btn land-task-approve-btn"
+                                  disabled={!revisionReason.trim() || reviseLandTask.isPending}
+                                  onClick={() =>
+                                    reviseLandTask.mutate({
+                                      taskId: t.id,
+                                      reason: revisionReason.trim(),
+                                    })
+                                  }
+                                >
+                                  <RotateCcw size={14} aria-hidden />
+                                  Revize et
+                                </button>
+                                <button
+                                  type="button"
+                                  className="ghost-btn"
+                                  onClick={() => {
+                                    setReviseFor(null)
+                                    setRevisionReason('')
+                                  }}
+                                >
+                                  Vazgeç
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="land-task-review-actions">
+                              <button
+                                type="button"
+                                className="primary-btn land-task-approve-btn"
+                                disabled={
+                                  approveLandTask.isPending || cancelLandTask.isPending
+                                }
+                                onClick={() => approveLandTask.mutate(t.id)}
+                              >
+                                <CheckCircle2 size={14} aria-hidden />
+                                Onayla
+                              </button>
+                              <button
+                                type="button"
+                                className="ghost-btn land-task-approve-btn"
+                                disabled={approveLandTask.isPending || cancelLandTask.isPending}
+                                onClick={() => {
+                                  setReviseFor(t.id)
+                                  setRevisionReason('')
+                                }}
+                              >
+                                <RotateCcw size={14} aria-hidden />
+                                Revize et
+                              </button>
+                              <button
+                                type="button"
+                                className="ghost-btn land-task-approve-btn"
+                                disabled={approveLandTask.isPending || cancelLandTask.isPending}
+                                onClick={() => {
+                                  if (
+                                    window.confirm(
+                                      'Bu görevi kalıcı olarak reddetmek istediğinize emin misiniz?',
+                                    )
+                                  ) {
+                                    cancelLandTask.mutate(t.id)
+                                  }
+                                }}
+                              >
+                                <XCircle size={14} aria-hidden />
+                                Reddet
+                              </button>
+                            </div>
+                          )
+                        ) : (
+                          <span className="table-cell-sub">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
         {approveLandTask.error && (
           <p className="error empty">{(approveLandTask.error as Error).message}</p>
+        )}
+        {reviseLandTask.error && (
+          <p className="error empty">{(reviseLandTask.error as Error).message}</p>
+        )}
+        {cancelLandTask.error && (
+          <p className="error empty">{(cancelLandTask.error as Error).message}</p>
         )}
       </div>
 
@@ -1134,6 +1306,14 @@ export function LandDetailPage() {
           </ul>
         )}
       </div>
+
+      {lightbox ? (
+        <Lightbox
+          images={lightbox.images}
+          startIndex={lightbox.index}
+          onClose={() => setLightbox(null)}
+        />
+      ) : null}
     </section>
   )
 }

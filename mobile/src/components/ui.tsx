@@ -12,12 +12,14 @@ import { colors, radii, spacing, tap, typography } from '../theme';
 export function Screen({
   children,
   style,
+  edges = ['top', 'left', 'right'],
 }: {
   children: React.ReactNode;
   style?: ViewStyle;
+  edges?: Array<'top' | 'right' | 'bottom' | 'left'>;
 }) {
   return (
-    <SafeAreaView style={[styles.screen, style]} edges={['top', 'left', 'right']}>
+    <SafeAreaView style={[styles.screen, style]} edges={edges}>
       {children}
     </SafeAreaView>
   );

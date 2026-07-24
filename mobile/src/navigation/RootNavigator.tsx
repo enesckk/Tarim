@@ -58,7 +58,7 @@ function TabLabel({ label, focused }: { label: string; focused: boolean }) {
   );
 }
 
-function MainTabs() {
+function AnaSekmeler() {
   const insets = useSafeAreaInsets();
   const bottomPad = Math.max(insets.bottom, 8);
   const { authFetch, user } = useAuth();
@@ -76,7 +76,7 @@ function MainTabs() {
       setNotifUnread(notifs.filter((n) => !n.isRead).length);
       setChatUnread(convos.filter((c) => c.hasUnread).length);
     } catch {
-      // Keep last known badge counts on transient errors.
+      // Geçici hatalarda son rozet sayılarını koru.
     }
   }, [authFetch]);
 
@@ -112,46 +112,46 @@ function MainTabs() {
       }}
     >
       <Tab.Screen
-        name="Today"
+        name="Gorevler"
         component={officer ? OfficerTasksScreen : TodayTasksScreen}
         options={{
           tabBarLabel: ({ focused }) => (
             <TabLabel label={officer ? 'Onaylar' : 'Görevler'} focused={focused} />
           ),
-          tabBarIcon: ({ focused }) => <TabIcon name="Today" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="Gorevler" focused={focused} />,
           tabBarAccessibilityLabel: officer ? 'Onaylar' : 'Görevler',
         }}
       />
       <Tab.Screen
-        name="Messages"
+        name="Sohbet"
         component={officer ? OfficerMessagesScreen : MessagesScreen}
         options={{
           tabBarLabel: ({ focused }) => <TabLabel label="Sohbet" focused={focused} />,
-          tabBarIcon: ({ focused }) => <TabIcon name="Messages" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="Sohbet" focused={focused} />,
           tabBarAccessibilityLabel: 'Sohbet',
           tabBarBadge: chatUnread > 0 ? (chatUnread > 9 ? '9+' : chatUnread) : undefined,
         }}
       />
       <Tab.Screen
-        name="Notifications"
+        name="Bildirimler"
         component={NotificationsScreen}
         options={{
           tabBarLabel: ({ focused }) => (
             <TabLabel label="Bildirimler" focused={focused} />
           ),
           tabBarIcon: ({ focused }) => (
-            <TabIcon name="Notifications" focused={focused} />
+            <TabIcon name="Bildirimler" focused={focused} />
           ),
           tabBarAccessibilityLabel: 'Bildirimler',
           tabBarBadge: notifUnread > 0 ? (notifUnread > 9 ? '9+' : notifUnread) : undefined,
         }}
       />
       <Tab.Screen
-        name="Profile"
+        name="Profil"
         component={ProfileScreen}
         options={{
           tabBarLabel: ({ focused }) => <TabLabel label="Profil" focused={focused} />,
-          tabBarIcon: ({ focused }) => <TabIcon name="Profile" focused={focused} />,
+          tabBarIcon: ({ focused }) => <TabIcon name="Profil" focused={focused} />,
           tabBarAccessibilityLabel: 'Profil',
         }}
       />
@@ -178,56 +178,57 @@ export function RootNavigator() {
             backgroundColor: colors.bg,
           },
           headerShadowVisible: false,
+          headerBackTitle: 'Geri',
           contentStyle: { backgroundColor: colors.bg },
         }}
       >
         {!user ? (
           <Stack.Screen
-            name="Login"
+            name="Giris"
             component={LoginScreen}
             options={{ headerShown: false }}
           />
         ) : (
           <>
             <Stack.Screen
-              name="MainTabs"
-              component={MainTabs}
-              options={{ headerShown: false }}
+              name="AnaSekmeler"
+              component={AnaSekmeler}
+              options={{ headerShown: false, title: 'Geri' }}
             />
             <Stack.Screen
-              name="TaskDetail"
+              name="GorevDetay"
               component={TaskDetailScreen}
-              options={{ title: 'Görev detayı' }}
+              options={{ title: 'Görev detayı', headerBackTitle: 'Geri' }}
             />
             <Stack.Screen
-              name="CapturePhoto"
+              name="FotografCek"
               component={CapturePhotoScreen}
-              options={{ title: 'Fotoğraf çek' }}
+              options={{ title: 'Fotoğraf çek', headerBackTitle: 'Geri' }}
             />
             <Stack.Screen
-              name="CompleteTask"
+              name="OnayaGonder"
               component={CompleteTaskScreen}
-              options={{ title: 'Onaya gönder' }}
+              options={{ title: 'Onaya gönder', headerBackTitle: 'Geri' }}
             />
             <Stack.Screen
-              name="AskExpert"
+              name="UzmanaSor"
               component={AskExpertScreen}
-              options={{ title: 'Uzmana sor' }}
+              options={{ title: 'Uzmana sor', headerBackTitle: 'Geri' }}
             />
             <Stack.Screen
-              name="ReportProblem"
+              name="SorunBildir"
               component={ReportProblemScreen}
-              options={{ title: 'Sorun bildir' }}
+              options={{ title: 'Sorun bildir', headerBackTitle: 'Geri' }}
             />
             <Stack.Screen
-              name="ChatThread"
+              name="SohbetKonu"
               component={ChatThreadScreen}
-              options={{ title: 'Sohbet' }}
+              options={{ title: 'Sohbet', headerBackTitle: 'Geri' }}
             />
             <Stack.Screen
-              name="ProducerSearch"
+              name="UreticiAra"
               component={ProducerSearchScreen}
-              options={{ title: 'Üretici ara' }}
+              options={{ title: 'Üretici ara', headerBackTitle: 'Geri' }}
             />
           </>
         )}

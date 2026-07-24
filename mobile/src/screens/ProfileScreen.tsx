@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import {
   Alert,
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,32 +12,27 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../auth/AuthContext';
 import { isOfficer, roleLabel } from '../auth/roles';
 import type { LandDto, MeResponse } from '../api/client';
-import { LoadingBlock, PrimaryButton, Screen } from '../components/ui';
-import { colors, radii, spacing, tap, typography } from '../theme';
+import { LandCard } from '../components/design';
+import { IconGear } from '../components/icons';
+import { EmptyState, LoadingBlock, PrimaryButton, Screen } from '../components/ui';
+import { colors, radii, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
-
-function landLocation(land: LandDto) {
-  return [land.neighborhood, land.district, land.city].filter(Boolean).join(', ');
-}
-
-function openLandOnMap(land: LandDto) {
-  if (land.latitude == null || land.longitude == null) return;
-  const url = `https://maps.apple.com/?ll=${land.latitude},${land.longitude}&q=${encodeURIComponent(land.name)}`;
-  void Linking.openURL(url);
-}
 
 export function ProfileScreen() {
   const { user, authFetch, signOut } = useAuth();
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const officer = isOfficer(user?.roles);
   const [me, setMe] = useState<MeResponse | null>(null);
   const [lands, setLands] = useState<LandDto[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
       let cancelled = false;
       setLoading(true);
+      setLoadError(false);
       (async () => {
         try {
           const meData = await authFetch<MeResponse>('/api/me');
@@ -49,6 +43,7 @@ export function ProfileScreen() {
           if (!cancelled) {
             setMe(null);
             setLands([]);
+            setLoadError(true);
           }
         } finally {
           if (!cancelled) setLoading(false);
@@ -73,7 +68,46 @@ export function ProfileScreen() {
     ]);
   };
 
+  const showAccount = () => {
+    const name =
+      me?.fullName || user?.fullName || (officer ? 'Tarım Uzmanı' : 'Üretici');
+    const lines = [
+      name,
+      roleLabel(me?.roles ?? user?.roles),
+      me?.phone || null,
+      me?.email || user?.email || null,
+    ].filter(Boolean);
+    Alert.alert('Hesap bilgileri', lines.join('\n'));
+  };
+
   if (loading) return <LoadingBlock />;
+
+  if (loadError) {
+    return (
+      <Screen>
+        <EmptyState
+          title="Bağlantı yok"
+          body="Profil yüklenemedi."
+          actionLabel="Tekrar dene"
+          onAction={() => {
+            setLoading(true);
+            setLoadError(false);
+            void (async () => {
+              try {
+                const meData = await authFetch<MeResponse>('/api/me');
+                setMe(meData);
+                setLands(await authFetch<LandDto[]>('/api/lands'));
+              } catch {
+                setLoadError(true);
+              } finally {
+                setLoading(false);
+              }
+            })();
+          }}
+        />
+      </Screen>
+    );
+  }
 
   const roles = me?.roles ?? user?.roles;
   const displayName =
@@ -84,87 +118,135 @@ export function ProfileScreen() {
     <Screen>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Profil</Text>
+        {!officer ? (
+          <Pressable
+            onPress={showAccount}
+            style={styles.headerBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Hesap bilgileri"
+          >
+            <IconGear color={colors.text} />
+          </Pressable>
+        ) : (
+          <View style={styles.headerBtn} />
+        )}
       </View>
 
       <ScrollView
         contentContainerStyle={styles.container}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.identity}>
-          <Text style={styles.name}>{displayName}</Text>
-          <Text style={styles.meta}>
-            {[roleLabel(roles), contact].filter(Boolean).join(' · ')}
-          </Text>
-        </View>
-
-        <View style={styles.landsBlock}>
-          <Text style={styles.landsTitle}>
-            {officer ? 'Arazilerim' : 'Arazilerim'}
-          </Text>
-          {lands.length === 0 ? (
-            <Text style={styles.emptyLands}>
-              {officer ? 'Henüz atanmış arazi yok' : 'Kayıtlı arazi bulunamadı'}
+        {officer ? (
+          <View style={styles.officerIdentity}>
+            <Text style={styles.name}>{displayName}</Text>
+            <Text style={styles.meta}>
+              {[roleLabel(roles), contact].filter(Boolean).join(' · ')}
             </Text>
-          ) : (
-            lands.map((land) => {
-              const location = landLocation(land);
-              const hasCoords = land.latitude != null && land.longitude != null;
-              const meta = [
-                land.parcelNumber ? `Parsel ${land.parcelNumber}` : null,
-                land.sizeInDecares != null
-                  ? `${Number(land.sizeInDecares).toLocaleString('tr-TR')} da`
-                  : null,
-                land.activeCropType,
-                land.activeWorkflowName,
-              ].filter(Boolean);
+          </View>
+        ) : (
+          <View style={styles.heroCard}>
+            <View style={styles.avatar}>
+              <Text style={styles.avatarText}>
+                {(displayName.trim()[0] || 'Ü').toLocaleUpperCase('tr-TR')}
+              </Text>
+            </View>
+            <Text style={styles.heroName}>{displayName}</Text>
+            <Text style={styles.heroRole}>{roleLabel(roles)}</Text>
+            <Pressable
+              onPress={showAccount}
+              style={({ pressed }) => [
+                styles.accountBtn,
+                pressed && styles.accountBtnPressed,
+              ]}
+              accessibilityRole="button"
+            >
+              <Text style={styles.accountBtnText}>Hesap bilgileri</Text>
+            </Pressable>
+          </View>
+        )}
 
-              return (
-                <View key={land.id} style={styles.landCard}>
-                  <Text style={styles.landName}>{land.name}</Text>
-                  {location ? (
-                    <Text style={styles.landLine}>{location}</Text>
-                  ) : null}
-                  {meta.length > 0 ? (
-                    <Text style={styles.landLine}>{meta.join(' · ')}</Text>
-                  ) : null}
-                  {land.soilType ? (
-                    <Text style={styles.landLine}>Toprak: {land.soilType}</Text>
-                  ) : null}
-                  {hasCoords ? (
-                    <Pressable
-                      onPress={() => openLandOnMap(land)}
-                      style={({ pressed }) => [
-                        styles.mapLink,
-                        pressed && styles.mapLinkPressed,
-                      ]}
-                      accessibilityRole="link"
-                      accessibilityLabel="Haritada göster"
-                    >
-                      <Text style={styles.mapLinkText}>Haritada göster</Text>
-                    </Pressable>
-                  ) : null}
+        {officer ? (
+          <View style={styles.landsBlock}>
+            <Text style={styles.sectionTitle}>Arazilerim</Text>
+            {lands.length === 0 ? (
+              <Text style={styles.emptyLands}>Henüz atanmış arazi yok</Text>
+            ) : (
+              lands.map((land) => (
+                <Text key={land.id} style={styles.officerLand}>
+                  {land.name}
+                </Text>
+              ))
+            )}
+          </View>
+        ) : (
+          <View style={styles.landsBlock}>
+            <Text style={styles.sectionTitle}>
+              {lands.length > 1 ? 'Araziler' : 'Arazi'}
+            </Text>
+            {lands.length === 0 ? (
+              <Text style={styles.emptyLands}>Kayıtlı arazi bulunamadı</Text>
+            ) : (
+              lands.map((land) => (
+                <View key={land.id} style={styles.landCardWrap}>
+                  <LandCard land={land} />
                 </View>
-              );
-            })
-          )}
+              ))
+            )}
+          </View>
+        )}
+
+        <View style={styles.menu}>
+          {!officer ? (
+            <>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.menuRow,
+                  pressed && styles.menuRowPressed,
+                ]}
+                onPress={() =>
+                  navigation.navigate('AnaSekmeler', { screen: 'Bildirimler' })
+                }
+                accessibilityRole="button"
+              >
+                <Text style={styles.menuText}>Bildirimler</Text>
+                <Text style={styles.menuChevron}>›</Text>
+              </Pressable>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.menuRow,
+                  pressed && styles.menuRowPressed,
+                ]}
+                onPress={() =>
+                  navigation.navigate('AnaSekmeler', { screen: 'Sohbet' })
+                }
+                accessibilityRole="button"
+              >
+                <Text style={styles.menuText}>Sohbet</Text>
+                <Text style={styles.menuChevron}>›</Text>
+              </Pressable>
+            </>
+          ) : null}
+          <Pressable
+            style={({ pressed }) => [
+              styles.menuRow,
+              pressed && styles.menuRowPressed,
+              !officer && styles.menuRowLast,
+            ]}
+            onPress={logout}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.menuText, styles.logoutText]}>Çıkış yap</Text>
+          </Pressable>
         </View>
 
-        <View style={styles.actions}>
-          {officer ? (
+        {officer ? (
+          <View style={styles.officerActions}>
             <PrimaryButton
-              label="Üretici ara / ara"
-              onPress={() => navigation.navigate('ProducerSearch')}
+              label="Üretici ara"
+              onPress={() => navigation.navigate('UreticiAra')}
             />
-          ) : (
-            <PrimaryButton
-              label="Uzmana mesaj yaz"
-              onPress={() =>
-                navigation.navigate('MainTabs', { screen: 'Messages' })
-              }
-            />
-          )}
-          <PrimaryButton label="Çıkış yap" tone="secondary" onPress={logout} />
-        </View>
+          </View>
+        ) : null}
       </ScrollView>
     </Screen>
   );
@@ -174,15 +256,72 @@ const styles = StyleSheet.create({
   header: {
     paddingHorizontal: spacing.screen,
     paddingTop: spacing.sm,
-    paddingBottom: spacing.xl,
+    paddingBottom: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   headerTitle: { ...typography.screenTitle },
+  headerBtn: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   container: {
     flexGrow: 1,
     paddingHorizontal: spacing.screen,
     paddingBottom: spacing.xxxl,
   },
-  identity: {
+  heroCard: {
+    backgroundColor: colors.primary,
+    borderRadius: radii.xl,
+    paddingVertical: spacing.xxl,
+    paddingHorizontal: spacing.xl,
+    alignItems: 'center',
+    marginBottom: spacing.xxl,
+  },
+  avatar: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: spacing.lg,
+  },
+  avatarText: {
+    fontSize: 28,
+    fontWeight: '700',
+    color: colors.onPrimary,
+  },
+  heroName: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: colors.onPrimary,
+  },
+  heroRole: {
+    marginTop: 4,
+    fontSize: 15,
+    fontWeight: '500',
+    color: 'rgba(255,255,255,0.85)',
+  },
+  accountBtn: {
+    marginTop: spacing.lg,
+    paddingHorizontal: spacing.xl,
+    paddingVertical: 10,
+    borderRadius: radii.full,
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(255,255,255,0.35)',
+  },
+  accountBtnPressed: { opacity: 0.85 },
+  accountBtnText: {
+    color: colors.onPrimary,
+    fontWeight: '600',
+    fontSize: 14,
+  },
+  officerIdentity: {
     paddingVertical: spacing.lg,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
@@ -195,43 +334,45 @@ const styles = StyleSheet.create({
   },
   landsBlock: {
     gap: spacing.md,
-    marginBottom: spacing.xl,
+    marginBottom: spacing.xxl,
   },
-  landsTitle: {
-    ...typography.caption,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
+  landCardWrap: {
+    marginBottom: spacing.sm,
+  },
+  sectionTitle: {
+    ...typography.sectionTitle,
+    fontSize: 18,
   },
   emptyLands: { ...typography.helper },
-  landCard: {
+  officerLand: {
+    ...typography.bodyStrong,
+    paddingVertical: spacing.sm,
+  },
+  menu: {
     backgroundColor: colors.surface,
-    borderRadius: radii.md,
+    borderRadius: radii.lg,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.border,
-    padding: spacing.lg,
-    gap: 4,
+    overflow: 'hidden',
   },
-  landName: {
-    ...typography.bodyStrong,
-    marginBottom: 2,
+  menuRow: {
+    minHeight: 56,
+    paddingHorizontal: spacing.lg,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: colors.border,
   },
-  landLine: {
-    ...typography.helper,
+  menuRowLast: { borderBottomWidth: 0 },
+  menuRowPressed: { backgroundColor: colors.bgWarm },
+  menuText: { ...typography.bodyStrong },
+  menuChevron: {
+    fontSize: 20,
+    color: colors.borderStrong,
   },
-  mapLink: {
-    alignSelf: 'flex-start',
-    marginTop: spacing.sm,
-    minHeight: tap.min,
-    justifyContent: 'center',
-  },
-  mapLinkPressed: { opacity: 0.7 },
-  mapLinkText: {
-    ...typography.bodyStrong,
-    color: colors.primary,
-  },
-  actions: {
-    marginTop: 'auto',
-    paddingBottom: spacing.lg,
-    gap: spacing.md,
+  logoutText: { color: colors.danger },
+  officerActions: {
+    marginTop: spacing.xxl,
   },
 });

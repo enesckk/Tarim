@@ -115,7 +115,18 @@ async function parseResponse<T>(response: Response): Promise<T> {
     let message = `İstek başarısız (${response.status})`
     try {
       const body = await response.json()
-      message = body.message ?? body.Message ?? body.title ?? message
+      const validationMessage =
+        body.errors && typeof body.errors === 'object'
+          ? Object.values(body.errors).flat().find((value) => typeof value === 'string')
+          : null
+      message =
+        body.message ??
+        body.Message ??
+        validationMessage ??
+        (body.title && body.title !== 'One or more validation errors occurred.'
+          ? body.title
+          : null) ??
+        message
     } catch {
       // ignore
     }

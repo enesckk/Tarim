@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft } from 'lucide-react'
 import { api } from '../api/client'
-import type { Producer, ProducerNote } from '../api/types'
+import type { Land, Producer, ProducerNote } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin } from '../auth/roles'
 import { ListSearch } from '../components/ListSearch'
@@ -16,8 +16,22 @@ const emptyForm = {
   lastName: '',
   nationalId: '',
   phone: '',
+  password: '',
   email: '',
   address: '',
+  landId: '',
+  createNewLand: false,
+  landName: '',
+  landParcel: '',
+  landSize: '1',
+}
+
+function unwrapId(value: unknown): string {
+  if (typeof value === 'string') return value.replace(/^"|"$/g, '')
+  if (value && typeof value === 'object' && 'id' in value) {
+    return String((value as { id: string }).id)
+  }
+  return String(value ?? '')
 }
 
 export function ProducersPage() {
@@ -41,6 +55,23 @@ function ProducersListPage() {
     enabled: Boolean(token),
   })
 
+  const { data: lands = [] } = useQuery({
+    queryKey: ['lands'],
+    queryFn: () => api<Land[]>('/api/lands', {}, token),
+    enabled: Boolean(token && admin && showForm),
+  })
+
+  const assignableLands = useMemo(
+    () =>
+      [...lands].sort((a, b) => {
+        const aFree = a.producerId ? 1 : 0
+        const bFree = b.producerId ? 1 : 0
+        if (aFree !== bFree) return aFree - bFree
+        return a.name.localeCompare(b.name, 'tr')
+      }),
+    [lands],
+  )
+
   const filteredItems = useMemo(() => {
     if (!search.trim()) return items
     return items.filter((item) =>
@@ -58,12 +89,79 @@ function ProducersListPage() {
   }, [items, search])
 
   const create = useMutation({
-    mutationFn: () =>
-      api('/api/producers', { method: 'POST', body: JSON.stringify(form) }, token),
-    onSuccess: async () => {
+    mutationFn: async () => {
+      if (form.createNewLand) {
+        if (!form.landName.trim() || !form.landParcel.trim()) {
+          throw new Error('Yeni arazi için ad ve parsel zorunlu.')
+        }
+        const size = Number(form.landSize)
+        if (!size || size <= 0) {
+          throw new Error('Yeni arazi için geçerli dekar girin.')
+        }
+      }
+
+      const producerIdRaw = await api<string>(
+        '/api/producers',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            firstName: form.firstName.trim(),
+            lastName: form.lastName.trim(),
+            nationalId: form.nationalId.trim(),
+            phone: form.phone.trim(),
+            password: form.password,
+            email: form.email.trim() || null,
+            address: form.address.trim() || null,
+          }),
+        },
+        token,
+      )
+      const producerId = unwrapId(producerIdRaw)
+
+      if (form.createNewLand) {
+        await api(
+          '/api/lands',
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              name: form.landName.trim(),
+              parcelNumber: form.landParcel.trim(),
+              sizeInDecares: Number(form.landSize),
+              neighborhood: null,
+              soilType: null,
+              soilNotes: null,
+              cadastralBlock: null,
+              latitude: null,
+              longitude: null,
+              city: null,
+              district: null,
+              producerId,
+            }),
+          },
+          token,
+        )
+      } else if (form.landId) {
+        await api(
+          `/api/lands/${form.landId}/assign-producer`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ producerId }),
+          },
+          token,
+        )
+      }
+
+      return producerId
+    },
+    onSuccess: async (producerId) => {
       setForm(emptyForm)
       setShowForm(false)
-      await queryClient.invalidateQueries({ queryKey: ['producers'] })
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['producers'] }),
+        queryClient.invalidateQueries({ queryKey: ['lands'] }),
+        queryClient.invalidateQueries({ queryKey: ['operations-center'] }),
+      ])
+      if (producerId) navigate(`/producers/${producerId}`)
     },
   })
 
@@ -124,8 +222,28 @@ function ProducersListPage() {
                 value={form.phone}
                 onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 required
+                placeholder="Örn. 5537472823"
+                inputMode="tel"
               />
             </label>
+            <label>
+              Uygulama şifresi
+              <input
+                type="text"
+                value={form.password}
+                onChange={(e) => setForm({ ...form, password: e.target.value })}
+                required
+                minLength={3}
+                placeholder="Mobil giriş şifresi"
+                autoComplete="new-password"
+              />
+            </label>
+            <p
+              className="muted"
+              style={{ gridColumn: '1 / -1', margin: 0, fontSize: 13 }}
+            >
+              Telefon + şifre, üreticinin mobil uygulamaya girişi için kullanılır.
+            </p>
             <label>
               E-posta
               <input
@@ -141,6 +259,88 @@ function ProducersListPage() {
                 onChange={(e) => setForm({ ...form, address: e.target.value })}
               />
             </label>
+
+            <div
+              style={{
+                gridColumn: '1 / -1',
+                borderTop: '1px solid var(--border)',
+                paddingTop: 14,
+                marginTop: 4,
+                display: 'grid',
+                gap: 12,
+              }}
+            >
+              <strong style={{ fontSize: 14 }}>Arazi ataması (isteğe bağlı)</strong>
+              <label className="checkbox-row" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <input
+                  type="checkbox"
+                  checked={form.createNewLand}
+                  onChange={(e) =>
+                    setForm({
+                      ...form,
+                      createNewLand: e.target.checked,
+                      landId: e.target.checked ? '' : form.landId,
+                    })
+                  }
+                />
+                Yeni arazi oluştur ve bu üreticiye ata
+              </label>
+
+              {!form.createNewLand ? (
+                <label>
+                  Mevcut arazi
+                  <select
+                    value={form.landId}
+                    onChange={(e) => setForm({ ...form, landId: e.target.value })}
+                  >
+                    <option value="">Atama yok</option>
+                    {assignableLands.map((land) => (
+                      <option key={land.id} value={land.id}>
+                        {land.name}
+                        {land.producerId ? ' (atanmış — yeniden atanır)' : ''}
+                        {land.parcelNumber ? ` · ${land.parcelNumber}` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <div className="form-grid two-col" style={{ margin: 0 }}>
+                  <label>
+                    Arazi adı
+                    <input
+                      value={form.landName}
+                      onChange={(e) => setForm({ ...form, landName: e.target.value })}
+                      required={form.createNewLand}
+                      placeholder="Örn. Karataş Tarlası"
+                    />
+                  </label>
+                  <label>
+                    Parsel no
+                    <input
+                      value={form.landParcel}
+                      onChange={(e) => setForm({ ...form, landParcel: e.target.value })}
+                      required={form.createNewLand}
+                      placeholder="Örn. P-120"
+                    />
+                  </label>
+                  <label>
+                    Alan (dekar)
+                    <input
+                      type="number"
+                      min={0.1}
+                      step={0.1}
+                      value={form.landSize}
+                      onChange={(e) => setForm({ ...form, landSize: e.target.value })}
+                      required={form.createNewLand}
+                    />
+                  </label>
+                </div>
+              )}
+              <p className="muted" style={{ margin: 0, fontSize: 13 }}>
+                İstersen boş bırak; üreticiyi sonra arazi detayından da atayabilirsin.
+              </p>
+            </div>
+
             <div style={{ gridColumn: '1 / -1' }}>
               <button className="primary-btn" type="submit" disabled={create.isPending}>
                 {create.isPending ? 'Kaydediliyor…' : 'Kaydet'}

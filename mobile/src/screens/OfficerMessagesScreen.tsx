@@ -115,7 +115,7 @@ export function OfficerMessagesScreen() {
         renderItem={({ item }) => (
           <ListCard
             onPress={() =>
-              navigation.navigate('ChatThread', { conversationId: item.id })
+              navigation.navigate('SohbetKonu', { conversationId: item.id })
             }
           >
             <View style={styles.row}>

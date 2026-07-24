@@ -1,18 +1,18 @@
 export type RootStackParamList = {
-  Login: undefined;
-  MainTabs: { screen?: keyof MainTabParamList } | undefined;
-  TaskDetail: { taskId: string };
-  CapturePhoto: { taskId: string; notes?: string };
-  CompleteTask: { taskId: string; photoAttached?: boolean; notes?: string };
-  AskExpert: { taskId?: string; landId?: string };
-  ReportProblem: { taskId?: string; taskTitle?: string; landId?: string };
-  ChatThread: { conversationId: string };
-  ProducerSearch: undefined;
+  Giris: undefined;
+  AnaSekmeler: { screen?: keyof MainTabParamList } | undefined;
+  GorevDetay: { taskId: string };
+  FotografCek: { taskId: string; notes?: string };
+  OnayaGonder: { taskId: string; photoAttached?: boolean; notes?: string };
+  UzmanaSor: { taskId?: string; taskTitle?: string; landId?: string };
+  SorunBildir: { taskId?: string; taskTitle?: string; landId?: string };
+  SohbetKonu: { conversationId: string };
+  UreticiAra: undefined;
 };
 
 export type MainTabParamList = {
-  Today: undefined;
-  Messages: undefined;
-  Notifications: undefined;
-  Profile: undefined;
+  Gorevler: undefined;
+  Sohbet: undefined;
+  Bildirimler: undefined;
+  Profil: undefined;
 };

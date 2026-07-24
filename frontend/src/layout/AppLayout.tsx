@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
+  CheckSquare,
   ChevronDown,
-  CheckCircle2,
   LayoutDashboard,
   LogOut,
   Map,
@@ -14,11 +15,14 @@ import {
   Sprout,
   Sun,
   User,
+  Users,
+  UserCog,
   Wheat,
   Workflow,
   BarChart3,
   X,
 } from 'lucide-react'
+import { api } from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import { displayFirstName, displayFullName, isAdmin, panelSubtitle, roleLabel } from '../auth/roles'
 import { cn } from '../lib/utils'
@@ -41,8 +45,10 @@ const groups: NavGroup[] = [
     label: '',
     items: [
       { to: '/', label: 'Operasyon Merkezi', end: true, icon: LayoutDashboard },
-      { to: '/approvals', label: 'Onay kuyruğu', icon: CheckCircle2 },
+      { to: '/approvals', label: 'Onaylar', icon: CheckSquare },
       { to: '/lands', label: 'Araziler', officerLabel: 'Arazilerim', icon: Map },
+      { to: '/producers', label: 'Üreticiler', officerLabel: 'Atanan üreticiler', icon: Users },
+      { to: '/officers', label: 'Uzmanlar', adminOnly: true, icon: UserCog },
       { to: '/messages', label: 'Mesajlar', icon: MessageSquare },
       { to: '/inspections', label: 'Denetimler', officerLabel: 'Denetimlerim', icon: ShieldCheck },
       { to: '/harvest', label: 'Hasat ve teslimat', icon: Wheat },
@@ -54,7 +60,7 @@ const groups: NavGroup[] = [
 
 const pageTitles: Record<string, string> = {
   '/': 'Operasyon Merkezi',
-  '/approvals': 'Onay kuyruğu',
+  '/approvals': 'Onaylar',
   '/lands': 'Araziler',
   '/workflows': 'İş akışı şablonları',
   '/inspections': 'Denetimler',
@@ -64,8 +70,8 @@ const pageTitles: Record<string, string> = {
   '/reports': 'Raporlar',
   '/profile': 'Profil',
   '/producers': 'Üreticiler',
-  '/officers': 'Tarım uzmanları',
-  '/uzmanlar': 'Tarım uzmanları',
+  '/officers': 'Uzmanlar',
+  '/uzmanlar': 'Uzmanlar',
   '/seasons': 'Sezonlar',
   '/tasks': 'Görevler',
 }
@@ -105,13 +111,21 @@ function useThemeMode() {
 }
 
 export function AppLayout() {
-  const { user, logout } = useAuth()
+  const { token, user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const admin = isAdmin(user?.roles)
   const { dark, toggle } = useThemeMode()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+
+  const pendingApprovals = useQuery({
+    queryKey: ['pending-approval'],
+    queryFn: () => api<{ id: string }[]>('/api/tasks/pending-approval', {}, token),
+    enabled: Boolean(token),
+    refetchInterval: 60_000,
+  })
+  const pendingCount = pendingApprovals.data?.length ?? 0
 
   const title = useMemo(() => {
     if (location.pathname === '/lands') return admin ? 'Araziler' : 'Arazilerim'
@@ -164,6 +178,11 @@ export function AppLayout() {
                 >
                   <Icon className="nav-icon" />
                   <span>{label}</span>
+                  {link.to === '/approvals' && pendingCount > 0 ? (
+                    <span className="nav-count" aria-label={`${pendingCount} bekleyen onay`}>
+                      {pendingCount > 99 ? '99+' : pendingCount}
+                    </span>
+                  ) : null}
                 </NavLink>
               )
             })}

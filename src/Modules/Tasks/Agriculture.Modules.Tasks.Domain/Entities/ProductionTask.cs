@@ -144,6 +144,29 @@ public sealed class ProductionTask : AuditableEntity
         UpdatedAtUtc = DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Staff cancels an open task (pending / in progress / overdue / needs revision / awaiting approval).
+    /// Completed (approved) or already cancelled tasks cannot be cancelled.
+    /// </summary>
+    public void Cancel()
+    {
+        if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
+            throw new InvalidOperationException(
+                "Onaylanmış veya zaten iptal edilmiş görevler iptal edilemez.");
+
+        if (Status is not (
+            ProductionTaskStatus.Pending
+            or ProductionTaskStatus.InProgress
+            or ProductionTaskStatus.Overdue
+            or ProductionTaskStatus.NeedsRevision
+            or ProductionTaskStatus.AwaitingApproval))
+            throw new InvalidOperationException("Bu görev iptal edilemez.");
+
+        Status = ProductionTaskStatus.Cancelled;
+        RevisionReason = null;
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
+
     /// <summary>Sync producer-facing guidance from updated workflow step.</summary>
     public void UpdateGuidance(
         string? description,

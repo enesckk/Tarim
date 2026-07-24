@@ -10,7 +10,13 @@ internal sealed class RegisterUserCommandHandler(IIdentityService identityServic
     public async Task<Result<Guid>> Handle(RegisterUserCommand request, CancellationToken cancellationToken)
     {
         var (success, error, userId) = await identityService.RegisterAsync(
-            request.Email, request.Password, request.FirstName, request.LastName, request.Role, cancellationToken);
+            request.Email,
+            request.Password,
+            request.FirstName,
+            request.LastName,
+            request.Role,
+            phone: null,
+            cancellationToken);
 
         if (!success)
             return Result.Failure<Guid>(new Error("Auth.RegistrationFailed", error ?? "Registration failed."));

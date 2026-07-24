@@ -77,11 +77,13 @@ export function LoginPage() {
             {loading ? 'Giriş yapılıyor…' : 'Giriş yap'}
           </button>
         </form>
-        <div className="login-hint">
-          Demo yönetici: <code>admin@agriculture.local</code> / <code>Admin123!</code>
-          <br />
-          Demo uzman (web + mobil): <code>uzman@agriculture.local</code> / <code>Officer123!</code>
-        </div>
+        {import.meta.env.DEV ? (
+          <div className="login-hint">
+            Demo yönetici: <code>admin@agriculture.local</code> / <code>Admin123!</code>
+            <br />
+            Demo uzman (web + mobil): <code>uzman@agriculture.local</code> / <code>Officer123!</code>
+          </div>
+        ) : null}
       </div>
     </div>
   )

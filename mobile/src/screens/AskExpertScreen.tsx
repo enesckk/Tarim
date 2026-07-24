@@ -10,10 +10,11 @@ import type { RootStackParamList } from '../navigation/types';
 
 export function AskExpertScreen() {
   const { authFetch } = useAuth();
-  const route = useRoute<RouteProp<RootStackParamList, 'AskExpert'>>();
+  const route = useRoute<RouteProp<RootStackParamList, 'UzmanaSor'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const taskHint = route.params?.taskTitle?.trim();
   const [subject, setSubject] = useState(
-    route.params?.taskId ? 'Görev hakkında soru' : 'Genel soru',
+    taskHint ? `Görev: ${taskHint}` : 'Genel soru',
   );
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -22,15 +23,16 @@ export function AskExpertScreen() {
     setLoading(true);
     setError(null);
     try {
+      const subjectText = subject.trim() || (taskHint ? `Görev: ${taskHint}` : 'Genel soru');
       const id = await authFetch<string>('/api/conversations/ask-expert', {
         method: 'POST',
         body: JSON.stringify({
-          subject,
+          subject: subjectText,
           landId: route.params?.landId ?? null,
         }),
       });
       const conversationId = typeof id === 'string' ? id : String(id);
-      navigation.replace('ChatThread', { conversationId });
+      navigation.replace('SohbetKonu', { conversationId });
     } catch (e) {
       setError(
         e instanceof ApiError
@@ -43,12 +45,16 @@ export function AskExpertScreen() {
   };
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right', 'bottom']}>
       <View style={styles.container}>
-        <Text style={styles.title}>Uzmana sor</Text>
         <Text style={styles.helper}>
           Kısa bir konu yazın, sonra sohbete geçin.
         </Text>
+        {taskHint ? (
+          <View style={styles.chip}>
+            <Text style={styles.chipText}>{taskHint}</Text>
+          </View>
+        ) : null}
         <Text style={styles.label}>Konu (isteğe bağlı)</Text>
         <TextInput
           value={subject}
@@ -72,13 +78,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.screen,
     paddingTop: spacing.lg,
   },
-  title: {
-    ...typography.screenTitle,
-    marginBottom: spacing.sm,
-  },
   helper: {
     ...typography.helper,
-    marginBottom: spacing.xxl,
+    marginBottom: spacing.xl,
+  },
+  chip: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.bgWarm,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginBottom: spacing.md,
+  },
+  chipText: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: colors.muted,
   },
   label: {
     ...typography.label,

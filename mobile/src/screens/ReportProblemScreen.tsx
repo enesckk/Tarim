@@ -12,16 +12,16 @@ import * as ImagePicker from 'expo-image-picker';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useAuth } from '../auth/AuthContext';
-import { ApiError, uploadTaskPhoto } from '../api/client';
+import { ApiError } from '../api/client';
 import { PrimaryButton, Screen } from '../components/ui';
 import { colors, radii, spacing, tap, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
-type PhotoAsset = { uri: string; fileName?: string; mimeType?: string };
+type PhotoAsset = { uri: string };
 
 export function ReportProblemScreen() {
-  const { authFetch, accessToken, refreshToken } = useAuth();
-  const route = useRoute<RouteProp<RootStackParamList, 'ReportProblem'>>();
+  const { authFetch } = useAuth();
+  const route = useRoute<RouteProp<RootStackParamList, 'SorunBildir'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -41,14 +41,7 @@ export function ReportProblemScreen() {
     });
     if (result.canceled || !result.assets?.length) return;
     setPhotos((prev) =>
-      [
-        ...prev,
-        ...result.assets.map((a) => ({
-          uri: a.uri,
-          fileName: a.fileName ?? undefined,
-          mimeType: a.mimeType ?? undefined,
-        })),
-      ].slice(0, 3),
+      [...prev, ...result.assets.map((a) => ({ uri: a.uri }))].slice(0, 3),
     );
   };
 
@@ -70,11 +63,14 @@ export function ReportProblemScreen() {
           ? conversationIdRaw.replace(/"/g, '')
           : String(conversationIdRaw).replace(/"/g, '');
 
+      // Görseller görev kanıtına ASLA yüklenmez — yalnızca sohbet metninde not edilir.
       const bodyParts = [
         title.trim(),
         description.trim() || null,
         route.params?.taskTitle ? `İlgili görev: ${route.params.taskTitle}` : null,
-        photos.length ? `${photos.length} görsel eklendi.` : null,
+        photos.length
+          ? `(Üretici ${photos.length} görsel seçti; sohbete dosya eki henüz yok — açıklamada belirtildi.)`
+          : null,
       ].filter(Boolean);
 
       await authFetch(`/api/conversations/${conversationId}/messages`, {
@@ -82,22 +78,7 @@ export function ReportProblemScreen() {
         body: JSON.stringify({ body: bodyParts.join('\n\n') }),
       });
 
-      if (route.params?.taskId && photos.length) {
-        for (const photo of photos) {
-          await uploadTaskPhoto(
-            route.params.taskId,
-            photo.uri,
-            accessToken,
-            refreshToken,
-            {
-              fileName: photo.fileName,
-              contentType: photo.mimeType,
-            },
-          );
-        }
-      }
-
-      navigation.replace('ChatThread', { conversationId });
+      navigation.replace('SohbetKonu', { conversationId });
     } catch (e) {
       setError(
         e instanceof ApiError
@@ -111,19 +92,16 @@ export function ReportProblemScreen() {
 
   const helper = useMemo(
     () =>
-      route.params?.taskId
-        ? 'Görseller bu göreve de kanıt olarak eklenir.'
-        : 'Görsel ekleyebilirsiniz; metin uzmana sohbet olarak gider.',
-    [route.params?.taskId],
+      'Metin uzmana sohbet olarak gider. Görseller görev kanıtına eklenmez; yalnızca not olarak iletilir.',
+    [],
   );
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right', 'bottom']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled"
       >
-        <Text style={styles.title}>Sorun bildir</Text>
         <Text style={styles.helper}>{helper}</Text>
 
         {contextLabel ? (
@@ -159,7 +137,7 @@ export function ReportProblemScreen() {
           ))}
           {photos.length < 3 ? (
             <Pressable style={styles.addPhoto} onPress={() => void pickPhoto()}>
-              <Text style={styles.addPhotoText}>+ Foto</Text>
+              <Text style={styles.addPhotoText}>+ Fotoğraf</Text>
             </Pressable>
           ) : null}
         </View>

@@ -4,15 +4,15 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '../auth/AuthContext';
-import { ApiError, uploadTaskPhoto } from '../api/client';
+import { type TaskDto, uploadTaskPhoto } from '../api/client';
 import { enqueuePhotoUpload } from '../offline/photoQueue';
 import { PrimaryButton, Screen } from '../components/ui';
 import { colors, radii, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
 
 export function CapturePhotoScreen() {
-  const { accessToken, refreshToken } = useAuth();
-  const route = useRoute<RouteProp<RootStackParamList, 'CapturePhoto'>>();
+  const { accessToken, refreshToken, authFetch } = useAuth();
+  const route = useRoute<RouteProp<RootStackParamList, 'FotografCek'>>();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [uri, setUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -73,28 +73,40 @@ export function CapturePhotoScreen() {
     setError(null);
     try {
       await uploadTaskPhoto(route.params.taskId, uri, accessToken, refreshToken);
-      navigation.replace('CompleteTask', {
+    } catch {
+      // Kuyruğa al ama onaya gönderme — sunucuda foto yokken complete reddedilir.
+      await enqueuePhotoUpload({
+        taskId: route.params.taskId,
+        localUri: uri,
+      });
+      setError(
+        'Yüklenemedi. Fotoğraf kuyruğa alındı; bağlantı gelince yüklenecek. Onaya göndermek için önce başarılı yükleme gerekir.',
+      );
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const task = await authFetch<TaskDto>(`/api/tasks/${route.params.taskId}`);
+      const photoCount = task.photoCount ?? task.photos?.length ?? 0;
+      if (photoCount === 0) {
+        setError('Fotoğraf yüklemesi doğrulanamadı. Lütfen yeniden deneyin.');
+        return;
+      }
+      navigation.replace('OnayaGonder', {
         taskId: route.params.taskId,
         photoAttached: true,
         notes: route.params.notes,
       });
     } catch {
-      await enqueuePhotoUpload({
-        taskId: route.params.taskId,
-        localUri: uri,
-      });
-      navigation.replace('CompleteTask', {
-        taskId: route.params.taskId,
-        photoAttached: true,
-        notes: route.params.notes,
-      });
+      setError('Fotoğraf yüklendi ancak sunucuda doğrulanamadı. Lütfen yeniden deneyin.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Screen>
+    <Screen edges={['left', 'right', 'bottom']}>
       <View style={styles.container}>
         <Text style={styles.helper}>
           Görevinizi kanıtlayan net bir fotoğraf çekin veya galeriden seçin.
