@@ -41,7 +41,9 @@ public sealed class Workflow : AuditableEntity
         bool requiresDate = false,
         string? quantityUnit = null,
         string? videoUrl = null,
-        string? imageUrl = null)
+        string? imageUrl = null,
+        string? theme = null,
+        string? plannedEvidenceJson = null)
     {
         var step = WorkflowStep.Create(
             Id,
@@ -54,7 +56,9 @@ public sealed class Workflow : AuditableEntity
             requiresDate,
             quantityUnit,
             videoUrl,
-            imageUrl);
+            imageUrl,
+            theme,
+            plannedEvidenceJson);
         _steps.Add(step);
         UpdatedAtUtc = DateTime.UtcNow;
         return step;
@@ -89,7 +93,9 @@ public sealed class Workflow : AuditableEntity
             bool RequiresDate,
             string? QuantityUnit,
             string? VideoUrl,
-            string? ImageUrl)> incoming)
+            string? ImageUrl,
+            string? Theme,
+            string? PlannedEvidenceJson)> incoming)
     {
         var ordered = incoming.OrderBy(s => s.Order).ToList();
         var removed = new List<WorkflowStep>();
@@ -110,7 +116,9 @@ public sealed class Workflow : AuditableEntity
                 cur.RequiresDate,
                 cur.QuantityUnit,
                 cur.VideoUrl,
-                cur.ImageUrl);
+                cur.ImageUrl,
+                cur.Theme,
+                cur.PlannedEvidenceJson);
         }
 
         // Remove extras
@@ -135,7 +143,9 @@ public sealed class Workflow : AuditableEntity
                 cur.RequiresDate,
                 cur.QuantityUnit,
                 cur.VideoUrl,
-                cur.ImageUrl);
+                cur.ImageUrl,
+                cur.Theme,
+                cur.PlannedEvidenceJson);
         }
 
         UpdatedAtUtc = DateTime.UtcNow;
@@ -171,6 +181,10 @@ public sealed class WorkflowStep : Entity
     public string? VideoUrl { get; private set; }
     /// <summary>Optional guidance image path/URL shown to the producer.</summary>
     public string? ImageUrl { get; private set; }
+    /// <summary>İşlem teması (Sulama, Gubreleme, …). Null = eski adım (legacy kanıt bayrakları).</summary>
+    public string? Theme { get; private set; }
+    /// <summary>Planlanan/hedef kanıt değerleri (JSON). Tema seçildiğinde kullanılır.</summary>
+    public string? PlannedEvidenceJson { get; private set; }
 
     public static WorkflowStep Create(
         Guid workflowId,
@@ -183,7 +197,9 @@ public sealed class WorkflowStep : Entity
         bool requiresDate = false,
         string? quantityUnit = null,
         string? videoUrl = null,
-        string? imageUrl = null)
+        string? imageUrl = null,
+        string? theme = null,
+        string? plannedEvidenceJson = null)
     {
         return new WorkflowStep
         {
@@ -197,7 +213,9 @@ public sealed class WorkflowStep : Entity
             RequiresDate = requiresDate,
             QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null,
             VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim(),
-            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim()
+            ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim(),
+            Theme = string.IsNullOrWhiteSpace(theme) ? null : theme.Trim(),
+            PlannedEvidenceJson = string.IsNullOrWhiteSpace(plannedEvidenceJson) ? null : plannedEvidenceJson
         };
     }
 
@@ -211,7 +229,9 @@ public sealed class WorkflowStep : Entity
         bool requiresDate,
         string? quantityUnit,
         string? videoUrl,
-        string? imageUrl)
+        string? imageUrl,
+        string? theme = null,
+        string? plannedEvidenceJson = null)
     {
         Name = name.Trim();
         Description = description;
@@ -223,6 +243,8 @@ public sealed class WorkflowStep : Entity
         QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null;
         VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim();
         ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+        Theme = string.IsNullOrWhiteSpace(theme) ? null : theme.Trim();
+        PlannedEvidenceJson = string.IsNullOrWhiteSpace(plannedEvidenceJson) ? null : plannedEvidenceJson;
     }
 }
 

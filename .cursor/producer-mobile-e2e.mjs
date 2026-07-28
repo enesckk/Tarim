@@ -115,13 +115,22 @@ async function main() {
   });
 
   let taskId = null;
-  if (officerTok && land?.id) {
-    const created = await req(`/api/lands/${land.id}/tasks`, {
+  // Prefer a land both officer and producer can use (officer list ∩ producer lands)
+  const officerLands = await req('/api/lands', { token: officerTok });
+  const sharedLand =
+    (officerLands.data || []).find((ol) =>
+      (lands.data || []).some((pl) => pl.id === ol.id),
+    ) || land;
+
+  if (officerTok && sharedLand?.id) {
+    const created = await req(`/api/lands/${sharedLand.id}/tasks`, {
       method: 'POST',
       token: officerTok,
       body: {
         title: `Mobil E2E ${Date.now()}`,
         description: 'Foto + tamamla + onay',
+        theme: 'Sulama',
+        plannedEvidence: { durationMinutes: 25, waterAmount: 80, waterUnit: 'litre' },
         dueDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
         requiresPhoto: true,
         requiresQuantity: false,
@@ -134,11 +143,12 @@ async function main() {
     ok('officer create task', created.ok && Boolean(taskId), {
       status: created.status,
       taskId,
+      landId: sharedLand.id,
     });
   } else {
     ok('officer create task', false, {
       hasOfficer: Boolean(officerTok),
-      landId: land?.id,
+      landId: sharedLand?.id,
     });
   }
 
@@ -172,11 +182,14 @@ async function main() {
       data: typeof up.data === 'object' ? up.data : String(up.data).slice(0, 120),
     });
 
-    // Complete → awaiting approval
+    // Complete → awaiting approval (theme evidence required)
     const complete = await req(`/api/tasks/${taskId}/complete`, {
       method: 'POST',
       token,
-      body: { notes: 'Mobil E2E tamamlandı' },
+      body: {
+        notes: 'Mobil E2E tamamlandı',
+        evidence: { durationMinutes: 25, waterAmount: 80, waterUnit: 'litre' },
+      },
     });
     ok('POST /api/tasks/:id/complete', complete.ok, {
       status: complete.status,

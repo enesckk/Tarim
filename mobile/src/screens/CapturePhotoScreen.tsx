@@ -97,6 +97,7 @@ export function CapturePhotoScreen() {
         taskId: route.params.taskId,
         photoAttached: true,
         notes: route.params.notes,
+        evidence: route.params.evidence,
       });
     } catch {
       setError('Fotoğraf yüklendi ancak sunucuda doğrulanamadı. Lütfen yeniden deneyin.');

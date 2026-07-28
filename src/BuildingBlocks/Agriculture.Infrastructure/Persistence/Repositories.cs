@@ -274,6 +274,26 @@ public sealed class TaskRepository(AgricultureDbContext db) : ITaskRepository
             .OrderBy(x => x.DueDate)
             .ToListAsync(cancellationToken);
 
+    public async Task<IReadOnlyList<ProductionTask>> GetByLandIdsAsync(
+        IReadOnlyCollection<Guid> landIds,
+        Guid? producerId = null,
+        CancellationToken cancellationToken = default)
+    {
+        if (landIds.Count == 0)
+            return Array.Empty<ProductionTask>();
+
+        var query = db.Tasks.AsNoTracking()
+            .Include(x => x.Photos)
+            .Where(x => landIds.Contains(x.LandId));
+
+        if (producerId.HasValue)
+            query = query.Where(x => x.ProducerId == producerId.Value);
+
+        return await query
+            .OrderByDescending(x => x.CreatedAtUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<ProductionTask>> GetByProductionWorkflowAsync(Guid productionWorkflowId, CancellationToken cancellationToken = default)
         => await db.Tasks
             .Include(x => x.Photos)

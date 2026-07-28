@@ -731,6 +731,9 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                     b.Property<DateOnly?>("DueDate")
                         .HasColumnType("date");
 
+                    b.Property<string>("EvidenceJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -740,6 +743,9 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
 
                     b.Property<Guid>("LandId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PlannedEvidenceJson")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("ProducerId")
                         .HasColumnType("uniqueidentifier");
@@ -760,8 +766,16 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                     b.Property<bool>("RequiresQuantity")
                         .HasColumnType("bit");
 
+                    b.Property<string>("RevisionReason")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
+
+                    b.Property<string>("Theme")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -782,6 +796,10 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("LandId", "Status");
+
+                    b.HasIndex("ProducerId", "Status");
 
                     b.ToTable("Tasks", "agriculture");
                 });
@@ -931,6 +949,9 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                     b.Property<int>("Order")
                         .HasColumnType("int");
 
+                    b.Property<string>("PlannedEvidenceJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("QuantityUnit")
                         .HasMaxLength(32)
                         .HasColumnType("nvarchar(32)");
@@ -943,6 +964,10 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
 
                     b.Property<bool>("RequiresQuantity")
                         .HasColumnType("bit");
+
+                    b.Property<string>("Theme")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
 
                     b.Property<string>("VideoUrl")
                         .HasMaxLength(500)

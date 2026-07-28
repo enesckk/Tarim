@@ -34,11 +34,17 @@ public sealed class ProductionTask : AuditableEntity
     public bool RequiresQuantity { get; private set; }
     public bool RequiresDate { get; private set; }
     public string? QuantityUnit { get; private set; }
+    /// <summary>İşlem teması kodu (Sulama, Gubreleme, …). Eski görevlerde null olabilir.</summary>
+    public string? Theme { get; private set; }
     /// <summary>Copied from workflow step — training video for the producer.</summary>
     public string? VideoUrl { get; private set; }
     /// <summary>Copied from workflow step — guidance image for the producer.</summary>
     public string? ImageUrl { get; private set; }
     public string? CompletionNotes { get; private set; }
+    /// <summary>Uzmanın görev oluştururken girdiği planlanan/hedef kanıt (JSON).</summary>
+    public string? PlannedEvidenceJson { get; private set; }
+    /// <summary>Üreticinin tamamlamada girdiği gerçekleşen kanıt (JSON).</summary>
+    public string? EvidenceJson { get; private set; }
     /// <summary>Officer feedback when requesting revision.</summary>
     public string? RevisionReason { get; private set; }
     public DateTime? CompletedAtUtc { get; private set; }
@@ -57,8 +63,19 @@ public sealed class ProductionTask : AuditableEntity
         bool requiresDate = false,
         string? quantityUnit = null,
         string? videoUrl = null,
-        string? imageUrl = null)
+        string? imageUrl = null,
+        string? theme = null,
+        string? plannedEvidenceJson = null)
     {
+        string? normalizedTheme = null;
+        if (!string.IsNullOrWhiteSpace(theme))
+        {
+            if (!TaskThemes.TryNormalize(theme, out var t))
+                throw new ArgumentException("Geçersiz işlem teması.", nameof(theme));
+            normalizedTheme = t;
+            TaskThemes.ApplyCreateDefaults(t, out requiresPhoto);
+        }
+
         return new ProductionTask
         {
             ProductionWorkflowId = productionWorkflowId,
@@ -68,6 +85,8 @@ public sealed class ProductionTask : AuditableEntity
             Description = description,
             WorkflowStepId = workflowStepId,
             DueDate = dueDate,
+            Theme = normalizedTheme,
+            PlannedEvidenceJson = string.IsNullOrWhiteSpace(plannedEvidenceJson) ? null : plannedEvidenceJson,
             RequiresPhoto = requiresPhoto,
             RequiresQuantity = requiresQuantity,
             RequiresDate = requiresDate,
@@ -101,7 +120,7 @@ public sealed class ProductionTask : AuditableEntity
     }
 
     /// <summary>Producer submits work for uzman/admin approval (not final yet).</summary>
-    public void Complete(string? notes = null)
+    public void Complete(string? notes = null, string? evidenceJson = null)
     {
         if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
             throw new InvalidOperationException("Bu görev zaten kapanmış.");
@@ -109,11 +128,25 @@ public sealed class ProductionTask : AuditableEntity
         if (Status is ProductionTaskStatus.AwaitingApproval)
             throw new InvalidOperationException("Bu görev zaten onay bekliyor.");
 
-        if (RequiresPhoto && _photos.Count == 0)
-            throw new InvalidOperationException("Photo is required to complete this task.");
+        var themeMinPhotos = TaskThemes.MinPhotoCount(Theme);
+        if (themeMinPhotos > 0)
+        {
+            if (_photos.Count < themeMinPhotos)
+            {
+                throw new InvalidOperationException(
+                    Theme == TaskThemes.Bakim
+                        ? "Bakım görevi için öncesi ve sonrası olmak üzere en az 2 fotoğraf gerekli."
+                        : "Bu görevi tamamlamak için fotoğraf gerekli.");
+            }
+        }
+        else if (RequiresPhoto && _photos.Count == 0)
+        {
+            throw new InvalidOperationException("Bu görevi tamamlamak için fotoğraf gerekli.");
+        }
 
         Status = ProductionTaskStatus.AwaitingApproval;
         CompletionNotes = notes;
+        EvidenceJson = string.IsNullOrWhiteSpace(evidenceJson) ? null : evidenceJson;
         RevisionReason = null;
         CompletedAtUtc = DateTime.UtcNow;
         UpdatedAtUtc = DateTime.UtcNow;
@@ -174,12 +207,62 @@ public sealed class ProductionTask : AuditableEntity
         string? imageUrl,
         Guid? workflowStepId = null)
     {
-        if (Status is ProductionTaskStatus.Completed or ProductionTaskStatus.Cancelled)
+        SyncFromWorkflowStep(
+            description,
+            videoUrl,
+            imageUrl,
+            RequiresPhoto,
+            RequiresQuantity,
+            RequiresDate,
+            QuantityUnit,
+            Theme,
+            PlannedEvidenceJson,
+            workflowStepId);
+    }
+
+    /// <summary>
+    /// Copy guidance + evidence rules from the workflow template onto an open task
+    /// so producers see links / planned targets without re-assigning the production.
+    /// </summary>
+    public void SyncFromWorkflowStep(
+        string? description,
+        string? videoUrl,
+        string? imageUrl,
+        bool requiresPhoto,
+        bool requiresQuantity,
+        bool requiresDate,
+        string? quantityUnit,
+        string? theme,
+        string? plannedEvidenceJson,
+        Guid? workflowStepId = null)
+    {
+        // Freeze submitted / closed work — only editable open statuses sync from template.
+        if (!IsOpenWork)
             return;
 
         Description = description;
         VideoUrl = string.IsNullOrWhiteSpace(videoUrl) ? null : videoUrl.Trim();
         ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl.Trim();
+        RequiresPhoto = requiresPhoto;
+        RequiresQuantity = requiresQuantity;
+        RequiresDate = requiresDate;
+        QuantityUnit = requiresQuantity ? quantityUnit?.Trim() : null;
+
+        if (!string.IsNullOrWhiteSpace(theme) && TaskThemes.TryNormalize(theme, out var normalized))
+        {
+            Theme = normalized;
+            TaskThemes.ApplyCreateDefaults(normalized, out var themeRequiresPhoto);
+            RequiresPhoto = themeRequiresPhoto;
+        }
+        else if (string.IsNullOrWhiteSpace(theme))
+        {
+            Theme = null;
+        }
+
+        PlannedEvidenceJson = string.IsNullOrWhiteSpace(plannedEvidenceJson)
+            ? null
+            : plannedEvidenceJson;
+
         if (workflowStepId.HasValue)
             WorkflowStepId = workflowStepId;
         UpdatedAtUtc = DateTime.UtcNow;

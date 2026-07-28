@@ -1,0 +1,167 @@
+{
+  "api": "http://127.0.0.1:5109",
+  "pass": 21,
+  "fail": 0,
+  "results": [
+    {
+      "name": "health",
+      "pass": true,
+      "detail": {
+        "status": "healthy",
+        "service": "Agriculture.Api"
+      }
+    },
+    {
+      "name": "producer login",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Producer"
+        ]
+      }
+    },
+    {
+      "name": "GET /api/me",
+      "pass": true,
+      "detail": {
+        "producerId": "33333333-3333-3333-3333-333333333333",
+        "fullName": "Mehmet Çiftçi"
+      }
+    },
+    {
+      "name": "GET /api/tasks/today",
+      "pass": true,
+      "detail": {
+        "count": 28
+      }
+    },
+    {
+      "name": "GET /api/lands",
+      "pass": true,
+      "detail": {
+        "count": 4
+      }
+    },
+    {
+      "name": "GET /api/notifications",
+      "pass": true,
+      "detail": {
+        "count": 126
+      }
+    },
+    {
+      "name": "GET /api/conversations/expert",
+      "pass": true,
+      "detail": {
+        "count": 1
+      }
+    },
+    {
+      "name": "GET /api/tasks?producerId",
+      "pass": true,
+      "detail": {
+        "count": 100
+      }
+    },
+    {
+      "name": "officer login (for task create)",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "officer create task",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "taskId": "82067e40-048e-41a6-b55b-fa2dc230ad86",
+        "landId": "44444444-4444-4444-4444-444444444444"
+      }
+    },
+    {
+      "name": "GET /api/tasks/:id",
+      "pass": true,
+      "detail": {
+        "title": "Mobil E2E 1785231034552",
+        "status": 0,
+        "requiresPhoto": true
+      }
+    },
+    {
+      "name": "POST /api/tasks/:id/photos",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "data": null
+      }
+    },
+    {
+      "name": "POST /api/tasks/:id/complete",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "data": null
+      }
+    },
+    {
+      "name": "task status AwaitingApproval (5)",
+      "pass": true,
+      "detail": {
+        "status": 5
+      }
+    },
+    {
+      "name": "POST /api/conversations/ask-expert",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "conversationId": "4696d773-6c49-485e-ad6e-de3202fb8017"
+      }
+    },
+    {
+      "name": "GET /api/conversations/:id",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "messages": 3
+      }
+    },
+    {
+      "name": "POST /api/conversations/:id/messages",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "POST /api/notifications/read-all",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "POST /api/tasks/:id/approve",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "task status Approved (2)",
+      "pass": true,
+      "detail": {
+        "status": 2
+      }
+    },
+    {
+      "name": "POST /api/auth/refresh",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    }
+  ]
+}

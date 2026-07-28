@@ -20,7 +20,7 @@ import {
   type TaskDto,
   uploadTaskPhoto,
 } from '../api/client';
-import { API_BASE_URL } from '../api/config';
+import { mediaUrl } from '../api/media';
 import { StatusBadge } from '../components/design';
 import {
   EmptyState,
@@ -37,6 +37,15 @@ import {
   isNeedsRevision,
   taskBadge,
 } from '../utils/taskStatus';
+import {
+  compactEvidence,
+  formatEvidenceEntries,
+  parseOptionalNumber,
+  themeLabel,
+  themeMinPhotos,
+  validateEvidence,
+  type TaskEvidence,
+} from '../utils/taskThemes';
 import * as ImagePicker from 'expo-image-picker';
 import { enqueuePhotoUpload } from '../offline/photoQueue';
 
@@ -46,6 +55,14 @@ function meaningfulText(value?: string | null) {
   // Tek harf / anlamsız placeholder (ör. "x") gösterme
   if (/^[a-zA-ZığüşöçİĞÜŞÖÇ]$/u.test(t)) return null;
   return t;
+}
+
+function parseLocalDateTime(raw: string): string | null {
+  const t = raw.trim().replace(' ', 'T');
+  if (!t) return null;
+  const d = new Date(t.length === 16 ? `${t}:00` : t);
+  if (Number.isNaN(d.getTime())) return null;
+  return d.toISOString();
 }
 
 export function TaskDetailScreen() {
@@ -63,6 +80,20 @@ export function TaskDetailScreen() {
   const [actionError, setActionError] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [showReject, setShowReject] = useState(false);
+
+  // Tema bazlı kanıt alanları
+  const [durationMinutes, setDurationMinutes] = useState('');
+  const [waterAmount, setWaterAmount] = useState('');
+  const [fertilizerName, setFertilizerName] = useState('');
+  const [amount, setAmount] = useState('');
+  const [pesticideName, setPesticideName] = useState('');
+  const [dose, setDose] = useState('');
+  const [seedlingCount, setSeedlingCount] = useState('');
+  const [startedAt, setStartedAt] = useState('');
+  const [endedAt, setEndedAt] = useState('');
+  const [productQuantity, setProductQuantity] = useState('');
+  const [crateCount, setCrateCount] = useState('');
+  const [bakimDescription, setBakimDescription] = useState('');
 
   const load = useCallback(async () => {
     try {
@@ -108,13 +139,65 @@ export function TaskDetailScreen() {
   const serverPhotoCount = task.photoCount ?? task.photos?.length ?? 0;
   const hasPhoto = serverPhotoCount > 0;
   const pendingLocalPhoto = localPhotos.length > 0 && serverPhotoCount === 0;
-  const needsPhoto = task.requiresPhoto && !hasPhoto;
-  const needsQuantity = Boolean(task.requiresQuantity);
+  const theme = task.theme ?? null;
+  const themed = Boolean(theme);
+  const minPhotos = themed ? themeMinPhotos(theme) : task.requiresPhoto ? 1 : 0;
+  const needsPhoto = minPhotos > 0 && serverPhotoCount < minPhotos;
+  const needsQuantity = !themed && Boolean(task.requiresQuantity);
   const quantityOk = !needsQuantity || quantity.trim().length > 0;
+
+  const buildEvidence = (): TaskEvidence => {
+    switch (theme) {
+      case 'Sulama':
+        return {
+          durationMinutes: parseOptionalNumber(durationMinutes),
+          waterAmount: parseOptionalNumber(waterAmount),
+          waterUnit: 'litre',
+        };
+      case 'Gubreleme':
+        return {
+          fertilizerName: fertilizerName.trim() || null,
+          amount: parseOptionalNumber(amount),
+          amountUnit: task.quantityUnit?.trim() || 'kg',
+        };
+      case 'Ilaclama':
+        return {
+          pesticideName: pesticideName.trim() || null,
+          dose: dose.trim() || null,
+          waterAmount: parseOptionalNumber(waterAmount),
+          waterUnit: 'litre',
+        };
+      case 'Dikim':
+        return {
+          seedlingCount: parseOptionalNumber(seedlingCount),
+          startedAt: parseLocalDateTime(startedAt),
+          endedAt: parseLocalDateTime(endedAt),
+        };
+      case 'Hasat':
+        return {
+          productQuantity: parseOptionalNumber(productQuantity),
+          productUnit: task.quantityUnit?.trim() || 'kg',
+          crateCount: parseOptionalNumber(crateCount),
+        };
+      case 'Bakim':
+        return { description: bakimDescription.trim() || null };
+      default:
+        return {};
+    }
+  };
+
+  const evidenceOk =
+    !themed || validateEvidence(theme, buildEvidence()) === null;
   const closed = approved || (awaiting && !officer);
-  const canSubmit = !officer && !closed && !needsPhoto && quantityOk;
+  const canSubmit =
+    !officer && !closed && !needsPhoto && quantityOk && evidenceOk;
   const guidance = meaningfulText(task.description);
   const revisionReason = meaningfulText(task.revisionReason);
+  const themeName = themeLabel(theme);
+  const plannedRows = formatEvidenceEntries(theme, task.plannedEvidenceJson, {
+    planned: true,
+  });
+  const actualRows = formatEvidenceEntries(theme, task.evidenceJson);
 
   const buildNotes = () =>
     [
@@ -126,6 +209,16 @@ export function TaskDetailScreen() {
     ]
       .filter(Boolean)
       .join('\n');
+
+  const ensureEvidenceReady = () => {
+    if (!themed) return true;
+    const msg = validateEvidence(theme, buildEvidence());
+    if (msg) {
+      setActionError(msg);
+      return false;
+    }
+    return true;
+  };
 
   const approve = async () => {
     setSaving(true);
@@ -229,34 +322,30 @@ export function TaskDetailScreen() {
       setActionError('Önce miktarı girin.');
       return;
     }
+    if (!ensureEvidenceReady()) return;
     navigation.navigate('FotografCek', {
       taskId: task.id,
       notes: buildNotes(),
+      evidence: themed ? compactEvidence(buildEvidence()) : undefined,
     });
   };
 
   const goComplete = () => {
+    if (!ensureEvidenceReady()) return;
     if (!canSubmit) return;
     navigation.navigate('OnayaGonder', {
       taskId: task.id,
       photoAttached: hasPhoto,
       notes: buildNotes(),
+      evidence: themed ? compactEvidence(buildEvidence()) : undefined,
     });
   };
 
   const videoUrl = task.videoUrl?.trim() || null;
   const imageRaw = task.imageUrl?.trim() || null;
-  const guidanceImage = imageRaw
-    ? imageRaw.startsWith('http')
-      ? imageRaw
-      : `${API_BASE_URL}/${imageRaw.replace(/^\//, '')}`
-    : null;
+  const guidanceImage = imageRaw ? mediaUrl(imageRaw, accessToken) : null;
   const photoUrls =
-    task.photos?.map((p) =>
-      p.storageKey.startsWith('http')
-        ? p.storageKey
-        : `${API_BASE_URL}/${p.storageKey.replace(/^\//, '')}`,
-    ) ?? [];
+    task.photos?.map((p) => mediaUrl(p.storageKey, accessToken)) ?? [];
 
   return (
     <Screen edges={['left', 'right', 'bottom']}>
@@ -269,6 +358,9 @@ export function TaskDetailScreen() {
             <Text style={styles.title}>{task.title}</Text>
             <StatusBadge label={badge.label} tone={badge.tone} />
           </View>
+          {themeName ? (
+            <Text style={styles.themeLine}>İşlem: {themeName}</Text>
+          ) : null}
           {task.dueDate ? (
             <Text
               style={[
@@ -285,29 +377,49 @@ export function TaskDetailScreen() {
           ) : null}
         </View>
 
-        {guidance ? (
-          <View style={styles.card}>
-            <Text style={styles.cardLabel}>Açıklama</Text>
-            <Text style={styles.cardBody}>{guidance}</Text>
+        {plannedRows.length > 0 ? (
+          <View style={[styles.card, styles.plannedCard]}>
+            <Text style={styles.cardLabel}>Planlanan (hedef)</Text>
+            {plannedRows.map((row) => (
+              <View key={`p-${row.label}`} style={styles.evidenceRow}>
+                <Text style={styles.evidenceLabel}>{row.label}</Text>
+                <Text style={styles.evidenceValue}>{row.value}</Text>
+              </View>
+            ))}
           </View>
         ) : null}
 
-        {guidanceImage ? (
-          <Image
-            source={{ uri: guidanceImage }}
-            style={styles.guidanceImage}
-            accessibilityLabel="Eğitim görseli"
-          />
-        ) : null}
-
-        {videoUrl ? (
-          <Pressable
-            accessibilityRole="link"
-            onPress={() => void Linking.openURL(videoUrl)}
-            style={styles.videoBtn}
-          >
-            <Text style={styles.videoBtnText}>Eğitim videosunu aç</Text>
-          </Pressable>
+        {guidance || guidanceImage || videoUrl ? (
+          <View style={styles.card}>
+            <Text style={styles.cardLabel}>Rehber / eğitim</Text>
+            {guidance ? (
+              <Text style={styles.cardBody}>{guidance}</Text>
+            ) : (
+              <Text style={styles.cardHint}>
+                Bu adım için yazılı açıklama yok; varsa aşağıdaki link veya
+                görseli kullanın.
+              </Text>
+            )}
+            {guidanceImage ? (
+              <Image
+                source={{ uri: guidanceImage }}
+                style={styles.guidanceImage}
+                accessibilityLabel="Eğitim görseli"
+              />
+            ) : null}
+            {videoUrl ? (
+              <Pressable
+                accessibilityRole="link"
+                onPress={() => void Linking.openURL(videoUrl)}
+                style={styles.videoBtn}
+              >
+                <Text style={styles.videoBtnText}>Eğitim videosunu / linki aç</Text>
+                <Text style={styles.videoUrlText} numberOfLines={2}>
+                  {videoUrl}
+                </Text>
+              </Pressable>
+            ) : null}
+          </View>
         ) : null}
 
         {needsRevision && !officer ? (
@@ -353,9 +465,43 @@ export function TaskDetailScreen() {
 
         {officer && awaiting ? (
           <View style={styles.actions}>
+            {plannedRows.length > 0 || actualRows.length > 0 || task.completionNotes ? (
+              <View style={styles.card}>
+                {plannedRows.length > 0 ? (
+                  <>
+                    <Text style={styles.cardLabel}>Planlanan (hedef)</Text>
+                    {plannedRows.map((row) => (
+                      <View key={`op-${row.label}`} style={styles.evidenceRow}>
+                        <Text style={styles.evidenceLabel}>{row.label}</Text>
+                        <Text style={styles.evidenceValue}>{row.value}</Text>
+                      </View>
+                    ))}
+                  </>
+                ) : null}
+                <Text style={[styles.cardLabel, plannedRows.length > 0 && styles.cardLabelSpaced]}>
+                  Gerçekleşen (üretici)
+                </Text>
+                {actualRows.length > 0 ? (
+                  actualRows.map((row) => (
+                    <View key={`oa-${row.label}`} style={styles.evidenceRow}>
+                      <Text style={styles.evidenceLabel}>{row.label}</Text>
+                      <Text style={styles.evidenceValue}>{row.value}</Text>
+                    </View>
+                  ))
+                ) : task.completionNotes ? (
+                  <Text style={styles.cardBody}>{task.completionNotes}</Text>
+                ) : (
+                  <Text style={styles.cardHint}>Yapılandırılmış kanıt yok</Text>
+                )}
+              </View>
+            ) : null}
             {(photoUrls.length > 0 || localPhotos.length > 0) && (
               <View style={styles.card}>
-                <Text style={styles.cardLabel}>Kanıt fotoğrafları</Text>
+                <Text style={styles.cardLabel}>
+                  {theme === 'Bakim'
+                    ? 'Kanıt fotoğrafları (öncesi / sonrası)'
+                    : 'Kanıt fotoğrafları'}
+                </Text>
                 <View style={styles.photos}>
                   {photoUrls.map((uri) => (
                     <Image key={uri} source={{ uri }} style={styles.thumb} />
@@ -415,6 +561,157 @@ export function TaskDetailScreen() {
 
         {!closed && !officer ? (
           <>
+            {themed ? (
+              <View style={styles.card}>
+                <Text style={styles.cardLabel}>
+                  Gerçekleşen kanıt ({themeName})
+                </Text>
+                {theme === 'Sulama' ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Süre (dakika)</Text>
+                    <TextInput
+                      value={durationMinutes}
+                      onChangeText={setDurationMinutes}
+                      keyboardType="number-pad"
+                      style={styles.input}
+                      placeholder="Örn. 45"
+                      placeholderTextColor={colors.muted}
+                    />
+                    <Text style={styles.fieldLabel}>Su miktarı (litre)</Text>
+                    <TextInput
+                      value={waterAmount}
+                      onChangeText={setWaterAmount}
+                      keyboardType="decimal-pad"
+                      style={styles.input}
+                      placeholder="Örn. 200"
+                      placeholderTextColor={colors.muted}
+                    />
+                  </>
+                ) : null}
+                {theme === 'Gubreleme' ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Gübre adı</Text>
+                    <TextInput
+                      value={fertilizerName}
+                      onChangeText={setFertilizerName}
+                      style={styles.input}
+                      placeholder="Örn. 15-15-15"
+                      placeholderTextColor={colors.muted}
+                    />
+                    <Text style={styles.fieldLabel}>Miktar (kg)</Text>
+                    <TextInput
+                      value={amount}
+                      onChangeText={setAmount}
+                      keyboardType="decimal-pad"
+                      style={styles.input}
+                      placeholder="Örn. 25"
+                      placeholderTextColor={colors.muted}
+                    />
+                  </>
+                ) : null}
+                {theme === 'Ilaclama' ? (
+                  <>
+                    <Text style={styles.fieldLabel}>İlaç adı</Text>
+                    <TextInput
+                      value={pesticideName}
+                      onChangeText={setPesticideName}
+                      style={styles.input}
+                      placeholder="Örn. Fungisit X"
+                      placeholderTextColor={colors.muted}
+                    />
+                    <Text style={styles.fieldLabel}>Doz</Text>
+                    <TextInput
+                      value={dose}
+                      onChangeText={setDose}
+                      style={styles.input}
+                      placeholder="Örn. 100 ml / 100 L"
+                      placeholderTextColor={colors.muted}
+                    />
+                    <Text style={styles.fieldLabel}>Su miktarı (litre)</Text>
+                    <TextInput
+                      value={waterAmount}
+                      onChangeText={setWaterAmount}
+                      keyboardType="decimal-pad"
+                      style={styles.input}
+                      placeholder="Örn. 100"
+                      placeholderTextColor={colors.muted}
+                    />
+                  </>
+                ) : null}
+                {theme === 'Dikim' ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Fide sayısı</Text>
+                    <TextInput
+                      value={seedlingCount}
+                      onChangeText={setSeedlingCount}
+                      keyboardType="number-pad"
+                      style={styles.input}
+                      placeholder="Örn. 500"
+                      placeholderTextColor={colors.muted}
+                    />
+                    <Text style={styles.fieldLabel}>
+                      Başlangıç (YYYY-AA-GG SS:DD)
+                    </Text>
+                    <TextInput
+                      value={startedAt}
+                      onChangeText={setStartedAt}
+                      style={styles.input}
+                      placeholder="2026-07-27 08:00"
+                      placeholderTextColor={colors.muted}
+                      autoCapitalize="none"
+                    />
+                    <Text style={styles.fieldLabel}>
+                      Bitiş (YYYY-AA-GG SS:DD)
+                    </Text>
+                    <TextInput
+                      value={endedAt}
+                      onChangeText={setEndedAt}
+                      style={styles.input}
+                      placeholder="2026-07-27 12:30"
+                      placeholderTextColor={colors.muted}
+                      autoCapitalize="none"
+                    />
+                  </>
+                ) : null}
+                {theme === 'Hasat' ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Ürün miktarı (kg)</Text>
+                    <TextInput
+                      value={productQuantity}
+                      onChangeText={setProductQuantity}
+                      keyboardType="decimal-pad"
+                      style={styles.input}
+                      placeholder="Örn. 120"
+                      placeholderTextColor={colors.muted}
+                    />
+                    <Text style={styles.fieldLabel}>Kasa sayısı</Text>
+                    <TextInput
+                      value={crateCount}
+                      onChangeText={setCrateCount}
+                      keyboardType="number-pad"
+                      style={styles.input}
+                      placeholder="Örn. 8"
+                      placeholderTextColor={colors.muted}
+                    />
+                  </>
+                ) : null}
+                {theme === 'Bakim' ? (
+                  <>
+                    <Text style={styles.fieldLabel}>Açıklama</Text>
+                    <TextInput
+                      value={bakimDescription}
+                      onChangeText={setBakimDescription}
+                      placeholder="Yapılan bakımı kısaca yazın…"
+                      placeholderTextColor={colors.muted}
+                      style={[styles.input, styles.area]}
+                      multiline
+                      textAlignVertical="top"
+                    />
+                  </>
+                ) : null}
+              </View>
+            ) : null}
+
             {needsQuantity ? (
               <View style={styles.card}>
                 <Text style={styles.fieldLabel}>
@@ -433,12 +730,16 @@ export function TaskDetailScreen() {
               </View>
             ) : null}
 
-            {(task.requiresPhoto ||
+            {(minPhotos > 0 ||
               photoUrls.length > 0 ||
               localPhotos.length > 0) && (
               <View style={styles.card}>
                 <Text style={styles.cardLabel}>
-                  {task.requiresPhoto ? 'Fotoğraf (gerekli)' : 'Fotoğraf'}
+                  {theme === 'Bakim'
+                    ? `Fotoğraf (öncesi + sonrası, en az ${minPhotos})`
+                    : minPhotos > 0
+                      ? `Fotoğraf (gerekli${minPhotos > 1 ? `, en az ${minPhotos}` : ''})`
+                      : 'Fotoğraf'}
                 </Text>
                 {photoUrls.length > 0 || localPhotos.length > 0 ? (
                   <View style={styles.photos}>
@@ -451,26 +752,33 @@ export function TaskDetailScreen() {
                   </View>
                 ) : (
                   <Text style={styles.cardHint}>
-                    Onaya göndermeden önce fotoğraf ekleyin.
+                    {theme === 'Bakim'
+                      ? 'Öncesi ve sonrası olmak üzere en az 2 fotoğraf ekleyin.'
+                      : 'Onaya göndermeden önce fotoğraf ekleyin.'}
                   </Text>
                 )}
+                {theme === 'Bakim' && serverPhotoCount === 1 ? (
+                  <Text style={styles.cardHint}>
+                    Bir fotoğraf var — sonrası için bir fotoğraf daha ekleyin.
+                  </Text>
+                ) : null}
               </View>
             )}
 
-            {!needsPhoto ? (
-              <View style={styles.card}>
-                <Text style={styles.fieldLabel}>Açıklama (isteğe bağlı)</Text>
-                <TextInput
-                  value={producerNote}
-                  onChangeText={setProducerNote}
-                  placeholder="Uzmana not yazın…"
-                  placeholderTextColor={colors.muted}
-                  style={[styles.input, styles.area]}
-                  multiline
-                  textAlignVertical="top"
-                />
-              </View>
-            ) : null}
+            <View style={styles.card}>
+              <Text style={styles.fieldLabel}>
+                {theme === 'Bakim' ? 'Ek not (isteğe bağlı)' : 'Açıklama (isteğe bağlı)'}
+              </Text>
+              <TextInput
+                value={producerNote}
+                onChangeText={setProducerNote}
+                placeholder="Uzmana not yazın…"
+                placeholderTextColor={colors.muted}
+                style={[styles.input, styles.area]}
+                multiline
+                textAlignVertical="top"
+              />
+            </View>
 
             {actionError ? <Text style={styles.error}>{actionError}</Text> : null}
             {pendingLocalPhoto ? (
@@ -484,16 +792,25 @@ export function TaskDetailScreen() {
               {needsPhoto ? (
                 <>
                   <PrimaryButton
-                    label="Fotoğraf çek"
+                    label={
+                      theme === 'Bakim' && serverPhotoCount === 0
+                        ? 'Öncesi fotoğraf çek'
+                        : theme === 'Bakim'
+                          ? 'Sonrası fotoğraf çek'
+                          : 'Fotoğraf çek'
+                    }
                     onPress={goCapture}
-                    disabled={needsQuantity && !quantityOk}
+                    disabled={(needsQuantity && !quantityOk) || (themed && !evidenceOk)}
                   />
                   <PrimaryButton
                     label="Galeriden seç"
                     tone="secondary"
-                    onPress={() => void pickFromGallery()}
+                    onPress={() => {
+                      if (!ensureEvidenceReady()) return;
+                      void pickFromGallery();
+                    }}
                     loading={saving}
-                    disabled={needsQuantity && !quantityOk}
+                    disabled={(needsQuantity && !quantityOk) || (themed && !evidenceOk)}
                   />
                 </>
               ) : (
@@ -503,7 +820,7 @@ export function TaskDetailScreen() {
                     onPress={goComplete}
                     disabled={!canSubmit}
                   />
-                  {task.requiresPhoto ? (
+                  {minPhotos > 0 ? (
                     <PrimaryButton
                       label="Başka fotoğraf çek"
                       tone="secondary"
@@ -589,6 +906,12 @@ const styles = StyleSheet.create({
     ...typography.helper,
     fontWeight: '600',
   },
+  themeLine: {
+    marginTop: 2,
+    fontSize: 14,
+    fontWeight: '600',
+    color: colors.primary,
+  },
   dueDanger: { color: colors.danger },
   dueOk: { color: colors.success },
   landLine: {
@@ -611,6 +934,30 @@ const styles = StyleSheet.create({
   },
   cardHint: {
     ...typography.helper,
+  },
+  plannedCard: {
+    backgroundColor: colors.primarySoft,
+    borderColor: colors.primarySoft,
+  },
+  evidenceRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: spacing.md,
+  },
+  evidenceLabel: {
+    ...typography.helper,
+    flex: 1,
+    color: colors.muted,
+  },
+  evidenceValue: {
+    ...typography.bodyStrong,
+    flexShrink: 0,
+    maxWidth: '55%',
+    textAlign: 'right',
+  },
+  cardLabelSpaced: {
+    marginTop: spacing.md,
   },
   okCard: {
     backgroundColor: colors.successSoft,
@@ -665,18 +1012,26 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgWarm,
   },
   videoBtn: {
-    minHeight: 48,
+    minHeight: 56,
     borderRadius: radii.md,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.borderStrong,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.primarySoft,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.md,
+    gap: 4,
+    marginTop: spacing.sm,
   },
   videoBtnText: {
     ...typography.bodyStrong,
     color: colors.primary,
+  },
+  videoUrlText: {
+    ...typography.caption,
+    color: colors.muted,
+    textAlign: 'center',
   },
   fieldLabel: {
     ...typography.label,

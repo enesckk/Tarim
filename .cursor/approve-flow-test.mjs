@@ -2,15 +2,20 @@
 /** Approve flow: officer creates task → producer completes → officer approves */
 const API = process.env.API_URL || 'http://127.0.0.1:5109';
 
-async function req(path, { method = 'GET', token, body } = {}) {
+const PNG_1X1 = Buffer.from(
+  'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+  'base64',
+);
+
+async function req(path, { method = 'GET', token, body, formData } = {}) {
   const res = await fetch(`${API}${path}`, {
     method,
     headers: {
       Accept: 'application/json',
-      ...(body ? { 'Content-Type': 'application/json' } : {}),
+      ...(body && !formData ? { 'Content-Type': 'application/json' } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: body ? JSON.stringify(body) : undefined,
+    body: formData ? formData : body ? JSON.stringify(body) : undefined,
   });
   const text = await res.text();
   let data = null;
@@ -20,6 +25,12 @@ async function req(path, { method = 'GET', token, body } = {}) {
     data = text;
   }
   return { status: res.status, data, ok: res.ok };
+}
+
+async function uploadPhoto(taskId, token) {
+  const fd = new FormData();
+  fd.append('file', new Blob([PNG_1X1], { type: 'image/png' }), 'e2e-proof.png');
+  return req(`/api/tasks/${taskId}/photos`, { method: 'POST', token, formData: fd });
 }
 
 async function login(email, password) {
@@ -52,8 +63,10 @@ async function main() {
     body: {
       title: `E2E Onay ${Date.now()}`,
       description: 'Sistem testi',
+      theme: 'Sulama',
+      plannedEvidence: { durationMinutes: 40, waterAmount: 180, waterUnit: 'litre' },
       dueDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
-      requiresPhoto: false,
+      requiresPhoto: true,
       requiresQuantity: false,
     },
   });
@@ -81,10 +94,16 @@ async function main() {
     all.data?.filter((t) => t.id === id).length,
   );
 
+  const photo = await uploadPhoto(id, producerTok);
+  assert('producer upload photo', photo.ok || photo.status === 201, photo.status);
+
   const complete = await req(`/api/tasks/${id}/complete`, {
     method: 'POST',
     token: producerTok,
-    body: { notes: 'E2E complete' },
+    body: {
+      notes: 'E2E complete',
+      evidence: { durationMinutes: 30, waterAmount: 100, waterUnit: 'litre' },
+    },
   });
   assert('producer complete', complete.ok, complete.status);
 
@@ -115,17 +134,24 @@ async function main() {
     body: {
       title: `E2E Deny ${Date.now()}`,
       description: 'x',
+      theme: 'Sulama',
+      plannedEvidence: { durationMinutes: 15, waterAmount: 50, waterUnit: 'litre' },
       dueDate: new Date(Date.now() + 86400000).toISOString().slice(0, 10),
-      requiresPhoto: false,
+      requiresPhoto: true,
       requiresQuantity: false,
     },
   });
   const id2 = typeof fake.data === 'string' ? fake.data : fake.data?.id;
   assert('deny-task created', Boolean(id2), fake.data);
+  const photo2 = await uploadPhoto(id2, producerTok);
+  assert('deny-task photo', photo2.ok || photo2.status === 201, photo2.status);
   const completed2 = await req(`/api/tasks/${id2}/complete`, {
     method: 'POST',
     token: producerTok,
-    body: { notes: 'n' },
+    body: {
+      notes: 'n',
+      evidence: { durationMinutes: 15, waterAmount: 50, waterUnit: 'litre' },
+    },
   });
   assert('deny-task completed', completed2.ok, completed2.status);
   const deny = await req(`/api/tasks/${id2}/approve`, {

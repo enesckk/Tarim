@@ -201,6 +201,8 @@ export type WorkflowStep = {
   quantityUnit?: string | null
   videoUrl?: string | null
   imageUrl?: string | null
+  theme?: string | null
+  plannedEvidenceJson?: string | null
 }
 
 export type Workflow = {
@@ -232,9 +234,13 @@ export type TaskItem = {
   requiresQuantity?: boolean
   requiresDate?: boolean
   quantityUnit?: string | null
+  theme?: string | null
   videoUrl?: string | null
   imageUrl?: string | null
   revisionReason?: string | null
+  completionNotes?: string | null
+  plannedEvidenceJson?: string | null
+  evidenceJson?: string | null
   completedAtUtc?: string
   photoCount: number
   photos: TaskPhoto[]

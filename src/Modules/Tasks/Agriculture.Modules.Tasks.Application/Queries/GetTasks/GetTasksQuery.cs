@@ -24,23 +24,42 @@ public sealed record TaskDto(
     bool RequiresQuantity,
     bool RequiresDate,
     string? QuantityUnit,
+    string? Theme,
     string? VideoUrl,
     string? ImageUrl,
     string? RevisionReason,
+    string? CompletionNotes,
+    string? PlannedEvidenceJson,
+    string? EvidenceJson,
     DateTime? CompletedAtUtc,
     int PhotoCount,
     IReadOnlyList<TaskPhotoDto> Photos);
 
-public sealed record GetTasksQuery(Guid? ProducerId = null) : IQuery<IReadOnlyList<TaskDto>>;
+public sealed record GetTasksQuery(
+    Guid? ProducerId = null,
+    IReadOnlyList<Guid>? LandIds = null) : IQuery<IReadOnlyList<TaskDto>>;
 
 internal sealed class GetTasksQueryHandler(ITaskRepository repository)
     : IQueryHandler<GetTasksQuery, IReadOnlyList<TaskDto>>
 {
     public async Task<Result<IReadOnlyList<TaskDto>>> Handle(GetTasksQuery request, CancellationToken cancellationToken)
     {
-        var tasks = request.ProducerId.HasValue
-            ? await repository.GetByProducerAsync(request.ProducerId.Value, cancellationToken)
-            : await repository.GetAllAsync(cancellationToken);
+        IReadOnlyList<ProductionTask> tasks;
+        if (request.LandIds is not null)
+        {
+            tasks = await repository.GetByLandIdsAsync(
+                request.LandIds,
+                request.ProducerId,
+                cancellationToken);
+        }
+        else if (request.ProducerId.HasValue)
+        {
+            tasks = await repository.GetByProducerAsync(request.ProducerId.Value, cancellationToken);
+        }
+        else
+        {
+            tasks = await repository.GetAllAsync(cancellationToken);
+        }
 
         var dtos = tasks.Select(TaskDtoMapper.ToDto).ToList();
 
@@ -62,9 +81,13 @@ internal static class TaskDtoMapper
         t.RequiresQuantity,
         t.RequiresDate,
         t.QuantityUnit,
+        t.Theme,
         t.VideoUrl,
         t.ImageUrl,
         t.RevisionReason,
+        t.CompletionNotes,
+        t.PlannedEvidenceJson,
+        t.EvidenceJson,
         t.CompletedAtUtc,
         t.Photos.Count,
         t.Photos

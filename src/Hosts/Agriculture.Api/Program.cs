@@ -83,7 +83,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.FileProviders;
 using Microsoft.OpenApi.Models;
 using Serilog;
 
@@ -185,12 +184,10 @@ try
 
     var uploadsRoot = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
     Directory.CreateDirectory(uploadsRoot);
-    app.UseStaticFiles();
-    app.UseStaticFiles(new StaticFileOptions
-    {
-        FileProvider = new PhysicalFileProvider(uploadsRoot),
-        RequestPath = "/uploads"
-    });
+    // Serve wwwroot except /uploads — evidence/guidance files go through authenticated GET /api/files/...
+    app.UseWhen(
+        ctx => !ctx.Request.Path.StartsWithSegments("/uploads"),
+        branch => branch.UseStaticFiles());
 
     if (app.Environment.IsDevelopment())
     {
@@ -206,6 +203,7 @@ try
     var api = app.MapGroup("/api").WithTags("API");
 
     api.MapAuthEndpoints();
+    api.MapFilesEndpoints();
     api.MapProducersEndpoints();
     api.MapLandsEndpoints();
     api.MapSeasonsEndpoints();
@@ -639,6 +637,20 @@ internal static partial class DatabaseInitializer
                     ALTER TABLE [agriculture].[Tasks] ADD [ImageUrl] nvarchar(500) NULL;
                 IF COL_LENGTH(N'agriculture.Tasks', N'RevisionReason') IS NULL
                     ALTER TABLE [agriculture].[Tasks] ADD [RevisionReason] nvarchar(1000) NULL;
+                IF COL_LENGTH(N'agriculture.Tasks', N'Theme') IS NULL
+                    ALTER TABLE [agriculture].[Tasks] ADD [Theme] nvarchar(32) NULL;
+                IF COL_LENGTH(N'agriculture.Tasks', N'EvidenceJson') IS NULL
+                    ALTER TABLE [agriculture].[Tasks] ADD [EvidenceJson] nvarchar(max) NULL;
+                IF COL_LENGTH(N'agriculture.Tasks', N'PlannedEvidenceJson') IS NULL
+                    ALTER TABLE [agriculture].[Tasks] ADD [PlannedEvidenceJson] nvarchar(max) NULL;
+                IF COL_LENGTH(N'agriculture.WorkflowSteps', N'Theme') IS NULL
+                    ALTER TABLE [agriculture].[WorkflowSteps] ADD [Theme] nvarchar(32) NULL;
+                IF COL_LENGTH(N'agriculture.WorkflowSteps', N'PlannedEvidenceJson') IS NULL
+                    ALTER TABLE [agriculture].[WorkflowSteps] ADD [PlannedEvidenceJson] nvarchar(max) NULL;
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Tasks_ProducerId_Status' AND object_id = OBJECT_ID(N'agriculture.Tasks'))
+                    CREATE INDEX [IX_Tasks_ProducerId_Status] ON [agriculture].[Tasks]([ProducerId], [Status]);
+                IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Tasks_LandId_Status' AND object_id = OBJECT_ID(N'agriculture.Tasks'))
+                    CREATE INDEX [IX_Tasks_LandId_Status] ON [agriculture].[Tasks]([LandId], [Status]);
                 IF OBJECT_ID(N'agriculture.DevicePushTokens', N'U') IS NULL
                 BEGIN
                     CREATE TABLE [agriculture].[DevicePushTokens] (

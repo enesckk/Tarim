@@ -1,0 +1,109 @@
+{
+  "results": [
+    {
+      "name": "officer login",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "officer phone login",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "producer login",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "officer /me fullName",
+      "pass": true,
+      "detail": {
+        "userId": "22222222-2222-2222-2222-222222222222",
+        "email": "uzman@agriculture.local",
+        "roles": [
+          "Officer"
+        ],
+        "producerId": null,
+        "fullName": "Ayşe Uzman",
+        "phone": "05551112233"
+      }
+    },
+    {
+      "name": "officer lands",
+      "pass": true,
+      "detail": "count=3"
+    },
+    {
+      "name": "officer pending-approval list",
+      "pass": true,
+      "detail": "200 count=0"
+    },
+    {
+      "name": "officer create land task",
+      "pass": true,
+      "detail": "200 91b50213-8d22-41c6-bc4c-7ff1d59d6bcc"
+    },
+    {
+      "name": "producer complete -> awaiting",
+      "pass": true,
+      "detail": "200 None"
+    },
+    {
+      "name": "task in officer pending queue",
+      "pass": true,
+      "detail": "pending=1"
+    },
+    {
+      "name": "officer get task detail awaiting",
+      "pass": true,
+      "detail": 5
+    },
+    {
+      "name": "officer approve task",
+      "pass": true,
+      "detail": "200 None"
+    },
+    {
+      "name": "task status completed",
+      "pass": true,
+      "detail": 2
+    },
+    {
+      "name": "officer expert conversations",
+      "pass": true,
+      "detail": "count=2"
+    },
+    {
+      "name": "officer staff conversations",
+      "pass": true,
+      "detail": "count=0"
+    },
+    {
+      "name": "officer land conversations",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "officer notifications",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "officer mark notification read",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "producer cannot pending-approval",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "producer conversations",
+      "pass": true,
+      "detail": 200
+    }
+  ],
+  "failed": []
+}

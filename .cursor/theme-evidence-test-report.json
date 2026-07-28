@@ -1,0 +1,259 @@
+{
+  "passed": 30,
+  "failed": 0,
+  "results": [
+    {
+      "name": "A health",
+      "pass": true,
+      "detail": {
+        "status": "healthy",
+        "service": "Agriculture.Api"
+      }
+    },
+    {
+      "name": "A admin login",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "A officer login",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "A producer login",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "A officer land",
+      "pass": true,
+      "detail": "44444444-4444-4444-4444-444444444444"
+    },
+    {
+      "name": "B1 create theme Sulama",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "87f38474-9a46-4575-97ef-5c1b51984c12",
+        "data": "87f38474-9a46-4575-97ef-5c1b51984c12"
+      }
+    },
+    {
+      "name": "B1 create theme Gubreleme",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "0baabbb3-3c10-4f94-acaf-297b879fdcdf",
+        "data": "0baabbb3-3c10-4f94-acaf-297b879fdcdf"
+      }
+    },
+    {
+      "name": "B1 create theme Ilaclama",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "140abbb9-f62a-4668-b7d8-09c319a547fb",
+        "data": "140abbb9-f62a-4668-b7d8-09c319a547fb"
+      }
+    },
+    {
+      "name": "B1 create theme Dikim",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "977a1960-0af5-43e0-90f9-cb0e28c9673b",
+        "data": "977a1960-0af5-43e0-90f9-cb0e28c9673b"
+      }
+    },
+    {
+      "name": "B1 create theme Hasat",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "d212e9eb-a8d8-49cb-9afb-99d2106d3565",
+        "data": "d212e9eb-a8d8-49cb-9afb-99d2106d3565"
+      }
+    },
+    {
+      "name": "B1 create theme Bakim",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "a8603598-4a15-4725-a810-8426ddcb0f9c",
+        "data": "a8603598-4a15-4725-a810-8426ddcb0f9c"
+      }
+    },
+    {
+      "name": "B2 create without theme → 400",
+      "pass": true,
+      "detail": {
+        "status": 400,
+        "code": "Task.ThemeRequired"
+      }
+    },
+    {
+      "name": "B2b create without plannedEvidence → 400",
+      "pass": true,
+      "detail": {
+        "status": 400,
+        "code": "Task.EvidenceInvalid",
+        "message": "Planlanan sulama süresi (dakika) gerekli."
+      }
+    },
+    {
+      "name": "B2c dual create Sulama",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "id": "9ceedb0b-35af-41b9-b109-363375002f79"
+      }
+    },
+    {
+      "name": "B2c producer sees plannedEvidenceJson",
+      "pass": true,
+      "detail": {
+        "plannedSnippet": "{\"durationMinutes\":40,\"waterAmount\":180,\"waterUnit\":\"litre\"}"
+      }
+    },
+    {
+      "name": "B2c complete with actual",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "B2c pending Planlanan|Gerçekleşen",
+      "pass": true,
+      "detail": {
+        "hasCard": true,
+        "planned": "{\"durationMinutes\":40,\"waterAmount\":180,\"waterUnit\":\"litre\"}",
+        "actual": "{\"durationMinutes\":45,\"waterAmount\":200,\"waterUnit\":\"litre\"}"
+      }
+    },
+    {
+      "name": "B3 Gubreleme complete without evidence → 400",
+      "pass": true,
+      "detail": {
+        "status": 400,
+        "data": {
+          "code": "Task.EvidenceInvalid",
+          "message": "Gübre adı gerekli."
+        }
+      }
+    },
+    {
+      "name": "B4 Gubreleme complete with evidence → 200",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "data": null
+      }
+    },
+    {
+      "name": "B5 pending has gubre task",
+      "pass": true,
+      "detail": {
+        "pendingCount": 3
+      }
+    },
+    {
+      "name": "B5 GET theme+evidence",
+      "pass": true,
+      "detail": {
+        "status": 5,
+        "theme": "Gubreleme",
+        "evidenceSnippet": "{\"fertilizerName\":\"NPK 15-15-15\",\"amount\":25,\"amountUnit\":\"kg\"}",
+        "completionNotes": "Tema: Gübreleme\nGübre: NPK 15-15-15\nMiktar: 25 kg\ngübreleme tamam"
+      }
+    },
+    {
+      "name": "B6 approve Gubreleme",
+      "pass": true,
+      "detail": {
+        "approveStatus": 200,
+        "taskStatus": 2
+      }
+    },
+    {
+      "name": "B7 Sulama smoke",
+      "pass": true,
+      "detail": {
+        "completeStatus": 200,
+        "taskStatus": 5,
+        "theme": "Sulama"
+      }
+    },
+    {
+      "name": "B7 Bakim smoke",
+      "pass": true,
+      "detail": {
+        "completeStatus": 200,
+        "taskStatus": 5,
+        "theme": "Bakim"
+      }
+    },
+    {
+      "name": "B8 legacy Theme=null complete",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "taskId": "89fad4be-c1f3-42d0-98cb-91ee3940f6db",
+        "title": "Can suyu verildi",
+        "data": null
+      }
+    },
+    {
+      "name": "C IDOR foreign task blocked",
+      "pass": true,
+      "detail": {
+        "status": 403,
+        "foreignId": "aa12a4ad-559d-47f4-9c77-1ac9081f5b85"
+      }
+    },
+    {
+      "name": "C metadata-only photo → 400",
+      "pass": true,
+      "detail": {
+        "status": 400,
+        "data": {
+          "code": "Photo.Invalid",
+          "message": "Yalnızca metadata ile fotoğraf eklenemez. Dosya veya base64 içerik gerekli."
+        }
+      }
+    },
+    {
+      "name": "C cancel open task",
+      "pass": true,
+      "detail": {
+        "cancelStatus": 204,
+        "taskStatus": 4
+      }
+    },
+    {
+      "name": "C reject/revise",
+      "pass": true,
+      "detail": {
+        "reviseStatus": 200,
+        "taskStatus": 6,
+        "data": null
+      }
+    },
+    {
+      "name": "C officer land isolation 403",
+      "pass": true,
+      "detail": {
+        "detailStatus": 403,
+        "createStatus": 403,
+        "landId": "a4444444-4444-4444-4444-444444444408"
+      }
+    }
+  ]
+}

@@ -15,6 +15,7 @@ using Agriculture.Modules.Lands.Application.Queries.GetLands;
 using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.Modules.Notifications.Domain.Entities;
 using Agriculture.Modules.Producers.Domain.Entities;
+using Agriculture.Modules.Tasks.Application;
 using Agriculture.Modules.Tasks.Application.Commands.CreateTask;
 using Agriculture.Modules.Tasks.Domain.Entities;
 using Agriculture.Modules.Workflows.Application.Queries.GetLandProductions;
@@ -463,9 +464,13 @@ internal static class LandsEndpoints
                 t.RequiresQuantity,
                 t.RequiresDate,
                 t.QuantityUnit,
+                t.Theme,
                 t.VideoUrl,
                 t.ImageUrl,
                 t.RevisionReason,
+                t.CompletionNotes,
+                t.PlannedEvidenceJson,
+                t.EvidenceJson,
                 t.CompletedAtUtc,
                 PhotoCount = t.Photos.Count,
                 Photos = t.Photos
@@ -510,6 +515,16 @@ internal static class LandsEndpoints
             if (string.IsNullOrWhiteSpace(body.Title))
                 return Results.BadRequest(new { Code = "Task.TitleRequired", Message = "Görev başlığı gerekli." });
 
+            if (string.IsNullOrWhiteSpace(body.Theme)
+                || !TaskThemes.TryNormalize(body.Theme, out var theme))
+            {
+                return Results.BadRequest(new
+                {
+                    Code = "Task.ThemeRequired",
+                    Message = "İşlem teması gerekli (Sulama, Gübreleme, İlaçlama, Dikim, Hasat, Bakım)."
+                });
+            }
+
             var production = await db.ProductionWorkflows.AsNoTracking()
                 .Where(p => p.LandId == id
                     && (p.Status == ProductionWorkflowStatus.InProgress
@@ -524,6 +539,12 @@ internal static class LandsEndpoints
                     Message = "Görev göndermek için önce bu arazide üretim planı başlatın."
                 });
 
+            TaskThemes.ApplyCreateDefaults(theme, out var requiresPhoto);
+
+            var plannedCheck = TaskEvidenceHelper.ValidatePlanned(theme, body.PlannedEvidence);
+            if (!plannedCheck.IsSuccess)
+                return ApiResults.From(plannedCheck);
+
             var result = await sender.Send(new CreateTaskCommand(
                 production.Id,
                 land.ProducerId.Value,
@@ -532,10 +553,12 @@ internal static class LandsEndpoints
                 body.Description,
                 null,
                 body.DueDate,
-                body.RequiresPhoto,
+                requiresPhoto,
                 body.RequiresQuantity,
                 false,
-                body.QuantityUnit));
+                body.QuantityUnit,
+                Theme: theme,
+                PlannedEvidence: body.PlannedEvidence));
 
             if (!result.IsSuccess)
                 return ApiResults.From(result);
@@ -566,6 +589,8 @@ internal sealed record CreateLandTaskBody(
     string Title,
     string? Description = null,
     DateOnly? DueDate = null,
+    string? Theme = null,
+    TaskEvidenceDto? PlannedEvidence = null,
     bool RequiresPhoto = false,
     bool RequiresQuantity = false,
     string? QuantityUnit = null);

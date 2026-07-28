@@ -9,6 +9,7 @@ using Agriculture.Modules.Tasks.Application.Commands.ApproveTask;
 using Agriculture.Modules.Tasks.Application.Commands.RejectTask;
 using Agriculture.Modules.Tasks.Application.Commands.CompleteTask;
 using Agriculture.Modules.Tasks.Application.Commands.CreateTask;
+using Agriculture.Modules.Tasks.Application;
 using Agriculture.Modules.Tasks.Application.Queries.GetTaskById;
 using Agriculture.Modules.Tasks.Application.Queries.GetTasks;
 using Agriculture.Modules.Tasks.Application.Queries.GetTodayTasks;
@@ -34,18 +35,14 @@ internal static class TasksEndpoints
             if (user.Roles.Contains(AppRoles.Administrator))
                 return ApiResults.From(await sender.Send(new GetTasksQuery(producerId)));
 
-            // Officer: only tasks on assigned lands.
+            // Officer: only tasks on assigned lands (filter in DB, not in memory).
             if (user.Roles.Contains(AppRoles.Officer))
             {
-                var result = await sender.Send(new GetTasksQuery(producerId));
-                if (!result.IsSuccess)
-                    return ApiResults.From(result);
-
                 var landIds = await db.Lands.AsNoTracking()
                     .Where(l => l.AssignedOfficerUserId == user.UserId)
                     .Select(l => l.Id)
                     .ToListAsync();
-                return Results.Ok(result.Value.Where(t => landIds.Contains(t.LandId)).ToList());
+                return ApiResults.From(await sender.Send(new GetTasksQuery(producerId, landIds)));
             }
 
             // Producer: force own ProducerId — ignore arbitrary query filter.
@@ -125,36 +122,46 @@ internal static class TasksEndpoints
                 .Select(l => new { l.Id, l.Name })
                 .ToDictionaryAsync(x => x.Id, x => x.Name);
 
-            return Results.Ok(items.Select(t => new
+            return Results.Ok(items.Select(t =>
             {
-                t.Id,
-                t.ProducerId,
-                t.LandId,
-                LandName = landNames.GetValueOrDefault(t.LandId),
-                t.Title,
-                t.Description,
-                DueDate = t.DueDate,
-                Status = (int)t.Status,
-                t.RequiresPhoto,
-                t.RequiresQuantity,
-                t.RequiresDate,
-                t.QuantityUnit,
-                t.VideoUrl,
-                t.ImageUrl,
-                t.RevisionReason,
-                t.CompletedAtUtc,
-                PhotoCount = t.Photos.Count,
-                Photos = t.Photos
-                    .OrderByDescending(p => p.UploadedAtUtc)
-                    .Select(p => new
-                    {
-                        p.Id,
-                        p.StorageKey,
-                        p.FileName,
-                        p.ContentType,
-                        p.UploadedAtUtc
-                    })
-                    .ToList()
+                var variance = TaskEvidenceHelper.EvaluateVariance(t.PlannedEvidenceJson, t.EvidenceJson);
+                return new
+                {
+                    t.Id,
+                    t.ProducerId,
+                    t.LandId,
+                    LandName = landNames.GetValueOrDefault(t.LandId),
+                    t.Title,
+                    t.Description,
+                    DueDate = t.DueDate,
+                    Status = (int)t.Status,
+                    t.RequiresPhoto,
+                    t.RequiresQuantity,
+                    t.RequiresDate,
+                    t.QuantityUnit,
+                    t.Theme,
+                    t.VideoUrl,
+                    t.ImageUrl,
+                    t.RevisionReason,
+                    t.CompletionNotes,
+                    t.PlannedEvidenceJson,
+                    t.EvidenceJson,
+                    t.CompletedAtUtc,
+                    PhotoCount = t.Photos.Count,
+                    HasVarianceWarning = variance.HasWarning,
+                    VarianceWarning = variance.Message,
+                    Photos = t.Photos
+                        .OrderByDescending(p => p.UploadedAtUtc)
+                        .Select(p => new
+                        {
+                            p.Id,
+                            p.StorageKey,
+                            p.FileName,
+                            p.ContentType,
+                            p.UploadedAtUtc
+                        })
+                        .ToList()
+                };
             }));
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         tasks.MapGet("/{id:guid}", async (Guid id, IUserContext user, ISender sender, AgricultureDbContext db) =>
@@ -287,7 +294,7 @@ internal static class TasksEndpoints
             if (producer is null || producer.Id != existing.ProducerId)
                 return Results.Forbid();
 
-            var result = await sender.Send(new CompleteTaskCommand(id, body?.Notes));
+            var result = await sender.Send(new CompleteTaskCommand(id, body?.Notes, body?.Evidence));
             if (!result.IsSuccess)
                 return ApiResults.From(result);
 
@@ -496,7 +503,7 @@ internal static class TasksEndpoints
     }
 }
 
-internal sealed record CompleteTaskRequest(string? Notes);
+internal sealed record CompleteTaskRequest(string? Notes = null, TaskEvidenceDto? Evidence = null);
 internal sealed record RejectTaskRequest(string Reason);
 internal sealed record AddTaskPhotoRequest(
     string? FileName,

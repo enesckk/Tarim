@@ -10,10 +10,13 @@ import {
   Info,
   RotateCcw,
   Send,
+  TriangleAlert,
   XCircle,
 } from 'lucide-react'
-import { api, API_BASE } from '../api/client'
+import { api } from '../api/client'
+import { mediaUrl } from '../api/media'
 import type { TaskItem, TaskPhoto } from '../api/types'
+import { formatEvidenceEntries, themeLabel } from '../api/taskThemes'
 import { useAuth } from '../auth/AuthContext'
 import { Lightbox, type LightboxImage } from './Lightbox'
 import '../layout/layout.css'
@@ -22,12 +25,9 @@ type PendingTask = TaskItem & {
   landName?: string
   photos?: TaskPhoto[]
   revisionReason?: string | null
-}
-
-function photoSrc(p: TaskPhoto) {
-  const key = p.storageKey
-  if (key.startsWith('http')) return key
-  return `${API_BASE}/${key.replace(/^\//, '')}`
+  plannedEvidenceJson?: string | null
+  hasVarianceWarning?: boolean
+  varianceWarning?: string | null
 }
 
 function formatDate(value?: string) {
@@ -112,7 +112,11 @@ export function ApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
 
   const openLightbox = (photos: TaskPhoto[], index: number) => {
     setLightbox({
-      images: photos.map((p) => ({ src: photoSrc(p), alt: p.fileName, caption: p.fileName })),
+      images: photos.map((p) => ({
+        src: mediaUrl(p.storageKey, token),
+        alt: p.fileName,
+        caption: p.fileName,
+      })),
       index,
     })
   }
@@ -185,6 +189,9 @@ export function ApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
                   <div className="approvals-card-title">
                     <h3>{task.title}</h3>
                     {meta ? <p className="approvals-card-meta">{meta}</p> : null}
+                    {themeLabel(task.theme) ? (
+                      <p className="approvals-card-theme">{themeLabel(task.theme)}</p>
+                    ) : null}
                   </div>
                   <span className="badge badge-warn approvals-status">Onay bekliyor</span>
                 </div>
@@ -211,6 +218,62 @@ export function ApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
                   </p>
                 ) : null}
 
+                {task.hasVarianceWarning ? (
+                  <p className="approvals-card-variance" role="status">
+                    <TriangleAlert size={14} aria-hidden />
+                    <span>
+                      <strong>Sapma uyarısı:</strong>{' '}
+                      {task.varianceWarning ||
+                        'Planlanan ile gerçekleşen değerler arasında belirgin fark var (~%15+).'}
+                    </span>
+                  </p>
+                ) : null}
+
+                {(() => {
+                  const plannedRows = formatEvidenceEntries(
+                    task.theme,
+                    task.plannedEvidenceJson,
+                    { planned: true },
+                  )
+                  const actualRows = formatEvidenceEntries(task.theme, task.evidenceJson)
+                  if (plannedRows.length === 0 && actualRows.length === 0 && !task.completionNotes)
+                    return null
+                  return (
+                    <div className="approvals-compare">
+                      {plannedRows.length > 0 ? (
+                        <div className="approvals-evidence approvals-evidence-planned">
+                          <p className="approvals-evidence-title">Planlanan (hedef)</p>
+                          <dl className="approvals-evidence-list">
+                            {plannedRows.map((row) => (
+                              <div key={`p-${row.label}`} className="approvals-evidence-row">
+                                <dt>{row.label}</dt>
+                                <dd>{row.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        </div>
+                      ) : null}
+                      <div className="approvals-evidence approvals-evidence-actual">
+                        <p className="approvals-evidence-title">Gerçekleşen (üretici)</p>
+                        {actualRows.length > 0 ? (
+                          <dl className="approvals-evidence-list">
+                            {actualRows.map((row) => (
+                              <div key={`a-${row.label}`} className="approvals-evidence-row">
+                                <dt>{row.label}</dt>
+                                <dd>{row.value}</dd>
+                              </div>
+                            ))}
+                          </dl>
+                        ) : task.completionNotes ? (
+                          <p className="approvals-evidence-notes">{task.completionNotes}</p>
+                        ) : (
+                          <p className="approvals-evidence-notes muted">Yapılandırılmış kanıt yok</p>
+                        )}
+                      </div>
+                    </div>
+                  )
+                })()}
+
                 {task.revisionReason ? (
                   <p className="approvals-card-revision">
                     <RotateCcw size={14} aria-hidden />
@@ -230,7 +293,11 @@ export function ApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
                         onClick={() => openLightbox(photos, i)}
                         aria-label={`Fotoğrafı büyüt (${i + 1}/${photos.length})`}
                       >
-                        <img src={photoSrc(p)} alt={p.fileName || ''} loading="lazy" />
+                        <img
+                          src={mediaUrl(p.storageKey, token)}
+                          alt={p.fileName || ''}
+                          loading="lazy"
+                        />
                       </button>
                     ))}
                   </div>

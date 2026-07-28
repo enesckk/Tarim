@@ -1,15 +1,12 @@
 import { useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { API_BASE, api } from '../api/client'
+import { api } from '../api/client'
+import { mediaUrl } from '../api/media'
 import type { Producer, TaskItem } from '../api/types'
 import { TASK_STATUS } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import '../layout/layout.css'
-
-function photoUrl(storageKey: string) {
-  const path = storageKey.startsWith('/') ? storageKey : `/${storageKey}`
-  return `${API_BASE}${path}`
-}
 
 const AWAITING_APPROVAL = 5
 
@@ -52,14 +49,30 @@ export function TasksPage() {
     <section>
       <div className="page-header">
         <div>
-          <h1>Görevler</h1>
+          <h1>Görev listesi</h1>
           <p>
-            Üreticilere atanan görevlerin operasyon görünümü — vadeler, kanıt ve onay.
+            Bu ekran yardımcı toplu listedir. Ana operasyon arazi detayında, ayrıntılı inceleme ise
+            <Link to="/approvals"> Onaylar</Link> ekranında yürür.
           </p>
         </div>
       </div>
 
       <div className="panel">
+        <div className="land-section-head">
+          <p className="panel-title">Toplu görünüm</p>
+          <p className="muted-copy">
+            Burada tüm görevleri filtreleyebilirsin. Yeni görev göndermek veya üretim planı
+            başlatmak için ilgili araziye gitmen daha doğrudur.
+          </p>
+        </div>
+        <div className="row-actions tasks-page-shortcuts">
+          <Link to="/lands" className="ghost-btn">
+            Arazilerden yönet
+          </Link>
+          <Link to="/approvals" className="ghost-btn">
+            Onay kuyruğunu aç
+          </Link>
+        </div>
         <div className="toolbar">
           <label className="field">
             Üretici
@@ -130,7 +143,7 @@ export function TasksPage() {
                     </td>
                     <td>
                       {count > 0 && first ? (
-                        <a href={photoUrl(first.storageKey)} target="_blank" rel="noreferrer">
+                        <a href={mediaUrl(first.storageKey, token)} target="_blank" rel="noreferrer">
                           Yüklendi ({count})
                         </a>
                       ) : item.requiresPhoto ? (

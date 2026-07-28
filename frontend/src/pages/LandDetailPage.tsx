@@ -1,9 +1,25 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AlertTriangle, ArrowLeft, CheckCircle2, ClipboardList, MessageSquare, NotebookPen, RotateCcw, ShieldCheck, Sprout, XCircle } from 'lucide-react'
-import { api, API_BASE } from '../api/client'
+import {
+  AlertTriangle,
+  ArrowLeft,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  MessageSquare,
+  NotebookPen,
+  PencilLine,
+  Plus,
+  RotateCcw,
+  ShieldCheck,
+  Sprout,
+  XCircle,
+} from 'lucide-react'
+import { api } from '../api/client'
+import { mediaUrl } from '../api/media'
 import type {
   ChatMessage,
   ConversationDetail,
@@ -18,18 +34,21 @@ import type {
   TaskItem,
   Workflow,
 } from '../api/types'
-import type { TaskPhoto } from '../api/types'
 import { PRODUCTION_WORKFLOW_STATUS, TASK_STATUS } from '../api/types'
+import {
+  TASK_THEMES,
+  buildPlannedEvidence,
+  emptyPlannedForm,
+  themeEvidenceHint,
+  themeLabel,
+  validatePlannedEvidence,
+  type PlannedEvidenceForm,
+} from '../api/taskThemes'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin, isOfficer } from '../auth/roles'
 import { Lightbox, type LightboxImage } from '../components/Lightbox'
+import { PlannedEvidenceFields } from '../components/PlannedEvidenceFields'
 import '../layout/layout.css'
-
-function taskPhotoSrc(p: TaskPhoto) {
-  const key = p.storageKey
-  if (key.startsWith('http')) return key
-  return `${API_BASE}/${key.replace(/^\//, '')}`
-}
 
 function normalizeDateOnly(value: string): string | null {
   const trimmed = value.trim()
@@ -54,7 +73,6 @@ export function LandDetailPage() {
   const queryClient = useQueryClient()
   const admin = isAdmin(user?.roles)
   const officer = isOfficer(user?.roles)
-  const [cropFilter, setCropFilter] = useState('')
   const [plan, setPlan] = useState({
     workflowId: '',
     seasonId: '',
@@ -71,13 +89,28 @@ export function LandDetailPage() {
   const [lightbox, setLightbox] = useState<{ images: LightboxImage[]; index: number } | null>(
     null,
   )
-  const [coordsForm, setCoordsForm] = useState({ latitude: '', longitude: '' })
+  const [showLandEdit, setShowLandEdit] = useState(false)
+  const [showTaskComposer, setShowTaskComposer] = useState(false)
+  const [landForm, setLandForm] = useState({
+    name: '',
+    parcelNumber: '',
+    neighborhood: '',
+    sizeInDecares: '',
+    soilType: '',
+    soilNotes: '',
+    cadastralBlock: '',
+    latitude: '',
+    longitude: '',
+  })
   const [taskForm, setTaskForm] = useState({
     title: '',
     description: '',
     dueDate: '',
-    requiresPhoto: true,
+    theme: '',
   })
+  const [plannedForm, setPlannedForm] = useState<PlannedEvidenceForm>(emptyPlannedForm())
+  const patchPlanned = (patch: Partial<PlannedEvidenceForm>) =>
+    setPlannedForm((prev) => ({ ...prev, ...patch }))
 
   const landQuery = useQuery({
     queryKey: ['land', landId],
@@ -157,24 +190,8 @@ export function LandDetailPage() {
   const landTasks = landTasksQuery.data ?? []
   const unreadChatCount = landThreads.filter((t) => t.hasUnread).length
   const awaitingCount = landTasks.filter((t) => t.status === 5).length
-
-  const cropOptions = useMemo(() => {
-    const set = new Set<string>()
-    for (const w of workflows) {
-      if (w.cropType?.trim()) set.add(w.cropType.trim())
-    }
-    return [...set].sort((a, b) => a.localeCompare(b, 'tr'))
-  }, [workflows])
-
-  const filteredWorkflows = useMemo(() => {
-    const q = cropFilter.trim().toLocaleLowerCase('tr')
-    if (!q) return workflows
-    return workflows.filter(
-      (w) =>
-        (w.cropType ?? '').toLocaleLowerCase('tr').includes(q) ||
-        w.name.toLocaleLowerCase('tr').includes(q),
-    )
-  }, [workflows, cropFilter])
+  const activeTasks = landTasks.filter((t) => t.status !== 2 && t.status !== 4 && t.status !== 5)
+  const activeProduction = productions.find((p) => p.status === 1) ?? productions[0] ?? null
 
   const selectedWorkflow = workflows.find((w) => w.id === plan.workflowId)
   const land = landQuery.data
@@ -245,29 +262,31 @@ export function LandDetailPage() {
     },
   })
 
-  const saveCoords = useMutation({
+  const saveLand = useMutation({
     mutationFn: () => {
-      const landData = landQuery.data
-      if (!landData) throw new Error('Arazi yok')
-      const lat = coordsForm.latitude.trim() ? Number(coordsForm.latitude) : null
-      const lng = coordsForm.longitude.trim() ? Number(coordsForm.longitude) : null
+      const lat = landForm.latitude.trim() ? Number(landForm.latitude) : null
+      const lng = landForm.longitude.trim() ? Number(landForm.longitude) : null
       return api(
         `/api/lands/${landId}`,
         {
           method: 'PUT',
           body: JSON.stringify({
-            name: landData.name,
-            sizeInDecares: landData.sizeInDecares,
+            name: landForm.name.trim(),
+            parcelNumber: landForm.parcelNumber.trim(),
+            neighborhood: landForm.neighborhood.trim() || null,
+            sizeInDecares: Number(landForm.sizeInDecares),
             latitude: lat != null && !Number.isNaN(lat) ? lat : null,
             longitude: lng != null && !Number.isNaN(lng) ? lng : null,
-            soilType: landData.soilType ?? null,
-            soilNotes: landData.soilNotes ?? null,
+            soilType: landForm.soilType.trim() || null,
+            soilNotes: landForm.soilNotes.trim() || null,
+            cadastralBlock: landForm.cadastralBlock.trim() || null,
           }),
         },
         token,
       )
     },
     onSuccess: async () => {
+      setShowLandEdit(false)
       await invalidateLand()
     },
   })
@@ -337,6 +356,14 @@ export function LandDetailPage() {
   const sendLandTask = useMutation({
     mutationFn: () => {
       const dueDate = normalizeDateOnly(taskForm.dueDate)
+      if (!taskForm.theme) {
+        return Promise.reject(new Error('İşlem teması seçin.'))
+      }
+      const plannedEvidence = buildPlannedEvidence(taskForm.theme, plannedForm)
+      const plannedErr = validatePlannedEvidence(taskForm.theme, plannedEvidence)
+      if (plannedErr) {
+        return Promise.reject(new Error(plannedErr))
+      }
       return api(
         `/api/lands/${landId}/tasks`,
         {
@@ -345,14 +372,17 @@ export function LandDetailPage() {
             title: taskForm.title.trim(),
             description: taskForm.description.trim() || null,
             dueDate,
-            requiresPhoto: taskForm.requiresPhoto,
+            theme: taskForm.theme,
+            plannedEvidence,
           }),
         },
         token,
       )
     },
     onSuccess: async () => {
-      setTaskForm({ title: '', description: '', dueDate: '', requiresPhoto: true })
+      setTaskForm({ title: '', description: '', dueDate: '', theme: '' })
+      setPlannedForm(emptyPlannedForm())
+      setShowTaskComposer(false)
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['land-tasks', landId] }),
         queryClient.invalidateQueries({ queryKey: ['tasks'] }),
@@ -378,7 +408,14 @@ export function LandDetailPage() {
       producerId: landData.producerId ?? '',
       officerUserId: landData.assignedOfficerUserId ?? '',
     })
-    setCoordsForm({
+    setLandForm({
+      name: landData.name ?? '',
+      parcelNumber: landData.parcelNumber ?? '',
+      neighborhood: landData.neighborhood ?? '',
+      sizeInDecares: landData.sizeInDecares != null ? String(landData.sizeInDecares) : '',
+      soilType: landData.soilType ?? '',
+      soilNotes: landData.soilNotes ?? '',
+      cadastralBlock: landData.cadastralBlock ?? '',
       latitude: landData.latitude != null ? String(landData.latitude) : '',
       longitude: landData.longitude != null ? String(landData.longitude) : '',
     })
@@ -430,9 +467,12 @@ export function LandDetailPage() {
     saveAssignments.mutate()
   }
 
-  function onSaveCoords(e: FormEvent) {
+  function onSaveLand(e: FormEvent) {
     e.preventDefault()
-    saveCoords.mutate()
+    if (!landForm.name.trim() || !landForm.parcelNumber.trim() || !landForm.sizeInDecares.trim()) {
+      return
+    }
+    saveLand.mutate()
   }
 
   if (landQuery.isLoading) {
@@ -458,6 +498,10 @@ export function LandDetailPage() {
 
   const canEditOps = admin || officer
 
+  function taskOriginLabel(task: TaskItem) {
+    return task.videoUrl || task.imageUrl ? 'Şablon adımı' : 'Manuel görev'
+  }
+
   return (
     <section>
       <div className="page-header">
@@ -481,8 +525,16 @@ export function LandDetailPage() {
               )}
             </p>
             <p className="land-meta-secondary">
+              {activeProduction ? (
+                <span>
+                  İş akışı: {activeProduction.workflowName} ({activeProduction.currentStepOrder}/
+                  {activeProduction.stepCount || '—'})
+                </span>
+              ) : null}
               <span>Üretici: {producerName(land.producerId)}</span>
               <span>Uzman: {officerName(land.assignedOfficerUserId)}</span>
+              {activeTasks.length > 0 ? <span>{activeTasks.length} açık görev</span> : null}
+              {awaitingCount > 0 ? <span>{awaitingCount} onay bekliyor</span> : null}
               {(land.alertCount ?? 0) > 0 ? (
                 <span className="land-meta-alert">{land.alertCount} uyarı</span>
               ) : null}
@@ -491,24 +543,231 @@ export function LandDetailPage() {
         </div>
         <div className="row-actions">
           {canEditOps && (
+            <a href="#arazi-bilgileri" className="ghost-btn">
+              <PencilLine size={16} /> Bilgileri düzenle
+            </a>
+          )}
+          {canEditOps && (
             <a href="#uretim" className="primary-btn">
-              <Sprout size={16} /> İş Akışı / Üretim Ekle
+              <Sprout size={16} /> İş akışı uygula
             </a>
           )}
           <a href="#gorevler" className="ghost-btn">
             <ClipboardList size={16} /> Görevler
             {awaitingCount > 0 ? ` (${awaitingCount})` : ''}
           </a>
-          <a href="#sohbet" className="ghost-btn">
-            <MessageSquare size={16} /> Üretici sohbeti
-            {unreadChatCount > 0 ? ` (${unreadChatCount})` : ''}
-          </a>
           <Link to={`/inspections?landId=${land.id}`} className="ghost-btn">
             <ShieldCheck size={16} /> Denetimler
           </Link>
-          <Link to="/notifications" className="ghost-btn">
-            Bildirimler
-          </Link>
+        </div>
+      </div>
+
+      <div className="panel" id="arazi-bilgileri">
+        <div className="land-section-head">
+          <p className="panel-title">Arazi bilgileri</p>
+        </div>
+        <dl className="detail-grid">
+          <div>
+            <dt>Ad</dt>
+            <dd>{land.name}</dd>
+          </div>
+          <div>
+            <dt>Parsel</dt>
+            <dd>{land.parcelNumber}</dd>
+          </div>
+          <div>
+            <dt>Mahalle</dt>
+            <dd>{land.neighborhood || '—'}</dd>
+          </div>
+          <div>
+            <dt>Alan</dt>
+            <dd>{land.sizeInDecares} da</dd>
+          </div>
+          <div>
+            <dt>Toprak tipi</dt>
+            <dd>{land.soilType || '—'}</dd>
+          </div>
+          <div>
+            <dt>Koordinat</dt>
+            <dd>
+              {land.latitude != null && land.longitude != null
+                ? `${land.latitude.toFixed(4)}, ${land.longitude.toFixed(4)}`
+                : '—'}
+            </dd>
+          </div>
+        </dl>
+        {canEditOps && (
+          <div className="land-inline-section">
+            <button
+              type="button"
+              className="land-disclosure-btn"
+              onClick={() => setShowLandEdit((v) => !v)}
+              aria-expanded={showLandEdit}
+            >
+              <span>{showLandEdit ? 'Arazi düzenlemeyi gizle' : 'Arazi bilgilerini düzenle'}</span>
+              {showLandEdit ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+
+            {showLandEdit && (
+              <form className="form-grid two-col" onSubmit={onSaveLand}>
+                <label>
+                  Ad
+                  <input
+                    value={landForm.name}
+                    onChange={(e) => setLandForm({ ...landForm, name: e.target.value })}
+                    required
+                  />
+                </label>
+                <label>
+                  Parsel no
+                  <input
+                    value={landForm.parcelNumber}
+                    onChange={(e) => setLandForm({ ...landForm, parcelNumber: e.target.value })}
+                    required
+                  />
+                </label>
+                <label>
+                  Mahalle
+                  <input
+                    value={landForm.neighborhood}
+                    onChange={(e) => setLandForm({ ...landForm, neighborhood: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Alan (dekar)
+                  <input
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={landForm.sizeInDecares}
+                    onChange={(e) => setLandForm({ ...landForm, sizeInDecares: e.target.value })}
+                    required
+                  />
+                </label>
+                <label>
+                  Ada / kadastro bloğu
+                  <input
+                    value={landForm.cadastralBlock}
+                    onChange={(e) => setLandForm({ ...landForm, cadastralBlock: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Toprak tipi
+                  <input
+                    value={landForm.soilType}
+                    onChange={(e) => setLandForm({ ...landForm, soilType: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Enlem
+                  <input
+                    type="number"
+                    step="any"
+                    value={landForm.latitude}
+                    onChange={(e) => setLandForm({ ...landForm, latitude: e.target.value })}
+                  />
+                </label>
+                <label>
+                  Boylam
+                  <input
+                    type="number"
+                    step="any"
+                    value={landForm.longitude}
+                    onChange={(e) => setLandForm({ ...landForm, longitude: e.target.value })}
+                  />
+                </label>
+                <label className="full-span">
+                  Toprak notları
+                  <textarea
+                    value={landForm.soilNotes}
+                    onChange={(e) => setLandForm({ ...landForm, soilNotes: e.target.value })}
+                    rows={2}
+                  />
+                </label>
+                {saveLand.error && <p className="error">{(saveLand.error as Error).message}</p>}
+                {saveLand.isSuccess && <p className="success-inline">Arazi bilgileri kaydedildi.</p>}
+                <div className="row-actions full-span">
+                  <button className="primary-btn" type="submit" disabled={saveLand.isPending}>
+                    {saveLand.isPending ? 'Kaydediliyor…' : 'Bilgileri kaydet'}
+                  </button>
+                </div>
+              </form>
+            )}
+          </div>
+        )}
+        {(admin || officer) && (
+          <div className="land-inline-section">
+            <div className="land-inline-head">
+              <strong>Atamalar</strong>
+            </div>
+            {admin ? (
+              <form className="form-grid two-col" onSubmit={onAssign}>
+                <label>
+                  Üretici
+                  <select
+                    value={assignForm.producerId}
+                    onChange={(e) => setAssignForm({ ...assignForm, producerId: e.target.value })}
+                  >
+                    <option value="">Seçin</option>
+                    {producers.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.fullName}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Tarım Uzmanı
+                  <select
+                    value={assignForm.officerUserId}
+                    onChange={(e) => setAssignForm({ ...assignForm, officerUserId: e.target.value })}
+                  >
+                    <option value="">Seçin</option>
+                    {officers.map((o) => (
+                      <option key={o.id} value={o.id}>
+                        {o.fullName} ({o.email})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                {saveAssignments.error && (
+                  <p className="error">{(saveAssignments.error as Error).message}</p>
+                )}
+                {saveAssignments.isSuccess && (
+                  <p className="success-inline">Atamalar kaydedildi.</p>
+                )}
+                <div className="row-actions full-span">
+                  <button
+                    className="primary-btn"
+                    type="submit"
+                    disabled={saveAssignments.isPending}
+                  >
+                    {saveAssignments.isPending ? 'Kaydediliyor…' : 'Atamaları kaydet'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="detail-grid">
+                <div>
+                  <dt>Üretici</dt>
+                  <dd>{producerName(land.producerId)}</dd>
+                </div>
+                <div>
+                  <dt>Tarım Uzmanı</dt>
+                  <dd>{officerName(land.assignedOfficerUserId)}</dd>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+        <div className="land-inline-section">
+          <div className="land-inline-head">
+            <strong>Denetimler</strong>
+            <Link to={`/inspections?landId=${land.id}`} className="ghost-btn">
+              <ShieldCheck size={16} />
+              {admin ? 'Bu arazi için denetim ekle' : 'Denetimleri aç'}
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -541,27 +800,257 @@ export function LandDetailPage() {
         </div>
       )}
 
-      <div className="panel land-tasks-panel" id="gorevler">
+      {canEditOps && (
+        <div className="panel land-plan-panel" id="uretim">
+          <div className="land-inline-head land-inline-head-spaced">
+            <div>
+              <p className="panel-title">İş akışı uygula</p>
+              <p className="muted-copy">
+                Burada sadece seçip başlatın. Şablonu değiştirmek için <Link to="/workflows">İş akışları</Link>{' '}
+                sayfasını kullanın.
+              </p>
+            </div>
+            <Link to="/workflows" className="ghost-btn">
+              Şablonları düzenle
+            </Link>
+          </div>
+
+          <form className="form-grid" onSubmit={onStart}>
+            <div className="workflow-meta-grid">
+              <label>
+                Sezon
+                <select
+                  value={plan.seasonId}
+                  onChange={(e) => setPlan({ ...plan, seasonId: e.target.value })}
+                  required
+                >
+                  <option value="">Seçin</option>
+                  {seasons.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label>
+              Şablon
+              <select
+                value={plan.workflowId}
+                onChange={(e) => setPlan({ ...plan, workflowId: e.target.value })}
+                required
+              >
+                <option value="">Seçin</option>
+                {workflows.map((w) => (
+                  <option key={w.id} value={w.id}>
+                    {w.name}
+                    {w.cropType ? ` · ${w.cropType}` : ''}
+                    {` · ${w.steps.length} adım`}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {selectedWorkflow && (
+              <div className="land-step-preview">
+                <strong>
+                  {selectedWorkflow.steps.length} adım
+                  {selectedWorkflow.cropType ? ` · ${selectedWorkflow.cropType}` : ''}
+                </strong>
+                <ol>
+                  {[...selectedWorkflow.steps]
+                    .sort((a, b) => a.order - b.order)
+                    .slice(0, 5)
+                    .map((s, i, arr) => {
+                      const day = s.dueDaysFromStart ?? 0
+                      const prev =
+                        i > 0 ? (arr[i - 1].dueDaysFromStart ?? 0) : null
+                      const gap = prev != null ? day - prev : null
+                      return (
+                        <li key={s.id ?? `${s.order}-${s.name}`}>
+                          {s.name}
+                          {` · gün ${day}`}
+                          {gap != null && gap > 0 ? ` (+${gap})` : ''}
+                        </li>
+                      )
+                    })}
+                </ol>
+                {selectedWorkflow.steps.length > 5 ? (
+                  <p className="muted-copy">Devamı ve düzenleme için İş akışları sayfasını açın.</p>
+                ) : null}
+              </div>
+            )}
+
+            <label>
+              Üretici
+              {land.producerId ? ' (atanmış)' : ''}
+              <select
+                value={plan.producerId || land.producerId || ''}
+                onChange={(e) => setPlan({ ...plan, producerId: e.target.value })}
+                required={!land.producerId}
+              >
+                <option value="">Seçin</option>
+                {producers.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.fullName}
+                  </option>
+                ))}
+              </select>
+            </label>
+
+            {startProduction.error && (
+              <p className="error">{(startProduction.error as Error).message}</p>
+            )}
+            {startProduction.isSuccess && (
+              <p className="success-inline">Üretim başlatıldı; görevler oluşturuldu.</p>
+            )}
+
+            <div className="row-actions">
+              <button
+                className="primary-btn"
+                type="submit"
+                disabled={
+                  startProduction.isPending ||
+                  !plan.workflowId ||
+                  !plan.seasonId ||
+                  !(plan.producerId || land.producerId)
+                }
+              >
+                {startProduction.isPending ? 'Başlatılıyor…' : 'Bu arazi için planı başlat'}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="panel">
         <div className="land-section-head">
+          <p className="panel-title">Uygulanan iş akışları</p>
+        </div>
+        {productionsQuery.isLoading ? (
+          <p className="empty">Yükleniyor…</p>
+        ) : productions.length === 0 ? (
+          <p className="empty">Henüz üretim yok. Yukarıdan bu dönem için planlayın.</p>
+        ) : (
+          <table className="table">
+            <thead>
+              <tr>
+                <th>Şablon</th>
+                <th>Ürün</th>
+                <th>Üretici</th>
+                <th>Durum</th>
+                <th>Adımlar</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {productions.map((p) => (
+                <tr key={p.id}>
+                  <td>{p.workflowName}</td>
+                  <td>{p.cropType ?? '—'}</td>
+                  <td>{producerName(p.producerId)}</td>
+                  <td>
+                    <span className="badge">
+                      {PRODUCTION_WORKFLOW_STATUS[p.status] ?? p.status}
+                    </span>
+                  </td>
+                  <td>
+                    {p.currentStepOrder}/{p.stepCount || '—'}
+                  </td>
+                  <td>
+                    {canEditOps &&
+                      (reassignFor === p.id ? (
+                        <div className="reassign-inline">
+                          <select
+                            value={reassignProducerId}
+                            onChange={(e) => setReassignProducerId(e.target.value)}
+                          >
+                            <option value="">Üretici seçin</option>
+                            {producers.map((pr) => (
+                              <option key={pr.id} value={pr.id}>
+                                {pr.fullName}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            type="button"
+                            className="primary-btn"
+                            disabled={!reassignProducerId || reassign.isPending}
+                            onClick={() => reassign.mutate()}
+                          >
+                            Kaydet
+                          </button>
+                          <button
+                            type="button"
+                            className="ghost-btn"
+                            onClick={() => {
+                              setReassignFor(null)
+                              setReassignProducerId('')
+                            }}
+                          >
+                            Vazgeç
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          className="ghost-btn"
+                          onClick={() => {
+                            setReassignFor(p.id)
+                            setReassignProducerId(p.producerId)
+                          }}
+                        >
+                          Üreticiyi değiştir
+                        </button>
+                      ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {reassign.error && (
+          <p className="error empty">{(reassign.error as Error).message}</p>
+        )}
+      </div>
+
+      <div className="panel land-tasks-panel" id="gorevler">
+        <div className="land-section-head land-section-head-actions">
           <p className="panel-title with-icon">
             <ClipboardList size={16} aria-hidden />
-            Arazi görevleri
+            Görevler
             {awaitingCount > 0 ? (
               <span className="badge badge-warn">{awaitingCount} onay bekliyor</span>
             ) : null}
           </p>
-          <p className="muted-copy">
-            Bu arazideki üretici görevlerini görün, yeni görev gönderin ve onay bekleyenleri
-            buradan onaylayın, revize edin veya reddedin.
-          </p>
+          <div className="row-actions">
+            {awaitingCount > 0 ? (
+              <Link to="/approvals" className="ghost-btn">
+                Onay bekleyenleri aç
+              </Link>
+            ) : null}
+            {canEditOps ? (
+              <button
+                type="button"
+                className="ghost-btn"
+                onClick={() => setShowTaskComposer((v) => !v)}
+                aria-expanded={showTaskComposer}
+              >
+                <Plus size={16} />
+                {showTaskComposer ? 'Görev eklemeyi gizle' : 'Görev ekle'}
+                {showTaskComposer ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+            ) : null}
+          </div>
         </div>
 
-        {canEditOps && (
+        {canEditOps && showTaskComposer && (
           <form
             className="land-task-form"
             onSubmit={(e) => {
               e.preventDefault()
-              if (!taskForm.title.trim()) return
+              if (!taskForm.title.trim() || !taskForm.theme) return
               sendLandTask.mutate()
             }}
           >
@@ -572,10 +1061,40 @@ export function LandDetailPage() {
                 <input
                   value={taskForm.title}
                   onChange={(e) => setTaskForm({ ...taskForm, title: e.target.value })}
-                  placeholder="Örn. Sulama kontrolü"
+                  placeholder="Örn. Sabah sulaması"
                   required
                 />
               </label>
+              <label className="land-task-field">
+                <span>İşlem teması</span>
+                <select
+                  value={taskForm.theme}
+                  onChange={(e) => {
+                    setTaskForm({ ...taskForm, theme: e.target.value })
+                    setPlannedForm(emptyPlannedForm())
+                  }}
+                  required
+                >
+                  <option value="">Tema seçin…</option>
+                  {TASK_THEMES.map((t) => (
+                    <option key={t.code} value={t.code}>
+                      {t.label}
+                    </option>
+                  ))}
+                </select>
+                {taskForm.theme ? (
+                  <span className="land-task-theme-hint">
+                    Üretici kanıtı: {themeEvidenceHint(taskForm.theme)}
+                  </span>
+                ) : null}
+              </label>
+              {taskForm.theme ? (
+                <PlannedEvidenceFields
+                  theme={taskForm.theme}
+                  form={plannedForm}
+                  onChange={patchPlanned}
+                />
+              ) : null}
               <label className="land-task-field">
                 <span>
                   Açıklama <em>(isteğe bağlı)</em>
@@ -595,19 +1114,6 @@ export function LandDetailPage() {
                     value={taskForm.dueDate}
                     onChange={(e) => setTaskForm({ ...taskForm, dueDate: e.target.value })}
                   />
-                </label>
-                <label className={`land-task-toggle${taskForm.requiresPhoto ? ' is-on' : ''}`}>
-                  <input
-                    type="checkbox"
-                    checked={taskForm.requiresPhoto}
-                    onChange={(e) =>
-                      setTaskForm({ ...taskForm, requiresPhoto: e.target.checked })
-                    }
-                  />
-                  <span className="land-task-toggle-copy">
-                    <strong>Fotoğraf zorunlu</strong>
-                    <span>Tamamlarken kanıt fotoğrafı istenir</span>
-                  </span>
                 </label>
               </div>
             </div>
@@ -644,6 +1150,7 @@ export function LandDetailPage() {
               <thead>
                 <tr>
                   <th>Başlık</th>
+                  <th>Kaynak</th>
                   <th>Vade</th>
                   <th>Durum</th>
                   <th>Foto</th>
@@ -667,10 +1174,16 @@ export function LandDetailPage() {
                       <td>
                         <div className="table-cell-stack">
                           <strong>{t.title}</strong>
+                          {themeLabel(t.theme) ? (
+                            <span className="table-cell-sub">{themeLabel(t.theme)}</span>
+                          ) : null}
                           {t.description ? (
                             <span className="table-cell-sub">{t.description}</span>
                           ) : null}
                         </div>
+                      </td>
+                      <td>
+                        <span className="table-cell-sub">{taskOriginLabel(t)}</span>
                       </td>
                       <td className="land-task-due">{dueLabel}</td>
                       <td>
@@ -694,7 +1207,7 @@ export function LandDetailPage() {
                             onClick={() =>
                               setLightbox({
                                 images: (t.photos ?? []).map((p) => ({
-                                  src: taskPhotoSrc(p),
+                                  src: mediaUrl(p.storageKey, token),
                                   alt: p.fileName,
                                   caption: p.fileName,
                                 })),
@@ -911,346 +1424,6 @@ export function LandDetailPage() {
               ) : null}
             </div>
           </div>
-        )}
-      </div>
-
-      {(admin || officer) && (
-        <div className="panel">
-          <p className="panel-title">Atamalar</p>
-          <p className="muted-copy">
-            {admin
-              ? 'Bu araziye bir üretici ve bir Tarım Uzmanı atayın. Uzman yalnızca atandığı arazileri görür.'
-              : 'Üretici ve uzman atamaları salt okunur. Değişiklik için yöneticiye başvurun.'}
-          </p>
-          {admin ? (
-            <form className="form-grid two-col" onSubmit={onAssign}>
-              <label>
-                Üretici
-                <select
-                  value={assignForm.producerId}
-                  onChange={(e) => setAssignForm({ ...assignForm, producerId: e.target.value })}
-                >
-                  <option value="">Seçin</option>
-                  {producers.map((p) => (
-                    <option key={p.id} value={p.id}>
-                      {p.fullName}
-                    </option>
-                  ))}
-                </select>
-              </label>
-              <label>
-                Tarım Uzmanı
-                <select
-                  value={assignForm.officerUserId}
-                  onChange={(e) => setAssignForm({ ...assignForm, officerUserId: e.target.value })}
-                >
-                  <option value="">Seçin</option>
-                  {officers.map((o) => (
-                    <option key={o.id} value={o.id}>
-                      {o.fullName} ({o.email})
-                    </option>
-                  ))}
-                </select>
-              </label>
-              {saveAssignments.error && (
-                <p className="error">{(saveAssignments.error as Error).message}</p>
-              )}
-              {saveAssignments.isSuccess && (
-                <p className="success-inline">Atamalar kaydedildi.</p>
-              )}
-              <div className="row-actions" style={{ gridColumn: '1 / -1' }}>
-                <button className="primary-btn" type="submit" disabled={saveAssignments.isPending}>
-                  {saveAssignments.isPending ? 'Kaydediliyor…' : 'Atamaları kaydet'}
-                </button>
-              </div>
-            </form>
-          ) : (
-            <div className="form-grid two-col">
-              <p>
-                <strong>Üretici:</strong> {producerName(land.producerId)}
-              </p>
-              <p>
-                <strong>Tarım Uzmanı:</strong> {officerName(land.assignedOfficerUserId)}
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-
-      {canEditOps && (
-        <div className="panel">
-          <p className="panel-title">Harita Koordinatları</p>
-          <p className="muted-copy">
-            Operasyon Merkezi haritasında görünmesi için enlem ve boylam girin (WGS84).
-          </p>
-          <form className="form-grid two-col" onSubmit={onSaveCoords}>
-            <label>
-              Enlem
-              <input
-                type="number"
-                step="any"
-                value={coordsForm.latitude}
-                onChange={(e) => setCoordsForm({ ...coordsForm, latitude: e.target.value })}
-                placeholder="örn. 37.0782"
-              />
-            </label>
-            <label>
-              Boylam
-              <input
-                type="number"
-                step="any"
-                value={coordsForm.longitude}
-                onChange={(e) => setCoordsForm({ ...coordsForm, longitude: e.target.value })}
-                placeholder="örn. 37.3821"
-              />
-            </label>
-            {saveCoords.error && (
-              <p className="error">{(saveCoords.error as Error).message}</p>
-            )}
-            {saveCoords.isSuccess && (
-              <p className="success-inline">Koordinatlar kaydedildi.</p>
-            )}
-            <div className="row-actions" style={{ gridColumn: '1 / -1' }}>
-              <button className="primary-btn" type="submit" disabled={saveCoords.isPending}>
-                {saveCoords.isPending ? 'Kaydediliyor…' : 'Koordinatları kaydet'}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
-      {canEditOps && (
-        <div className="panel land-plan-panel" id="uretim">
-          <div className="workflow-builder-header">
-            <div>
-              <p className="panel-title">İş Akışı / Üretim Planı</p>
-              <p className="muted-copy">
-                Ürün ve şablonu seçerek bu dönem için üretimi başlatın. Görevler otomatik
-                oluşur.
-              </p>
-            </div>
-            <Sprout size={22} className="land-plan-icon" aria-hidden />
-          </div>
-
-          <form className="form-grid" onSubmit={onStart}>
-            <div className="workflow-meta-grid">
-              <label>
-                Ürün (filtre)
-                <input
-                  list="crop-options"
-                  value={cropFilter}
-                  onChange={(e) => {
-                    setCropFilter(e.target.value)
-                    setPlan((p) => ({ ...p, workflowId: '' }))
-                  }}
-                  placeholder="Örn. Domates"
-                />
-                <datalist id="crop-options">
-                  {cropOptions.map((c) => (
-                    <option key={c} value={c} />
-                  ))}
-                </datalist>
-              </label>
-              <label>
-                Sezon
-                <select
-                  value={plan.seasonId}
-                  onChange={(e) => setPlan({ ...plan, seasonId: e.target.value })}
-                  required
-                >
-                  <option value="">Seçin</option>
-                  {seasons.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.name}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-
-            <label>
-              İş Akışı Şablonu
-              <select
-                value={plan.workflowId}
-                onChange={(e) => setPlan({ ...plan, workflowId: e.target.value })}
-                required
-              >
-                <option value="">Seçin</option>
-                {filteredWorkflows.map((w) => (
-                  <option key={w.id} value={w.id}>
-                    {w.name}
-                    {w.cropType ? ` · ${w.cropType}` : ''}
-                    {` · ${w.steps.length} adım`}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {selectedWorkflow && (
-              <div className="land-step-preview">
-                <strong>
-                  {selectedWorkflow.steps.length} adım
-                  {selectedWorkflow.cropType ? ` · ${selectedWorkflow.cropType}` : ''}
-                  {' · '}
-                  takvim (başlangıçtan gün)
-                </strong>
-                <ol>
-                  {[...selectedWorkflow.steps]
-                    .sort((a, b) => a.order - b.order)
-                    .slice(0, 8)
-                    .map((s, i, arr) => {
-                      const day = s.dueDaysFromStart ?? 0
-                      const prev =
-                        i > 0 ? (arr[i - 1].dueDaysFromStart ?? 0) : null
-                      const gap = prev != null ? day - prev : null
-                      return (
-                        <li key={s.id ?? `${s.order}-${s.name}`}>
-                          {s.name}
-                          {` · gün ${day}`}
-                          {gap != null && gap > 0 ? ` (+${gap})` : ''}
-                        </li>
-                      )
-                    })}
-                </ol>
-              </div>
-            )}
-
-            <label>
-              Üretici
-              {land.producerId ? ' (atanmış)' : ''}
-              <select
-                value={plan.producerId || land.producerId || ''}
-                onChange={(e) => setPlan({ ...plan, producerId: e.target.value })}
-                required={!land.producerId}
-              >
-                <option value="">Seçin</option>
-                {producers.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.fullName}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            {startProduction.error && (
-              <p className="error">{(startProduction.error as Error).message}</p>
-            )}
-            {startProduction.isSuccess && (
-              <p className="success-inline">Üretim başlatıldı; görevler oluşturuldu.</p>
-            )}
-
-            <div className="row-actions">
-              <button
-                className="primary-btn"
-                type="submit"
-                disabled={
-                  startProduction.isPending ||
-                  !plan.workflowId ||
-                  !plan.seasonId ||
-                  !(plan.producerId || land.producerId)
-                }
-              >
-                {startProduction.isPending ? 'Başlatılıyor…' : 'Üretimi başlat'}
-              </button>
-              {admin ? (
-                <Link to="/workflows" className="ghost-btn">
-                  Şablonları yönet
-                </Link>
-              ) : null}
-            </div>
-          </form>
-        </div>
-      )}
-
-      <div className="panel">
-        <p className="panel-title">Bu Arazideki Üretimler</p>
-        <p className="muted-copy">
-          Bu araziye bağlı aktif ve geçmiş üretim planları.
-        </p>
-        {productionsQuery.isLoading ? (
-          <p className="empty">Yükleniyor…</p>
-        ) : productions.length === 0 ? (
-          <p className="empty">Henüz üretim yok. Yukarıdan bu dönem için planlayın.</p>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>İş akışı</th>
-                <th>Ürün</th>
-                <th>Üretici</th>
-                <th>Durum</th>
-                <th>Adımlar</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {productions.map((p) => (
-                <tr key={p.id}>
-                  <td>{p.workflowName}</td>
-                  <td>{p.cropType ?? '—'}</td>
-                  <td>{producerName(p.producerId)}</td>
-                  <td>
-                    <span className="badge">
-                      {PRODUCTION_WORKFLOW_STATUS[p.status] ?? p.status}
-                    </span>
-                  </td>
-                  <td>
-                    {p.currentStepOrder}/{p.stepCount || '—'}
-                  </td>
-                  <td>
-                    {canEditOps &&
-                      (reassignFor === p.id ? (
-                        <div className="reassign-inline">
-                          <select
-                            value={reassignProducerId}
-                            onChange={(e) => setReassignProducerId(e.target.value)}
-                          >
-                            <option value="">Üretici seçin</option>
-                            {producers.map((pr) => (
-                              <option key={pr.id} value={pr.id}>
-                                {pr.fullName}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            type="button"
-                            className="primary-btn"
-                            disabled={!reassignProducerId || reassign.isPending}
-                            onClick={() => reassign.mutate()}
-                          >
-                            Kaydet
-                          </button>
-                          <button
-                            type="button"
-                            className="ghost-btn"
-                            onClick={() => {
-                              setReassignFor(null)
-                              setReassignProducerId('')
-                            }}
-                          >
-                            Vazgeç
-                          </button>
-                        </div>
-                      ) : (
-                        <button
-                          type="button"
-                          className="ghost-btn"
-                          onClick={() => {
-                            setReassignFor(p.id)
-                            setReassignProducerId(p.producerId)
-                          }}
-                        >
-                          Üreticiyi değiştir
-                        </button>
-                      ))}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-        {reassign.error && (
-          <p className="error empty">{(reassign.error as Error).message}</p>
         )}
       </div>
 

@@ -118,7 +118,14 @@ internal static partial class DatabaseInitializer
                     step.Description,
                     step.Id,
                     due,
-                    step.RequiresPhoto));
+                    step.RequiresPhoto,
+                    step.RequiresQuantity,
+                    step.RequiresDate,
+                    step.QuantityUnit,
+                    step.VideoUrl,
+                    step.ImageUrl,
+                    step.Theme,
+                    step.PlannedEvidenceJson));
             }
 
             ApplyMapStatusHint(tasks, def.MapStatusHint, today);

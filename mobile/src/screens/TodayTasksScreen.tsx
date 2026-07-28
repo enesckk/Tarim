@@ -37,6 +37,7 @@ import {
   isOpenWorkStatus,
   taskBadge,
 } from '../utils/taskStatus';
+import { themeLabel, themeMinPhotos } from '../utils/taskThemes';
 
 type SubTab = 'yapilacaklar' | 'surec';
 
@@ -53,6 +54,23 @@ function taskNote(task: TaskDto): string | null {
   const description = task.description?.trim();
   if (description) return description;
   return null;
+}
+
+function taskDetailChips(task: TaskDto): string[] {
+  const chips: string[] = [];
+  const theme = themeLabel(task.theme);
+  if (theme) chips.push(theme);
+  const minPhotos = task.theme
+    ? themeMinPhotos(task.theme)
+    : task.requiresPhoto
+      ? 1
+      : 0;
+  if (minPhotos > 0) {
+    chips.push(minPhotos > 1 ? `${minPhotos} fotoğraf` : 'Fotoğraf');
+  }
+  if (task.videoUrl?.trim() || task.imageUrl?.trim()) chips.push('Eğitim linki');
+  if (task.plannedEvidenceJson?.trim()) chips.push('Hedef değer');
+  return chips;
 }
 
 /** Absolute due text: "20.03.2026 tarihine kadar" */
@@ -130,6 +148,7 @@ function TaskCard({
   const badge = taskBadge(task, overdue);
   const note = taskNote(task);
   const dueLine = dueUntilLabel(task);
+  const chips = taskDetailChips(task);
 
   return (
     <Pressable
@@ -155,9 +174,18 @@ function TaskCard({
       >
         {dueLine}
       </Text>
+      {chips.length > 0 ? (
+        <View style={styles.chipRow}>
+          {chips.map((c) => (
+            <View key={c} style={styles.chip}>
+              <Text style={styles.chipText}>{c}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
       {note ? (
-        <Text style={styles.noteLine} numberOfLines={3}>
-          Not: {note}
+        <Text style={styles.noteLine} numberOfLines={4}>
+          {note}
         </Text>
       ) : null}
     </Pressable>
@@ -180,6 +208,7 @@ function TimelineRow({
   const overdue = isOverdueTask(task.status, task.dueDate);
   const badge = taskBadge(task, overdue);
   const note = taskNote(task);
+  const chips = taskDetailChips(task);
 
   return (
     <Pressable
@@ -207,9 +236,18 @@ function TimelineRow({
             {dueUntilLabel(task)}
           </Text>
         ) : null}
+        {chips.length > 0 ? (
+          <View style={styles.chipRow}>
+            {chips.map((c) => (
+              <View key={c} style={styles.chip}>
+                <Text style={styles.chipText}>{c}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
         {note ? (
-          <Text style={styles.noteLine} numberOfLines={2}>
-            Not: {note}
+          <Text style={styles.noteLine} numberOfLines={3}>
+            {note}
           </Text>
         ) : null}
       </View>
@@ -587,6 +625,24 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.muted,
     lineHeight: 18,
+  },
+  chipRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: 4,
+  },
+  chip: {
+    backgroundColor: colors.primarySoft,
+    borderRadius: radii.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  chipText: {
+    ...typography.caption,
+    color: colors.primary,
+    fontWeight: '600',
+    fontSize: 11,
   },
   tlDue: {
     ...typography.caption,

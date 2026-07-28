@@ -62,7 +62,7 @@ internal static class WorkflowsEndpoints
                 await file.CopyToAsync(stream);
 
             var storageKey = $"uploads/guidance/{storedName}";
-            return Results.Ok(new { storageKey, url = "/" + storageKey });
+            return Results.Ok(new { storageKey, url = UploadPathResolver.ToApiPath(storageKey) });
         }).DisableAntiforgery()
           .RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         workflows.MapPut("/{id:guid}", async (
@@ -92,13 +92,13 @@ internal static class WorkflowsEndpoints
 
                 if (productionIds.Count > 0)
                 {
+                    // Do not sync AwaitingApproval / Completed / Cancelled — freeze submitted & closed work.
                     var openStatuses = new[]
                     {
                         ProductionTaskStatus.Pending,
                         ProductionTaskStatus.InProgress,
                         ProductionTaskStatus.Overdue,
-                        ProductionTaskStatus.NeedsRevision,
-                        ProductionTaskStatus.AwaitingApproval
+                        ProductionTaskStatus.NeedsRevision
                     };
                     var openTasks = await db.Tasks
                         .Where(t => productionIds.Contains(t.ProductionWorkflowId)
@@ -124,7 +124,17 @@ internal static class WorkflowsEndpoints
                         if (step is null)
                             continue;
 
-                        task.UpdateGuidance(step.Description, step.VideoUrl, step.ImageUrl, step.Id);
+                        task.SyncFromWorkflowStep(
+                            step.Description,
+                            step.VideoUrl,
+                            step.ImageUrl,
+                            step.RequiresPhoto,
+                            step.RequiresQuantity,
+                            step.RequiresDate,
+                            step.QuantityUnit,
+                            step.Theme,
+                            step.PlannedEvidenceJson,
+                            step.Id);
                     }
 
                     await db.SaveChangesAsync();
@@ -181,7 +191,9 @@ internal static class WorkflowsEndpoints
                         step.RequiresDate,
                         step.QuantityUnit,
                         step.VideoUrl,
-                        step.ImageUrl))
+                        step.ImageUrl,
+                        step.Theme,
+                        step.PlannedEvidenceJson))
                     .ToList();
                 await db.Tasks.AddRangeAsync(tasksToCreate);
                 await db.SaveChangesAsync();

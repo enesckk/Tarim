@@ -1,0 +1,393 @@
+{
+  "at": "2026-07-28T09:30:15.658Z",
+  "api": "http://127.0.0.1:5109",
+  "results": [
+    {
+      "name": "API /health",
+      "pass": true,
+      "detail": {
+        "status": "healthy",
+        "service": "Agriculture.Api"
+      }
+    },
+    {
+      "name": "admin login (admin@agriculture.local)",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Administrator"
+        ],
+        "hasToken": true
+      }
+    },
+    {
+      "name": "officer login (uzman@agriculture.local)",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Officer"
+        ],
+        "hasToken": true
+      }
+    },
+    {
+      "name": "officer1 login (uzman1@agriculture.local)",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Officer"
+        ],
+        "hasToken": true
+      }
+    },
+    {
+      "name": "officer2 login (uzman2@agriculture.local)",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Officer"
+        ],
+        "hasToken": true
+      }
+    },
+    {
+      "name": "officer3 login (uzman3@agriculture.local)",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Officer"
+        ],
+        "hasToken": true
+      }
+    },
+    {
+      "name": "producer login (uretici@agriculture.local)",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "roles": [
+          "Producer"
+        ],
+        "hasToken": true
+      }
+    },
+    {
+      "name": "officer phone login (05551112233)",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "producer phone login (5537472823)",
+      "pass": true,
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "admin /me",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "email": "admin@agriculture.local",
+        "fullName": "System Administrator",
+        "phone": null,
+        "producerId": null,
+        "roles": [
+          "Administrator"
+        ]
+      }
+    },
+    {
+      "name": "officer /me",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "email": "uzman@agriculture.local",
+        "fullName": "Ayşe Uzman",
+        "phone": "05551112233",
+        "producerId": null,
+        "roles": [
+          "Officer"
+        ]
+      }
+    },
+    {
+      "name": "officer1 /me",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "email": "uzman1@agriculture.local",
+        "fullName": "Mehmet Yıldız",
+        "phone": "05551112201",
+        "producerId": null,
+        "roles": [
+          "Officer"
+        ]
+      }
+    },
+    {
+      "name": "officer2 /me",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "email": "uzman2@agriculture.local",
+        "fullName": "Elif Kara",
+        "phone": "05551112202",
+        "producerId": null,
+        "roles": [
+          "Officer"
+        ]
+      }
+    },
+    {
+      "name": "officer3 /me",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "email": "uzman3@agriculture.local",
+        "fullName": "Can Özer",
+        "phone": "05551112203",
+        "producerId": null,
+        "roles": [
+          "Officer"
+        ]
+      }
+    },
+    {
+      "name": "producer /me",
+      "pass": true,
+      "detail": {
+        "status": 200,
+        "email": "uretici@agriculture.local",
+        "fullName": "Mehmet Çiftçi",
+        "phone": "5537472823",
+        "producerId": "33333333-3333-3333-3333-333333333333",
+        "roles": [
+          "Producer"
+        ]
+      }
+    },
+    {
+      "name": "admin GET /api/dashboard",
+      "pass": true,
+      "detail": "200 object"
+    },
+    {
+      "name": "admin GET /api/lands",
+      "pass": true,
+      "detail": "200 n=21"
+    },
+    {
+      "name": "admin GET /api/producers",
+      "pass": true,
+      "detail": "200 n=8"
+    },
+    {
+      "name": "admin GET /api/staff/officers",
+      "pass": true,
+      "detail": "200 n=4"
+    },
+    {
+      "name": "admin GET /api/users/officers",
+      "pass": true,
+      "detail": "200 n=4"
+    },
+    {
+      "name": "admin GET /api/workflows",
+      "pass": true,
+      "detail": "200 n=18"
+    },
+    {
+      "name": "admin GET /api/inspections",
+      "pass": true,
+      "detail": "200 n=3"
+    },
+    {
+      "name": "admin GET /api/harvest",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "admin GET /api/notifications",
+      "pass": true,
+      "detail": "200 n=14"
+    },
+    {
+      "name": "admin GET /api/conversations",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "admin GET /api/seasons",
+      "pass": true,
+      "detail": "200 n=2"
+    },
+    {
+      "name": "officer GET /api/dashboard",
+      "pass": true,
+      "detail": "200 object"
+    },
+    {
+      "name": "officer GET /api/lands",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "officer GET /api/producers",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "officer GET /api/tasks/pending-approval",
+      "pass": true,
+      "detail": "200 n=2"
+    },
+    {
+      "name": "officer GET /api/inspections",
+      "pass": true,
+      "detail": "200 n=2"
+    },
+    {
+      "name": "officer GET /api/harvest",
+      "pass": true,
+      "detail": "200 n=0"
+    },
+    {
+      "name": "officer GET /api/notifications",
+      "pass": true,
+      "detail": "200 n=46"
+    },
+    {
+      "name": "officer GET /api/conversations",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "officer GET /api/conversations/expert",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "officer GET /api/me",
+      "pass": true,
+      "detail": "200 object"
+    },
+    {
+      "name": "officer FORBIDDEN POST /api/lands",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "officer FORBIDDEN POST /api/producers",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "officer FORBIDDEN POST /api/workflows",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "officer GET /api/workflows",
+      "pass": true,
+      "detail": 200
+    },
+    {
+      "name": "officer has assigned lands",
+      "pass": true,
+      "detail": "n=1"
+    },
+    {
+      "name": "producer has producerId",
+      "pass": true,
+      "detail": "33333333-3333-3333-3333-333333333333"
+    },
+    {
+      "name": "producer GET /api/tasks/today",
+      "pass": true,
+      "detail": "200 n=27"
+    },
+    {
+      "name": "producer GET /api/notifications",
+      "pass": true,
+      "detail": "200 n=110"
+    },
+    {
+      "name": "producer GET /api/conversations/expert",
+      "pass": true,
+      "detail": "200 n=1"
+    },
+    {
+      "name": "producer GET /api/me",
+      "pass": true,
+      "detail": "200 object"
+    },
+    {
+      "name": "producer GET /api/tasks?producerId=33333333-3333-3333-3333-333333333333",
+      "pass": true,
+      "detail": "200 n=90"
+    },
+    {
+      "name": "producer FORBIDDEN /api/staff/officers",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "producer FORBIDDEN /api/workflows",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "producer FORBIDDEN /api/dashboard",
+      "pass": true,
+      "detail": 403
+    },
+    {
+      "name": "producer lands scoped",
+      "pass": true,
+      "detail": "200 n=4"
+    },
+    {
+      "name": "officer lands ⊆ admin lands",
+      "pass": true,
+      "detail": "officer=1 admin=21"
+    },
+    {
+      "name": "officer pending-approval readable",
+      "pass": true,
+      "detail": "n=2"
+    },
+    {
+      "name": "producer today tasks readable",
+      "pass": true,
+      "detail": "n=27"
+    },
+    {
+      "name": "officer1 lands readable",
+      "pass": true,
+      "detail": "n=5"
+    },
+    {
+      "name": "officer2 lands readable",
+      "pass": true,
+      "detail": "n=6"
+    },
+    {
+      "name": "officer3 lands readable",
+      "pass": true,
+      "detail": "n=5"
+    },
+    {
+      "name": "admin refresh token",
+      "pass": true,
+      "detail": 200
+    }
+  ]
+}

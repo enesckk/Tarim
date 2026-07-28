@@ -15,9 +15,20 @@ import {
   Workflow,
 } from 'lucide-react'
 import { api } from '../api/client'
+import { mediaUrl } from '../api/media'
 import type { Land, Producer, Season, Workflow as WorkflowType, WorkflowStep } from '../api/types'
 import { WORKFLOW_STATUS } from '../api/types'
+import {
+  TASK_THEMES,
+  buildPlannedEvidence,
+  emptyPlannedForm,
+  plannedFormFromJson,
+  themeLabel,
+  validatePlannedEvidence,
+  type PlannedEvidenceForm,
+} from '../api/taskThemes'
 import { useAuth } from '../auth/AuthContext'
+import { PlannedEvidenceFields } from '../components/PlannedEvidenceFields'
 import '../layout/layout.css'
 
 type StepDraft = {
@@ -31,6 +42,8 @@ type StepDraft = {
   quantityUnit: string
   videoUrl: string
   imageUrl: string
+  theme: string
+  planned: PlannedEvidenceForm
   expanded: boolean
 }
 
@@ -49,6 +62,8 @@ const blankStep = (
   quantityUnit: '',
   videoUrl: '',
   imageUrl: '',
+  theme: '',
+  planned: emptyPlannedForm(),
   expanded,
 })
 
@@ -112,12 +127,16 @@ function createDomatesTemplateSteps(): StepDraft[] {
     quantity?: boolean
     date?: boolean
     unit?: string
+    theme?: string
+    planned?: Partial<PlannedEvidenceForm>
   }> = [
     {
       name: 'Tarla hazırlığı',
       description: 'Toprağı derin sürmeyin; taş ve bitki artıklarını temizleyin.',
       due: 0,
       photo: true,
+      theme: 'Bakim',
+      planned: { description: 'Tarla temizliği ve toprak hazırlığı' },
     },
     {
       name: 'Toprak analizi',
@@ -132,12 +151,16 @@ function createDomatesTemplateSteps(): StepDraft[] {
       quantity: true,
       unit: 'kg',
       photo: true,
+      theme: 'Gubreleme',
+      planned: { fertilizerName: '15-15-15', amount: '40' },
     },
     {
       name: 'Sulama sistemi',
       description: 'Damlama hortumlarını kontrol edin; tıkanık noktaları açın.',
       due: 21,
       photo: true,
+      theme: 'Bakim',
+      planned: { description: 'Damlama hattı kontrolü ve bakım' },
     },
     {
       name: 'Fide dikimi',
@@ -147,18 +170,24 @@ function createDomatesTemplateSteps(): StepDraft[] {
       unit: 'adet',
       date: true,
       photo: true,
+      theme: 'Dikim',
+      planned: { seedlingCount: '500' },
     },
     {
       name: 'Can suyu',
       description: 'Dikimden hemen sonra sulayın; kök boğazını ıslatmayın.',
       due: 29,
       photo: true,
+      theme: 'Sulama',
+      planned: { durationMinutes: '30', waterAmount: '150' },
     },
     {
       name: 'Fide kontrolü',
       description: 'Tutmayan fideleri değiştirin; solgun olanları işaretleyin.',
       due: 35,
       photo: true,
+      theme: 'Bakim',
+      planned: { description: 'Tutma kontrolü ve fide değiştirme' },
     },
     {
       name: 'Düzenli sulama',
@@ -167,12 +196,16 @@ function createDomatesTemplateSteps(): StepDraft[] {
       quantity: true,
       unit: 'saat',
       date: true,
+      theme: 'Sulama',
+      planned: { durationMinutes: '60', waterAmount: '300' },
     },
     {
       name: 'Çapalama ve ot temizliği',
       description: 'Kök çevresine zarar vermeden çapalayın; otları tarladan çıkarın.',
       due: 56,
       photo: true,
+      theme: 'Bakim',
+      planned: { description: 'Sıra arası çapalama ve ot temizliği' },
     },
     {
       name: 'Ara gübreleme',
@@ -182,12 +215,16 @@ function createDomatesTemplateSteps(): StepDraft[] {
       unit: 'kg',
       date: true,
       photo: true,
+      theme: 'Gubreleme',
+      planned: { fertilizerName: 'Üre', amount: '20' },
     },
     {
       name: 'Hastalık-zararlı kontrolü',
       description: 'Alt yaprakları ve gövdeyi inceleyin; leke veya zararlı görürseniz fotoğraf çekin.',
       due: 77,
       photo: true,
+      theme: 'Bakim',
+      planned: { description: 'Hastalık ve zararlı tarama' },
     },
     {
       name: 'İlaçlama',
@@ -197,6 +234,8 @@ function createDomatesTemplateSteps(): StepDraft[] {
       unit: 'litre',
       date: true,
       photo: true,
+      theme: 'Ilaclama',
+      planned: { pesticideName: 'Fungisit', dose: '100 ml / 100 L', waterAmount: '100' },
     },
     {
       name: 'Çiçeklenme kontrolü',
@@ -218,6 +257,8 @@ function createDomatesTemplateSteps(): StepDraft[] {
       unit: 'kg',
       date: true,
       photo: true,
+      theme: 'Hasat',
+      planned: { productQuantity: '350', crateCount: '14' },
     },
     {
       name: 'Teslimat ve gelir',
@@ -234,37 +275,47 @@ function createDomatesTemplateSteps(): StepDraft[] {
     description: r.description,
     order: i + 1,
     dueDaysFromStart: r.due,
-    requiresPhoto: Boolean(r.photo),
+    requiresPhoto: Boolean(r.photo) || Boolean(r.theme),
     requiresQuantity: Boolean(r.quantity),
     requiresDate: Boolean(r.date),
     quantityUnit: r.unit ?? '',
     videoUrl: '',
     imageUrl: '',
+    theme: r.theme ?? '',
+    planned: { ...emptyPlannedForm(), ...(r.planned ?? {}) },
     expanded: i === 0,
   }))
 }
 
 function toDrafts(steps: WorkflowStep[]): StepDraft[] {
   if (!steps.length) return [blankStep(1)]
-  return [...steps]
-    .sort((a, b) => a.order - b.order)
-    .map((s, i) => ({
-      name: s.name,
-      description: s.description ?? '',
-      order: i + 1,
-      dueDaysFromStart: s.dueDaysFromStart ?? 0,
-      requiresPhoto: s.requiresPhoto,
-      requiresQuantity: Boolean(s.requiresQuantity),
-      requiresDate: Boolean(s.requiresDate),
-      quantityUnit: s.quantityUnit ?? '',
-      videoUrl: s.videoUrl ?? '',
-      imageUrl: s.imageUrl ?? '',
-      expanded: false,
-    }))
+  const sorted = [...steps].sort((a, b) => a.order - b.order)
+  const hasMedia = (s: WorkflowStep) =>
+    Boolean(s.videoUrl?.trim() || s.imageUrl?.trim())
+  // Expand steps that already have training media so saved links are visible immediately.
+  const anyMedia = sorted.some(hasMedia)
+  return sorted.map((s, i) => ({
+    name: s.name,
+    description: s.description ?? '',
+    order: i + 1,
+    dueDaysFromStart: s.dueDaysFromStart ?? 0,
+    requiresPhoto: s.requiresPhoto,
+    requiresQuantity: Boolean(s.requiresQuantity),
+    requiresDate: Boolean(s.requiresDate),
+    quantityUnit: s.quantityUnit ?? '',
+    videoUrl: s.videoUrl ?? '',
+    imageUrl: s.imageUrl ?? '',
+    theme: s.theme ?? '',
+    planned: plannedFormFromJson(s.theme, s.plannedEvidenceJson),
+    expanded: anyMedia ? hasMedia(s) : i === 0,
+  }))
 }
 
 function evidenceChips(step: StepDraft | WorkflowStep): string[] {
   const chips: string[] = []
+  const theme =
+    'theme' in step && step.theme ? themeLabel(step.theme) : null
+  if (theme) chips.push(theme)
   if ('requiresPhoto' in step && step.requiresPhoto) chips.push('Fotoğraf')
   if ('requiresQuantity' in step && step.requiresQuantity) {
     const unit =
@@ -326,18 +377,25 @@ export function WorkflowsPage() {
         name,
         description: description || null,
         cropType: cropType || null,
-        steps: steps.map((s, i) => ({
-          name: s.name.trim(),
-          description: s.description.trim() || null,
-          order: i + 1,
-          dueDaysFromStart: Number(s.dueDaysFromStart),
-          requiresPhoto: s.requiresPhoto,
-          requiresQuantity: s.requiresQuantity,
-          requiresDate: s.requiresDate,
-          quantityUnit: s.requiresQuantity ? s.quantityUnit.trim() || null : null,
-          videoUrl: s.videoUrl.trim() || null,
-          imageUrl: s.imageUrl.trim() || null,
-        })),
+        steps: steps.map((s, i) => {
+          const theme = s.theme.trim() || null
+          return {
+            name: s.name.trim(),
+            description: s.description.trim() || null,
+            order: i + 1,
+            dueDaysFromStart: Number(s.dueDaysFromStart),
+            requiresPhoto: theme ? true : s.requiresPhoto,
+            requiresQuantity: s.requiresQuantity,
+            requiresDate: s.requiresDate,
+            quantityUnit: s.requiresQuantity ? s.quantityUnit.trim() || null : null,
+            videoUrl: s.videoUrl.trim() || null,
+            imageUrl: s.imageUrl.trim() || null,
+            theme,
+            plannedEvidence: theme
+              ? buildPlannedEvidence(theme, s.planned)
+              : null,
+          }
+        }),
       }
       if (editingId) {
         await api(`/api/workflows/${editingId}`, {
@@ -481,6 +539,16 @@ export function WorkflowsPage() {
       if (Number(s.dueDaysFromStart) < 0) {
         return 'Başlangıçtan gün sayısı 0 veya pozitif olmalıdır.'
       }
+      if (s.theme) {
+        const plannedErr = validatePlannedEvidence(
+          s.theme,
+          buildPlannedEvidence(s.theme, s.planned),
+        )
+        if (plannedErr) {
+          const label = s.name.trim() || 'Adım'
+          return `"${label}": ${plannedErr}`
+        }
+      }
     }
     for (let i = 1; i < steps.length; i++) {
       const prev = Number(steps[i - 1].dueDaysFromStart) || 0
@@ -508,16 +576,45 @@ export function WorkflowsPage() {
     <section className="wf-page">
       <div className="page-header">
         <div>
-          <h1>İş akışları</h1>
-          <p>Üretim şablonları — araziye atanır, üreticiye görev olur.</p>
+          <h1>İş akışı şablonları</h1>
+          <p>
+            Burada sadece şablonu tasarlarsın. Gerçek üretim planı ve oluşan görevler arazi
+            detayında yönetilir.
+          </p>
         </div>
         {!showEditor && (
           <button type="button" className="primary-btn" onClick={startCreate}>
             <Plus size={16} />
-            Yeni iş akışı
+            Yeni şablon
           </button>
         )}
       </div>
+
+      {!showEditor && (
+        <div className="panel wf-explainer-panel">
+          <div className="land-section-head">
+            <p className="panel-title">Nasıl çalışır?</p>
+            <p className="muted-copy">
+              Şablon burada hazırlanır, sonra bir araziye uygulanır, ardından üreticiye gerçek
+              görevler oluşur.
+            </p>
+          </div>
+          <div className="land-flow-grid">
+            <article className="land-flow-card">
+              <strong>1. Şablonu tanımla</strong>
+              <span>Adımları, tarihleri, eğitim linklerini ve hedef kanıtları oluştur.</span>
+            </article>
+            <article className="land-flow-card">
+              <strong>2. Araziye uygula</strong>
+              <span>Ana yol `Araziler {'>'} Arazi detayı {'>'} Üretim planı başlat` akışıdır.</span>
+            </article>
+            <article className="land-flow-card">
+              <strong>3. Görevleri izle</strong>
+              <span>Üreticiye düşen gerçek işler arazi detayında ve onaylarda takip edilir.</span>
+            </article>
+          </div>
+        </div>
+      )}
 
       {showEditor && (
         <div className="panel workflow-builder wf-editor">
@@ -534,7 +631,7 @@ export function WorkflowsPage() {
                 onClick={applyDomatesTemplate}
               >
                 <Sprout size={15} />
-                Domates şablonu
+                Domates hazır şablonu
               </button>
               <button type="button" className="ghost-btn" onClick={resetEditor}>
                 Kapat
@@ -755,6 +852,17 @@ export function WorkflowsPage() {
                               }
                               placeholder="https://youtube.com/… veya video linki"
                             />
+                            {step.videoUrl.trim() ? (
+                              <a
+                                className="wf-link-preview"
+                                href={step.videoUrl.trim()}
+                                target="_blank"
+                                rel="noreferrer"
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                Kayıtlı linki aç
+                              </a>
+                            ) : null}
                           </label>
                           <label className="wf-field">
                             Eğitim görseli
@@ -795,11 +903,7 @@ export function WorkflowsPage() {
                             />
                             {step.imageUrl ? (
                               <img
-                                src={
-                                  step.imageUrl.startsWith('http')
-                                    ? step.imageUrl
-                                    : `${import.meta.env.VITE_API_URL ?? 'http://localhost:5109'}/${step.imageUrl.replace(/^\//, '')}`
-                                }
+                                src={mediaUrl(step.imageUrl, token)}
                                 alt=""
                                 className="wf-guidance-thumb"
                               />
@@ -808,14 +912,47 @@ export function WorkflowsPage() {
                         </div>
 
                         <div className="wf-evidence">
+                          <label className="wf-field">
+                            İşlem teması
+                            <select
+                              value={step.theme}
+                              onChange={(e) => {
+                                const theme = e.target.value
+                                updateStep(index, {
+                                  theme,
+                                  planned: emptyPlannedForm(),
+                                  requiresPhoto: theme ? true : step.requiresPhoto,
+                                })
+                              }}
+                            >
+                              <option value="">Tema yok (eski stil)</option>
+                              {TASK_THEMES.map((t) => (
+                                <option key={t.code} value={t.code}>
+                                  {t.label}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          {step.theme ? (
+                            <PlannedEvidenceFields
+                              theme={step.theme}
+                              form={step.planned}
+                              onChange={(patch) =>
+                                updateStep(index, {
+                                  planned: { ...step.planned, ...patch },
+                                })
+                              }
+                            />
+                          ) : null}
                           <span className="wf-evidence-label">Zorunlu alanlar</span>
                           <div className="wf-toggle-row">
                             <label
-                              className={`wf-toggle${step.requiresPhoto ? ' is-on' : ''}`}
+                              className={`wf-toggle${step.requiresPhoto || Boolean(step.theme) ? ' is-on' : ''}`}
                             >
                               <input
                                 type="checkbox"
-                                checked={step.requiresPhoto}
+                                checked={step.requiresPhoto || Boolean(step.theme)}
+                                disabled={Boolean(step.theme)}
                                 onChange={(e) =>
                                   updateStep(index, { requiresPhoto: e.target.checked })
                                 }
@@ -908,11 +1045,11 @@ export function WorkflowsPage() {
               </div>
               <p className="wf-empty-title">Henüz şablon yok</p>
               <p className="wf-empty-copy">
-                Üretim adımlarını bir kez tanımlayın; arazilere atayın.
+                Önce tekrar kullanılabilir planı tanımlayın, sonra arazi üzerinde uygulayın.
               </p>
               <button type="button" className="primary-btn" onClick={startCreate}>
                 <Plus size={16} />
-                Yeni iş akışı
+                Yeni şablon
               </button>
             </div>
           ) : (
@@ -994,7 +1131,7 @@ export function WorkflowsPage() {
             <span>
               <span className="wf-assign-title">Hızlı atama</span>
               <span className="wf-assign-hint">
-                Asıl yol:{' '}
+                Kısayol. Ana yol:{' '}
                 <Link to="/lands" onClick={(e) => e.stopPropagation()}>
                   Araziler → Üretim planı
                 </Link>

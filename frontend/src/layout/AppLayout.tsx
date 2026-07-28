@@ -131,7 +131,7 @@ export function AppLayout() {
     if (location.pathname === '/lands') return admin ? 'Araziler' : 'Arazilerim'
     if (location.pathname === '/inspections') return admin ? 'Denetimler' : 'Denetimlerim'
     if (pageTitles[location.pathname]) return pageTitles[location.pathname]
-    if (location.pathname.startsWith('/lands/')) return 'Arazi Merkezi'
+    if (location.pathname.startsWith('/lands/')) return 'Arazi operasyon merkezi'
     if (location.pathname.startsWith('/producers/')) return 'Üretici detayı'
     const match = Object.keys(pageTitles)
       .filter((k) => k !== '/')

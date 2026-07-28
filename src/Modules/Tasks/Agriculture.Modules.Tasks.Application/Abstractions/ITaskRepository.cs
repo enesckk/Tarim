@@ -6,6 +6,10 @@ public interface ITaskRepository
 {
     Task<ProductionTask?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProductionTask>> GetByProducerAsync(Guid producerId, CancellationToken cancellationToken = default);
+    Task<IReadOnlyList<ProductionTask>> GetByLandIdsAsync(
+        IReadOnlyCollection<Guid> landIds,
+        Guid? producerId = null,
+        CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProductionTask>> GetByProductionWorkflowAsync(Guid productionWorkflowId, CancellationToken cancellationToken = default);
     Task<IReadOnlyList<ProductionTask>> GetAllAsync(CancellationToken cancellationToken = default);
     Task AddAsync(ProductionTask task, CancellationToken cancellationToken = default);

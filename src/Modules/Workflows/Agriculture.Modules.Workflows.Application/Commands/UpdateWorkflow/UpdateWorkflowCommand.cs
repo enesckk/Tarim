@@ -1,5 +1,7 @@
 using Agriculture.Application.Abstractions.Data;
 using Agriculture.Application.Abstractions.Messaging;
+using Agriculture.Modules.Tasks.Application;
+using Agriculture.Modules.Tasks.Domain.Entities;
 using Agriculture.Modules.Workflows.Application.Abstractions;
 using Agriculture.Modules.Workflows.Application.Commands.CreateWorkflow;
 using Agriculture.SharedKernel.Results;
@@ -34,6 +36,9 @@ public sealed class UpdateWorkflowCommandValidator : AbstractValidator<UpdateWor
                 .When(s => s.RequiresQuantity);
             step.RuleFor(s => s.VideoUrl).MaximumLength(500);
             step.RuleFor(s => s.ImageUrl).MaximumLength(500);
+            step.RuleFor(s => s.Theme)
+                .Must(t => string.IsNullOrWhiteSpace(t) || TaskThemes.TryNormalize(t, out _))
+                .WithMessage("Geçerli bir işlem teması seçin.");
         });
         RuleFor(x => x.Steps)
             .Must(steps => steps.Select(s => s.Order).Distinct().Count() == steps.Count)
@@ -67,19 +72,46 @@ internal sealed class UpdateWorkflowCommandHandler(IWorkflowRepository repositor
         if (workflow is null)
             return Result.Failure(new Error("Workflow.NotFound", "İş akışı bulunamadı."));
 
+        foreach (var step in request.Steps)
+        {
+            if (string.IsNullOrWhiteSpace(step.Theme))
+                continue;
+            if (!TaskThemes.TryNormalize(step.Theme, out var theme))
+                return Result.Failure(new Error("Task.InvalidTheme", "Geçersiz işlem teması."));
+            var planned = TaskEvidenceHelper.ValidatePlanned(theme, step.PlannedEvidence);
+            if (!planned.IsSuccess)
+                return Result.Failure(planned.Error!);
+        }
+
         workflow.UpdateDetails(request.Name, request.Description, request.CropType);
         var removed = workflow.SyncSteps(
-            request.Steps.Select(step => (
-                step.Name,
-                step.Description,
-                step.Order,
-                step.DueDaysFromStart,
-                step.RequiresPhoto,
-                step.RequiresQuantity,
-                step.RequiresDate,
-                step.QuantityUnit,
-                step.VideoUrl,
-                step.ImageUrl)).ToList());
+            request.Steps.Select(step =>
+            {
+                string? theme = null;
+                string? plannedJson = null;
+                var requiresPhoto = step.RequiresPhoto;
+                if (!string.IsNullOrWhiteSpace(step.Theme) && TaskThemes.TryNormalize(step.Theme, out var t))
+                {
+                    theme = t;
+                    TaskThemes.ApplyCreateDefaults(t, out requiresPhoto);
+                    if (step.PlannedEvidence is not null)
+                        plannedJson = TaskEvidenceHelper.ToJson(step.PlannedEvidence);
+                }
+
+                return (
+                    step.Name,
+                    step.Description,
+                    step.Order,
+                    step.DueDaysFromStart,
+                    requiresPhoto,
+                    step.RequiresQuantity,
+                    step.RequiresDate,
+                    step.QuantityUnit,
+                    step.VideoUrl,
+                    step.ImageUrl,
+                    theme,
+                    plannedJson);
+            }).ToList());
 
         repository.Update(workflow, removed);
         await uow.SaveChangesAsync(cancellationToken);

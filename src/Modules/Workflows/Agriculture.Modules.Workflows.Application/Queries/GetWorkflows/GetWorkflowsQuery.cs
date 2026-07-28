@@ -16,7 +16,9 @@ public sealed record WorkflowStepDto(
     bool RequiresDate,
     string? QuantityUnit,
     string? VideoUrl,
-    string? ImageUrl);
+    string? ImageUrl,
+    string? Theme,
+    string? PlannedEvidenceJson);
 
 public sealed record WorkflowDto(
     Guid Id,
@@ -49,7 +51,9 @@ internal sealed class GetWorkflowsQueryHandler(IWorkflowRepository repository)
                     s.RequiresDate,
                     s.QuantityUnit,
                     s.VideoUrl,
-                    s.ImageUrl))
+                    s.ImageUrl,
+                    s.Theme,
+                    s.PlannedEvidenceJson))
                 .ToList()
         )).ToList();
         return Result.Success<IReadOnlyList<WorkflowDto>>(dtos);

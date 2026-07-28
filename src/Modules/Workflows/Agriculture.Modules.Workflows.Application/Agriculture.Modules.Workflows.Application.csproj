@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Agriculture.Modules.Workflows.Domain\Agriculture.Modules.Workflows.Domain.csproj" />
     <ProjectReference Include="..\..\..\BuildingBlocks\Agriculture.Application.Abstractions\Agriculture.Application.Abstractions.csproj" />
+    <ProjectReference Include="..\..\Tasks\Agriculture.Modules.Tasks.Application\Agriculture.Modules.Tasks.Application.csproj" />
   </ItemGroup>
 
   <ItemGroup>

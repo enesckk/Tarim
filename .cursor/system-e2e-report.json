@@ -1,0 +1,165 @@
+{
+  "timestamp": "2026-07-21T15:02:49",
+  "base": "http://127.0.0.1:5109",
+  "pass": 31,
+  "fail": 0,
+  "total": 31,
+  "failed": [],
+  "results": [
+    {
+      "name": "auth.login.producer",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "auth.login.admin",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "auth.login.officer",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "auth.login.officer1",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "mobile.profile.me",
+      "ok": true,
+      "detail": "status=200 producerId=33333333-3333-3333-3333-333333333333"
+    },
+    {
+      "name": "mobile.tasks.today",
+      "ok": true,
+      "detail": "status=200 count=9"
+    },
+    {
+      "name": "mobile.tasks.all",
+      "ok": true,
+      "detail": "status=200 count=43"
+    },
+    {
+      "name": "mobile.messages.list",
+      "ok": true,
+      "detail": "status=200 count=2"
+    },
+    {
+      "name": "mobile.notifications.list",
+      "ok": true,
+      "detail": "status=200 count=8"
+    },
+    {
+      "name": "chat.ask_expert",
+      "ok": true,
+      "detail": "status=200 id=421c781c-67c7-4922-9518-6348c9206bce"
+    },
+    {
+      "name": "chat.send_message",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "chat.thread_has_land",
+      "ok": true,
+      "detail": "landId=8c401d3a-3233-4dec-be40-5e83db2f1221"
+    },
+    {
+      "name": "chat.admin_mesajlar_excludes_producer",
+      "ok": true,
+      "detail": "staffCount=1 inList=False"
+    },
+    {
+      "name": "chat.land_hub_has_thread",
+      "ok": true,
+      "detail": "status=200 count=1 hasUnread=[True]"
+    },
+    {
+      "name": "land.selected",
+      "ok": true,
+      "detail": "landId=8c401d3a-3233-4dec-be40-5e83db2f1221 name=Meram Demo Tarlası"
+    },
+    {
+      "name": "land.tasks.list",
+      "ok": true,
+      "detail": "status=200 count=2"
+    },
+    {
+      "name": "land.tasks.create_send",
+      "ok": true,
+      "detail": "status=200 id=f154a999-31f6-4372-9fc1-4d19b4fc7862 raw=f154a999-31f6-4372-9fc1-4d19b4fc7862"
+    },
+    {
+      "name": "land.tasks.producer_sees_new",
+      "ok": true,
+      "detail": "seen=True"
+    },
+    {
+      "name": "task.complete_to_awaiting",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "task.status_is_5",
+      "ok": true,
+      "detail": "status=5"
+    },
+    {
+      "name": "land.tasks.sees_awaiting",
+      "ok": true,
+      "detail": "rowStatus=5"
+    },
+    {
+      "name": "task.approve",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "task.status_is_2_approved",
+      "ok": true,
+      "detail": "status=2"
+    },
+    {
+      "name": "notif.producer_approved",
+      "ok": true,
+      "detail": "hit=True"
+    },
+    {
+      "name": "notif.admin_list",
+      "ok": true,
+      "detail": "total=49 unread=49"
+    },
+    {
+      "name": "notif.mark_one_read",
+      "ok": true,
+      "detail": "status=200 id=d5ab3126-b187-45b4-98bb-7c4e74db67e5"
+    },
+    {
+      "name": "notif.one_is_read",
+      "ok": true,
+      "detail": "isRead=True"
+    },
+    {
+      "name": "notif.mark_all_read",
+      "ok": true,
+      "detail": "status=200"
+    },
+    {
+      "name": "notif.producer_all_read",
+      "ok": true,
+      "detail": "unreadLeft=0"
+    },
+    {
+      "name": "admin.tasks.list",
+      "ok": true,
+      "detail": "count=128"
+    },
+    {
+      "name": "officer.lands.list",
+      "ok": true,
+      "detail": "count=3"
+    }
+  ]
+}

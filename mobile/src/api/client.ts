@@ -23,9 +23,13 @@ export type TaskDto = {
   requiresQuantity?: boolean;
   requiresDate?: boolean;
   quantityUnit?: string | null;
+  theme?: string | null;
   videoUrl?: string | null;
   imageUrl?: string | null;
   revisionReason?: string | null;
+  completionNotes?: string | null;
+  plannedEvidenceJson?: string | null;
+  evidenceJson?: string | null;
   completedAtUtc?: string | null;
   photoCount?: number;
   photos?: Array<{

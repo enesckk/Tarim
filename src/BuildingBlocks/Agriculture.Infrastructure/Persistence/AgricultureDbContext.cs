@@ -106,8 +106,10 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.HasKey(x => x.Id);
             e.Property(x => x.Name).HasMaxLength(200).IsRequired();
             e.Property(x => x.QuantityUnit).HasMaxLength(32);
+            e.Property(x => x.Theme).HasMaxLength(32);
             e.Property(x => x.VideoUrl).HasMaxLength(500);
             e.Property(x => x.ImageUrl).HasMaxLength(500);
+            e.Property(x => x.PlannedEvidenceJson).HasColumnType("nvarchar(max)");
             e.Ignore(x => x.DomainEvents);
         });
 
@@ -124,9 +126,14 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.HasKey(x => x.Id);
             e.Property(x => x.Title).HasMaxLength(200).IsRequired();
             e.Property(x => x.QuantityUnit).HasMaxLength(32);
+            e.Property(x => x.Theme).HasMaxLength(32);
             e.Property(x => x.VideoUrl).HasMaxLength(500);
             e.Property(x => x.ImageUrl).HasMaxLength(500);
             e.Property(x => x.RevisionReason).HasMaxLength(1000);
+            e.Property(x => x.PlannedEvidenceJson).HasColumnType("nvarchar(max)");
+            e.Property(x => x.EvidenceJson).HasColumnType("nvarchar(max)");
+            e.HasIndex(x => new { x.ProducerId, x.Status });
+            e.HasIndex(x => new { x.LandId, x.Status });
             e.HasMany(x => x.Photos).WithOne().HasForeignKey(x => x.TaskId);
             e.Ignore(x => x.DomainEvents);
             e.Navigation(x => x.Photos).UsePropertyAccessMode(PropertyAccessMode.Field);

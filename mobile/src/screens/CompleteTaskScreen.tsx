@@ -16,6 +16,12 @@ import { ApiError, type TaskDto } from '../api/client';
 import { PrimaryButton, Screen } from '../components/ui';
 import { colors, radii, spacing, typography } from '../theme';
 import type { RootStackParamList } from '../navigation/types';
+import {
+  compactEvidence,
+  themeLabel,
+  themeMinPhotos,
+  validateEvidence,
+} from '../utils/taskThemes';
 
 export function CompleteTaskScreen() {
   const { authFetch } = useAuth();
@@ -23,7 +29,9 @@ export function CompleteTaskScreen() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [photoAttached, setPhotoAttached] = useState(false);
+  const [photoCount, setPhotoCount] = useState(0);
+  const [theme, setTheme] = useState<string | null>(null);
+  const [requiresPhoto, setRequiresPhoto] = useState(false);
   const seedNotes = route.params.notes?.trim() ?? '';
   const [note, setNote] = useState(
     seedNotes
@@ -37,12 +45,13 @@ export function CompleteTaskScreen() {
     let active = true;
     void authFetch<TaskDto>(`/api/tasks/${route.params.taskId}`)
       .then((task) => {
-        if (active) {
-          setPhotoAttached((task.photoCount ?? task.photos?.length ?? 0) > 0);
-        }
+        if (!active) return;
+        setPhotoCount(task.photoCount ?? task.photos?.length ?? 0);
+        setTheme(task.theme ?? null);
+        setRequiresPhoto(Boolean(task.requiresPhoto));
       })
       .catch(() => {
-        if (active) setPhotoAttached(false);
+        if (active) setPhotoCount(0);
       });
     return () => {
       active = false;
@@ -60,9 +69,40 @@ export function CompleteTaskScreen() {
     setLoading(true);
     setError(null);
     try {
+      const evidence = route.params.evidence
+        ? compactEvidence(route.params.evidence)
+        : undefined;
+
+      const minPhotos = theme
+        ? themeMinPhotos(theme)
+        : requiresPhoto
+          ? 1
+          : 0;
+      if (minPhotos > 0 && photoCount < minPhotos) {
+        setError(
+          theme === 'Bakim'
+            ? 'Bakım için öncesi ve sonrası olmak üzere en az 2 fotoğraf gerekli.'
+            : 'Bu görevi göndermek için önce fotoğraf yükleyin.',
+        );
+        setLoading(false);
+        return;
+      }
+
+      if (theme) {
+        const evidenceError = validateEvidence(theme, evidence ?? {});
+        if (evidenceError) {
+          setError(evidenceError);
+          setLoading(false);
+          return;
+        }
+      }
+
       await authFetch(`/api/tasks/${route.params.taskId}/complete`, {
         method: 'POST',
-        body: JSON.stringify({ notes: buildNotes() }),
+        body: JSON.stringify({
+          notes: buildNotes(),
+          evidence: evidence ?? null,
+        }),
       });
       Alert.alert('Gönderildi', 'Göreviniz uzman onayına gönderildi.', [
         {
@@ -81,6 +121,10 @@ export function CompleteTaskScreen() {
     }
   };
 
+  const photoOk =
+    photoCount > 0 || Boolean(route.params.photoAttached);
+  const themeName = themeLabel(theme);
+
   return (
     <Screen edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
@@ -93,24 +137,29 @@ export function CompleteTaskScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <Text style={styles.body}>
-            Görevi uzmana göndermek istediğinize emin misiniz? İsterseniz kısa
-            bir açıklama ekleyin.
+            Görevi uzmana göndermek istediğinize emin misiniz?
+            {themeName ? ` (${themeName} kanıtı ile)` : ''} İsterseniz kısa bir
+            ek not ekleyin.
           </Text>
 
-          <Text style={styles.label}>Açıklama (isteğe bağlı)</Text>
+          <Text style={styles.label}>Ek not (isteğe bağlı)</Text>
           <TextInput
             value={note}
             onChangeText={setNote}
-            placeholder="Örn. Sulama tamam, fotoğrafta hortum görünüyor"
+            placeholder="Örn. Fotoğrafta hortum görünüyor"
             placeholderTextColor={colors.muted}
             style={styles.input}
             multiline
             textAlignVertical="top"
           />
 
-          {photoAttached ? (
+          {photoOk ? (
             <View style={styles.check}>
-              <Text style={styles.checkText}>Fotoğraf eklendi</Text>
+              <Text style={styles.checkText}>
+                {photoCount >= 2
+                  ? `${photoCount} fotoğraf eklendi`
+                  : 'Fotoğraf eklendi'}
+              </Text>
             </View>
           ) : null}
 
