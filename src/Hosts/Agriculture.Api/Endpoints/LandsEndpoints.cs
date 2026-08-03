@@ -21,10 +21,12 @@ using Agriculture.Modules.Tasks.Domain.Entities;
 using Agriculture.Modules.Workflows.Application.Queries.GetLandProductions;
 using Agriculture.Modules.Workflows.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class LandsEndpoints
 {
@@ -200,11 +202,11 @@ internal static class LandsEndpoints
                 MapStatus = mapStatus ?? LandMapStatus.Normal
             });
         });
-        lands.MapPost("/", async (RegisterLandCommand command, ISender sender, IMemoryCache cache) =>
+        lands.MapPost("/", async (RegisterLandCommand command, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(command);
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         lands.MapPut("/{id:guid}", async (
@@ -213,7 +215,7 @@ internal static class LandsEndpoints
             IUserContext user,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -239,21 +241,21 @@ internal static class LandsEndpoints
                 body.SoilType,
                 body.SoilNotes));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
-        lands.MapPost("/{id:guid}/assign-producer", async (Guid id, AssignLandProducerBody body, ISender sender, IMemoryCache cache) =>
+        lands.MapPost("/{id:guid}/assign-producer", async (Guid id, AssignLandProducerBody body, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(new AssignLandProducerCommand(id, body.ProducerId));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
-        lands.MapPut("/{id:guid}/assignments", async (Guid id, AssignLandAssignmentsBody body, ISender sender, IMemoryCache cache) =>
+        lands.MapPut("/{id:guid}/assignments", async (Guid id, AssignLandAssignmentsBody body, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(new AssignLandAssignmentsCommand(id, body.ProducerId, body.OfficerUserId));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         lands.MapGet("/{id:guid}/alerts", async (
@@ -405,7 +407,7 @@ internal static class LandsEndpoints
             [FromBody] SendMessageRequest body,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -430,7 +432,7 @@ internal static class LandsEndpoints
             var result = await sender.Send(new SendMessageCommand(
                 conversationId, user.UserId.Value, body.Body, staffAccess));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
 
@@ -498,7 +500,7 @@ internal static class LandsEndpoints
             IUserContext user,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -568,7 +570,7 @@ internal static class LandsEndpoints
             if (!result.IsSuccess)
                 return ApiResults.From(result);
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
 
             var producer = await db.Producers.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.Id == land.ProducerId.Value);

@@ -82,10 +82,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Agriculture.Api.Hubs;
+using Agriculture.Application.Abstractions.Caching;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -122,7 +122,12 @@ try
                 .AllowCredentials());
     });
 
-    builder.Services.AddSignalR();
+    var signalRBuilder = builder.Services.AddSignalR();
+    var redisConnStr = builder.Configuration.GetConnectionString("Redis");
+    if (!string.IsNullOrEmpty(redisConnStr))
+    {
+        signalRBuilder.AddStackExchangeRedis(redisConnStr);
+    }
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
@@ -282,14 +287,17 @@ internal static class RuntimeConfigGuard
 internal static class DashboardCache
 {
     public const string SummaryKey = "dashboard:summary";
-    private static int _generation;
+    private const string GenerationKey = "dashboard:summary:generation";
 
-    public static int Generation => Volatile.Read(ref _generation);
-
-    public static void Invalidate(IMemoryCache cache)
+    public static async Task<int> GetGenerationAsync(ICacheService cache)
     {
-        _ = cache;
-        Interlocked.Increment(ref _generation);
+        var gen = await cache.GetAsync<int>(GenerationKey);
+        return gen;
+    }
+
+    public static async Task InvalidateAsync(ICacheService cache)
+    {
+        await cache.IncrementAsync(GenerationKey);
     }
 }
 

@@ -1,4 +1,10 @@
 services:
+  redis:
+    image: redis:alpine
+    container_name: agriculture-redis
+    ports:
+      - "6379:6379"
+
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: agriculture-sql
@@ -44,9 +50,11 @@ services:
       - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__Redis=redis:6379
     depends_on:
       - sqlserver
       - minio
+      - redis
 
   tarim-ai:
     build:

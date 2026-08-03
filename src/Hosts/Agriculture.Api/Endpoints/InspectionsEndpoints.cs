@@ -8,9 +8,11 @@ using Agriculture.Modules.Inspections.Domain.Entities;
 using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.Modules.Notifications.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Mvc;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class InspectionsEndpoints
 {
@@ -70,7 +72,7 @@ internal static class InspectionsEndpoints
             IUserContext user,
             AgricultureDbContext db,
             ISender sender,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.Roles.Contains(AppRoles.Officer) && !user.Roles.Contains(AppRoles.Administrator) && user.UserId is not null)
             {
@@ -99,7 +101,7 @@ internal static class InspectionsEndpoints
                 await db.SaveChangesAsync();
             }
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         inspections.MapPost("/{id:guid}/complete", async (
@@ -108,7 +110,7 @@ internal static class InspectionsEndpoints
             IUserContext user,
             AgricultureDbContext db,
             ISender sender,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -130,7 +132,7 @@ internal static class InspectionsEndpoints
 
             var result = await sender.Send(new CompleteInspectionCommand(id, body.Result, body.Report));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
 

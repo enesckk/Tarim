@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.SignalR;
-using Agriculture.Application.Abstractions.Security;
+using Agriculture.Application.Abstractions.Authentication;
 using System.Security.Claims;
 
 namespace Agriculture.Api.Hubs;
@@ -16,7 +16,7 @@ public class NotificationHub : Hub
     public override async Task OnConnectedAsync()
     {
         var userId = _userContext.UserId?.ToString();
-        var producerId = _userContext.ProducerId?.ToString();
+        var producerId = Context.User?.FindFirst("ProducerId")?.Value;
 
         if (!string.IsNullOrEmpty(userId))
         {

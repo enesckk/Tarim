@@ -12,6 +12,9 @@ using Agriculture.Modules.Seasons.Application.Abstractions;
 using Agriculture.Modules.Support.Application.Abstractions;
 using Agriculture.Modules.Tasks.Application.Abstractions;
 using Agriculture.Modules.Workflows.Application.Abstractions;
+using Agriculture.Application.Abstractions.Caching;
+using Agriculture.Infrastructure.Caching;
+using StackExchange.Redis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +26,25 @@ public static class DependencyInjection
     public static IServiceCollection AddAgricultureInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddHttpContextAccessor();
-        services.AddMemoryCache();
+        
+        var redisConnStr = configuration.GetConnectionString("Redis");
+        if (!string.IsNullOrEmpty(redisConnStr))
+        {
+            var multiplexer = ConnectionMultiplexer.Connect(redisConnStr);
+            services.AddSingleton<IConnectionMultiplexer>(multiplexer);
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = redisConnStr;
+            });
+            services.AddSingleton<ICacheService, RedisCacheService>();
+        }
+        else
+        {
+            // Fallback for local development if Redis isn't configured
+            services.AddMemoryCache();
+            services.AddSingleton<ICacheService, MemoryCacheService>();
+        }
+        
         services.AddScoped<IUserContext, UserContext>();
 
         services.AddDbContext<AgricultureDbContext>(options =>

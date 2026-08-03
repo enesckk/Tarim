@@ -11,7 +11,7 @@ using Agriculture.Modules.Tasks.Domain.Entities;
 using Agriculture.Modules.Workflows.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class DashboardEndpoints
 {
@@ -21,7 +21,7 @@ internal static class DashboardEndpoints
         api.MapGet("/dashboard", async (
             IUserContext user,
             AgricultureDbContext db,
-            IMemoryCache cache,
+            ICacheService cache,
             UserManager<ApplicationUser> userManager) =>
         {
             if (user.UserId is null)
@@ -31,8 +31,10 @@ internal static class DashboardEndpoints
             if (!user.Roles.Contains(AppRoles.Administrator) && !user.Roles.Contains(AppRoles.Officer))
                 return Results.Forbid();
 
-            var cacheKey = $"{DashboardCache.SummaryKey}:v{DashboardCache.Generation}:map1:{user.UserId}";
-            if (cache.TryGetValue(cacheKey, out object? cached) && cached is not null)
+            var generation = await DashboardCache.GetGenerationAsync(cache);
+            var cacheKey = $"{DashboardCache.SummaryKey}:v{generation}:map1:{user.UserId}";
+            var cached = await cache.GetAsync<object>(cacheKey);
+            if (cached is not null)
                 return Results.Ok(cached);
 
             // Sync overdue alerts only on cache miss (avoids stale unread while serving hit).
@@ -283,7 +285,7 @@ internal static class DashboardEndpoints
                 MapLands = mapLands
             };
 
-            cache.Set(cacheKey, summary, TimeSpan.FromSeconds(30));
+            await cache.SetAsync(cacheKey, summary, TimeSpan.FromSeconds(30));
             return Results.Ok(summary);
         }).WithTags("Dashboard").RequireAuthorization();
         return api;

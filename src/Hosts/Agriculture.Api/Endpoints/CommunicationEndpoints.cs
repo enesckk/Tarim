@@ -14,10 +14,12 @@ using Agriculture.Modules.Notifications.Domain.Entities;
 using Agriculture.Modules.Producers.Domain.Entities;
 using Agriculture.Modules.Tasks.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class CommunicationEndpoints
 {
@@ -120,7 +122,7 @@ internal static class CommunicationEndpoints
             [FromBody] AskExpertRequest? body,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -177,7 +179,7 @@ internal static class CommunicationEndpoints
                 officerUserId,
                 landId));
             if (askResult.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(askResult);
         });
         conversations.MapPost("/staff", async (
@@ -185,7 +187,7 @@ internal static class CommunicationEndpoints
             [FromBody] StartStaffConversationRequest? body,
             ISender sender,
             UserManager<ApplicationUser> userManager,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -226,7 +228,7 @@ internal static class CommunicationEndpoints
                 officerUserId,
                 body?.Subject));
             if (staffResult.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(staffResult);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         conversations.MapGet("/{id:guid}", async (Guid id, IUserContext user, ISender sender) =>
@@ -243,14 +245,14 @@ internal static class CommunicationEndpoints
             IUserContext user,
             [FromBody] SendMessageRequest body,
             ISender sender,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
             var staffAccess = user.Roles.Contains(AppRoles.Administrator);
             var result = await sender.Send(new SendMessageCommand(id, user.UserId.Value, body.Body, staffAccess));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         });
 

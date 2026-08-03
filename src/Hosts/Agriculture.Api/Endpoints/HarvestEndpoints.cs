@@ -7,8 +7,9 @@ using Agriculture.Modules.Identity.Domain.Roles;
 using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.Modules.Producers.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class HarvestEndpoints
 {
@@ -42,7 +43,7 @@ internal static class HarvestEndpoints
             IUserContext user,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.Roles.Contains(AppRoles.Officer) && !user.Roles.Contains(AppRoles.Administrator) && user.UserId is not null)
             {
@@ -56,7 +57,7 @@ internal static class HarvestEndpoints
 
             var result = await sender.Send(command);
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         harvest.MapGet("/deliveries", async (IUserContext user, AgricultureDbContext db) =>
@@ -96,7 +97,7 @@ internal static class HarvestEndpoints
             RecordDeliveryRequest body,
             IUserContext user,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -129,7 +130,7 @@ internal static class HarvestEndpoints
                 body.Notes);
             await db.DeliveryRecords.AddAsync(delivery);
             await db.SaveChangesAsync();
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
             return Results.Ok(delivery.Id);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
 

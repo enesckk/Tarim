@@ -7,6 +7,7 @@ using Agriculture.Modules.Identity.Domain.Roles;
 using Agriculture.Modules.Identity.Infrastructure.Identity;
 using Agriculture.Modules.Producers.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

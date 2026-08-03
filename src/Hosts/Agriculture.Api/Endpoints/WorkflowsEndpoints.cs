@@ -12,8 +12,9 @@ using Agriculture.Modules.Workflows.Application.Commands.UpdateWorkflow;
 using Agriculture.Modules.Workflows.Application.Queries.GetWorkflows;
 using Agriculture.Modules.Workflows.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class WorkflowsEndpoints
 {
@@ -25,11 +26,11 @@ internal static class WorkflowsEndpoints
         workflows.MapGet("/", async (ISender sender) => ApiResults.From(await sender.Send(new GetWorkflowsQuery())))
             .RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         // Template create/edit: admin only. Officers list + assign to lands only.
-        workflows.MapPost("/", async (CreateWorkflowCommand command, ISender sender, IMemoryCache cache) =>
+        workflows.MapPost("/", async (CreateWorkflowCommand command, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(command);
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         workflows.MapPost("/media", async (HttpRequest request, IWebHostEnvironment env) =>
@@ -70,7 +71,7 @@ internal static class WorkflowsEndpoints
             UpdateWorkflowBody body,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             var result = await sender.Send(new UpdateWorkflowCommand(
                 id, body.Name, body.Description, body.CropType, body.Steps));
@@ -138,7 +139,7 @@ internal static class WorkflowsEndpoints
                     }
 
                     await db.SaveChangesAsync();
-                    DashboardCache.Invalidate(cache);
+                    await DashboardCache.InvalidateAsync(cache);
                 }
             }
 
@@ -149,7 +150,7 @@ internal static class WorkflowsEndpoints
             IUserContext user,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -207,7 +208,7 @@ internal static class WorkflowsEndpoints
                 }
             }
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
             return Results.Ok(result.Value);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
 
@@ -217,7 +218,7 @@ internal static class WorkflowsEndpoints
             IUserContext user,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -257,7 +258,7 @@ internal static class WorkflowsEndpoints
                 await db.SaveChangesAsync();
             }
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
             return Results.Ok();
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
 

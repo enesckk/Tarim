@@ -3,7 +3,8 @@ using Agriculture.Modules.Seasons.Application.Commands.CreateSeason;
 using Agriculture.Modules.Seasons.Application.Commands.StartSeason;
 using Agriculture.Modules.Seasons.Application.Queries.GetSeasons;
 using MediatR;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class SeasonsEndpoints
 {
@@ -12,18 +13,18 @@ internal static class SeasonsEndpoints
         // Seasons
         var seasons = api.MapGroup("/seasons").WithTags("Seasons").RequireAuthorization();
         seasons.MapGet("/", async (ISender sender) => ApiResults.From(await sender.Send(new GetSeasonsQuery())));
-        seasons.MapPost("/", async (CreateSeasonCommand command, ISender sender, IMemoryCache cache) =>
+        seasons.MapPost("/", async (CreateSeasonCommand command, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(command);
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
-        seasons.MapPost("/{id:guid}/start", async (Guid id, ISender sender, IMemoryCache cache) =>
+        seasons.MapPost("/{id:guid}/start", async (Guid id, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(new StartSeasonCommand(id));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
 

@@ -9,8 +9,9 @@ using Agriculture.Modules.Producers.Application.Queries.GetProducerNotes;
 using Agriculture.Modules.Producers.Application.Queries.GetProducers;
 using Agriculture.Modules.Producers.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class ProducersEndpoints
 {
@@ -87,7 +88,7 @@ internal static class ProducersEndpoints
             RegisterProducerRequest body,
             IIdentityService identity,
             ISender sender,
-            IMemoryCache cache,
+            ICacheService cache,
             CancellationToken cancellationToken) =>
         {
             var firstName = body.FirstName?.Trim() ?? string.Empty;
@@ -160,7 +161,7 @@ internal static class ProducersEndpoints
                 body.Address,
                 userId), cancellationToken);
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         return api;

@@ -15,9 +15,11 @@ using Agriculture.Modules.Tasks.Application.Queries.GetTasks;
 using Agriculture.Modules.Tasks.Application.Queries.GetTodayTasks;
 using Agriculture.Modules.Tasks.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Mvc;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.SignalR;
 using Agriculture.Api.Hubs;
 using Serilog;
@@ -62,7 +64,7 @@ internal static class TasksEndpoints
             IUserContext user,
             AgricultureDbContext db,
             ISender sender,
-            IMemoryCache cache,
+            ICacheService cache,
             IHostEnvironment environment) =>
         {
             if (user.UserId is null)
@@ -88,7 +90,7 @@ internal static class TasksEndpoints
                         || t.Status == ProductionTaskStatus.InProgress
                         || t.Status == ProductionTaskStatus.Overdue));
                 if (after != before)
-                    DashboardCache.Invalidate(cache);
+                    await DashboardCache.InvalidateAsync(cache);
             }
 
             return ApiResults.From(await sender.Send(new GetTodayTasksQuery(producer.Id)));
@@ -199,7 +201,7 @@ internal static class TasksEndpoints
             IUserContext user,
             ISender sender,
             AgricultureDbContext db,
-            IMemoryCache cache) =>
+            ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -213,7 +215,7 @@ internal static class TasksEndpoints
 
             var result = await sender.Send(command);
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         // Photo upload: multipart file or base64 JSON that writes real bytes to wwwroot/uploads.
@@ -222,7 +224,7 @@ internal static class TasksEndpoints
             HttpRequest request,
             IWebHostEnvironment env,
             ISender sender,
-            IMemoryCache cache,
+            ICacheService cache,
             IUserContext user,
             AgricultureDbContext db) =>
         {
@@ -263,7 +265,7 @@ internal static class TasksEndpoints
                     saved.FileName,
                     saved.ContentType));
                 if (result.IsSuccess)
-                    DashboardCache.Invalidate(cache);
+                    await DashboardCache.InvalidateAsync(cache);
                 return ApiResults.From(result);
             }
             catch (InvalidOperationException ex)
@@ -280,7 +282,7 @@ internal static class TasksEndpoints
             Guid id,
             [FromBody] CompleteTaskRequest? body,
             ISender sender,
-            IMemoryCache cache,
+            ICacheService cache,
             AgricultureDbContext db,
             IUserContext user) =>
         {
@@ -300,7 +302,7 @@ internal static class TasksEndpoints
             if (!result.IsSuccess)
                 return ApiResults.From(result);
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
 
             // Notify assigned uzman that approval is needed.
             var task = await db.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
@@ -330,7 +332,7 @@ internal static class TasksEndpoints
         tasks.MapPost("/{id:guid}/approve", async (
             Guid id,
             ISender sender,
-            IMemoryCache cache,
+            ICacheService cache,
             AgricultureDbContext db,
             IUserContext user,
             IHubContext<NotificationHub> hubContext) =>
@@ -355,7 +357,7 @@ internal static class TasksEndpoints
             if (!result.IsSuccess)
                 return ApiResults.From(result);
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
 
             var task = await db.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
             if (task is not null)
@@ -394,7 +396,7 @@ internal static class TasksEndpoints
             Guid id,
             [FromBody] RejectTaskRequest? body,
             ISender sender,
-            IMemoryCache cache,
+            ICacheService cache,
             AgricultureDbContext db,
             IUserContext user) =>
         {
@@ -422,7 +424,7 @@ internal static class TasksEndpoints
             if (!result.IsSuccess)
                 return ApiResults.From(result);
 
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
 
             var task = await db.Tasks.AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
             if (task is not null)
@@ -452,7 +454,7 @@ internal static class TasksEndpoints
 
         tasks.MapPost("/{id:guid}/cancel", async (
             Guid id,
-            IMemoryCache cache,
+            ICacheService cache,
             AgricultureDbContext db,
             IUserContext user) =>
         {
@@ -494,7 +496,7 @@ internal static class TasksEndpoints
             }
 
             await db.SaveChangesAsync();
-            DashboardCache.Invalidate(cache);
+            await DashboardCache.InvalidateAsync(cache);
 
             if (producer?.UserId is Guid pushUserId)
             {

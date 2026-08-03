@@ -6,9 +6,10 @@ using Agriculture.Modules.Notifications.Application.Commands.MarkNotificationRea
 using Agriculture.Modules.Notifications.Application.Queries.GetNotifications;
 using Agriculture.Modules.Notifications.Domain.Entities;
 using MediatR;
+using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Memory;
+using Agriculture.Application.Abstractions.Caching;
 
 internal static class NotificationsEndpoints
 {
@@ -30,22 +31,22 @@ internal static class NotificationsEndpoints
 
             return ApiResults.From(await sender.Send(new GetNotificationsQuery(user.UserId.Value)));
         });
-        notifications.MapPost("/{id:guid}/read", async (Guid id, IUserContext user, ISender sender, IMemoryCache cache) =>
+        notifications.MapPost("/{id:guid}/read", async (Guid id, IUserContext user, ISender sender, ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
             var result = await sender.Send(new MarkNotificationReadCommand(id, user.UserId.Value));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         });
-        notifications.MapPost("/read-all", async (IUserContext user, ISender sender, IMemoryCache cache) =>
+        notifications.MapPost("/read-all", async (IUserContext user, ISender sender, ICacheService cache) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
             var result = await sender.Send(new MarkAllNotificationsReadCommand(user.UserId.Value));
             if (result.IsSuccess)
-                DashboardCache.Invalidate(cache);
+                await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         });
 
