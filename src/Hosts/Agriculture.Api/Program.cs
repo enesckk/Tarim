@@ -84,8 +84,11 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Hangfire;
 using Agriculture.Api.Hubs;
 using Agriculture.Application.Abstractions.Caching;
+using Microsoft.AspNetCore.RateLimiting;
+using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -101,7 +104,8 @@ try
         .ReadFrom.Configuration(context.Configuration)
         .ReadFrom.Services(services)
         .Enrich.FromLogContext()
-        .WriteTo.Console());
+        .WriteTo.Console()
+        .WriteTo.Seq(context.Configuration["Seq:ServerUrl"] ?? "http://localhost:5341"));
 
     builder.Services.AddCors(options =>
     {
@@ -159,6 +163,7 @@ try
     });
 
     builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+    builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(QueryCachingBehavior<,>));
 
     builder.Services.Configure<FormOptions>(options =>
     {
@@ -182,15 +187,32 @@ try
     builder.Services.AddNotificationsModule();
     builder.Services.AddCommunicationModule();
 
-    Directory.CreateDirectory(Path.Combine(builder.Environment.ContentRootPath, "wwwroot", "uploads"));
+    builder.Services.AddRateLimiter(options =>
+    {
+        options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString(),
+                factory: partition => new FixedWindowRateLimiterOptions
+                {
+                    AutoReplenishment = true,
+                    PermitLimit = 100,
+                    QueueLimit = 0,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
+        
+        options.OnRejected = async (context, token) =>
+        {
+            context.HttpContext.Response.StatusCode = 429;
+            await context.HttpContext.Response.WriteAsJsonAsync(new { error = "Too many requests. Please try again later." }, cancellationToken: token);
+        };
+    });
 
     var app = builder.Build();
 
     app.UseSerilogRequestLogging();
     app.UseCors("Frontend");
+    app.UseRateLimiter();
 
-    var uploadsRoot = Path.Combine(app.Environment.ContentRootPath, "wwwroot", "uploads");
-    Directory.CreateDirectory(uploadsRoot);
     // Serve wwwroot except /uploads — evidence/guidance files go through authenticated GET /api/files/...
     app.UseWhen(
         ctx => !ctx.Request.Path.StartsWithSegments("/uploads"),
@@ -206,6 +228,18 @@ try
     app.UseAuthorization();
 
     await DatabaseInitializer.InitializeAsync(app.Services, app.Environment, app.Configuration);
+
+    app.UseHangfireDashboard("/hangfire", new DashboardOptions
+    {
+        // For development, allow everyone to see dashboard.
+        // In prod, this needs an IDashboardAuthorizationFilter.
+        Authorization = new[] { new Hangfire.Dashboard.LocalRequestsOnlyAuthorizationFilter() }
+    });
+
+    RecurringJob.AddOrUpdate<Agriculture.Infrastructure.BackgroundJobs.OverdueTaskJob>(
+        "check-overdue-tasks",
+        job => job.ProcessOverdueTasksAsync(),
+        Cron.Daily(9, 0)); // Her gün sabah 09:00'da çalışır
 
     app.MapHub<NotificationHub>("/hubs/notifications");
 

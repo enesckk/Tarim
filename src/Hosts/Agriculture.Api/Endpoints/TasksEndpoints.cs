@@ -222,7 +222,7 @@ internal static class TasksEndpoints
         tasks.MapPost("/{id:guid}/photos", async (
             Guid id,
             HttpRequest request,
-            IWebHostEnvironment env,
+            Agriculture.Application.Abstractions.Storage.IStorageService storageService,
             ISender sender,
             ICacheService cache,
             IUserContext user,
@@ -255,7 +255,7 @@ internal static class TasksEndpoints
 
             try
             {
-                var saved = await TaskPhotoStorage.SaveAsync(id, request, env);
+                var saved = await TaskPhotoStorage.SaveAsync(id, request, storageService);
                 if (saved is null)
                     return Results.BadRequest(new { Code = "Photo.Missing", Message = "Fotoğraf dosyası gerekli." });
 
@@ -533,7 +533,7 @@ internal static class TaskPhotoStorage
         "image/webp"
     };
 
-    public static async Task<SavedTaskPhoto?> SaveAsync(Guid taskId, HttpRequest request, IWebHostEnvironment env)
+    public static async Task<SavedTaskPhoto?> SaveAsync(Guid taskId, HttpRequest request, Agriculture.Application.Abstractions.Storage.IStorageService storageService)
     {
         if (request.HasFormContentType)
         {
@@ -542,7 +542,7 @@ internal static class TaskPhotoStorage
             if (file is null || file.Length == 0)
                 return null;
 
-            return await WriteFileAsync(taskId, env, file.OpenReadStream(), file.FileName, file.ContentType);
+            return await WriteFileAsync(taskId, storageService, file.OpenReadStream(), file.FileName, file.ContentType);
         }
 
         var body = await request.ReadFromJsonAsync<AddTaskPhotoRequest>();
@@ -561,7 +561,7 @@ internal static class TaskPhotoStorage
         await using var stream = new MemoryStream(bytes);
         return await WriteFileAsync(
             taskId,
-            env,
+            storageService,
             stream,
             body.FileName ?? "photo.jpg",
             body.ContentType ?? "image/jpeg");
@@ -569,7 +569,7 @@ internal static class TaskPhotoStorage
 
     private static async Task<SavedTaskPhoto> WriteFileAsync(
         Guid taskId,
-        IWebHostEnvironment env,
+        Agriculture.Application.Abstractions.Storage.IStorageService storageService,
         Stream content,
         string? originalFileName,
         string? contentType)
@@ -596,21 +596,12 @@ internal static class TaskPhotoStorage
             };
         }
 
-        var folder = Path.Combine(env.ContentRootPath, "wwwroot", "uploads", "tasks", taskId.ToString("N"));
-        Directory.CreateDirectory(folder);
-
         var storedName = $"{Guid.NewGuid():N}{ext}";
-        var fullPath = Path.Combine(folder, storedName);
-        await using (var fs = File.Create(fullPath))
-            await content.CopyToAsync(fs);
-
-        if (new FileInfo(fullPath).Length == 0)
-        {
-            File.Delete(fullPath);
-            throw new InvalidOperationException("Boş fotoğraf dosyası kabul edilmez.");
-        }
-
         var storageKey = $"uploads/tasks/{taskId:N}/{storedName}";
+        
+        // Upload to MinIO
+        await storageService.UploadFileAsync("tarim-uploads", storageKey, content, normalizedType);
+
         return new SavedTaskPhoto(storageKey, safeName, normalizedType);
     }
 }

@@ -13,8 +13,13 @@ using Agriculture.Modules.Support.Application.Abstractions;
 using Agriculture.Modules.Tasks.Application.Abstractions;
 using Agriculture.Modules.Workflows.Application.Abstractions;
 using Agriculture.Application.Abstractions.Caching;
+using Agriculture.Application.Abstractions.Storage;
 using Agriculture.Infrastructure.Caching;
+using Agriculture.Infrastructure.Storage;
+using Hangfire;
+using Hangfire.SqlServer;
 using StackExchange.Redis;
+using Minio;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -51,6 +56,34 @@ public static class DependencyInjection
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
                 .ConfigureWarnings(w =>
                     w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+
+        // Hangfire Entegrasyonu
+        services.AddHangfire(config => config
+            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+            .UseSimpleAssemblyNameTypeSerializer()
+            .UseRecommendedSerializerSettings()
+            .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
+            {
+                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                PrepareSchemaIfNecessary = true,
+                DashboardJobListLimit = 50000,
+                TransactionTimeout = TimeSpan.FromMinutes(1)
+            }));
+
+        services.AddHangfireServer();
+
+        // MinIO Entegrasyonu
+        var minioEndpoint = configuration["Minio:Endpoint"] ?? "localhost:9000";
+        var minioAccessKey = configuration["Minio:AccessKey"] ?? "admin";
+        var minioSecretKey = configuration["Minio:SecretKey"] ?? "minio-admin-password";
+        
+        services.AddSingleton<Minio.IMinioClient>(sp => new Minio.MinioClient()
+            .WithEndpoint(minioEndpoint)
+            .WithCredentials(minioAccessKey, minioSecretKey)
+            .WithSSL(false)
+            .Build());
+
+        services.AddSingleton<IStorageService, MinioStorageService>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AgricultureDbContext>());
         services.AddScoped<IProducerRepository, ProducerRepository>();

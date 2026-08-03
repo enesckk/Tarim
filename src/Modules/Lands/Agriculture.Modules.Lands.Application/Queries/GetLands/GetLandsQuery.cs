@@ -28,7 +28,11 @@ public sealed record LandDto(
 
 public sealed record GetLandsQuery(
     Guid? OfficerUserIdFilter = null,
-    Guid? ProducerIdFilter = null) : IQuery<IReadOnlyList<LandDto>>;
+    Guid? ProducerIdFilter = null) : ICachedQuery<IReadOnlyList<LandDto>>
+{
+    public string CacheKey => $"lands:{OfficerUserIdFilter?.ToString() ?? "all"}:{ProducerIdFilter?.ToString() ?? "all"}";
+    public TimeSpan? ExpirationTime => TimeSpan.FromMinutes(30);
+}
 
 internal sealed class GetLandsQueryHandler(ILandRepository repository)
     : IQueryHandler<GetLandsQuery, IReadOnlyList<LandDto>>

@@ -161,7 +161,10 @@ internal static class ProducersEndpoints
                 body.Address,
                 userId), cancellationToken);
             if (result.IsSuccess)
+            {
                 await DashboardCache.InvalidateAsync(cache);
+                await cache.RemoveAsync("producers:all", cancellationToken);
+            }
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         return api;

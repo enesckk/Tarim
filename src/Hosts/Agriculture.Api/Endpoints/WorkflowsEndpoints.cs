@@ -33,7 +33,7 @@ internal static class WorkflowsEndpoints
                 await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
-        workflows.MapPost("/media", async (HttpRequest request, IWebHostEnvironment env) =>
+        workflows.MapPost("/media", async (HttpRequest request, Agriculture.Application.Abstractions.Storage.IStorageService storageService) =>
         {
             if (!request.HasFormContentType)
                 return Results.BadRequest(new { Code = "Media.Invalid", Message = "Dosya gerekli." });
@@ -46,8 +46,6 @@ internal static class WorkflowsEndpoints
             if (string.IsNullOrWhiteSpace(contentType) || !allowed.Contains(contentType))
                 return Results.BadRequest(new { Code = "Media.Type", Message = "Yalnızca görsel (jpg/png/webp) yükleyin." });
 
-            var folder = Path.Combine(env.ContentRootPath, "wwwroot", "uploads", "guidance");
-            Directory.CreateDirectory(folder);
             var ext = Path.GetExtension(file.FileName);
             if (string.IsNullOrWhiteSpace(ext))
                 ext = contentType switch
@@ -58,11 +56,10 @@ internal static class WorkflowsEndpoints
                     _ => ".jpg"
                 };
             var storedName = $"{Guid.NewGuid():N}{ext}";
-            var path = Path.Combine(folder, storedName);
-            await using (var stream = File.Create(path))
-                await file.CopyToAsync(stream);
-
+            
             var storageKey = $"uploads/guidance/{storedName}";
+            using var stream = file.OpenReadStream();
+            await storageService.UploadFileAsync("tarim-uploads", storageKey, stream, contentType);
             return Results.Ok(new { storageKey, url = UploadPathResolver.ToApiPath(storageKey) });
         }).DisableAntiforgery()
           .RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));

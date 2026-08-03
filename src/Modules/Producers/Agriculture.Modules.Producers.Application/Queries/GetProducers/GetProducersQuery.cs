@@ -15,7 +15,11 @@ public sealed record ProducerDto(
     bool IsActive,
     string? Address = null);
 
-public sealed record GetProducersQuery : IQuery<IReadOnlyList<ProducerDto>>;
+public sealed record GetProducersQuery : ICachedQuery<IReadOnlyList<ProducerDto>>
+{
+    public string CacheKey => "producers:all";
+    public TimeSpan? ExpirationTime => TimeSpan.FromMinutes(60);
+}
 
 internal sealed class GetProducersQueryHandler(IProducerRepository repository)
     : IQueryHandler<GetProducersQuery, IReadOnlyList<ProducerDto>>

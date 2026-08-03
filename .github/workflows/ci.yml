@@ -1,0 +1,46 @@
+name: Tarım CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test-dotnet:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 9.0.x
+        
+    - name: Restore dependencies
+      run: dotnet restore src/Hosts/Agriculture.Api/Agriculture.Api.csproj
+      
+    - name: Build API
+      run: dotnet build src/Hosts/Agriculture.Api/Agriculture.Api.csproj --no-restore
+      
+  build-and-test-node:
+    runs-on: ubuntu-latest
+    
+    defaults:
+      run:
+        working-directory: ./tarim_ai
+        
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: npm install
+      
+    - name: Build Tarım AI
+      run: npm run build

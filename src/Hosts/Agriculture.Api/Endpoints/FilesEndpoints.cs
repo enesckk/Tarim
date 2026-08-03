@@ -9,12 +9,12 @@ internal static class FilesEndpoints
     {
         var files = api.MapGroup("/files").WithTags("Files").RequireAuthorization();
 
-        // Authenticated download for local upload storage. Key shape: uploads/tasks/... or uploads/guidance/...
+        // Authenticated download for MinIO storage. Key shape: uploads/tasks/... or uploads/guidance/...
         files.MapGet("/{**key}", async (
             string key,
             IUserContext user,
             AgricultureDbContext db,
-            IWebHostEnvironment env,
+            Agriculture.Application.Abstractions.Storage.IStorageService storageService,
             HttpResponse response) =>
         {
             if (user.UserId is null)
@@ -26,13 +26,22 @@ internal static class FilesEndpoints
             if (!await CanAccessAsync(user, normalized, db))
                 return Results.Forbid();
 
-            var fullPath = UploadPathResolver.ResolvePhysicalPath(env, normalized);
-            if (fullPath is null || !File.Exists(fullPath))
+            try
+            {
+                var bucketName = "tarim-uploads";
+                // MinIO içerisinde dosya yolu olarak kullanacağız, bu yüzden baştaki 'uploads/' kısmını atabiliriz veya olduğu gibi tutabiliriz.
+                // docker-compose içerisinde bucket adı 'tarim-uploads' oluşturduk. Dosya adını direkt normalized olarak kullanıyoruz.
+                var stream = await storageService.GetFileAsync(bucketName, normalized);
+                var contentType = GuessContentType(normalized);
+                
+                response.Headers.CacheControl = "private, no-store";
+                return Results.File(stream, contentType, enableRangeProcessing: true);
+            }
+            catch (Exception)
+            {
+                // Dosya bulunamadığında Minio exception fırlatabilir (örneğin ObjectNotFound)
                 return Results.NotFound();
-
-            response.Headers.CacheControl = "private, no-store";
-            var contentType = GuessContentType(fullPath);
-            return Results.File(fullPath, contentType, enableRangeProcessing: true);
+            }
         });
 
         return api;

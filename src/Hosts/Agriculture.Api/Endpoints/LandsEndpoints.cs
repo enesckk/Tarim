@@ -206,7 +206,10 @@ internal static class LandsEndpoints
         {
             var result = await sender.Send(command);
             if (result.IsSuccess)
+            {
                 await DashboardCache.InvalidateAsync(cache);
+                await cache.RemoveAsync("lands:all:all");
+            }
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         lands.MapPut("/{id:guid}", async (
@@ -241,7 +244,10 @@ internal static class LandsEndpoints
                 body.SoilType,
                 body.SoilNotes));
             if (result.IsSuccess)
+            {
                 await DashboardCache.InvalidateAsync(cache);
+                await cache.RemoveAsync("lands:all:all");
+            }
             return ApiResults.From(result);
         }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         lands.MapPost("/{id:guid}/assign-producer", async (Guid id, AssignLandProducerBody body, ISender sender, ICacheService cache) =>
