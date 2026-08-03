@@ -1,0 +1,240 @@
+{
+  "id": "eggplant",
+  "name": "Patlıcan",
+  "scientificName": "Solanum melongena",
+  "category": "vegetable",
+  "growingType": "annual",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 12,
+      "optimalMinC": 22,
+      "optimalMaxC": 32,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 400,
+      "optimalMin": 500,
+      "optimalMax": 750,
+      "maximum": 950
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "frostTolerance": "low",
+    "heatTolerance": "high",
+    "droughtTolerance": "low",
+    "irrigationDependency": "high"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.5,
+      "optimalMin": 6,
+      "optimalMax": 7.2,
+      "absoluteMax": 7.8
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "preferredOrganicMatterPercent": 2.5,
+    "maximumElectricalConductivityDsM": 2.5,
+    "salinityTolerance": "low",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 55,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.35,
+      "optimalMin": 0.5,
+      "optimalMax": 0.85
+    },
+    "activeVegetationNdmi": {
+      "minimum": -0.05,
+      "optimalMin": 0.05,
+      "optimalMax": 0.35
+    },
+    "maximumActiveSeasonBsi": 0.15,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": false,
+      "expectedCycle": "annual",
+      "bareSoilBeforePlantingAcceptable": true
+    }
+  },
+  "management": {
+    "irrigationRequired": true,
+    "drainageImportance": "high",
+    "fertilityDemand": "high",
+    "mechanizationSuitability": "medium"
+  },
+  "hardConstraints": [
+    {
+      "code": "SOIL_PH_TOO_HIGH",
+      "field": "soil.ph",
+      "operator": "greater_than",
+      "value": 8,
+      "severity": "major",
+      "group": "PH",
+      "message": "Yüksek pH patlıcan gelişimini sınırlandırabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 4,
+        "endMonth": 5,
+        "label": "Açık tarla dikimi"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "germination",
+        "label": "Tesis / tutma",
+        "startOffsetDays": 0,
+        "endOffsetDays": 20,
+        "temperature": {
+          "absoluteMinC": 12,
+          "optimalMinC": 18,
+          "optimalMaxC": 30,
+          "absoluteMaxC": 36
+        },
+        "waterSensitivity": "high",
+        "weight": 0.15,
+        "frostSensitivity": "high",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "vegetative",
+        "label": "Vejetatif gelişme",
+        "startOffsetDays": 21,
+        "endOffsetDays": 60,
+        "temperature": {
+          "absoluteMinC": 16,
+          "optimalMinC": 20,
+          "optimalMaxC": 32,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "high",
+        "weight": 0.2,
+        "frostSensitivity": "high",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 61,
+        "endOffsetDays": 100,
+        "temperature": {
+          "absoluteMinC": 18,
+          "optimalMinC": 22,
+          "optimalMaxC": 32,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "high",
+        "weight": 0.3,
+        "frostSensitivity": "high",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Meyve oluşumu",
+        "startOffsetDays": 101,
+        "endOffsetDays": 160,
+        "temperature": {
+          "absoluteMinC": 18,
+          "optimalMinC": 22,
+          "optimalMaxC": 34,
+          "absoluteMaxC": 40
+        },
+        "waterSensitivity": "high",
+        "weight": 0.35,
+        "frostSensitivity": "high",
+        "heatSensitivity": "medium"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 140,
+      "typical": 160,
+      "maximum": 190
+    },
+    "perennial": {
+      "isPerennial": false,
+      "dormancyMonths": [],
+      "chillingRequirementHours": null,
+      "establishmentYears": null,
+      "economicLifeYears": null
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 35,
+      "preferredMinimumCm": 55,
+      "optimalMinimumCm": 75,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 5,
+      "acceptableMaximumMeanPercent": 10,
+      "maximumMeanPercent": 18,
+      "maximumP90Percent": 25,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "very_low",
+      "acceptableMaximumClass": "low",
+      "importance": "medium"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "none",
+      "acceptableMaximum": "low",
+      "maximum": "medium",
+      "importance": "high"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "not_observed",
+      "maximum": "isolated",
+      "importance": "high"
+    },
+    "machineAccessRequirement": {
+      "minimum": "verified_accessible",
+      "importance": "medium"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [],
+      "notPreferred": [
+        "moderately_limited",
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "high"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

@@ -1,0 +1,166 @@
+openapi: 3.0.3
+info:
+  title: Laboratory Import Engine (Phase 2.2E)
+  version: '2.2E'
+  description: >
+    Import session architecture — upload metadata, validate declared structure,
+    preview and stub import. No OCR, AI, PDF/Excel/CSV/XML parsers, or real row commit.
+servers:
+  - url: /api
+paths:
+  /laboratory-imports:
+    get:
+      summary: List import sessions
+      responses:
+        '200':
+          description: Session list
+  /laboratory-imports/upload:
+    post:
+      summary: Create session + file metadata (Upload stage)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadImportSession'
+      responses:
+        '201':
+          description: LaboratoryImport aggregate
+  /laboratory-imports/mappings:
+    post:
+      summary: Create laboratory parameter mapping
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateImportMapping'
+      responses:
+        '201':
+          description: Mapping created
+  /laboratory-imports/{sessionId}:
+    get:
+      summary: Import details (aggregate)
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Aggregate
+        '404':
+          description: Not found
+  /laboratory-imports/{sessionId}/validate:
+    post:
+      summary: Run architecture validation rules on declared metadata
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidateImportSession'
+      responses:
+        '200':
+          description: Aggregate with validations
+  /laboratory-imports/{sessionId}/preview:
+    post:
+      summary: Preview import (sampleRows always empty in 2.2E)
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Preview DTO
+  /laboratory-imports/{sessionId}/import:
+    post:
+      summary: Stub import — status COMPLETED, no analysis rows written
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirm]
+              properties:
+                confirm: { type: boolean, enum: [true] }
+                notes: { type: string, nullable: true }
+      responses:
+        '200':
+          description: Aggregate
+  /laboratory-imports/{sessionId}/validations:
+    get:
+      summary: Validation results for a session
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: Validation list
+components:
+  parameters:
+    SessionId:
+      name: sessionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    UploadImportSession:
+      type: object
+      required: [laboratoryId, importType, originalFileName, fileType]
+      properties:
+        laboratoryId: { type: string, format: uuid }
+        importType:
+          type: string
+          enum: [CSV, EXCEL, XML, JSON, API, MANUAL]
+        originalFileName: { type: string }
+        fileType: { type: string }
+        declaredColumns:
+          type: array
+          items: { type: string }
+    CreateImportMapping:
+      type: object
+      required: [laboratoryId, externalParameterName]
+      properties:
+        laboratoryId: { type: string, format: uuid }
+        externalParameterName: { type: string }
+        externalUnit: { type: string, nullable: true }
+        internalParameterCode: { type: string, nullable: true }
+        internalUnit: { type: string, nullable: true }
+        confidenceScore: { type: number, nullable: true }
+        requiresReview: { type: boolean }
+    ValidateImportSession:
+      type: object
+      properties:
+        declaredColumns:
+          type: array
+          items: { type: string }
+        requiredColumns:
+          type: array
+          items: { type: string }
+        externalParameters:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string }
+              unit: { type: string, nullable: true }
+        sampleCodes:
+          type: array
+          items:
+            type: object
+            properties:
+              row: { type: integer }
+              sampleCode: { type: string, nullable: true }
+        rowFingerprints:
+          type: array
+          items: { type: string }
+        cellSamples:
+          type: array
+          items:
+            type: object
+            properties:
+              row: { type: integer }
+              column: { type: string }
+              value: { type: string, nullable: true }
+              expect: { type: string, enum: [number, date] }

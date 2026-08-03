@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.env
+*.log
+.DS_Store
+coverage/
+
+# Keep outputs folder, ignore generated images
+outputs/*
+!outputs/.gitkeep

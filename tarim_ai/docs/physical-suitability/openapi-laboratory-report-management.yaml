@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: Laboratory Report Management (Phase 2.2D)
+  version: '2.2D'
+  description: >
+    Laboratory report metadata, attachments, approvals, and import history.
+    No OCR, PDF parsing, AI interpretation, or Excel parameter mapping.
+servers:
+  - url: /api
+paths:
+  /laboratory-reports:
+    get:
+      summary: List active laboratory reports
+      responses:
+        '200':
+          description: Report list
+    post:
+      summary: Create laboratory report (metadata)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLaboratoryReport'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation / duplicate
+  /laboratory-reports/upload:
+    post:
+      summary: Register report file metadata (optional base64 for hash/storage only)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UploadLaboratoryReport'
+      responses:
+        '201':
+          description: Aggregate with attachment + import history
+        '422':
+          description: Duplicate hash or validation error
+  /laboratory-reports/{id}:
+    get:
+      summary: Get report aggregate
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Aggregate
+        '404':
+          description: Not found
+    put:
+      summary: Update report metadata
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLaboratoryReport'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Soft-delete report
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Soft-deleted row
+  /laboratory-reports/{id}/attachments:
+    get:
+      summary: List attachments for a report
+      parameters:
+        - $ref: '#/components/parameters/ReportId'
+      responses:
+        '200':
+          description: Attachment list
+components:
+  parameters:
+    ReportId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CreateLaboratoryReport:
+      type: object
+      required: [reportNumber, laboratoryId]
+      properties:
+        reportNumber: { type: string }
+        laboratoryId: { type: string, format: uuid }
+        reportDate: { type: string, format: date-time, nullable: true }
+        parcelId: { type: string, nullable: true }
+        sampleId: { type: string, format: uuid, nullable: true }
+        customerName: { type: string, nullable: true }
+        requestedBy: { type: string, nullable: true }
+        status:
+          type: string
+          enum: [PENDING, UNDER_REVIEW, APPROVED, REJECTED, ARCHIVED]
+        fileHash: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    UpdateLaboratoryReport:
+      type: object
+      additionalProperties: true
+    UploadLaboratoryReport:
+      type: object
+      required: [reportNumber, laboratoryId, fileName, fileType, fileCategory]
+      properties:
+        reportNumber: { type: string }
+        laboratoryId: { type: string, format: uuid }
+        reportId: { type: string, format: uuid }
+        fileName: { type: string }
+        fileType: { type: string }
+        fileCategory:
+          type: string
+          enum: [PDF, EXCEL, CSV, IMAGE, SCAN, XML, JSON]
+        fileHash: { type: string }
+        dataBase64: { type: string }
+        storagePath: { type: string }
+        uploadedBy: { type: string, nullable: true }
+        pageCount: { type: integer, nullable: true }

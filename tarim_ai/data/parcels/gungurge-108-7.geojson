@@ -1,0 +1,74 @@
+{
+  "type": "FeatureCollection",
+  "name": "Gungurge_108_7",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "gaziantep-sehitkamil-gungurge-108-7",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              37.47634,
+              37.20623
+            ],
+            [
+              37.47514,
+              37.20754
+            ],
+            [
+              37.47414,
+              37.20709
+            ],
+            [
+              37.47445,
+              37.20664
+            ],
+            [
+              37.47482,
+              37.20594
+            ],
+            [
+              37.47496,
+              37.20558
+            ],
+            [
+              37.47513,
+              37.20564
+            ],
+            [
+              37.47517,
+              37.20557
+            ],
+            [
+              37.47634,
+              37.20623
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "il": "Gaziantep",
+        "il_id": 49,
+        "ilce": "Şehitkamil",
+        "ilce_id": 441,
+        "mahalle": "Güngürge",
+        "mahalle_id": 131746,
+        "ada_no": "108",
+        "parsel_no": "7",
+        "ozet": "Güngürge-108/7",
+        "alan_m2": 21913.16,
+        "alan_donum": 21.91316,
+        "nitelik": "Tarla",
+        "zemin_km_durum": "Ana Taşınmaz",
+        "durum": "1",
+        "pafta": "N38-C-05-C-4",
+        "mevkii": "",
+        "kaynak": "TKGM Parsel Sorgu",
+        "koordinat_sistemi": "WGS84 / EPSG:4326",
+        "koordinat_sirasi": "boylam,enlem"
+      }
+    }
+  ]
+}

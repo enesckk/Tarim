@@ -1,0 +1,13 @@
+{
+  "province": "Gaziantep",
+  "district": "Şehitkamil",
+  "neighborhood": "Sinan",
+  "block": "0",
+  "parcel": "1513",
+  "source": "manually_verified_real_geometry",
+  "verified": true,
+  "verifiedAt": "2026-07-30T14:14:53.066Z",
+  "verifiedBy": "tkgm_geojson_ekle",
+  "geometryFile": "sinan-0-1513.geojson",
+  "checksum": "fed3d0af7529f756cbe662a1dda7a8a0b5faa9c53e3d33f875d418af872792dc"
+}

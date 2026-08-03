@@ -1,0 +1,11 @@
+{
+  "at": "2026-08-02T22:25:03",
+  "ams_smoke": "58/58 passed",
+  "fixed": [
+    "migration id 035 normalized → health persistence healthy",
+    "uzman3 activated + seed isActive=true",
+    "stale queued/processing analyses marked failed",
+    "readiness tkgm forbidden → optional (fallback mode)"
+  ],
+  "status": "clean"
+}

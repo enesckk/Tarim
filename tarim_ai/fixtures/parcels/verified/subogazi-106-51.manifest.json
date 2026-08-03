@@ -1,0 +1,13 @@
+{
+  "province": "Gaziantep",
+  "district": "Şehitkamil",
+  "neighborhood": "Suboğazı",
+  "block": "106",
+  "parcel": "51",
+  "source": "manually_verified_real_geometry",
+  "verified": true,
+  "verifiedAt": "2026-07-30T14:14:59.409Z",
+  "verifiedBy": "tkgm_geojson_ekle",
+  "geometryFile": "subogazi-106-51.geojson",
+  "checksum": "00d9e8de3ca79e19cccf495cd261ec4ab1f3452bfd9e12ea49c1c4ad25547fca"
+}

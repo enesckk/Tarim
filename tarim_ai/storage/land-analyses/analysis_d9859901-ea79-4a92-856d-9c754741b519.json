@@ -1,0 +1,935 @@
+{
+  "landId": "a4171d86-a792-413a-95b7-c876d76b18f8",
+  "analysisId": "d9859901-ea79-4a92-856d-9c754741b519",
+  "status": "completed",
+  "completedAt": "2026-07-31T07:58:38.298Z",
+  "parcel": {
+    "province": "Gaziantep",
+    "district": "Şehitkamil",
+    "neighborhood": "Güngürge",
+    "block": "108",
+    "parcel": "7"
+  },
+  "summary": {
+    "landUsabilityClassification": "recommendation_with_caution",
+    "landUsabilityScore": 70,
+    "landUsabilityExplanation": "generally_favorable",
+    "confidenceLevel": "medium",
+    "topCrops": [
+      {
+        "cropName": "Antep fıstığı",
+        "score": 73.38,
+        "rank": 1
+      },
+      {
+        "cropName": "Pamuk",
+        "score": 72.9,
+        "rank": 2
+      },
+      {
+        "cropName": "Buğday",
+        "score": 70.73,
+        "rank": 3
+      },
+      {
+        "cropName": "Mercimek",
+        "score": 70.23,
+        "rank": 4
+      },
+      {
+        "cropName": "Ayçiçeği",
+        "score": 70.14,
+        "rank": 5
+      }
+    ],
+    "ndviMean": 0.191,
+    "limitations": [
+      "nasa_power_is_regional",
+      "soilgrids_is_estimated",
+      "field_survey_missing",
+      "laboratory_soil_analysis_missing",
+      "irrigation_water_analysis_missing"
+    ],
+    "applicantInputs": null
+  },
+  "result": {
+    "analysisId": "d9859901-ea79-4a92-856d-9c754741b519",
+    "status": "completed",
+    "parcel": {
+      "province": "Gaziantep",
+      "district": "Şehitkamil",
+      "neighborhood": "Güngürge",
+      "block": "108",
+      "parcel": "7",
+      "areaSquareMeters": 21913.16,
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              37.47634,
+              37.20623
+            ],
+            [
+              37.47514,
+              37.20754
+            ],
+            [
+              37.47414,
+              37.20709
+            ],
+            [
+              37.47445,
+              37.20664
+            ],
+            [
+              37.47482,
+              37.20594
+            ],
+            [
+              37.47496,
+              37.20558
+            ],
+            [
+              37.47513,
+              37.20564
+            ],
+            [
+              37.47517,
+              37.20557
+            ],
+            [
+              37.47634,
+              37.20623
+            ]
+          ]
+        ]
+      },
+      "centroid": {
+        "latitude": 37.20627875,
+        "longitude": 37.47501875
+      },
+      "provider": "tkgm",
+      "sourceType": "official_service",
+      "verified": true,
+      "fallbackUsed": false,
+      "fallbackReason": null,
+      "sourceMetadata": {
+        "provider": "tkgm"
+      },
+      "retrievedAt": "2026-07-31T07:57:25.863Z"
+    },
+    "dataSources": [
+      {
+        "key": "parcel_provider",
+        "label": "Parsel Sağlayıcı",
+        "status": "completed",
+        "dataType": "cadastral",
+        "quality": "good",
+        "isEstimated": false,
+        "isMeasured": true,
+        "isApproved": false,
+        "observationCount": 1,
+        "dateRange": null,
+        "lastUpdatedAt": "2026-07-31T07:57:25.864Z",
+        "warning": null
+      },
+      {
+        "key": "sentinel_2",
+        "label": "Sentinel-2 Uydu Verisi",
+        "status": "completed",
+        "dataType": "remote_sensing",
+        "quality": "good",
+        "isEstimated": false,
+        "isMeasured": false,
+        "isApproved": false,
+        "observationCount": 59,
+        "dateRange": {
+          "from": "2026-01-31T08:19:42.973Z",
+          "to": "2026-07-30T08:19:46.188Z"
+        },
+        "lastUpdatedAt": "2026-07-31T07:57:43.257Z",
+        "warning": null
+      },
+      {
+        "key": "copernicus_dem",
+        "label": "Copernicus DEM",
+        "status": "completed",
+        "dataType": "elevation_model",
+        "quality": "good",
+        "isEstimated": true,
+        "isMeasured": false,
+        "isApproved": false,
+        "observationCount": 27,
+        "dateRange": null,
+        "lastUpdatedAt": "2026-07-31T07:57:43.721Z",
+        "warning": null
+      },
+      {
+        "key": "nasa_power",
+        "label": "NASA POWER İklim Verisi",
+        "status": "completed",
+        "dataType": "climate",
+        "quality": "good",
+        "isEstimated": true,
+        "isMeasured": false,
+        "isApproved": false,
+        "observationCount": 1,
+        "dateRange": null,
+        "lastUpdatedAt": "2026-07-31T07:57:48.418Z",
+        "warning": null
+      },
+      {
+        "key": "soilgrids",
+        "label": "SoilGrids Toprak Tahminleri",
+        "status": "completed",
+        "dataType": "soil",
+        "quality": "moderate",
+        "isEstimated": true,
+        "isMeasured": false,
+        "isApproved": false,
+        "observationCount": 1,
+        "dateRange": null,
+        "lastUpdatedAt": "2026-07-31T07:58:06.354Z",
+        "warning": null
+      },
+      {
+        "key": "laboratory_analysis",
+        "label": "Laboratuvar Toprak Analizi",
+        "status": "missing",
+        "dataType": "laboratory",
+        "quality": "unavailable",
+        "isEstimated": false,
+        "isMeasured": false,
+        "isApproved": false,
+        "observationCount": 0,
+        "dateRange": null,
+        "lastUpdatedAt": null,
+        "warning": null
+      },
+      {
+        "key": "irrigation_water_analysis",
+        "label": "Sulama Suyu Analizi",
+        "status": "missing",
+        "dataType": "laboratory",
+        "quality": "unavailable",
+        "isEstimated": false,
+        "isMeasured": false,
+        "isApproved": false,
+        "observationCount": 0,
+        "dateRange": null,
+        "lastUpdatedAt": null,
+        "warning": null
+      }
+    ],
+    "satellite": {
+      "dateRange": {
+        "from": "2026-01-31T08:19:42.973Z",
+        "to": "2026-07-30T08:19:46.188Z"
+      },
+      "candidateObservationCount": 99,
+      "usableObservationCount": 59,
+      "rejectedObservationCount": 40,
+      "latestObservationDate": "2026-07-30T08:19:46.188Z",
+      "selectedObservation": {
+        "date": "2026-07-30T08:19:46.188Z",
+        "cloudCoverage": 0.03,
+        "resolutionMeters": 10,
+        "trueColor": {
+          "imageUrl": "/api/analyses/d9859901-ea79-4a92-856d-9c754741b519/images/true-color",
+          "mimeType": "image/png"
+        },
+        "ndvi": {
+          "imageUrl": "/api/analyses/d9859901-ea79-4a92-856d-9c754741b519/images/ndvi",
+          "statistics": {
+            "min": 0.0412,
+            "max": 0.6389,
+            "mean": 0.191,
+            "median": 0.1756
+          }
+        },
+        "ndmi": {
+          "imageUrl": "/api/analyses/d9859901-ea79-4a92-856d-9c754741b519/images/ndmi",
+          "statistics": {
+            "min": -0.1441,
+            "max": 0.1543,
+            "mean": -0.0716,
+            "median": -0.0839
+          }
+        },
+        "bsi": {
+          "imageUrl": "/api/analyses/d9859901-ea79-4a92-856d-9c754741b519/images/bsi",
+          "statistics": {
+            "min": -0.0837,
+            "max": 0.2361,
+            "mean": 0.1565,
+            "median": 0.1714
+          }
+        }
+      },
+      "timeSeries": {
+        "ndvi": [
+          {
+            "date": "2026-02-05T08:19:39.508Z",
+            "mean": 0.3844
+          },
+          {
+            "date": "2026-02-15T08:19:39.896Z",
+            "mean": 0.4219
+          },
+          {
+            "date": "2026-02-20T08:19:46.811Z",
+            "mean": 0.4395
+          },
+          {
+            "date": "2026-03-02T08:19:45.485Z",
+            "mean": 0.4627
+          },
+          {
+            "date": "2026-03-10T08:29:39.6Z",
+            "mean": 0.4673
+          },
+          {
+            "date": "2026-03-27T08:30:02.564Z",
+            "mean": 0.5324
+          },
+          {
+            "date": "2026-04-04T08:29:41.21Z",
+            "mean": 0.5494
+          },
+          {
+            "date": "2026-04-06T08:19:43.519Z",
+            "mean": 0.5305
+          },
+          {
+            "date": "2026-04-14T08:29:40.156Z",
+            "mean": 0.5444
+          },
+          {
+            "date": "2026-04-23T08:20:02.2Z",
+            "mean": 0.5385
+          },
+          {
+            "date": "2026-04-29T08:29:38.16Z",
+            "mean": 0.573
+          },
+          {
+            "date": "2026-05-09T08:29:38.65Z",
+            "mean": 0.5629
+          },
+          {
+            "date": "2026-05-16T08:19:41.286Z",
+            "mean": 0.4959
+          },
+          {
+            "date": "2026-05-19T08:29:37.836Z",
+            "mean": 0.5045
+          },
+          {
+            "date": "2026-05-31T08:19:42.256Z",
+            "mean": 0.4126
+          },
+          {
+            "date": "2026-06-02T08:20:01.095Z",
+            "mean": 0.39
+          },
+          {
+            "date": "2026-06-12T08:19:59.903Z",
+            "mean": 0.2893
+          },
+          {
+            "date": "2026-06-15T08:19:46.774Z",
+            "mean": 0.2807
+          },
+          {
+            "date": "2026-06-22T08:20:01.229Z",
+            "mean": 0.2452
+          },
+          {
+            "date": "2026-07-05T08:19:42.557Z",
+            "mean": 0.2139
+          },
+          {
+            "date": "2026-07-12T08:20:00.665Z",
+            "mean": 0.1925
+          },
+          {
+            "date": "2026-07-13T08:29:42.351Z",
+            "mean": 0.209
+          },
+          {
+            "date": "2026-07-23T08:29:43.246Z",
+            "mean": 0.2022
+          },
+          {
+            "date": "2026-07-30T08:19:46.188Z",
+            "mean": 0.191
+          }
+        ],
+        "ndmi": [
+          {
+            "date": "2026-02-05T08:19:39.508Z",
+            "mean": 0.0433
+          },
+          {
+            "date": "2026-02-15T08:19:39.896Z",
+            "mean": 0.0856
+          },
+          {
+            "date": "2026-02-20T08:19:46.811Z",
+            "mean": 0.078
+          },
+          {
+            "date": "2026-03-02T08:19:45.485Z",
+            "mean": 0.0671
+          },
+          {
+            "date": "2026-03-10T08:29:39.6Z",
+            "mean": 0.097
+          },
+          {
+            "date": "2026-03-27T08:30:02.564Z",
+            "mean": 0.1519
+          },
+          {
+            "date": "2026-04-04T08:29:41.21Z",
+            "mean": 0.1668
+          },
+          {
+            "date": "2026-04-06T08:19:43.519Z",
+            "mean": 0.1443
+          },
+          {
+            "date": "2026-04-14T08:29:40.156Z",
+            "mean": 0.1641
+          },
+          {
+            "date": "2026-04-23T08:20:02.2Z",
+            "mean": 0.1527
+          },
+          {
+            "date": "2026-04-29T08:29:38.16Z",
+            "mean": 0.1832
+          },
+          {
+            "date": "2026-05-09T08:29:38.65Z",
+            "mean": 0.1731
+          },
+          {
+            "date": "2026-05-16T08:19:41.286Z",
+            "mean": 0.1281
+          },
+          {
+            "date": "2026-05-19T08:29:37.836Z",
+            "mean": 0.1329
+          },
+          {
+            "date": "2026-05-31T08:19:42.256Z",
+            "mean": 0.0575
+          },
+          {
+            "date": "2026-06-02T08:20:01.095Z",
+            "mean": 0.0319
+          },
+          {
+            "date": "2026-06-12T08:19:59.903Z",
+            "mean": -0.0332
+          },
+          {
+            "date": "2026-06-15T08:19:46.774Z",
+            "mean": -0.0519
+          },
+          {
+            "date": "2026-06-22T08:20:01.229Z",
+            "mean": -0.0681
+          },
+          {
+            "date": "2026-07-05T08:19:42.557Z",
+            "mean": -0.0771
+          },
+          {
+            "date": "2026-07-12T08:20:00.665Z",
+            "mean": -0.0839
+          },
+          {
+            "date": "2026-07-13T08:29:42.351Z",
+            "mean": -0.0673
+          },
+          {
+            "date": "2026-07-23T08:29:43.246Z",
+            "mean": -0.064
+          },
+          {
+            "date": "2026-07-30T08:19:46.188Z",
+            "mean": -0.0716
+          }
+        ],
+        "bsi": [
+          {
+            "date": "2026-02-05T08:19:39.508Z",
+            "mean": 0.0353
+          },
+          {
+            "date": "2026-02-15T08:19:39.896Z",
+            "mean": -0.0006
+          },
+          {
+            "date": "2026-02-20T08:19:46.811Z",
+            "mean": 0.0073
+          },
+          {
+            "date": "2026-03-02T08:19:45.485Z",
+            "mean": 0.0179
+          },
+          {
+            "date": "2026-03-10T08:29:39.6Z",
+            "mean": -0.0092
+          },
+          {
+            "date": "2026-03-27T08:30:02.564Z",
+            "mean": -0.0596
+          },
+          {
+            "date": "2026-04-04T08:29:41.21Z",
+            "mean": -0.0708
+          },
+          {
+            "date": "2026-04-06T08:19:43.519Z",
+            "mean": -0.0629
+          },
+          {
+            "date": "2026-04-14T08:29:40.156Z",
+            "mean": -0.0721
+          },
+          {
+            "date": "2026-04-23T08:20:02.2Z",
+            "mean": -0.0677
+          },
+          {
+            "date": "2026-04-29T08:29:38.16Z",
+            "mean": -0.0977
+          },
+          {
+            "date": "2026-05-09T08:29:38.65Z",
+            "mean": -0.0887
+          },
+          {
+            "date": "2026-05-16T08:19:41.286Z",
+            "mean": -0.0453
+          },
+          {
+            "date": "2026-05-19T08:29:37.836Z",
+            "mean": -0.0423
+          },
+          {
+            "date": "2026-05-31T08:19:42.256Z",
+            "mean": 0.0262
+          },
+          {
+            "date": "2026-06-02T08:20:01.095Z",
+            "mean": 0.0478
+          },
+          {
+            "date": "2026-06-12T08:19:59.903Z",
+            "mean": 0.1113
+          },
+          {
+            "date": "2026-06-15T08:19:46.774Z",
+            "mean": 0.1236
+          },
+          {
+            "date": "2026-06-22T08:20:01.229Z",
+            "mean": 0.1444
+          },
+          {
+            "date": "2026-07-05T08:19:42.557Z",
+            "mean": 0.1513
+          },
+          {
+            "date": "2026-07-12T08:20:00.665Z",
+            "mean": 0.1638
+          },
+          {
+            "date": "2026-07-13T08:29:42.351Z",
+            "mean": 0.1542
+          },
+          {
+            "date": "2026-07-23T08:29:43.246Z",
+            "mean": 0.1519
+          },
+          {
+            "date": "2026-07-30T08:19:46.188Z",
+            "mean": 0.1565
+          }
+        ]
+      },
+      "trend": {
+        "ndvi": {
+          "first": 0.3844,
+          "last": 0.191,
+          "min": 0.191,
+          "max": 0.573,
+          "mean": 0.4014,
+          "change": -0.1934,
+          "direction": "decreasing"
+        },
+        "ndmi": {
+          "first": 0.0433,
+          "last": -0.0716,
+          "min": -0.0839,
+          "max": 0.1832,
+          "mean": 0.0559,
+          "change": -0.1149,
+          "direction": "decreasing"
+        },
+        "bsi": {
+          "first": 0.0353,
+          "last": 0.1565,
+          "min": -0.0977,
+          "max": 0.1638,
+          "mean": 0.0281,
+          "change": 0.1212,
+          "direction": "increasing"
+        }
+      },
+      "warnings": []
+    },
+    "terrain": {
+      "source": "copernicus-dem",
+      "resolutionMeters": 30,
+      "coverage": {
+        "parcelAreaSquareMeters": 22002.244,
+        "rasterCoveredAreaSquareMeters": 25200,
+        "validAreaSquareMeters": 24300,
+        "validPixelRatio": 0.964,
+        "insideParcelPixelCount": 28,
+        "validPixelCount": 27,
+        "noDataPixelCount": 1,
+        "rasterWidth": 8,
+        "rasterHeight": 9,
+        "coverageStatus": "complete"
+      },
+      "elevation": {
+        "minMeters": 842.1,
+        "maxMeters": 850.8,
+        "meanMeters": 845.3
+      },
+      "slope": {
+        "meanDegrees": 5.7,
+        "maxDegrees": 6.7,
+        "class": "flat"
+      },
+      "aspect": {
+        "dominantDirection": "northwest",
+        "dominantPercent": 100,
+        "northFacingPercent": 100,
+        "southFacingPercent": 0,
+        "eastFacingPercent": 0,
+        "westFacingPercent": 100,
+        "flatPercent": 0,
+        "circularMeanDegrees": 327,
+        "aspectConcentration": 1,
+        "dominantDegrees": 327
+      },
+      "ruggedness": {
+        "meanIndex": 1.7,
+        "medianIndex": 1.59,
+        "p90Index": 2.38,
+        "maximumIndex": 3.08,
+        "classification": "low",
+        "method": "terrain_ruggedness_index",
+        "validPixelCount": 27,
+        "index": 1.7
+      },
+      "terrainVariability": {
+        "elevationRangeMeters": 8.7,
+        "elevationStandardDeviationMeters": 2.34,
+        "slopeP90Percent": 6.4,
+        "ruggednessClass": "low",
+        "classification": "very_low"
+      },
+      "mechanizationSuitability": {
+        "classification": "suitable",
+        "basedOn": [
+          "MEAN_SLOPE",
+          "P90_SLOPE",
+          "RUGGEDNESS"
+        ],
+        "confidence": "medium"
+      },
+      "warnings": [
+        "Rakım değerleri Copernicus DEM (COPERNICUS_30, ~30 m) kaynağındandır.",
+        "Küçük parsellerde örnek sayısı ve confidence düşebilir.",
+        "Terrain türevleri parsel maskesi içindeki geçerli hücrelerden üretilir.",
+        "Arazi profili uzaktan DEM tahminidir; saha ölçümü yerine geçmez.",
+        "Mekanizasyon sonucu yol erişimi ve gerçek makine geçişini içermez.",
+        "Terrain verisi bu sürümde ürün skorlarını değiştirmez.",
+        "Terrain verisi kaya yüzdesi, jeoloji veya toprak derinliği üretmez."
+      ]
+    },
+    "climate": {
+      "source": "nasa-power",
+      "dataNature": "regional_gridded_estimate",
+      "dateRange": {
+        "years": 10,
+        "type": "climatology"
+      },
+      "temperature": {
+        "annualMeanC": 16.5,
+        "growingSeasonMeanC": 23.5,
+        "summerMeanC": 28.6,
+        "winterMeanC": 4.4,
+        "annualMinC": -13.7,
+        "annualMaxC": 46,
+        "frostRisk": "high",
+        "extremeHeatRisk": "high"
+      },
+      "precipitation": {
+        "annualTotalMm": 422.9,
+        "growingSeasonTotalMm": 95.3,
+        "summerTotalMm": 11.5,
+        "seasonality": "high"
+      },
+      "humidity": {},
+      "solarRadiation": {},
+      "wind": {},
+      "warnings": [
+        "Veriler meteoroloji istasyonu ölçümü değil, NASA POWER grid tabanlı tahmini veridir.",
+        "Parsel içi mikroiklim farklılıklarını temsil etmeyebilir.",
+        "Sulama ve ürün kararı için yerel istasyon ve saha kontrolü gereklidir."
+      ]
+    },
+    "soil": {
+      "source": "soilgrids",
+      "dataNature": "model_estimate",
+      "spatialResolutionMeters": 250,
+      "depthLayers": [
+        "0-5cm",
+        "5-15cm",
+        "15-30cm",
+        "30-60cm",
+        "60-100cm",
+        "100-200cm"
+      ],
+      "properties": {
+        "ph": {
+          "value": 7.15
+        },
+        "clayPercent": {},
+        "sandPercent": {},
+        "siltPercent": {},
+        "organicCarbon": {
+          "value": 2.2
+        },
+        "bulkDensity": {},
+        "coarseFragments": {}
+      },
+      "uncertainty": {},
+      "warnings": [
+        "SoilGrids 250 m grid tahmini veridir; parsel içi değişkenliği göstermeyebilir.",
+        "Laboratuvar analizinin yerini tutmaz.",
+        "EC, drenaj, kireç ve gerçek köklenebilir toprak derinliği bu kaynaktan doğrudan gelmez.",
+        "Organik madde tahmini SOC dönüşümüne dayanır."
+      ]
+    },
+    "fieldSurvey": {
+      "status": "missing",
+      "surveyId": null,
+      "approvedAt": null,
+      "sampleCount": 0,
+      "rootableDepth": null,
+      "stoniness": null,
+      "rockOutcrop": null,
+      "drainage": null,
+      "erosion": null,
+      "machineryAccess": null,
+      "notes": [],
+      "isAuthoritativeFor": []
+    },
+    "landUsability": {
+      "classification": "recommendation_with_caution",
+      "score": 70,
+      "limitingFactors": [],
+      "positiveFactors": [
+        {
+          "factor": "REPEATED_AGRICULTURAL_ACTIVITY_SIGNAL",
+          "description": ""
+        },
+        {
+          "factor": "LOW_PROBABLE_ROCK_SIGNAL",
+          "description": ""
+        },
+        {
+          "factor": "REAL_TERRAIN_PROFILE_AVAILABLE",
+          "description": ""
+        },
+        {
+          "factor": "REAL_TERRAIN_FAVORABLE",
+          "description": ""
+        },
+        {
+          "factor": "TERRAIN_SLOPE_GENERALLY_FAVORABLE",
+          "description": ""
+        },
+        {
+          "factor": "TERRAIN_MECHANIZATION_GENERALLY_SUITABLE",
+          "description": ""
+        },
+        {
+          "factor": "LOW_TERRAIN_RUGGEDNESS",
+          "description": ""
+        },
+        {
+          "factor": "MODELED_SOIL_PROFILE_AVAILABLE",
+          "description": ""
+        }
+      ],
+      "confidence": {
+        "level": "medium",
+        "physicalSuitability": "generally_favorable",
+        "preliminary": true
+      },
+      "explanation": "generally_favorable"
+    },
+    "cropRecommendations": [
+      {
+        "cropId": "pistachio",
+        "cropName": "Antep fıstığı",
+        "rank": 1,
+        "score": 73.38,
+        "classification": "high",
+        "isTopFive": true,
+        "positiveFactors": [
+          "Toprak pH değeri tercih edilen aralıkla uyumludur.",
+          "Yağış profili ürün gereksinimleriyle genel olarak uyumludur."
+        ],
+        "limitingFactors": [],
+        "criticalFailures": [],
+        "missingValidations": [
+          "Sulama suyu miktarı ve kalitesi kontrol edilmelidir.",
+          "Uydu verileri yüzey sinyallerini gösterir; karar öncesi saha gözlemi yapılmalıdır."
+        ],
+        "confidence": {},
+        "requirementsCompared": [],
+        "explanation": "Antep fıstığı için iklim ve toprak verilerinde genel olarak olumlu sinyaller görülmektedir. Saha ve laboratuvar doğrulaması ile birlikte değerlendirilmelidir."
+      },
+      {
+        "cropId": "cotton",
+        "cropName": "Pamuk",
+        "rank": 2,
+        "score": 72.9,
+        "classification": "high",
+        "isTopFive": true,
+        "positiveFactors": [
+          "Sıcaklık profili ürün gereksinimleriyle genel olarak uyumludur.",
+          "Toprak pH değeri tercih edilen aralıkla uyumludur."
+        ],
+        "limitingFactors": [],
+        "criticalFailures": [],
+        "missingValidations": [
+          "Sulama suyu miktarı ve kalitesi kontrol edilmelidir.",
+          "Uydu verileri yüzey sinyallerini gösterir; karar öncesi saha gözlemi yapılmalıdır."
+        ],
+        "confidence": {},
+        "requirementsCompared": [],
+        "explanation": "Pamuk için iklim ve toprak verilerinde genel olarak olumlu sinyaller görülmektedir. Saha ve laboratuvar doğrulaması ile birlikte değerlendirilmelidir."
+      },
+      {
+        "cropId": "wheat",
+        "cropName": "Buğday",
+        "rank": 3,
+        "score": 70.73,
+        "classification": "high",
+        "isTopFive": true,
+        "positiveFactors": [
+          "Toprak pH değeri tercih edilen aralıkla uyumludur.",
+          "Yağış profili ürün gereksinimleriyle genel olarak uyumludur."
+        ],
+        "limitingFactors": [],
+        "criticalFailures": [],
+        "missingValidations": [
+          "Sulama suyu miktarı ve kalitesi kontrol edilmelidir.",
+          "Uydu verileri yüzey sinyallerini gösterir; karar öncesi saha gözlemi yapılmalıdır."
+        ],
+        "confidence": {},
+        "requirementsCompared": [],
+        "explanation": "Buğday için iklim ve toprak verilerinde genel olarak olumlu sinyaller görülmektedir. Saha ve laboratuvar doğrulaması ile birlikte değerlendirilmelidir."
+      },
+      {
+        "cropId": "lentil",
+        "cropName": "Mercimek",
+        "rank": 4,
+        "score": 70.23,
+        "classification": "high",
+        "isTopFive": true,
+        "positiveFactors": [
+          "Sıcaklık profili ürün gereksinimleriyle genel olarak uyumludur.",
+          "Toprak pH değeri tercih edilen aralıkla uyumludur."
+        ],
+        "limitingFactors": [],
+        "criticalFailures": [],
+        "missingValidations": [
+          "Sulama suyu miktarı ve kalitesi kontrol edilmelidir.",
+          "Uydu verileri yüzey sinyallerini gösterir; karar öncesi saha gözlemi yapılmalıdır."
+        ],
+        "confidence": {},
+        "requirementsCompared": [],
+        "explanation": "Mercimek için iklim ve toprak verilerinde genel olarak olumlu sinyaller görülmektedir. Saha ve laboratuvar doğrulaması ile birlikte değerlendirilmelidir."
+      },
+      {
+        "cropId": "sunflower",
+        "cropName": "Ayçiçeği",
+        "rank": 5,
+        "score": 70.14,
+        "classification": "high",
+        "isTopFive": true,
+        "positiveFactors": [
+          "Sıcaklık profili ürün gereksinimleriyle genel olarak uyumludur.",
+          "Toprak pH değeri tercih edilen aralıkla uyumludur."
+        ],
+        "limitingFactors": [],
+        "criticalFailures": [],
+        "missingValidations": [
+          "Sulama suyu miktarı ve kalitesi kontrol edilmelidir.",
+          "Uydu verileri yüzey sinyallerini gösterir; karar öncesi saha gözlemi yapılmalıdır."
+        ],
+        "confidence": {},
+        "requirementsCompared": [],
+        "explanation": "Ayçiçeği için iklim ve toprak verilerinde genel olarak olumlu sinyaller görülmektedir. Saha ve laboratuvar doğrulaması ile birlikte değerlendirilmelidir."
+      }
+    ],
+    "confidence": {
+      "level": "medium",
+      "availableSources": [
+        "parcel_provider",
+        "sentinel_2",
+        "copernicus_dem",
+        "nasa_power",
+        "soilgrids"
+      ],
+      "missingSources": [
+        "laboratory_analysis",
+        "irrigation_water_analysis"
+      ],
+      "approvedFieldSurveyAvailable": false,
+      "laboratoryAnalysisAvailable": false,
+      "irrigationWaterAnalysisAvailable": false,
+      "explanation": "Saha ölçümü ve laboratuvar analizi eksik. Sonuçlar ön değerlendirme niteliğindedir."
+    },
+    "limitations": [
+      "nasa_power_is_regional",
+      "soilgrids_is_estimated",
+      "field_survey_missing",
+      "laboratory_soil_analysis_missing",
+      "irrigation_water_analysis_missing"
+    ],
+    "recommendedNextActions": [
+      "Saha ölçümü yapılması önerilir.",
+      "Laboratuvar toprak analizi yapılması önerilir.",
+      "Sulama suyu analizi yapılması önerilir."
+    ],
+    "recommendationsArePreliminary": true,
+    "generatedAt": "2026-07-31T07:58:38.298Z"
+  },
+  "updatedAt": "2026-07-31T07:58:38.301Z"
+}

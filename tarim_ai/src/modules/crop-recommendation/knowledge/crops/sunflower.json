@@ -1,0 +1,241 @@
+{
+  "id": "sunflower",
+  "name": "Ayçiçeği",
+  "scientificName": "Helianthus annuus",
+  "category": "field_crop",
+  "growingType": "annual",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 8,
+      "optimalMinC": 18,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 300,
+      "optimalMin": 400,
+      "optimalMax": 650,
+      "maximum": 900
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 200,
+      "optimalMin": 280,
+      "optimalMax": 450,
+      "maximum": 650
+    },
+    "frostTolerance": "low",
+    "heatTolerance": "high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.5,
+      "optimalMin": 6,
+      "optimalMax": 7.5,
+      "absoluteMax": 8.3
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1,
+    "preferredOrganicMatterPercent": 2,
+    "maximumElectricalConductivityDsM": 3,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.3,
+      "optimalMin": 0.45,
+      "optimalMax": 0.8
+    },
+    "activeVegetationNdmi": {
+      "minimum": -0.05,
+      "optimalMin": 0.05,
+      "optimalMax": 0.3
+    },
+    "maximumActiveSeasonBsi": 0.18,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": false,
+      "expectedCycle": "annual",
+      "bareSoilBeforePlantingAcceptable": true
+    }
+  },
+  "management": {
+    "irrigationRequired": false,
+    "drainageImportance": "high",
+    "fertilityDemand": "medium",
+    "mechanizationSuitability": "high"
+  },
+  "hardConstraints": [
+    {
+      "code": "SOIL_DEPTH_LOW",
+      "field": "soil.depthCm",
+      "operator": "less_than",
+      "value": 40,
+      "severity": "major",
+      "group": "DEPTH",
+      "message": "Sığ toprak derinliği ayçiçeği kök gelişimini sınırlandırabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 3,
+        "endMonth": 4,
+        "label": "İlkbahar ekim"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "germination",
+        "label": "Çimlenme",
+        "startOffsetDays": 0,
+        "endOffsetDays": 15,
+        "temperature": {
+          "absoluteMinC": 8,
+          "optimalMinC": 14,
+          "optimalMaxC": 26,
+          "absoluteMaxC": 34
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.15,
+        "frostSensitivity": "medium",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "vegetative",
+        "label": "Vejetatif gelişme",
+        "startOffsetDays": 16,
+        "endOffsetDays": 60,
+        "temperature": {
+          "absoluteMinC": 10,
+          "optimalMinC": 16,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 36
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.25,
+        "frostSensitivity": "low",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 61,
+        "endOffsetDays": 90,
+        "temperature": {
+          "absoluteMinC": 14,
+          "optimalMinC": 18,
+          "optimalMaxC": 30,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "high",
+        "weight": 0.3,
+        "frostSensitivity": "low",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Tane doldurma",
+        "startOffsetDays": 91,
+        "endOffsetDays": 130,
+        "temperature": {
+          "absoluteMinC": 14,
+          "optimalMinC": 18,
+          "optimalMaxC": 32,
+          "absoluteMaxC": 40
+        },
+        "waterSensitivity": "high",
+        "weight": 0.3,
+        "frostSensitivity": "low",
+        "heatSensitivity": "high"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 110,
+      "typical": 130,
+      "maximum": 150
+    },
+    "perennial": {
+      "isPerennial": false,
+      "dormancyMonths": [],
+      "chillingRequirementHours": null,
+      "establishmentYears": null,
+      "economicLifeYears": null
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 40,
+      "preferredMinimumCm": 60,
+      "optimalMinimumCm": 80,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 8,
+      "acceptableMaximumMeanPercent": 15,
+      "maximumMeanPercent": 25,
+      "maximumP90Percent": 35,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "low",
+      "acceptableMaximumClass": "medium",
+      "importance": "medium"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "low",
+      "acceptableMaximum": "medium",
+      "maximum": "high",
+      "importance": "medium"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "isolated",
+      "maximum": "scattered",
+      "importance": "high"
+    },
+    "machineAccessRequirement": {
+      "minimum": "accessible_with_limitations",
+      "importance": "medium"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [
+        "moderately_limited"
+      ],
+      "notPreferred": [
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "medium"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

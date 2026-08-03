@@ -1,0 +1,11 @@
+{
+  "lastRunAt": "2026-07-30T17:10:13.450Z",
+  "lastResults": [
+    {
+      "landId": "-",
+      "status": "failed",
+      "reason": "AMS lands fetch failed: HTTP 404",
+      "at": "2026-07-30T17:10:13.450Z"
+    }
+  ]
+}

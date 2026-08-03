@@ -1,0 +1,179 @@
+openapi: 3.0.3
+info:
+  title: Crop Soil Requirements API
+  version: 2.1.D
+  description: >
+    Physical Suitability / Crop Knowledge Base — soil requirement data model.
+    Numeric thresholds may be null. No suitability scoring or lab linkage.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /crop-knowledge/{cropKnowledgeId}/soil-requirements:
+    get:
+      summary: Get soil requirements aggregate
+      tags: [CropSoilRequirements]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Section + requirement list
+    post:
+      summary: Create soil requirement
+      tags: [SoilRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSoilRequirementRequest'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation failed
+  /crop-knowledge/{cropKnowledgeId}/soil-requirements/factors:
+    get:
+      summary: List soil requirement factors
+      tags: [SoilRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Active factors
+  /crop-knowledge/{cropKnowledgeId}/soil-requirements/factors/{soilFactor}:
+    get:
+      summary: Get requirement by SoilFactor
+      tags: [SoilRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - name: soilFactor
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/SoilFactor'
+      responses:
+        '200':
+          description: Factor row
+        '404':
+          description: Not found
+  /crop-knowledge/{cropKnowledgeId}/soil-requirements/{requirementId}:
+    get:
+      summary: Get soil requirement details
+      tags: [SoilRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      responses:
+        '200':
+          description: Requirement
+    put:
+      summary: Update soil requirement (versioned)
+      tags: [SoilRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSoilRequirementRequest'
+      responses:
+        '200':
+          description: New version
+    delete:
+      summary: Soft-delete soil requirement
+      tags: [SoilRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      responses:
+        '200':
+          description: Soft-deactivated
+  /crop-knowledge/{cropKnowledgeId}/soil-requirements/validate:
+    post:
+      summary: Validate soil requirements
+      tags: [CropSoilRequirements]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /soil-requirements/code/{cropCode}:
+    get:
+      summary: Aggregate by crop code
+      tags: [CropSoilRequirements]
+      parameters:
+        - name: cropCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregate
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RequirementId:
+      name: requirementId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    SoilFactor:
+      type: string
+      enum:
+        - TEXTURE
+        - PH
+        - EC
+        - ORGANIC_MATTER
+        - LIME
+        - CEC
+        - BULK_DENSITY
+        - ROOTING_DEPTH
+        - DRAINAGE
+        - STONE_CONTENT
+        - SALINITY
+        - SODICITY
+        - SOIL_DEPTH
+        - SOIL_MOISTURE
+        - FIELD_CAPACITY
+        - PERMANENT_WILTING_POINT
+    CreateSoilRequirementRequest:
+      type: object
+      required: [soilFactor]
+      properties:
+        soilFactor:
+          $ref: '#/components/schemas/SoilFactor'
+        minimum: { type: number, nullable: true }
+        optimalMinimum: { type: number, nullable: true }
+        optimalMaximum: { type: number, nullable: true }
+        maximum: { type: number, nullable: true }
+        preferred: { type: number, nullable: true }
+        importanceLevel:
+          type: string
+          enum: [Required, Important, Supporting, Optional]
+        toleranceLevel:
+          type: string
+          enum: [Unknown, Narrow, Moderate, Wide]
+        unit: { type: string }
+        description: { type: string, nullable: true }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateSoilRequirementRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateSoilRequirementRequest'
+      required: []

@@ -1,0 +1,13 @@
+{
+  "province": "Gaziantep",
+  "district": "Şehitkamil",
+  "neighborhood": "Suboğazı",
+  "block": "142",
+  "parcel": "40",
+  "source": "manually_verified_real_geometry",
+  "verified": true,
+  "verifiedAt": "2026-07-30T14:15:06.435Z",
+  "verifiedBy": "tkgm_yukari_aril_geometry",
+  "geometryFile": "subogazi-142-40.geojson",
+  "checksum": "e92c5c1859d6f4f138635c21001284a28141ed154dc6d015037699ba23aa91bd"
+}

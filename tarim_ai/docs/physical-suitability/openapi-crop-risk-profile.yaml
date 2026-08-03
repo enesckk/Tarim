@@ -1,0 +1,174 @@
+openapi: 3.0.3
+info:
+  title: Crop Risk Profile API
+  version: 2.1.G
+  description: >
+    Physical Suitability / Crop Knowledge Base — crop risk profile data model.
+    RiskLevel/Sensitivity may be Unknown. No suitability scoring.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /crop-knowledge/{cropKnowledgeId}/risk-profile:
+    get:
+      summary: Get risk profile aggregate
+      tags: [CropRiskProfile]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Section + risk list
+  /crop-knowledge/{cropKnowledgeId}/risk-profile/risks:
+    get:
+      summary: List crop risks
+      tags: [CropRisk]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Active risks
+    post:
+      summary: Create crop risk
+      tags: [CropRisk]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCropRiskRequest'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation failed
+  /crop-knowledge/{cropKnowledgeId}/risk-profile/risks/{riskType}:
+    get:
+      summary: Get risk by RiskType
+      tags: [CropRisk]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - name: riskType
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/RiskType'
+      responses:
+        '200':
+          description: Risk row
+        '404':
+          description: Not found
+  /crop-knowledge/{cropKnowledgeId}/risk-profile/{riskId}:
+    get:
+      summary: Get crop risk details
+      tags: [CropRisk]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RiskId'
+      responses:
+        '200':
+          description: Risk
+    put:
+      summary: Update crop risk (versioned)
+      tags: [CropRisk]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RiskId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCropRiskRequest'
+      responses:
+        '200':
+          description: New version
+    delete:
+      summary: Soft-delete crop risk
+      tags: [CropRisk]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RiskId'
+      responses:
+        '200':
+          description: Soft-deactivated
+  /crop-knowledge/{cropKnowledgeId}/risk-profile/validate:
+    post:
+      summary: Validate risk profile
+      tags: [CropRiskProfile]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /risk-profile/code/{cropCode}:
+    get:
+      summary: Aggregate by crop code
+      tags: [CropRiskProfile]
+      parameters:
+        - name: cropCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregate
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RiskId:
+      name: riskId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    RiskType:
+      type: string
+      enum:
+        - FROST
+        - DROUGHT
+        - HEAT
+        - EXCESS_RAIN
+        - FLOOD
+        - SALINITY
+        - SODICITY
+        - EROSION
+        - DISEASE
+        - PEST
+        - WIND
+        - HAIL
+    RiskLevel:
+      type: string
+      enum: [Unknown, Low, Moderate, High, Critical]
+    RiskSensitivity:
+      type: string
+      enum: [Unknown, Low, Moderate, High]
+    CreateCropRiskRequest:
+      type: object
+      required: [riskType]
+      properties:
+        riskType:
+          $ref: '#/components/schemas/RiskType'
+        riskLevel:
+          $ref: '#/components/schemas/RiskLevel'
+        sensitivity:
+          $ref: '#/components/schemas/RiskSensitivity'
+        description: { type: string, nullable: true }
+        mitigationSuggestion: { type: string, nullable: true }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateCropRiskRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateCropRiskRequest'
+      required: []

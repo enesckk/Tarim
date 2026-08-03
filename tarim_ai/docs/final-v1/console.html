@@ -1,0 +1,27 @@
+<!doctype html><html lang="tr"><meta charset="utf-8"/>
+<title>Tarım AI — Seasonal Console</title>
+<style>
+body{font-family:ui-sans-serif,system-ui;margin:0;background:#0b1f2a;color:#e8eef2}
+header{padding:24px 28px;background:linear-gradient(120deg,#0b1f2a,#163a2c);border-bottom:1px solid #2a4a3a}
+h1{margin:0;font-size:22px;letter-spacing:.02em}
+p{opacity:.85;margin:8px 0 0}
+main{padding:28px;max-width:960px}
+a.card{display:block;padding:16px 18px;margin:0 0 12px;background:#122833;border:1px solid #2c4b3f;border-radius:10px;color:#d7f5e3;text-decoration:none}
+a.card:hover{border-color:#4caf7a}
+code{background:#0a1620;padding:2px 6px;border-radius:4px}
+.ok{color:#7dffa3}
+</style>
+<header>
+  <h1>Tarım AI — Seasonal Analysis Console</h1>
+  <p>API ayakta · PostgreSQL · <span class="ok">ready</span></p>
+</header>
+<main>
+  <a class="card" href="http://127.0.0.1:4000/health" target="_blank">1) Health</a>
+  <a class="card" href="http://127.0.0.1:4000/api/demo/readiness" target="_blank">2) Demo readiness</a>
+  <a class="card" href="http://127.0.0.1:4000/api/seasonal-crop-analysis/07703e9b-a2d1-4f83-8aef-d42858c829d5" target="_blank">3) Son Güngürge analizi (JSON sonuç)</a>
+  <a class="card" href="http://127.0.0.1:4000/api/seasonal-crop-analysis/07703e9b-a2d1-4f83-8aef-d42858c829d5/status" target="_blank">4) Analiz status</a>
+  <p>Demo POST için terminal:</p>
+  <pre style="background:#0a1620;padding:14px;border-radius:8px;overflow:auto">curl -s -X POST http://127.0.0.1:4000/api/demo/seasonal-analysis \
+  -H 'Content-Type: application/json' \
+  -d '{"parcelSlug":"gungurge-108-7","seasonYear":2026,"productionMode":"auto","irrigationAvailability":"available_and_sufficient"}'</pre>
+</main>

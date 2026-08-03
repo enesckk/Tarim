@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: Crop Production Calendar API
+  version: 2.1.H
+  description: >
+    Physical Suitability / Crop Knowledge Base — production calendar data model.
+    Region hierarchy supports future Province (il) and District (ilçe) rows.
+    Planting/harvest windows may be null. No suitability scoring.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /crop-knowledge/{cropKnowledgeId}/production-calendar:
+    get:
+      summary: Get production calendar aggregate
+      tags: [CropProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Section + calendar list
+  /crop-knowledge/{cropKnowledgeId}/production-calendar/regions:
+    get:
+      summary: List region calendars
+      tags: [ProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Active region calendars
+    post:
+      summary: Create region calendar
+      tags: [ProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductionCalendarRequest'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation failed
+  /crop-knowledge/{cropKnowledgeId}/production-calendar/regions/{regionId}:
+    get:
+      summary: Get calendar by RegionId
+      tags: [ProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - name: regionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Calendar row
+        '404':
+          description: Not found
+  /crop-knowledge/{cropKnowledgeId}/production-calendar/{calendarId}:
+    get:
+      summary: Get production calendar details
+      tags: [ProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/CalendarId'
+      responses:
+        '200':
+          description: Calendar
+    put:
+      summary: Update production calendar (versioned)
+      tags: [ProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/CalendarId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductionCalendarRequest'
+      responses:
+        '200':
+          description: New version
+    delete:
+      summary: Soft-delete production calendar
+      tags: [ProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/CalendarId'
+      responses:
+        '200':
+          description: Soft-deactivated
+  /crop-knowledge/{cropKnowledgeId}/production-calendar/validate:
+    post:
+      summary: Validate production calendar
+      tags: [CropProductionCalendar]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /production-calendar/code/{cropCode}:
+    get:
+      summary: Aggregate by crop code
+      tags: [CropProductionCalendar]
+      parameters:
+        - name: cropCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregate
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CalendarId:
+      name: calendarId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    CalendarRegionScope:
+      type: string
+      enum: [Country, Province, District, AgroClimatic, Custom]
+    CreateProductionCalendarRequest:
+      type: object
+      required: [regionId, regionScope]
+      properties:
+        regionId: { type: string }
+        regionScope:
+          $ref: '#/components/schemas/CalendarRegionScope'
+        regionCode: { type: string, nullable: true }
+        parentRegionId: { type: string, nullable: true }
+        plantingStart: { type: string, nullable: true, description: 'YYYY-MM-DD or MM-DD' }
+        plantingEnd: { type: string, nullable: true }
+        harvestStart: { type: string, nullable: true }
+        harvestEnd: { type: string, nullable: true }
+        secondCropSupported: { type: boolean }
+        greenhouseSupported: { type: boolean }
+        rainfedSupported: { type: boolean }
+        irrigatedSupported: { type: boolean }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateProductionCalendarRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateProductionCalendarRequest'
+      required: []

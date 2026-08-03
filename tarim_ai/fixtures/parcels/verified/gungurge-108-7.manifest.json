@@ -1,0 +1,13 @@
+{
+  "province": "Gaziantep",
+  "district": "Şehitkamil",
+  "neighborhood": "Güngürge",
+  "block": "108",
+  "parcel": "7",
+  "source": "manually_verified_real_geometry",
+  "verified": true,
+  "verifiedAt": "2026-07-30T14:14:38.517Z",
+  "verifiedBy": "tkgm_geojson_ekle",
+  "geometryFile": "gungurge-108-7.geojson",
+  "checksum": "8e02b510a7a144aeff6337c5057ab91bdde0e83d1380037d3ffc971387886cf4"
+}

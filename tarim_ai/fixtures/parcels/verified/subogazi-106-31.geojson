@@ -1,0 +1,62 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              37.50809,
+              37.1598
+            ],
+            [
+              37.50828,
+              37.15989
+            ],
+            [
+              37.50856,
+              37.16003
+            ],
+            [
+              37.50797,
+              37.16081
+            ],
+            [
+              37.50778,
+              37.16071
+            ],
+            [
+              37.5075,
+              37.16057
+            ],
+            [
+              37.50809,
+              37.1598
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "ilceAd": "Şehitkamil",
+        "mevkii": "Tavşantepe",
+        "ilId": 49,
+        "durum": "1",
+        "ilceId": 441,
+        "zeminKmdurum": "Ana Taşınmaz",
+        "parselNo": "31",
+        "mahalleAd": "Suboğazı",
+        "ozet": "Suboğazı-106/31",
+        "gittigiParselListe": "",
+        "gittigiParselSebep": "",
+        "alan": "4.942,12",
+        "adaNo": "106",
+        "nitelik": "Karışık Meyve Bahçesi",
+        "ilAd": "Gaziantep",
+        "mahalleId": 131760,
+        "pafta": "N39-D-06-D-4"
+      }
+    }
+  ]
+}

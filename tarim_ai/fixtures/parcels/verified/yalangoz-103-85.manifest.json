@@ -1,0 +1,13 @@
+{
+  "province": "Gaziantep",
+  "district": "Şehitkamil",
+  "neighborhood": "Yalangoz",
+  "block": "103",
+  "parcel": "85",
+  "source": "manually_verified_real_geometry",
+  "verified": true,
+  "verifiedAt": "2026-07-30T14:15:03.902Z",
+  "verifiedBy": "tkgm_geojson_ekle",
+  "geometryFile": "yalangoz-103-85.geojson",
+  "checksum": "8876132e4f2d6b32ff737aad31bfd8b89bda2d5f8f5aae4426ab0607f3ce7dd1"
+}

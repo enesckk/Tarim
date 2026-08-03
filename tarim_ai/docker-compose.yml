@@ -1,0 +1,20 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: tarim-ai-postgres
+    environment:
+      POSTGRES_USER: tarim
+      POSTGRES_PASSWORD: tarim
+      POSTGRES_DB: tarim_ai
+    ports:
+      - '5433:5432'
+    volumes:
+      - tarim_ai_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U tarim -d tarim_ai']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  tarim_ai_pgdata:

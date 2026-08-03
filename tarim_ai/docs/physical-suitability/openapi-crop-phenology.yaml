@@ -1,0 +1,212 @@
+openapi: 3.0.3
+info:
+  title: Crop Phenology Engine API
+  version: 2.1.B
+  description: >
+    Physical Suitability / Crop Knowledge Base — phenology data model only.
+    No suitability scoring, AI prediction, irrigation/fertilizer/disease endpoints.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /crop-knowledge/{cropKnowledgeId}/growth-stages:
+    get:
+      summary: GET Stage List
+      tags: [CropGrowthStage]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Active growth stages ordered by StageOrder
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CropGrowthStageDto'
+                  count:
+                    type: integer
+    post:
+      summary: POST Stage
+      tags: [CropGrowthStage]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGrowthStageRequest'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropGrowthStageDto'
+        '422':
+          description: Validation failed
+  /crop-knowledge/{cropKnowledgeId}/growth-stages/{stageId}:
+    get:
+      summary: GET Stage Details
+      tags: [CropGrowthStage]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/StageId'
+      responses:
+        '200':
+          description: Stage with references
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropGrowthStageDto'
+        '404':
+          description: Not found
+    put:
+      summary: PUT Stage
+      tags: [CropGrowthStage]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/StageId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGrowthStageRequest'
+      responses:
+        '200':
+          description: New version created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropGrowthStageDto'
+        '422':
+          description: Validation failed
+    delete:
+      summary: DELETE Stage (soft)
+      tags: [CropGrowthStage]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/StageId'
+      responses:
+        '200':
+          description: Soft-deactivated stage
+        '422':
+          description: SEED delete forbidden while siblings exist
+  /crop-knowledge/{cropKnowledgeId}/phenology:
+    get:
+      summary: Phenology section + stages + transitions
+      tags: [CropPhenology]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Aggregate phenology payload
+  /crop-knowledge/{cropKnowledgeId}/phenology/validate:
+    post:
+      summary: Validate phenology rules
+      tags: [CropPhenology]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid (warnings allowed)
+        '422':
+          description: Invalid
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    StageId:
+      name: stageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    GrowthStageCode:
+      type: string
+      enum:
+        - SEED
+        - GERMINATION
+        - EMERGENCE
+        - VEGETATIVE
+        - BRANCHING
+        - FLOWERING
+        - POLLINATION
+        - FRUIT_SET
+        - FRUIT_DEVELOPMENT
+        - MATURITY
+        - HARVEST
+        - POST_HARVEST
+        - RESIDUE
+    CropGrowthStageDto:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        cropId: { type: string, format: uuid }
+        cropKnowledgeId: { type: string, format: uuid }
+        phenologyId: { type: string, format: uuid }
+        stageCode: { $ref: '#/components/schemas/GrowthStageCode' }
+        stageName: { type: string }
+        stageOrder: { type: integer }
+        description: { type: string, nullable: true }
+        scientificDescription: { type: string, nullable: true }
+        typicalDurationDays: { type: integer, nullable: true }
+        minimumDurationDays: { type: integer, nullable: true }
+        maximumDurationDays: { type: integer, nullable: true }
+        canOverlapPreviousStage: { type: boolean }
+        isCriticalStage: { type: boolean }
+        requiresValidation: { type: boolean }
+        version: { type: integer }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        isActive: { type: boolean }
+        references:
+          type: array
+          items:
+            $ref: '#/components/schemas/StageReference'
+    StageReference:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        stageId: { type: string, format: uuid }
+        scientificSource: { type: string }
+        organization: { type: string, nullable: true }
+        publication: { type: string, nullable: true }
+        publicationYear: { type: integer, nullable: true }
+        doi: { type: string, nullable: true }
+        referenceUrl: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    CreateGrowthStageRequest:
+      type: object
+      required: [stageCode, stageName, stageOrder]
+      properties:
+        stageCode: { $ref: '#/components/schemas/GrowthStageCode' }
+        stageName: { type: string }
+        stageOrder: { type: integer }
+        description: { type: string, nullable: true }
+        scientificDescription: { type: string, nullable: true }
+        typicalDurationDays: { type: integer, nullable: true }
+        minimumDurationDays: { type: integer, nullable: true }
+        maximumDurationDays: { type: integer, nullable: true }
+        canOverlapPreviousStage: { type: boolean }
+        isCriticalStage: { type: boolean }
+        requiresValidation: { type: boolean }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateGrowthStageRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateGrowthStageRequest'
+      required: []

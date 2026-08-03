@@ -1,0 +1,11 @@
+{
+  "status": "OK",
+  "source": "/Users/enescikcik/Desktop/FOTOLAR",
+  "lands": 9,
+  "droneImages": 20,
+  "notes": [
+    "Demo araziler soft-delete edildi; SeedDemoData Development'da false.",
+    "Suboğazı 142/40 TKGM Suboğazı'nda yok; geometri Şehitkamil Yukarı Arıl 142/40 eşleşmesinden alındı (foto etiketi korundu).",
+    "Drone görselleri sıkıştırılarak (~1.7–2.2 MB) tarim_ai /api/drone-images altına landId ile yüklendi."
+  ]
+}

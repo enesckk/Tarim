@@ -1,0 +1,64 @@
+{
+  "name": "tarim-ai-satellite",
+  "version": "1.0.0",
+  "description": "Copernicus Sentinel-2 satellite imagery service",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc && mkdir -p dist/modules/crop-recommendation/knowledge/crops dist/modules/crop-recommendation/knowledge/calibration dist/modules/database/migrations && cp -R src/modules/crop-recommendation/knowledge/crops/*.json dist/modules/crop-recommendation/knowledge/crops/ && cp src/modules/crop-recommendation/knowledge/calibration/*.json dist/modules/crop-recommendation/knowledge/calibration/ && cp src/modules/database/migrations/*.sql dist/modules/database/migrations/",
+    "start": "node dist/server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src tests",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    "db:migrate": "tsx src/modules/database/migrate-cli.ts",
+    "db:up": "docker compose up -d postgres",
+    "db:down": "docker compose down",
+    "parcel:verified:import": "tsx src/modules/parcel/cli/verified-import.ts",
+    "parcel:verified:verify": "tsx src/modules/parcel/cli/verified-verify.ts",
+    "parcel:tkgm:fetch": "tsx src/modules/parcel/cli/tkgm-fetch-import.ts",
+    "demo:golden:capture": "tsx src/modules/analysis-orchestrator/cli/golden-capture.ts",
+    "demo:golden:verify": "tsx src/modules/analysis-orchestrator/cli/golden-verify.ts",
+    "demo:readiness": "tsx src/modules/analysis-orchestrator/cli/demo-readiness.ts",
+    "test:demo:e2e": "vitest run src/modules/analysis-orchestrator/tests/",
+    "gaez:catalog:sync": "tsx src/modules/fao-external/cli/gaez-catalog-sync.ts",
+    "ecocrop:import": "tsx src/modules/fao-external/cli/ecocrop-import.ts",
+    "fao:pilot:report": "tsx src/modules/fao-external/cli/pilot-report.ts",
+    "fao:completeness": "tsx src/modules/fao-external/cli/completeness-audit.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "copernicus",
+    "sentinel-2",
+    "satellite",
+    "express"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@turf/turf": "^7.2.0",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "geotiff": "^3.0.5",
+    "pdfkit": "^0.19.1",
+    "pg": "^8.22.0",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.5",
+    "@types/pdfkit": "^0.17.6",
+    "@types/pg": "^8.20.0",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.19.1",
+    "vitest": "^2.1.8"
+  }
+}

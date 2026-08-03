@@ -1,0 +1,250 @@
+{
+  "id": "corn",
+  "name": "Mısır",
+  "scientificName": "Zea mays",
+  "category": "field_crop",
+  "growingType": "annual",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 10,
+      "optimalMinC": 18,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 450,
+      "optimalMin": 550,
+      "optimalMax": 800,
+      "maximum": 1100
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 300,
+      "optimalMin": 400,
+      "optimalMax": 600,
+      "maximum": 850
+    },
+    "frostTolerance": "low",
+    "heatTolerance": "medium",
+    "droughtTolerance": "low",
+    "irrigationDependency": "high"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.5,
+      "optimalMin": 6,
+      "optimalMax": 7.2,
+      "absoluteMax": 8
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "silt_loam"
+    ],
+    "acceptedTextures": [
+      "sandy_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "preferredOrganicMatterPercent": 2.5,
+    "maximumElectricalConductivityDsM": 2.5,
+    "salinityTolerance": "low",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.35,
+      "optimalMin": 0.5,
+      "optimalMax": 0.85
+    },
+    "activeVegetationNdmi": {
+      "minimum": 0,
+      "optimalMin": 0.1,
+      "optimalMax": 0.4
+    },
+    "maximumActiveSeasonBsi": 0.15,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": false,
+      "expectedCycle": "annual",
+      "bareSoilBeforePlantingAcceptable": true
+    }
+  },
+  "management": {
+    "irrigationRequired": true,
+    "drainageImportance": "high",
+    "fertilityDemand": "high",
+    "mechanizationSuitability": "high"
+  },
+  "hardConstraints": [
+    {
+      "code": "SOIL_PH_TOO_HIGH",
+      "field": "soil.ph",
+      "operator": "greater_than",
+      "value": 8,
+      "severity": "major",
+      "group": "PH",
+      "message": "Yüksek pH mısır besin alımını sınırlandırabilir."
+    },
+    {
+      "code": "FROST_RISK_HIGH",
+      "field": "climate.frostRisk",
+      "operator": "equal",
+      "value": "high",
+      "severity": "major",
+      "group": "FROST",
+      "message": "Yüksek don riski mısır için önemli bir kısıt oluşturabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 4,
+        "endMonth": 5,
+        "label": "İlkbahar ekim"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "germination",
+        "label": "Çimlenme",
+        "startOffsetDays": 0,
+        "endOffsetDays": 15,
+        "temperature": {
+          "absoluteMinC": 10,
+          "optimalMinC": 16,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 36
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.1,
+        "frostSensitivity": "high",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "vegetative",
+        "label": "Vejetatif gelişme",
+        "startOffsetDays": 16,
+        "endOffsetDays": 60,
+        "temperature": {
+          "absoluteMinC": 12,
+          "optimalMinC": 18,
+          "optimalMaxC": 30,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "high",
+        "weight": 0.25,
+        "frostSensitivity": "high",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 61,
+        "endOffsetDays": 85,
+        "temperature": {
+          "absoluteMinC": 16,
+          "optimalMinC": 22,
+          "optimalMaxC": 32,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "high",
+        "weight": 0.35,
+        "frostSensitivity": "high",
+        "heatSensitivity": "high"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Koçan doldurma",
+        "startOffsetDays": 86,
+        "endOffsetDays": 130,
+        "temperature": {
+          "absoluteMinC": 16,
+          "optimalMinC": 20,
+          "optimalMaxC": 32,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "high",
+        "weight": 0.3,
+        "frostSensitivity": "medium",
+        "heatSensitivity": "high"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 110,
+      "typical": 130,
+      "maximum": 150
+    },
+    "perennial": {
+      "isPerennial": false,
+      "dormancyMonths": [],
+      "chillingRequirementHours": null,
+      "establishmentYears": null,
+      "economicLifeYears": null
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 40,
+      "preferredMinimumCm": 60,
+      "optimalMinimumCm": 90,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 6,
+      "acceptableMaximumMeanPercent": 12,
+      "maximumMeanPercent": 20,
+      "maximumP90Percent": 30,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "low",
+      "acceptableMaximumClass": "medium",
+      "importance": "medium"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "none",
+      "acceptableMaximum": "low",
+      "maximum": "medium",
+      "importance": "high"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "not_observed",
+      "maximum": "isolated",
+      "importance": "high"
+    },
+    "machineAccessRequirement": {
+      "minimum": "verified_accessible",
+      "importance": "high"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [
+        "moderately_limited"
+      ],
+      "notPreferred": [
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "high"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

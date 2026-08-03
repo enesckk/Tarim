@@ -1,0 +1,164 @@
+openapi: 3.0.3
+info:
+  title: Crop Terrain Requirements API
+  version: 2.1.F
+  description: >
+    Physical Suitability / Crop Knowledge Base — terrain requirement data model.
+    Numeric thresholds may be null. No suitability scoring.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /crop-knowledge/{cropKnowledgeId}/terrain-requirements:
+    get:
+      summary: Get terrain requirements aggregate
+      tags: [CropTerrainRequirements]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Section + requirement list
+    post:
+      summary: Create terrain requirement
+      tags: [TerrainRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTerrainRequirementRequest'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation failed
+  /crop-knowledge/{cropKnowledgeId}/terrain-requirements/factors:
+    get:
+      summary: List terrain requirement factors
+      tags: [TerrainRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Active factors
+  /crop-knowledge/{cropKnowledgeId}/terrain-requirements/factors/{terrainFactor}:
+    get:
+      summary: Get requirement by TerrainFactor
+      tags: [TerrainRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - name: terrainFactor
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/TerrainFactor'
+      responses:
+        '200':
+          description: Factor row
+        '404':
+          description: Not found
+  /crop-knowledge/{cropKnowledgeId}/terrain-requirements/{requirementId}:
+    get:
+      summary: Get terrain requirement details
+      tags: [TerrainRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      responses:
+        '200':
+          description: Requirement
+    put:
+      summary: Update terrain requirement (versioned)
+      tags: [TerrainRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateTerrainRequirementRequest'
+      responses:
+        '200':
+          description: New version
+    delete:
+      summary: Soft-delete terrain requirement
+      tags: [TerrainRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      responses:
+        '200':
+          description: Soft-deactivated
+  /crop-knowledge/{cropKnowledgeId}/terrain-requirements/validate:
+    post:
+      summary: Validate terrain requirements
+      tags: [CropTerrainRequirements]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /terrain-requirements/code/{cropCode}:
+    get:
+      summary: Aggregate by crop code
+      tags: [CropTerrainRequirements]
+      parameters:
+        - name: cropCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregate
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RequirementId:
+      name: requirementId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    TerrainFactor:
+      type: string
+      enum:
+        - ELEVATION
+        - SLOPE
+        - ASPECT
+        - SOLAR_EXPOSURE
+        - TWI
+        - FLOW_ACCUMULATION
+        - EROSION_RISK
+    CreateTerrainRequirementRequest:
+      type: object
+      required: [terrainFactor]
+      properties:
+        terrainFactor:
+          $ref: '#/components/schemas/TerrainFactor'
+        minimum: { type: number, nullable: true }
+        optimalMinimum: { type: number, nullable: true }
+        optimalMaximum: { type: number, nullable: true }
+        maximum: { type: number, nullable: true }
+        preferred: { type: number, nullable: true }
+        unit: { type: string }
+        description: { type: string, nullable: true }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateTerrainRequirementRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateTerrainRequirementRequest'
+      required: []

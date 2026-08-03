@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  title: Scientific Reference Library API
+  version: 2.1.I
+  description: >
+    Physical Suitability / Crop Knowledge Base — scientific reference library
+    with many-to-many crop links. ReliabilityScore may be null. No suitability scoring.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /scientific-references:
+    get:
+      summary: List scientific references
+      tags: [ScientificReference]
+      responses:
+        '200':
+          description: Library list
+    post:
+      summary: Create scientific reference
+      tags: [ScientificReference]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScientificReferenceRequest'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation failed
+  /scientific-references/{referenceId}:
+    get:
+      summary: Get scientific reference
+      tags: [ScientificReference]
+      parameters:
+        - $ref: '#/components/parameters/ReferenceId'
+      responses:
+        '200':
+          description: Reference
+        '404':
+          description: Not found
+    put:
+      summary: Update scientific reference (versioned)
+      tags: [ScientificReference]
+      parameters:
+        - $ref: '#/components/parameters/ReferenceId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateScientificReferenceRequest'
+      responses:
+        '200':
+          description: New version
+    delete:
+      summary: Soft-delete scientific reference
+      tags: [ScientificReference]
+      parameters:
+        - $ref: '#/components/parameters/ReferenceId'
+      responses:
+        '200':
+          description: Soft-deactivated
+  /scientific-references/{referenceId}/validate:
+    post:
+      summary: Validate scientific reference
+      tags: [ScientificReference]
+      parameters:
+        - $ref: '#/components/parameters/ReferenceId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /crop-knowledge/{cropKnowledgeId}/references:
+    get:
+      summary: Crop references aggregate (linked library rows)
+      tags: [CropReferences]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Section + linked references
+  /crop-knowledge/{cropKnowledgeId}/references/items:
+    get:
+      summary: List linked scientific references for crop
+      tags: [CropReferences]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Linked references
+  /crop-knowledge/{cropKnowledgeId}/references/link:
+    post:
+      summary: Link scientific reference to crop
+      tags: [CropReferences]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [scientificReferenceId]
+              properties:
+                scientificReferenceId:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Link created
+        '422':
+          description: Duplicate or invalid
+  /crop-knowledge/{cropKnowledgeId}/references/{referenceId}:
+    delete:
+      summary: Unlink scientific reference from crop
+      tags: [CropReferences]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/ReferenceId'
+      responses:
+        '200':
+          description: Link soft-deactivated
+  /crop-knowledge/{cropKnowledgeId}/references/validate:
+    post:
+      summary: Validate crop reference links
+      tags: [CropReferences]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /references/code/{cropCode}:
+    get:
+      summary: Crop references aggregate by crop code
+      tags: [CropReferences]
+      parameters:
+        - name: cropCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregate
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ReferenceId:
+      name: referenceId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    ReferenceType:
+      type: string
+      enum: [FAO, TAGEM, MINISTRY, UNIVERSITY, JOURNAL, BOOK, THESIS, STANDARD]
+    CreateScientificReferenceRequest:
+      type: object
+      required: [title, referenceType]
+      properties:
+        title: { type: string }
+        authors:
+          type: array
+          items: { type: string }
+        organization: { type: string, nullable: true }
+        publicationYear: { type: integer, nullable: true }
+        country: { type: string, nullable: true }
+        doi: { type: string, nullable: true }
+        isbn: { type: string, nullable: true }
+        issn: { type: string, nullable: true }
+        url: { type: string, format: uri, nullable: true }
+        referenceType:
+          $ref: '#/components/schemas/ReferenceType'
+        language: { type: string, nullable: true }
+        reliabilityScore: { type: number, minimum: 0, maximum: 100, nullable: true }
+        notes: { type: string, nullable: true }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateScientificReferenceRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateScientificReferenceRequest'
+      required: []

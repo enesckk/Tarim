@@ -1,0 +1,246 @@
+{
+  "id": "grape",
+  "name": "Üzüm",
+  "scientificName": "Vitis vinifera",
+  "category": "perennial",
+  "growingType": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 5,
+      "optimalMinC": 15,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 40
+    },
+    "annualPrecipitationMm": {
+      "minimum": 300,
+      "optimalMin": 400,
+      "optimalMax": 700,
+      "maximum": 1000
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 150,
+      "optimalMin": 200,
+      "optimalMax": 400,
+      "maximum": 600
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.5,
+      "optimalMin": 6,
+      "optimalMax": 7.5,
+      "absoluteMax": 8.5
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam",
+      "sand"
+    ],
+    "minimumOrganicMatterPercent": 1,
+    "preferredOrganicMatterPercent": 2,
+    "maximumElectricalConductivityDsM": 3.5,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 80,
+    "calciumCarbonateTolerance": "high"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.3,
+      "optimalMin": 0.45,
+      "optimalMax": 0.8
+    },
+    "activeVegetationNdmi": {
+      "minimum": -0.05,
+      "optimalMin": 0.05,
+      "optimalMax": 0.3
+    },
+    "maximumActiveSeasonBsi": 0.2,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": true,
+      "expectedCycle": "perennial",
+      "bareSoilBeforePlantingAcceptable": false
+    }
+  },
+  "management": {
+    "irrigationRequired": false,
+    "drainageImportance": "high",
+    "fertilityDemand": "medium",
+    "mechanizationSuitability": "medium"
+  },
+  "hardConstraints": [
+    {
+      "code": "DRAINAGE_TOO_POOR",
+      "field": "soil.drainage",
+      "operator": "equal",
+      "value": "poor",
+      "severity": "critical",
+      "group": "DRAINAGE",
+      "message": "Zayıf drenaj bağ için kritik bir kısıt oluşturabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 2,
+        "endMonth": 3,
+        "label": "Tesis dönemi"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "dormancy",
+        "label": "Dormansi",
+        "startOffsetDays": 0,
+        "endOffsetDays": 50,
+        "temperature": {
+          "absoluteMinC": -2,
+          "optimalMinC": 2,
+          "optimalMaxC": 12,
+          "absoluteMaxC": 22
+        },
+        "waterSensitivity": "low",
+        "weight": 0.15,
+        "frostSensitivity": "medium",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "budbreak",
+        "label": "Tomurcuklanma",
+        "startOffsetDays": 51,
+        "endOffsetDays": 80,
+        "temperature": {
+          "absoluteMinC": 5,
+          "optimalMinC": 10,
+          "optimalMaxC": 20,
+          "absoluteMaxC": 28
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.2,
+        "frostSensitivity": "high",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 81,
+        "endOffsetDays": 110,
+        "temperature": {
+          "absoluteMinC": 12,
+          "optimalMinC": 16,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 34
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.3,
+        "frostSensitivity": "high",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Olgunlaşma",
+        "startOffsetDays": 111,
+        "endOffsetDays": 200,
+        "temperature": {
+          "absoluteMinC": 15,
+          "optimalMinC": 18,
+          "optimalMaxC": 32,
+          "absoluteMaxC": 40
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.35,
+        "frostSensitivity": "low",
+        "heatSensitivity": "medium"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 180,
+      "typical": 200,
+      "maximum": 230
+    },
+    "perennial": {
+      "isPerennial": true,
+      "dormancyMonths": [
+        12,
+        1,
+        2
+      ],
+      "chillingRequirementHours": 400,
+      "establishmentYears": 3,
+      "economicLifeYears": 30
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 50,
+      "preferredMinimumCm": 80,
+      "optimalMinimumCm": 100,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 8,
+      "acceptableMaximumMeanPercent": 15,
+      "maximumMeanPercent": 25,
+      "maximumP90Percent": 35,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "low",
+      "acceptableMaximumClass": "medium",
+      "importance": "medium"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "low",
+      "acceptableMaximum": "medium",
+      "maximum": "high",
+      "importance": "high"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "isolated",
+      "maximum": "scattered",
+      "importance": "high"
+    },
+    "machineAccessRequirement": {
+      "minimum": "accessible_with_limitations",
+      "importance": "medium"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [
+        "moderately_limited"
+      ],
+      "notPreferred": [
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "high"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

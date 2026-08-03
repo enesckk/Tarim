@@ -49,13 +49,29 @@ function assert(name, cond, detail) {
 
 async function main() {
   console.log('\n=== APPROVE FLOW E2E ===\n');
-  const officerTok = await login('uzman@agriculture.local', 'Officer123!');
+  const officerTok = await login('uzman3@agriculture.local', 'Officer123!');
   const producerTok = await login('5537472823', 'asd');
   const adminTok = await login('admin@agriculture.local', 'Admin123!');
 
   const lands = await req('/api/lands', { token: officerTok });
   assert('officer lands', lands.ok && lands.data.length > 0, lands.data.length);
-  const land = lands.data[0];
+  const producerLands = await req('/api/lands', { token: producerTok });
+  const land = lands.data.find(ol => producerLands.data?.some(pl => pl.id === ol.id)) || lands.data[0];
+
+  const seasons = await req('/api/seasons', { token: officerTok });
+  const workflows = await req('/api/workflows', { token: officerTok });
+  if (seasons.data?.length > 0 && workflows.data?.length > 0) {
+    await req('/api/workflows/assign', {
+      method: 'POST',
+      token: officerTok,
+      body: {
+        seasonId: seasons.data[0].id,
+        workflowId: workflows.data[0].id,
+        producerId: land.producerId || (await req('/api/me', { token: producerTok })).data?.producerId,
+        landId: land.id
+      }
+    });
+  }
 
   const created = await req(`/api/lands/${land.id}/tasks`, {
     method: 'POST',

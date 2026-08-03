@@ -1,0 +1,250 @@
+{
+  "id": "chickpea",
+  "name": "Nohut",
+  "scientificName": "Cicer arietinum",
+  "category": "field_crop",
+  "growingType": "annual",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 5,
+      "optimalMinC": 15,
+      "optimalMaxC": 28,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 150,
+      "optimalMin": 200,
+      "optimalMax": 350,
+      "maximum": 500
+    },
+    "frostTolerance": "low",
+    "heatTolerance": "high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6,
+      "optimalMin": 6.5,
+      "optimalMax": 8,
+      "absoluteMax": 8.5
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1,
+    "preferredOrganicMatterPercent": 2,
+    "maximumElectricalConductivityDsM": 3.5,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 50,
+    "calciumCarbonateTolerance": "high"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.25,
+      "optimalMin": 0.4,
+      "optimalMax": 0.75
+    },
+    "activeVegetationNdmi": {
+      "minimum": -0.1,
+      "optimalMin": 0,
+      "optimalMax": 0.25
+    },
+    "maximumActiveSeasonBsi": 0.2,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": false,
+      "expectedCycle": "annual",
+      "bareSoilBeforePlantingAcceptable": true
+    }
+  },
+  "management": {
+    "irrigationRequired": false,
+    "drainageImportance": "high",
+    "fertilityDemand": "low",
+    "mechanizationSuitability": "medium"
+  },
+  "hardConstraints": [
+    {
+      "code": "DRAINAGE_TOO_POOR",
+      "field": "soil.drainage",
+      "operator": "equal",
+      "value": "poor",
+      "severity": "major",
+      "group": "DRAINAGE",
+      "message": "Zayıf drenaj nohut için önemli bir kısıt oluşturabilir."
+    },
+    {
+      "code": "SOIL_PH_TOO_LOW",
+      "field": "soil.ph",
+      "operator": "less_than",
+      "value": 6,
+      "severity": "major",
+      "group": "PH",
+      "message": "Düşük pH nodül oluşumu ve gelişimi sınırlandırabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 2,
+        "endMonth": 3,
+        "label": "İlkbahar ekim"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "germination",
+        "label": "Çimlenme",
+        "startOffsetDays": 0,
+        "endOffsetDays": 20,
+        "temperature": {
+          "absoluteMinC": 5,
+          "optimalMinC": 10,
+          "optimalMaxC": 20,
+          "absoluteMaxC": 30
+        },
+        "waterSensitivity": "low",
+        "weight": 0.15,
+        "frostSensitivity": "medium",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "vegetative",
+        "label": "Vejetatif gelişme",
+        "startOffsetDays": 21,
+        "endOffsetDays": 70,
+        "temperature": {
+          "absoluteMinC": 8,
+          "optimalMinC": 14,
+          "optimalMaxC": 26,
+          "absoluteMaxC": 34
+        },
+        "waterSensitivity": "low",
+        "weight": 0.25,
+        "frostSensitivity": "low",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 71,
+        "endOffsetDays": 100,
+        "temperature": {
+          "absoluteMinC": 12,
+          "optimalMinC": 18,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 35
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.3,
+        "frostSensitivity": "low",
+        "heatSensitivity": "high"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Bakla oluşumu",
+        "startOffsetDays": 101,
+        "endOffsetDays": 130,
+        "temperature": {
+          "absoluteMinC": 14,
+          "optimalMinC": 18,
+          "optimalMaxC": 30,
+          "absoluteMaxC": 38
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.3,
+        "frostSensitivity": "low",
+        "heatSensitivity": "high"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 110,
+      "typical": 130,
+      "maximum": 150
+    },
+    "perennial": {
+      "isPerennial": false,
+      "dormancyMonths": [],
+      "chillingRequirementHours": null,
+      "establishmentYears": null,
+      "economicLifeYears": null
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 30,
+      "preferredMinimumCm": 50,
+      "optimalMinimumCm": 70,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 8,
+      "acceptableMaximumMeanPercent": 15,
+      "maximumMeanPercent": 25,
+      "maximumP90Percent": 35,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "low",
+      "acceptableMaximumClass": "medium",
+      "importance": "medium"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "low",
+      "acceptableMaximum": "medium",
+      "maximum": "high",
+      "importance": "medium"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "isolated",
+      "maximum": "scattered",
+      "importance": "high"
+    },
+    "machineAccessRequirement": {
+      "minimum": "accessible_with_limitations",
+      "importance": "medium"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [
+        "moderately_limited"
+      ],
+      "notPreferred": [
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "medium"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

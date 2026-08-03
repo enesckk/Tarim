@@ -1,0 +1,321 @@
+openapi: 3.0.3
+info:
+  title: Soil Laboratory Core API
+  version: 2.2.A
+  description: >
+    Physical Suitability — soil laboratory data model.
+    No suitability scoring, crop recommendation, fertilizer/irrigation advice,
+    or parameter catalog (pH/EC/…) in this phase.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /laboratories:
+    get:
+      summary: List laboratories
+      tags: [Laboratory]
+      responses:
+        '200': { description: Active laboratories }
+    post:
+      summary: Create laboratory
+      tags: [Laboratory]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateLaboratoryRequest'
+      responses:
+        '201': { description: Created }
+  /laboratories/{laboratoryId}:
+    get:
+      summary: Get laboratory
+      tags: [Laboratory]
+      parameters:
+        - $ref: '#/components/parameters/LaboratoryId'
+      responses:
+        '200': { description: Laboratory }
+    put:
+      summary: Update laboratory (versioned)
+      tags: [Laboratory]
+      parameters:
+        - $ref: '#/components/parameters/LaboratoryId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateLaboratoryRequest'
+      responses:
+        '200': { description: New version }
+    delete:
+      summary: Soft-delete laboratory
+      tags: [Laboratory]
+      parameters:
+        - $ref: '#/components/parameters/LaboratoryId'
+      responses:
+        '200': { description: Soft-deactivated }
+  /analysis-methods:
+    get:
+      summary: List analysis methods
+      tags: [AnalysisMethod]
+      responses:
+        '200': { description: Active methods }
+    post:
+      summary: Create analysis method
+      tags: [AnalysisMethod]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnalysisMethodRequest'
+      responses:
+        '201': { description: Created }
+  /analysis-methods/{methodId}:
+    get:
+      summary: Get analysis method
+      tags: [AnalysisMethod]
+      parameters:
+        - $ref: '#/components/parameters/MethodId'
+      responses:
+        '200': { description: Method }
+    put:
+      summary: Update analysis method
+      tags: [AnalysisMethod]
+      parameters:
+        - $ref: '#/components/parameters/MethodId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateAnalysisMethodRequest'
+      responses:
+        '200': { description: New version }
+    delete:
+      summary: Soft-delete analysis method
+      tags: [AnalysisMethod]
+      parameters:
+        - $ref: '#/components/parameters/MethodId'
+      responses:
+        '200': { description: Soft-deactivated }
+  /soil-samples:
+    get:
+      summary: List soil samples
+      tags: [SoilSample]
+      responses:
+        '200': { description: Active samples }
+    post:
+      summary: Create soil sample
+      tags: [SoilSample]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSoilSampleRequest'
+      responses:
+        '201': { description: Created }
+  /soil-samples/parcel/{parcelId}:
+    get:
+      summary: List samples by parcel
+      tags: [SoilSample]
+      parameters:
+        - name: parcelId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: Samples }
+  /soil-samples/{sampleId}:
+    get:
+      summary: Get soil sample
+      tags: [SoilSample]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200': { description: Sample }
+    put:
+      summary: Update soil sample (versioned)
+      tags: [SoilSample]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSoilSampleRequest'
+      responses:
+        '200': { description: New version }
+    delete:
+      summary: Soft-delete soil sample
+      tags: [SoilSample]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200': { description: Soft-deactivated }
+  /soil-samples/{sampleId}/validate:
+    post:
+      summary: Validate soil sample aggregate
+      tags: [SoilAnalysis]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200': { description: Valid }
+        '422': { description: Invalid }
+  /soil-analyses/{sampleId}:
+    get:
+      summary: SoilAnalysis aggregate (sample + results + lab)
+      tags: [SoilAnalysis]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200': { description: Aggregate }
+  /soil-samples/{sampleId}/results:
+    get:
+      summary: List analysis results for sample
+      tags: [SoilAnalysisResult]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200': { description: Results }
+    post:
+      summary: Create analysis result (free ParameterCode; no catalog)
+      tags: [SoilAnalysisResult]
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSoilAnalysisResultRequest'
+      responses:
+        '201': { description: Created }
+  /soil-analysis-results/{resultId}:
+    get:
+      summary: Get analysis result
+      tags: [SoilAnalysisResult]
+      parameters:
+        - $ref: '#/components/parameters/ResultId'
+      responses:
+        '200': { description: Result }
+    put:
+      summary: Update analysis result
+      tags: [SoilAnalysisResult]
+      parameters:
+        - $ref: '#/components/parameters/ResultId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSoilAnalysisResultRequest'
+      responses:
+        '200': { description: New version }
+    delete:
+      summary: Soft-delete analysis result
+      tags: [SoilAnalysisResult]
+      parameters:
+        - $ref: '#/components/parameters/ResultId'
+      responses:
+        '200': { description: Soft-deactivated }
+components:
+  parameters:
+    LaboratoryId:
+      name: laboratoryId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    MethodId:
+      name: methodId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SampleId:
+      name: sampleId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ResultId:
+      name: resultId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    QualityFlag:
+      type: string
+      enum: [Unknown, Accepted, Suspect, Rejected, BelowDetectionLimit, AboveRange]
+    CreateLaboratoryRequest:
+      type: object
+      required: [name]
+      properties:
+        name: { type: string }
+        country: { type: string, nullable: true }
+        city: { type: string, nullable: true }
+        accreditationNumber: { type: string, nullable: true }
+        accreditationStandard: { type: string, nullable: true }
+        contact: { type: string, nullable: true }
+        website: { type: string, format: uri, nullable: true }
+    UpdateLaboratoryRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateLaboratoryRequest'
+      required: []
+    CreateAnalysisMethodRequest:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        description: { type: string, nullable: true }
+        standard: { type: string, nullable: true }
+        organization: { type: string, nullable: true }
+        methodVersion: { type: string, nullable: true }
+    UpdateAnalysisMethodRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateAnalysisMethodRequest'
+      required: []
+    CreateSoilSampleRequest:
+      type: object
+      required: [parcelId, sampleCode]
+      properties:
+        parcelId: { type: string }
+        sampleCode: { type: string }
+        laboratoryId: { type: string, format: uuid, nullable: true }
+        samplingDate: { type: string, nullable: true }
+        analysisDate: { type: string, nullable: true }
+        samplingDepthFromCm: { type: number, nullable: true }
+        samplingDepthToCm: { type: number, nullable: true }
+        latitude: { type: number, nullable: true }
+        longitude: { type: number, nullable: true }
+        elevation: { type: number, nullable: true }
+        samplerName: { type: string, nullable: true }
+        sampleMethod: { type: string, nullable: true }
+        weatherCondition: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    UpdateSoilSampleRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateSoilSampleRequest'
+      required: []
+    CreateSoilAnalysisResultRequest:
+      type: object
+      required: [parameterCode, parameterName, unit]
+      properties:
+        parameterCode: { type: string }
+        parameterName: { type: string }
+        measuredValue: { type: number, nullable: true }
+        unit: { type: string }
+        analysisMethodId: { type: string, format: uuid, nullable: true }
+        analysisMethod: { type: string, nullable: true }
+        detectionLimit: { type: number, nullable: true }
+        measurementUncertainty: { type: number, nullable: true }
+        qualityFlag:
+          $ref: '#/components/schemas/QualityFlag'
+        isAccredited: { type: boolean }
+        source: { type: string, nullable: true }
+        verificationStatus: { type: string }
+    UpdateSoilAnalysisResultRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateSoilAnalysisResultRequest'
+      required: []

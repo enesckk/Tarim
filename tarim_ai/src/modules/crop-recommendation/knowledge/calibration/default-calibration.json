@@ -1,0 +1,292 @@
+{
+  "version": "2.0",
+  "climateWeight": 35,
+  "soilWeight": 40,
+  "sentinelWeight": 15,
+  "reliabilityWeight": 10,
+  "climateSubWeights": {
+    "growingSeasonTemperature": 10,
+    "precipitation": 8,
+    "frostCompatibility": 5,
+    "extremeHeatCompatibility": 4,
+    "droughtCompatibility": 4,
+    "irrigationCompatibility": 4
+  },
+  "constraintPenalties": {
+    "critical": 25,
+    "major": 12,
+    "moderate": 5
+  },
+  "classificationThresholds": {
+    "veryHigh": 85,
+    "high": 70,
+    "moderate": 55,
+    "low": 40
+  },
+  "scenarioLimits": {
+    "maximumManagementImprovement": 15
+  },
+  "terrain": {
+    "demResolutionMeters": 30,
+    "slopeClassesPercent": {
+      "flatMax": 5,
+      "gentleMax": 12,
+      "moderateMax": 20,
+      "steepMax": 35
+    },
+    "minimumDemPixels": {
+      "highConfidence": 20,
+      "mediumConfidence": 8,
+      "lowConfidence": 3
+    },
+    "minimumCoverageRatio": {
+      "highConfidence": 0.8,
+      "mediumConfidence": 0.5,
+      "lowConfidence": 0.25
+    },
+    "dem": {
+      "preferredDataset": "COPERNICUS_30",
+      "requestedResolutionMeters": 30,
+      "minimumRasterWidth": 3,
+      "minimumRasterHeight": 3,
+      "minimumValidPixelRatio": 0.7,
+      "adequateValidPixelRatio": 0.85,
+      "completeValidPixelRatio": 0.95
+    },
+    "ruggednessThresholds": {
+      "veryLowMax": 1.5,
+      "lowMax": 3,
+      "mediumMax": 7,
+      "highMax": 14
+    },
+    "mechanization": {
+      "steepAreaWarningPercent": 15,
+      "verySteepAreaWarningPercent": 5,
+      "strongLimitationMeanSlopePercent": 35,
+      "suitableMaximumMeanSlopePercent": 8,
+      "generallySuitableMaximumMeanSlopePercent": 15,
+      "limitedMaximumMeanSlopePercent": 30
+    },
+    "cache": {
+      "ttlSeconds": 86400
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  },
+  "surface": {
+    "defaultMonths": 12,
+    "minimumSuccessfulAcquisitions": {
+      "highConfidence": 10,
+      "mediumConfidence": 6,
+      "lowConfidence": 3
+    },
+    "minimumSeasonCoverageRatio": {
+      "highConfidence": 0.75,
+      "mediumConfidence": 0.5,
+      "lowConfidence": 0.25
+    },
+    "thresholds": {
+      "ndviBareMax": 0.25,
+      "ndviVegetatedMin": 0.4,
+      "bsiBareMin": 0.15,
+      "ndmiDryMax": 0.0,
+      "seasonalAmplitudeMin": 0.12
+    },
+    "probableRock": {
+      "bareShareMin": 0.55,
+      "highBsiShareMin": 0.45,
+      "lowNdmiShareMin": 0.5,
+      "weakCycleAmplitudeMax": 0.1,
+      "mediumScoreMin": 40,
+      "highScoreMin": 65
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-surface-calibration"
+  },
+  "landUsability": {
+    "minimumRealEvidenceCount": 1,
+    "fieldDepth": {
+      "minimumValidCm": 1,
+      "maximumValidCm": 500,
+      "recommendedSampleCount": 5,
+      "highConfidenceSampleCount": 8,
+      "mediumConfidenceSampleCount": 5,
+      "lowConfidenceSampleCount": 1
+    },
+    "hardConstraints": {
+      "veryShallowMeanDepthCm": 20,
+      "strongSlopeMeanPercent": 35,
+      "strongSlopeP90Percent": 45
+    },
+    "rockSignal": {
+      "fieldVerificationMinimumClass": "medium_high",
+      "routineCheckMaximumClass": "medium"
+    },
+    "confidence": {
+      "highRequiresRealTerrain": true,
+      "highRequiresVerifiedDepth": true,
+      "mediumMinimumRealSources": 2,
+      "lowMinimumRealSources": 1
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  },
+  "fieldSurvey": {
+    "location": {
+      "highConfidenceMaxDistanceMeters": 10,
+      "mediumConfidenceMaxDistanceMeters": 30,
+      "lowConfidenceMaxDistanceMeters": 50,
+      "maximumAcceptedGpsAccuracyMeters": 30
+    },
+    "depth": {
+      "minimumValidCm": 1,
+      "maximumValidCm": 500
+    },
+    "sampleCountByArea": [
+      {
+        "maximumAreaSquareMeters": 10000,
+        "recommendedSamples": 3
+      },
+      {
+        "maximumAreaSquareMeters": 50000,
+        "recommendedSamples": 5
+      },
+      {
+        "maximumAreaSquareMeters": 100000,
+        "recommendedSamples": 8
+      },
+      {
+        "maximumAreaSquareMeters": null,
+        "recommendedSamples": 10
+      }
+    ],
+    "minimumSampleSeparationMeters": 20,
+    "depthConfidence": {
+      "highMinimumSamples": 8,
+      "mediumMinimumSamples": 5,
+      "lowMinimumSamples": 1
+    },
+    "hardConstraints": {
+      "veryShallowMeanDepthCm": 20,
+      "bedrockOutcropClass": "extensive",
+      "machineAccessClass": "impossible"
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  },
+  "cropPhysicalCompatibility": {
+    "classification": {
+      "stronglyLimitedMinimumHighComponents": 1,
+      "physicallyLimitedMinimumMediumComponents": 2,
+      "criticalUnknownProducesCaution": true
+    },
+    "confidence": {
+      "highRequiresVerifiedFieldDepth": true,
+      "highRequiresRealTerrain": true,
+      "highRequiresCompleteCriticalRequirements": true,
+      "mediumMinimumReliableComponents": 4,
+      "lowMinimumReliableComponents": 2
+    },
+    "depth": {
+      "minimumSpatialCoverage": "adequate",
+      "minimumMeasurementCountForMedium": 5
+    },
+    "terrain": {
+      "minimumCoverageStatus": "adequate",
+      "minimumConfidenceForLimitation": "medium"
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  },
+  "calibrationManagement": {
+    "publication": {
+      "minimumReviewCount": 1,
+      "requireAuthorizedReviewer": true,
+      "requireImpactAnalysis": true,
+      "requireValidSchema": true,
+      "allowDisputedCriticalFields": false
+    },
+    "impactAnalysis": {
+      "requireScoreInvariant": true,
+      "requireRankInvariant": true,
+      "maximumFixtureCount": 100
+    },
+    "validationResolution": {
+      "fieldValidatedMinimumFieldCount": 5,
+      "expertReviewedMinimumFieldCount": 5,
+      "partiallyValidatedMinimumFieldCount": 1
+    },
+    "cache": {
+      "activeProfileTtlSeconds": 3600
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  },
+  "notes": [
+    "Başlangıç kalibrasyon profilidir.",
+    "Saha verileriyle doğrulanmalıdır.",
+    "Terrain eşikleri uzaktan DEM tahminine göre başlangıç değerleridir.",
+    "Surface eşikleri Sentinel zaman serisi için başlangıç değerleridir; kesin kaya/derinlik değildir.",
+    "Land usability eşikleri ön değerlendirme içindir; kesin uygunluk hükmü değildir.",
+    "Field survey eşikleri başlangıç sistem kalibrasyonudur; uzman/saha doğrulaması iddia edilmez.",
+    "Field survey depolama varsayılan olarak process-memory (in-memory) olup kalıcı değildir.",
+    "Crop physical compatibility eşikleri unvalidated başlangıç kurallarıdır; skor/rank etkilemez.",
+    "Calibration management eşikleri unvalidated başlangıç kurallarıdır; skor/rank etkilemez; in-memory depolama kalıcı değildir.",
+    "Persistence katmanı in-memory ve postgresql destekler; DATABASE_ENABLED=false varsayılandır.",
+    "Operations katmanı HTTP idempotency, correlation, structured logging ve in-memory metrics sağlar; unvalidated başlangıç kalibrasyonudur."
+  ],
+  "persistence": {
+    "provider": {
+      "default": "in-memory",
+      "supported": [
+        "in-memory",
+        "postgresql"
+      ]
+    },
+    "database": {
+      "connectionTimeoutMs": 5000,
+      "statementTimeoutMs": 15000,
+      "poolMax": 10,
+      "autoMigrate": false
+    },
+    "optimisticConcurrency": {
+      "enabled": true,
+      "requiredForPublishedResources": true
+    },
+    "idempotency": {
+      "enabled": true,
+      "ttlSeconds": 86400
+    },
+    "audit": {
+      "useSequenceNumbers": true
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  },
+  "operations": {
+    "idempotency": {
+      "enabled": true,
+      "requiredForCriticalWrites": false,
+      "ttlSeconds": 86400,
+      "replayClientErrors": true,
+      "inProgressStatusCode": 409,
+      "maximumKeyLength": 128
+    },
+    "correlation": {
+      "enabled": true,
+      "headerName": "X-Correlation-Id",
+      "generateWhenMissing": true
+    },
+    "logging": {
+      "structured": true,
+      "slowRequestThresholdMs": 2000,
+      "redactSensitiveFields": true
+    },
+    "metrics": {
+      "enabled": true,
+      "provider": "in-memory"
+    },
+    "validationStatus": "unvalidated",
+    "source": "initial-system-calibration"
+  }
+}

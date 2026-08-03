@@ -1,0 +1,261 @@
+{
+  "at": "2026-07-28T23:10:23.386Z",
+  "results": [
+    {
+      "name": "supp admin login",
+      "status": "PASS",
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "supp officer login",
+      "status": "PASS",
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "supp producer login",
+      "status": "PASS",
+      "detail": {
+        "status": 200
+      }
+    },
+    {
+      "name": "supp refresh with body.refreshToken",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "data": {
+          "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YmJlOWI0MS01OTFhLTQ1YjEtYTg4MS1lMWU1NjAxYWMxMDUiLCJlbWFpbCI6ImFkbWluQGFncmljdWx0dXJlLmxvY2FsIiwianRpIjoiNzRmYTgyZmYtOTQ3ZS00NmFlLWI4NzctZDVhNGQ4OWM5YTBhIiwiZnVsbF9uYW1lIjoiU3lzdGVtIEFkbWluaXN0cmF0b3IiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbmlzdHJhdG9yIiwiZXhwIjoxNzg1MjgzODIzLCJpc3MiOiJBZ3JpY3VsdHVyZSIsImF1ZCI6IkFncmljdWx0dXJlIn0.VZz_ytyEqLvqts4RiY4gQnhP_wau_2sfYhmEDNUJVYo",
+          "refreshToken": "rDp5No2OcUi8/L9DBurfLVDCxKuf2wi4ta5xn7mAlCNS6+s32DNBHD6gsEUhPGq8DxSXyUvkvGSvZOROtpparw==",
+          "expiresAtUtc": "2026-07-29T00:10:23.018156Z",
+          "userId": "8bbe9b41-591a-45b1-a881-e1e5601ac105",
+          "email": "admin@agriculture.local",
+          "fullName": "System Administrator",
+          "roles": [
+            "Administrator"
+          ]
+        },
+        "hadRefresh": true
+      }
+    },
+    {
+      "name": "supp refresh with body.token",
+      "status": "FAIL",
+      "detail": {
+        "status": 400,
+        "data": {
+          "code": "RefreshToken",
+          "message": "'Refresh Token' boş olmamalı."
+        }
+      },
+      "severity": "low"
+    },
+    {
+      "name": "supp login uzman3@agriculture.local",
+      "status": "FAIL",
+      "detail": {
+        "status": 400,
+        "data": {
+          "code": "Auth.InvalidCredentials",
+          "message": "Invalid email or password."
+        }
+      },
+      "severity": "low"
+    },
+    {
+      "name": "supp login uzman4@agriculture.local",
+      "status": "FAIL",
+      "detail": {
+        "status": 400,
+        "data": {
+          "code": "Auth.InvalidCredentials",
+          "message": "Invalid email or password."
+        }
+      },
+      "severity": "low"
+    },
+    {
+      "name": "supp staff officers list",
+      "status": "PASS",
+      "detail": {
+        "n": 7,
+        "emails": [
+          "uzman@agriculture.local",
+          "uzman3@agriculture.local",
+          "uzman.verify.1785277365@test.local",
+          "uzman2@agriculture.local",
+          "uzman1@agriculture.local",
+          "uzman.smoke.1785276928@test.local",
+          "enes12@gmail.com"
+        ]
+      }
+    },
+    {
+      "name": "supp lands list",
+      "status": "PASS",
+      "detail": {
+        "n": 21
+      }
+    },
+    {
+      "name": "supp land has cadastralBlock field",
+      "status": "PASS",
+      "detail": {
+        "keys": [
+          "latitude",
+          "longitude",
+          "assignedOfficerUserId",
+          "cadastralBlock"
+        ],
+        "samplePick": {
+          "id": "7995a318-e549-4280-8ecf-b7ba1fbfa718",
+          "cadastralBlock": "a",
+          "latitude": 23424,
+          "longitude": 24234
+        }
+      }
+    },
+    {
+      "name": "supp land detail",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "hasOfficer": false,
+        "cadastralBlock": "a",
+        "keys": [
+          "latitude",
+          "longitude",
+          "neighborhood",
+          "cadastralBlock",
+          "assignedOfficerUserId"
+        ]
+      }
+    },
+    {
+      "name": "supp officer profile fields present",
+      "status": "PASS",
+      "detail": {
+        "fieldKeys": [
+          "id",
+          "email",
+          "fullName",
+          "phoneNumber",
+          "specialization",
+          "neighborhood",
+          "isActive",
+          "status",
+          "responsibleLandCount",
+          "todaysInspectionCount"
+        ],
+        "sample": {
+          "id": "22222222-2222-2222-2222-222222222222",
+          "email": "uzman@agriculture.local",
+          "fullName": "Ayşe Uzman",
+          "phoneNumber": "05551112233",
+          "specialization": "Bitki Koruma Uzmanı",
+          "neighborhood": "Değirmiçem",
+          "isActive": true,
+          "status": "Active",
+          "responsibleLandCount": 1,
+          "todaysInspectionCount": 1
+        }
+      }
+    },
+    {
+      "name": "supp /api/reports",
+      "status": "SKIP",
+      "detail": "endpoint 404"
+    },
+    {
+      "name": "supp /api/reports/summary",
+      "status": "SKIP",
+      "detail": "endpoint 404"
+    },
+    {
+      "name": "supp /api/reports/lands",
+      "status": "SKIP",
+      "detail": "endpoint 404"
+    },
+    {
+      "name": "supp /api/reports/tasks",
+      "status": "SKIP",
+      "detail": "endpoint 404"
+    },
+    {
+      "name": "supp /api/dashboard/reports",
+      "status": "SKIP",
+      "detail": "endpoint 404"
+    },
+    {
+      "name": "supp create task for file auth",
+      "status": "FAIL",
+      "detail": {
+        "status": 400
+      },
+      "severity": "medium"
+    },
+    {
+      "name": "supp files unauth blocked (dummy)",
+      "status": "PASS",
+      "detail": {
+        "status": 401
+      }
+    },
+    {
+      "name": "supp files auth with real key",
+      "status": "SKIP",
+      "detail": "could not resolve photo storage key from task detail"
+    },
+    {
+      "name": "supp pending-approval",
+      "status": "PASS",
+      "detail": {
+        "n": 4
+      }
+    },
+    {
+      "name": "supp pending has planned/actual evidence fields",
+      "status": "PASS",
+      "detail": {
+        "sample": {
+          "theme": "Sulama",
+          "planned": "{\"durationMinutes\":15,\"waterAmount\":50,\"waterUnit\":\"litre\"}"
+        },
+        "fieldProbe": [
+          "theme",
+          "plannedEvidenceJson",
+          "evidenceJson",
+          "hasVarianceWarning",
+          "varianceWarning"
+        ]
+      }
+    },
+    {
+      "name": "supp conversations",
+      "status": "PASS",
+      "detail": {
+        "status": 200,
+        "n": 1
+      }
+    },
+    {
+      "name": "supp lands with assignedOfficer",
+      "status": "FAIL",
+      "detail": {
+        "withOfficer": 0,
+        "total": 21
+      },
+      "severity": "medium"
+    },
+    {
+      "name": "supp minio health",
+      "status": "PASS",
+      "detail": {
+        "status": 200
+      }
+    }
+  ]
+}

@@ -107,7 +107,7 @@ async function main() {
   }
 
   // Officer creates task for full flow
-  const officerLogin = await login('uzman@agriculture.local', 'Officer123!');
+  const officerLogin = await login('uzman3@agriculture.local', 'Officer123!');
   const officerTok =
     officerLogin.data?.accessToken || officerLogin.data?.token;
   ok('officer login (for task create)', Boolean(officerTok), {
@@ -123,6 +123,21 @@ async function main() {
     ) || land;
 
   if (officerTok && sharedLand?.id) {
+    const seasons = await req('/api/seasons', { token: officerTok });
+    const workflows = await req('/api/workflows', { token: officerTok });
+    if (seasons.data?.length > 0 && workflows.data?.length > 0) {
+      await req('/api/workflows/assign', {
+        method: 'POST',
+        token: officerTok,
+        body: {
+          seasonId: seasons.data[0].id,
+          workflowId: workflows.data[0].id,
+          producerId: sharedLand.producerId || producerId,
+          landId: sharedLand.id
+        }
+      });
+    }
+
     const created = await req(`/api/lands/${sharedLand.id}/tasks`, {
       method: 'POST',
       token: officerTok,

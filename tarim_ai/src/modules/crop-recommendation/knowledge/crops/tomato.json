@@ -1,0 +1,249 @@
+{
+  "id": "tomato",
+  "name": "Domates",
+  "scientificName": "Solanum lycopersicum",
+  "category": "vegetable",
+  "growingType": "annual",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 10,
+      "optimalMinC": 20,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 400,
+      "optimalMin": 500,
+      "optimalMax": 700,
+      "maximum": 900
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "frostTolerance": "low",
+    "heatTolerance": "medium",
+    "droughtTolerance": "low",
+    "irrigationDependency": "high"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.5,
+      "optimalMin": 6,
+      "optimalMax": 7,
+      "absoluteMax": 7.8
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "preferredOrganicMatterPercent": 2.5,
+    "maximumElectricalConductivityDsM": 2.5,
+    "salinityTolerance": "low",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.35,
+      "optimalMin": 0.5,
+      "optimalMax": 0.85
+    },
+    "activeVegetationNdmi": {
+      "minimum": -0.05,
+      "optimalMin": 0.05,
+      "optimalMax": 0.35
+    },
+    "maximumActiveSeasonBsi": 0.15,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": false,
+      "expectedCycle": "annual",
+      "bareSoilBeforePlantingAcceptable": true
+    }
+  },
+  "management": {
+    "irrigationRequired": true,
+    "drainageImportance": "high",
+    "fertilityDemand": "high",
+    "mechanizationSuitability": "medium"
+  },
+  "hardConstraints": [
+    {
+      "code": "SOIL_PH_TOO_HIGH",
+      "field": "soil.ph",
+      "operator": "greater_than",
+      "value": 8,
+      "severity": "critical",
+      "group": "PH",
+      "message": "Yüksek pH ürün gelişimini önemli ölçüde sınırlandırabilir."
+    },
+    {
+      "code": "SOIL_EC_TOO_HIGH",
+      "field": "soil.electricalConductivityDsM",
+      "operator": "greater_than",
+      "value": 3.5,
+      "severity": "major",
+      "group": "SALINITY",
+      "message": "Yüksek EC tuzluluk baskısı oluşturabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 4,
+        "endMonth": 5,
+        "label": "Açık tarla dikimi"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "germination",
+        "label": "Tesis / tutma",
+        "startOffsetDays": 0,
+        "endOffsetDays": 20,
+        "temperature": {
+          "absoluteMinC": 10,
+          "optimalMinC": 16,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 35
+        },
+        "waterSensitivity": "high",
+        "weight": 0.15,
+        "frostSensitivity": "high",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "vegetative",
+        "label": "Vejetatif gelişme",
+        "startOffsetDays": 21,
+        "endOffsetDays": 55,
+        "temperature": {
+          "absoluteMinC": 12,
+          "optimalMinC": 18,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 35
+        },
+        "waterSensitivity": "high",
+        "weight": 0.2,
+        "frostSensitivity": "high",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 56,
+        "endOffsetDays": 90,
+        "temperature": {
+          "absoluteMinC": 15,
+          "optimalMinC": 20,
+          "optimalMaxC": 30,
+          "absoluteMaxC": 35
+        },
+        "waterSensitivity": "high",
+        "weight": 0.3,
+        "frostSensitivity": "high",
+        "heatSensitivity": "high"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Meyve oluşumu",
+        "startOffsetDays": 91,
+        "endOffsetDays": 140,
+        "temperature": {
+          "absoluteMinC": 15,
+          "optimalMinC": 20,
+          "optimalMaxC": 30,
+          "absoluteMaxC": 36
+        },
+        "waterSensitivity": "high",
+        "weight": 0.35,
+        "frostSensitivity": "high",
+        "heatSensitivity": "high"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 120,
+      "typical": 140,
+      "maximum": 170
+    },
+    "perennial": {
+      "isPerennial": false,
+      "dormancyMonths": [],
+      "chillingRequirementHours": null,
+      "establishmentYears": null,
+      "economicLifeYears": null
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 40,
+      "preferredMinimumCm": 60,
+      "optimalMinimumCm": 80,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 5,
+      "acceptableMaximumMeanPercent": 10,
+      "maximumMeanPercent": 18,
+      "maximumP90Percent": 25,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "very_low",
+      "acceptableMaximumClass": "low",
+      "importance": "medium"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "none",
+      "acceptableMaximum": "low",
+      "maximum": "medium",
+      "importance": "high"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "not_observed",
+      "maximum": "isolated",
+      "importance": "high"
+    },
+    "machineAccessRequirement": {
+      "minimum": "verified_accessible",
+      "importance": "medium"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [],
+      "notPreferred": [
+        "moderately_limited",
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "high"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

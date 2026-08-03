@@ -117,7 +117,7 @@ async function main() {
   ok('A health', health.status === 200 && health.data?.status === 'healthy', health.data);
 
   const admin = await login('admin@agriculture.local', 'Admin123!');
-  const officer = await login('uzman@agriculture.local', 'Officer123!');
+  const officer = await login('uzman3@agriculture.local', 'Officer123!');
   const producer = await login('5537472823', 'asd');
   ok('A admin login', Boolean(admin.token), { status: admin.status });
   ok('A officer login', Boolean(officer.token), { status: officer.status });
@@ -128,11 +128,27 @@ async function main() {
   }
 
   const officerLands = await req('/api/lands', { token: officer.token });
-  const land = officerLands.data?.[0];
+  const producerLands = await req('/api/lands', { token: producer.token });
+  const land = officerLands.data?.find(ol => producerLands.data?.some(pl => pl.id === ol.id)) || officerLands.data?.[0];
   ok('A officer land', Boolean(land?.id), land?.id);
   if (!land?.id) {
     finish(1);
     return;
+  }
+
+  const seasons = await req('/api/seasons', { token: officer.token });
+  const workflows = await req('/api/workflows', { token: officer.token });
+  if (seasons.data?.length > 0 && workflows.data?.length > 0) {
+    await req('/api/workflows/assign', {
+      method: 'POST',
+      token: officer.token,
+      body: {
+        seasonId: seasons.data[0].id,
+        workflowId: workflows.data[0].id,
+        producerId: land.producerId || (await req('/api/me', { token: producer.token })).data?.producerId,
+        landId: land.id
+      }
+    });
   }
 
   // B1: create each theme with planned evidence

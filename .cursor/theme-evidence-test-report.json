@@ -34,15 +34,15 @@
     {
       "name": "A officer land",
       "pass": true,
-      "detail": "44444444-4444-4444-4444-444444444444"
+      "detail": "7ae397fe-7ce5-4beb-9112-d25307c3cee5"
     },
     {
       "name": "B1 create theme Sulama",
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "87f38474-9a46-4575-97ef-5c1b51984c12",
-        "data": "87f38474-9a46-4575-97ef-5c1b51984c12"
+        "id": "a70a5da7-4151-475d-a041-46c4f0afb538",
+        "data": "a70a5da7-4151-475d-a041-46c4f0afb538"
       }
     },
     {
@@ -50,8 +50,8 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "0baabbb3-3c10-4f94-acaf-297b879fdcdf",
-        "data": "0baabbb3-3c10-4f94-acaf-297b879fdcdf"
+        "id": "3b726150-c60f-4e78-8301-9c4f0cb258d0",
+        "data": "3b726150-c60f-4e78-8301-9c4f0cb258d0"
       }
     },
     {
@@ -59,8 +59,8 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "140abbb9-f62a-4668-b7d8-09c319a547fb",
-        "data": "140abbb9-f62a-4668-b7d8-09c319a547fb"
+        "id": "dc3f4b63-647a-4890-a7a1-c998b2c4ef4d",
+        "data": "dc3f4b63-647a-4890-a7a1-c998b2c4ef4d"
       }
     },
     {
@@ -68,8 +68,8 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "977a1960-0af5-43e0-90f9-cb0e28c9673b",
-        "data": "977a1960-0af5-43e0-90f9-cb0e28c9673b"
+        "id": "3bd4839a-ff8a-4299-9ea8-6359704a2426",
+        "data": "3bd4839a-ff8a-4299-9ea8-6359704a2426"
       }
     },
     {
@@ -77,8 +77,8 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "d212e9eb-a8d8-49cb-9afb-99d2106d3565",
-        "data": "d212e9eb-a8d8-49cb-9afb-99d2106d3565"
+        "id": "8367462e-7be3-45ed-bb0e-c42f8cf8f29a",
+        "data": "8367462e-7be3-45ed-bb0e-c42f8cf8f29a"
       }
     },
     {
@@ -86,8 +86,8 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "a8603598-4a15-4725-a810-8426ddcb0f9c",
-        "data": "a8603598-4a15-4725-a810-8426ddcb0f9c"
+        "id": "ecb7866a-2ae7-4c13-9c75-4ddbb54edaef",
+        "data": "ecb7866a-2ae7-4c13-9c75-4ddbb54edaef"
       }
     },
     {
@@ -112,7 +112,7 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "id": "9ceedb0b-35af-41b9-b109-363375002f79"
+        "id": "6f62a167-152e-4918-b5c9-8fb91fbafe79"
       }
     },
     {
@@ -161,7 +161,7 @@
       "name": "B5 pending has gubre task",
       "pass": true,
       "detail": {
-        "pendingCount": 3
+        "pendingCount": 2
       }
     },
     {
@@ -205,9 +205,9 @@
       "pass": true,
       "detail": {
         "status": 200,
-        "taskId": "89fad4be-c1f3-42d0-98cb-91ee3940f6db",
-        "title": "Can suyu verildi",
-        "data": null
+        "taskId": "e1d5c1c6-4d7c-4721-8862-14c4b3a997d5",
+        "title": "Toprak hazırlığı",
+        "landId": "a4444444-4444-4444-4444-444444444406"
       }
     },
     {
@@ -215,7 +215,7 @@
       "pass": true,
       "detail": {
         "status": 403,
-        "foreignId": "aa12a4ad-559d-47f4-9c77-1ac9081f5b85"
+        "foreignId": "03106fd7-4197-40dc-b12f-da76e72162bd"
       }
     },
     {
@@ -252,7 +252,7 @@
       "detail": {
         "detailStatus": 403,
         "createStatus": 403,
-        "landId": "a4444444-4444-4444-4444-444444444408"
+        "landId": "a4171d86-a792-413a-95b7-c876d76b18f8"
       }
     }
   ]

@@ -1,0 +1,180 @@
+{
+  "at": "2026-07-28T23:13:55.974Z",
+  "results": [
+    {
+      "name": "ui login page loads",
+      "status": "PASS",
+      "detail": {
+        "title": "Tarım — Yönetim Paneli"
+      }
+    },
+    {
+      "name": "ui admin login redirect",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/"
+      }
+    },
+    {
+      "name": "ui has Operasyon Merkezi",
+      "status": "PASS",
+      "detail": {
+        "snippet": "Tarım\n\nYönetici Paneli\n\nOperasyon Merkezi\nSaha süreçleri\nAraziler\nÜreticiler\nUzmanlar\nMesajlar\nRaporlar\nY\nYönetici\nadmin@agriculture.local"
+      }
+    },
+    {
+      "name": "ui has Saha süreçleri",
+      "status": "PASS"
+    },
+    {
+      "name": "ui has Araziler",
+      "status": "PASS"
+    },
+    {
+      "name": "ui has Üreticiler",
+      "status": "PASS"
+    },
+    {
+      "name": "ui has Uzmanlar",
+      "status": "PASS"
+    },
+    {
+      "name": "ui theme moon toggle gone",
+      "status": "PASS",
+      "detail": {
+        "moonCount": 0,
+        "moonSvg": false
+      }
+    },
+    {
+      "name": "ui sidebar dark green",
+      "status": "FAIL",
+      "detail": {
+        "bg": "oklch(0.26 0.042 156)"
+      }
+    },
+    {
+      "name": "ui page /",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Operasyon Merkezi Yönetici Paneli Y Yönetic"
+      }
+    },
+    {
+      "name": "ui page /approvals",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/approvals",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Onaylar 5 Denetimler Hasat ve teslimat İş akışı şablonları Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@ag"
+      }
+    },
+    {
+      "name": "ui page /inspections",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/inspections",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Onaylar 5 Denetimler Hasat ve teslimat İş akışı şablonları Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@ag"
+      }
+    },
+    {
+      "name": "ui page /harvest",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/harvest",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Onaylar 5 Denetimler Hasat ve teslimat İş akışı şablonları Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@ag"
+      }
+    },
+    {
+      "name": "ui page /workflows",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/workflows",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Onaylar 5 Denetimler Hasat ve teslimat İş akışı şablonları Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@ag"
+      }
+    },
+    {
+      "name": "ui page /lands",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/lands",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Araziler Yönetici Paneli Y Yönetici Arazile"
+      }
+    },
+    {
+      "name": "ui page /producers",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/producers",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Üreticiler Yönetici Paneli Y Yönetici Üreti"
+      }
+    },
+    {
+      "name": "ui producers card UI",
+      "status": "PASS",
+      "detail": {
+        "hasOfficersCardClass": true,
+        "hasGrid": true
+      }
+    },
+    {
+      "name": "ui page /officers",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/officers",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Uzmanlar Yönetici Paneli Y Yönetici Uzmanla"
+      }
+    },
+    {
+      "name": "ui page /reports",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/reports",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Raporlar Yönetici Paneli Y Yönetici Raporla"
+      }
+    },
+    {
+      "name": "ui page /messages",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/messages",
+        "has": true,
+        "err": false,
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Mesajlar Yönetici Paneli Y Yönetici Mesajla"
+      }
+    },
+    {
+      "name": "ui land detail Uzman meta",
+      "status": "PASS",
+      "detail": {
+        "url": "http://localhost:5173/lands/7995a318-e549-4280-8ecf-b7ba1fbfa718",
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Arazi operasyon merkezi Yönetici Paneli Y Yönetici Arazilere geri dön Cıkcık Değirmiçem Ada a Parsel 1 Düzenle Üretici Eyüp"
+      }
+    },
+    {
+      "name": "ui land detail ada/mahalle",
+      "status": "PASS",
+      "detail": {
+        "snippet": "Tarım Yönetici Paneli Operasyon Merkezi Saha süreçleri Araziler Üreticiler Uzmanlar Mesajlar Raporlar Y Yönetici admin@agriculture.local Arazi operasyon merkezi Yönetici Paneli Y Yönetici Arazilere geri dön Cıkcık Değirmiçem Ada a Parsel 1 Düzenle Üretici Eyüp"
+      }
+    }
+  ]
+}

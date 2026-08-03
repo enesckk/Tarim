@@ -1,0 +1,133 @@
+openapi: 3.0.3
+info:
+  title: Irrigation Water Laboratory API
+  version: '2.2G'
+  description: Phase 2.2G — water sources, samples, parameters, results, derived indicators, custody.
+paths:
+  /api/water-sources:
+    get:
+      summary: List water sources
+      parameters:
+        - in: query
+          name: parcelId
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create water source
+      responses:
+        '201': { description: Created }
+  /api/water-sources/{id}:
+    get:
+      summary: Get water source
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update water source
+      responses:
+        '200': { description: OK }
+    delete:
+      summary: Soft-delete water source
+      responses:
+        '200': { description: OK }
+  /api/parcels/{parcelId}/water-sources:
+    get:
+      summary: List water sources for parcel
+      parameters:
+        - in: path
+          name: parcelId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: OK }
+  /api/water-samples:
+    get:
+      summary: List water samples
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create water sample
+      responses:
+        '201': { description: Created }
+  /api/water-samples/{id}:
+    get:
+      summary: Get water sample
+      responses:
+        '200': { description: OK }
+    put:
+      summary: Update water sample
+      responses:
+        '200': { description: OK }
+  /api/water-samples/{id}/status:
+    post:
+      summary: Update sample status
+      responses:
+        '200': { description: OK }
+  /api/water-parameters:
+    get:
+      summary: List water parameters
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Create water parameter
+      responses:
+        '201': { description: Created }
+  /api/water-parameters/code/{code}:
+    get:
+      summary: Get parameter by code
+      responses:
+        '200': { description: OK }
+  /api/water-parameters/{id}:
+    put:
+      summary: Update water parameter
+      responses:
+        '200': { description: OK }
+  /api/water-samples/{sampleId}/results:
+    get:
+      summary: List analysis results for sample
+      responses:
+        '200': { description: OK }
+  /api/water-analysis-results:
+    post:
+      summary: Create analysis result
+      responses:
+        '201': { description: Created }
+  /api/water-analysis-results/{id}:
+    put:
+      summary: Update analysis result
+      responses:
+        '200': { description: OK }
+  /api/water-analysis-results/normalize:
+    post:
+      summary: Normalize result units (preserves raw)
+      responses:
+        '200': { description: OK }
+  /api/water-analysis-results/validate:
+    post:
+      summary: Validate analysis result payload
+      responses:
+        '200': { description: OK }
+  /api/water-samples/{sampleId}/calculate-indicators:
+    post:
+      summary: Calculate derived indicators
+      responses:
+        '200': { description: OK }
+  /api/water-samples/{sampleId}/derived-indicators:
+    get:
+      summary: List derived indicators
+      responses:
+        '200': { description: OK }
+  /api/water-samples/{sampleId}/chain-of-custody:
+    get:
+      summary: List custody records
+      responses:
+        '200': { description: OK }
+    post:
+      summary: Append custody record
+      responses:
+        '201': { description: Created }

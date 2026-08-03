@@ -1,5 +1,5 @@
 {
-  "at": "2026-07-28T09:30:15.658Z",
+  "at": "2026-08-03T13:13:58.032Z",
   "api": "http://127.0.0.1:5109",
   "results": [
     {
@@ -182,22 +182,22 @@
     {
       "name": "admin GET /api/lands",
       "pass": true,
-      "detail": "200 n=21"
+      "detail": "200 n=9"
     },
     {
       "name": "admin GET /api/producers",
       "pass": true,
-      "detail": "200 n=8"
+      "detail": "200 n=9"
     },
     {
       "name": "admin GET /api/staff/officers",
       "pass": true,
-      "detail": "200 n=4"
+      "detail": "200 n=7"
     },
     {
       "name": "admin GET /api/users/officers",
       "pass": true,
-      "detail": "200 n=4"
+      "detail": "200 n=7"
     },
     {
       "name": "admin GET /api/workflows",
@@ -207,7 +207,7 @@
     {
       "name": "admin GET /api/inspections",
       "pass": true,
-      "detail": "200 n=3"
+      "detail": "200 n=9"
     },
     {
       "name": "admin GET /api/harvest",
@@ -217,7 +217,7 @@
     {
       "name": "admin GET /api/notifications",
       "pass": true,
-      "detail": "200 n=14"
+      "detail": "200 n=68"
     },
     {
       "name": "admin GET /api/conversations",
@@ -237,22 +237,22 @@
     {
       "name": "officer GET /api/lands",
       "pass": true,
-      "detail": "200 n=1"
+      "detail": "200 n=2"
     },
     {
       "name": "officer GET /api/producers",
       "pass": true,
-      "detail": "200 n=1"
+      "detail": "200 n=3"
     },
     {
       "name": "officer GET /api/tasks/pending-approval",
       "pass": true,
-      "detail": "200 n=2"
+      "detail": "200 n=5"
     },
     {
       "name": "officer GET /api/inspections",
       "pass": true,
-      "detail": "200 n=2"
+      "detail": "200 n=8"
     },
     {
       "name": "officer GET /api/harvest",
@@ -262,7 +262,7 @@
     {
       "name": "officer GET /api/notifications",
       "pass": true,
-      "detail": "200 n=46"
+      "detail": "200 n=90"
     },
     {
       "name": "officer GET /api/conversations",
@@ -302,7 +302,7 @@
     {
       "name": "officer has assigned lands",
       "pass": true,
-      "detail": "n=1"
+      "detail": "n=2"
     },
     {
       "name": "producer has producerId",
@@ -312,12 +312,12 @@
     {
       "name": "producer GET /api/tasks/today",
       "pass": true,
-      "detail": "200 n=27"
+      "detail": "200 n=41"
     },
     {
       "name": "producer GET /api/notifications",
       "pass": true,
-      "detail": "200 n=110"
+      "detail": "200 n=154"
     },
     {
       "name": "producer GET /api/conversations/expert",
@@ -332,7 +332,7 @@
     {
       "name": "producer GET /api/tasks?producerId=33333333-3333-3333-3333-333333333333",
       "pass": true,
-      "detail": "200 n=90"
+      "detail": "200 n=117"
     },
     {
       "name": "producer FORBIDDEN /api/staff/officers",
@@ -352,37 +352,37 @@
     {
       "name": "producer lands scoped",
       "pass": true,
-      "detail": "200 n=4"
+      "detail": "200 n=1"
     },
     {
       "name": "officer lands ⊆ admin lands",
       "pass": true,
-      "detail": "officer=1 admin=21"
+      "detail": "officer=2 admin=9"
     },
     {
       "name": "officer pending-approval readable",
       "pass": true,
-      "detail": "n=2"
+      "detail": "n=5"
     },
     {
       "name": "producer today tasks readable",
       "pass": true,
-      "detail": "n=27"
+      "detail": "n=41"
     },
     {
       "name": "officer1 lands readable",
       "pass": true,
-      "detail": "n=5"
+      "detail": "n=3"
     },
     {
       "name": "officer2 lands readable",
       "pass": true,
-      "detail": "n=6"
+      "detail": "n=2"
     },
     {
       "name": "officer3 lands readable",
       "pass": true,
-      "detail": "n=5"
+      "detail": "n=2"
     },
     {
       "name": "admin refresh token",

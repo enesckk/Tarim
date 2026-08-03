@@ -1,0 +1,140 @@
+openapi: 3.0.3
+info:
+  title: Soil Parameter Catalog (Phase 2.2C)
+  version: '2.2C'
+  description: |
+    Central soil parameter definitions, measurement units, aliases, and
+    raw→canonical normalization. No suitability scoring or scientific ranges.
+servers:
+  - url: /api
+paths:
+  /soil-parameters:
+    get:
+      summary: List soil parameters
+      responses:
+        '200':
+          description: Parameter catalog
+    post:
+      summary: Create soil parameter
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation / duplicate code
+  /soil-parameters/{id}:
+    get:
+      summary: Get parameter by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Parameter
+        '404':
+          description: Not found
+    put:
+      summary: Update parameter (code immutable)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Soft-delete parameter
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Deactivated
+  /soil-parameters/code/{code}:
+    get:
+      summary: Get parameter by code
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Parameter
+  /soil-units:
+    get:
+      summary: List measurement units
+      responses:
+        '200':
+          description: Unit catalog
+  /soil-units/convert:
+    post:
+      summary: Convert between compatible units
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [value, fromUnit, toUnit]
+              properties:
+                value:
+                  type: number
+                fromUnit:
+                  type: string
+                toUnit:
+                  type: string
+      responses:
+        '200':
+          description: Converted
+        '422':
+          description: Unsupported / incompatible unit
+  /soil-parameter-aliases:
+    get:
+      summary: List aliases
+      responses:
+        '200':
+          description: Alias list
+    post:
+      summary: Create alias
+      responses:
+        '201':
+          description: Created
+  /soil-parameter-aliases/{id}:
+    put:
+      summary: Update alias
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Updated
+  /soil-analysis-results/normalize:
+    post:
+      summary: Normalize raw lab value to canonical unit
+      responses:
+        '200':
+          description: Normalization outcome
+  /soil-analysis-results/validate:
+    post:
+      summary: Validate analysis result payload
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid

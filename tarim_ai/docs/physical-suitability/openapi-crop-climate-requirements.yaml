@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Crop Climate Requirements API
+  version: 2.1.C
+  description: >
+    Physical Suitability / Crop Knowledge Base — climate requirement data model.
+    Numeric thresholds may be null. No suitability scoring endpoints.
+servers:
+  - url: /api/physical-suitability
+paths:
+  /crop-knowledge/{cropKnowledgeId}/climate-requirements:
+    get:
+      summary: Get climate requirements aggregate
+      tags: [CropClimateRequirements]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Section + requirement list
+    post:
+      summary: Create climate requirement
+      tags: [ClimateRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClimateRequirementRequest'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Validation failed
+  /crop-knowledge/{cropKnowledgeId}/climate-requirements/factors:
+    get:
+      summary: List climate requirement factors
+      tags: [ClimateRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Active factors
+  /crop-knowledge/{cropKnowledgeId}/climate-requirements/factors/{climateFactor}:
+    get:
+      summary: Get requirement by ClimateFactor
+      tags: [ClimateRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - name: climateFactor
+          in: path
+          required: true
+          schema:
+            $ref: '#/components/schemas/ClimateFactor'
+      responses:
+        '200':
+          description: Factor row
+        '404':
+          description: Not found
+  /crop-knowledge/{cropKnowledgeId}/climate-requirements/{requirementId}:
+    get:
+      summary: Get climate requirement details
+      tags: [ClimateRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      responses:
+        '200':
+          description: Requirement
+    put:
+      summary: Update climate requirement (versioned)
+      tags: [ClimateRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateClimateRequirementRequest'
+      responses:
+        '200':
+          description: New version
+    delete:
+      summary: Soft-delete climate requirement
+      tags: [ClimateRequirement]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+        - $ref: '#/components/parameters/RequirementId'
+      responses:
+        '200':
+          description: Soft-deactivated
+  /crop-knowledge/{cropKnowledgeId}/climate-requirements/validate:
+    post:
+      summary: Validate climate requirements
+      tags: [CropClimateRequirements]
+      parameters:
+        - $ref: '#/components/parameters/CropKnowledgeId'
+      responses:
+        '200':
+          description: Valid
+        '422':
+          description: Invalid
+  /climate-requirements/code/{cropCode}:
+    get:
+      summary: Aggregate by crop code
+      tags: [CropClimateRequirements]
+      parameters:
+        - name: cropCode
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Aggregate
+components:
+  parameters:
+    CropKnowledgeId:
+      name: cropKnowledgeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    RequirementId:
+      name: requirementId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  schemas:
+    ClimateFactor:
+      type: string
+      enum:
+        - AIR_TEMPERATURE
+        - SOIL_TEMPERATURE
+        - GDD
+        - FROST
+        - FROST_FREE_PERIOD
+        - EXTREME_HEAT
+        - HEAT_WAVE
+        - RAINFALL
+        - RAINFALL_DISTRIBUTION
+        - HUMIDITY
+        - SOLAR_RADIATION
+        - SUNSHINE_DURATION
+        - DAY_LENGTH
+        - WIND
+        - EVAPOTRANSPIRATION
+        - CLIMATIC_WATER_DEFICIT
+    CreateClimateRequirementRequest:
+      type: object
+      required: [climateFactor]
+      properties:
+        climateFactor:
+          $ref: '#/components/schemas/ClimateFactor'
+        minimumValue: { type: number, nullable: true }
+        optimalMinimum: { type: number, nullable: true }
+        optimalMaximum: { type: number, nullable: true }
+        maximumValue: { type: number, nullable: true }
+        preferredValue: { type: number, nullable: true }
+        toleranceLevel:
+          type: string
+          enum: [Unknown, Narrow, Moderate, Wide]
+        importanceLevel:
+          type: string
+          enum: [Required, Important, Supporting, Optional]
+        unit: { type: string }
+        scientificExplanation: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+        sourceReferenceId: { type: string, format: uuid, nullable: true }
+        verificationStatus: { type: string }
+    UpdateClimateRequirementRequest:
+      allOf:
+        - $ref: '#/components/schemas/CreateClimateRequirementRequest'
+      required: []

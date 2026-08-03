@@ -1,0 +1,24 @@
+{
+  "parcel": {
+    "province": "Gaziantep",
+    "district": "Şehitkamil",
+    "neighborhood": "Güngürge",
+    "block": "108",
+    "parcel": "7"
+  },
+  "datasetType": "captured",
+  "demoReady": true,
+  "capturedAt": "2026-07-30T09:47:35.473Z",
+  "sourceMode": "live",
+  "files": [
+    "final-analysis.json",
+    "checksums.json"
+  ],
+  "images": [
+    "images/true-color.png",
+    "images/ndvi.png",
+    "images/ndmi.png",
+    "images/bsi.png"
+  ],
+  "status": "captured"
+}

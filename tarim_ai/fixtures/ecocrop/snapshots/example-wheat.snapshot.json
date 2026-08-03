@@ -1,0 +1,25 @@
+{
+  "snapshotVersion": "2026-07-30-example-structured",
+  "retrievedAt": "2026-07-30T00:00:00.000Z",
+  "sourceUrlOrId": "structured-dump-example-not-live-html-scrape",
+  "crops": [
+    {
+      "ecocropId": "EXAMPLE-WHEAT",
+      "commonName": "Wheat",
+      "scientificName": "Triticum aestivum",
+      "fields": {
+        "temperatureAbsoluteMinC": 0,
+        "temperatureOptimalMinC": 15,
+        "temperatureOptimalMaxC": 23,
+        "temperatureAbsoluteMaxC": 35,
+        "precipitationMinMm": 300,
+        "precipitationOptimalMinMm": 450,
+        "precipitationOptimalMaxMm": 800,
+        "precipitationMaxMm": 1600,
+        "phMin": 5.5,
+        "phMax": 7.5,
+        "mysteryUnofficialField": "keep-as-unknown"
+      }
+    }
+  ]
+}

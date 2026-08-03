@@ -1,0 +1,70 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              37.47634,
+              37.20623
+            ],
+            [
+              37.47514,
+              37.20754
+            ],
+            [
+              37.47414,
+              37.20709
+            ],
+            [
+              37.47445,
+              37.20664
+            ],
+            [
+              37.47482,
+              37.20594
+            ],
+            [
+              37.47496,
+              37.20558
+            ],
+            [
+              37.47513,
+              37.20564
+            ],
+            [
+              37.47517,
+              37.20557
+            ],
+            [
+              37.47634,
+              37.20623
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "ilceAd": "Şehitkamil",
+        "mevkii": "",
+        "ilId": 49,
+        "durum": "1",
+        "ilceId": 441,
+        "zeminKmdurum": "Ana Taşınmaz",
+        "parselNo": "7",
+        "mahalleAd": "Güngürge",
+        "ozet": "Güngürge-108/7",
+        "gittigiParselListe": "",
+        "gittigiParselSebep": "",
+        "alan": "21.913,16",
+        "adaNo": "108",
+        "nitelik": "Tarla",
+        "ilAd": "Gaziantep",
+        "mahalleId": 131746,
+        "pafta": "N38-C-05-C-4"
+      }
+    }
+  ]
+}

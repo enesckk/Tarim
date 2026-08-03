@@ -1,0 +1,411 @@
+{
+  "generatedAt": "2026-07-30T13:08:26.083Z",
+  "policy": {
+    "autoMappingsApproved": false,
+    "fabricatedGaezCodes": false,
+    "fabricatedEcocropIds": false,
+    "gaezAffectsLocalScore": false
+  },
+  "catalogDatasetCount": 10000,
+  "mappings": [
+    {
+      "id": "map:wheat",
+      "internalCropCode": "wheat",
+      "scientificName": "Triticum aestivum",
+      "ecocropId": null,
+      "gaezCropCode": "Wheat",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:barley",
+      "internalCropCode": "barley",
+      "scientificName": "Hordeum vulgare",
+      "ecocropId": null,
+      "gaezCropCode": "Barley",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:chickpea",
+      "internalCropCode": "chickpea",
+      "scientificName": "Cicer arietinum",
+      "ecocropId": null,
+      "gaezCropCode": "Chickpea",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:lentil",
+      "internalCropCode": "lentil",
+      "scientificName": "Lens culinaris",
+      "ecocropId": null,
+      "gaezCropCode": null,
+      "gaezVersion": null,
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_crop_not_found_in_res05_catalog_no_fabricated_mapping",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_alias:red_lentil->lentil"
+      ]
+    },
+    {
+      "id": "map:corn",
+      "internalCropCode": "corn",
+      "scientificName": "Zea mays",
+      "ecocropId": null,
+      "gaezCropCode": "Maize",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_alias:maize->corn"
+      ]
+    },
+    {
+      "id": "map:cotton",
+      "internalCropCode": "cotton",
+      "scientificName": "Gossypium hirsutum",
+      "ecocropId": null,
+      "gaezCropCode": "Cotton",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:tomato",
+      "internalCropCode": "tomato",
+      "scientificName": "Solanum lycopersicum",
+      "ecocropId": null,
+      "gaezCropCode": "Tomato",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:grape",
+      "internalCropCode": "grape",
+      "scientificName": "Vitis vinifera",
+      "ecocropId": null,
+      "gaezCropCode": null,
+      "gaezVersion": null,
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_crop_not_found_in_res05_catalog_no_fabricated_mapping",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:olive",
+      "internalCropCode": "olive",
+      "scientificName": "Olea europaea",
+      "ecocropId": null,
+      "gaezCropCode": "Olive",
+      "gaezVersion": "v4",
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "id": "map:pistachio",
+      "internalCropCode": "pistachio",
+      "scientificName": "Pistacia vera",
+      "ecocropId": null,
+      "gaezCropCode": null,
+      "gaezVersion": null,
+      "productionSystem": null,
+      "confidence": null,
+      "reviewStatus": "draft",
+      "reviewedBy": null,
+      "reviewedAt": null,
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_crop_not_found_in_res05_catalog_no_fabricated_mapping",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    }
+  ],
+  "report": [
+    {
+      "pilotCode": "wheat",
+      "internalCropCode": "wheat",
+      "scientificName": "Triticum aestivum",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Wheat",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "barley",
+      "internalCropCode": "barley",
+      "scientificName": "Hordeum vulgare",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Barley",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "chickpea",
+      "internalCropCode": "chickpea",
+      "scientificName": "Cicer arietinum",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Chickpea",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "red_lentil",
+      "internalCropCode": "lentil",
+      "scientificName": "Lens culinaris",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": null,
+      "gaezCropCode": null,
+      "gaezDatasetAvailable": false,
+      "rainfedLayerAvailable": false,
+      "irrigatedLayerAvailable": false,
+      "yieldLayerAvailable": false,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_crop_not_found_in_res05_catalog_no_fabricated_mapping",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_alias:red_lentil->lentil"
+      ]
+    },
+    {
+      "pilotCode": "maize",
+      "internalCropCode": "corn",
+      "scientificName": "Zea mays",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Maize",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_alias:maize->corn",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "cotton",
+      "internalCropCode": "cotton",
+      "scientificName": "Gossypium hirsutum",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Cotton",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "tomato",
+      "internalCropCode": "tomato",
+      "scientificName": "Solanum lycopersicum",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Tomato",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "grape",
+      "internalCropCode": "grape",
+      "scientificName": "Vitis vinifera",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": null,
+      "gaezCropCode": null,
+      "gaezDatasetAvailable": false,
+      "rainfedLayerAvailable": false,
+      "irrigatedLayerAvailable": false,
+      "yieldLayerAvailable": false,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_crop_not_found_in_res05_catalog_no_fabricated_mapping",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    },
+    {
+      "pilotCode": "olive",
+      "internalCropCode": "olive",
+      "scientificName": "Olea europaea",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": "v4",
+      "gaezCropCode": "Olive",
+      "gaezDatasetAvailable": true,
+      "rainfedLayerAvailable": true,
+      "irrigatedLayerAvailable": true,
+      "yieldLayerAvailable": true,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_res05_label_observed_in_official_catalog",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal",
+        "yield_flags_from_official_catalog_audit_when_sync_subset_lacks_yield_vars"
+      ]
+    },
+    {
+      "pilotCode": "pistachio",
+      "internalCropCode": "pistachio",
+      "scientificName": "Pistacia vera",
+      "ecocropId": null,
+      "ecocropImportStatus": "not_imported",
+      "gaezVersion": null,
+      "gaezCropCode": null,
+      "gaezDatasetAvailable": false,
+      "rainfedLayerAvailable": false,
+      "irrigatedLayerAvailable": false,
+      "yieldLayerAvailable": false,
+      "mappingReviewStatus": "draft",
+      "notes": [
+        "auto_match_not_approved",
+        "gaez_v4_crop_not_found_in_res05_catalog_no_fabricated_mapping",
+        "ecocrop_id_pending_versioned_snapshot_import",
+        "pilot_code_matches_internal"
+      ]
+    }
+  ]
+}

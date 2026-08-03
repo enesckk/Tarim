@@ -1,0 +1,246 @@
+{
+  "id": "lentil",
+  "name": "Mercimek",
+  "scientificName": "Lens culinaris",
+  "category": "field_crop",
+  "growingType": "annual",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 2,
+      "optimalMinC": 12,
+      "optimalMaxC": 26,
+      "absoluteMaxC": 35
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 320,
+      "optimalMax": 520,
+      "maximum": 700
+    },
+    "growingSeasonPrecipitationMm": {
+      "minimum": 140,
+      "optimalMin": 180,
+      "optimalMax": 320,
+      "maximum": 480
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "medium",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.5,
+      "optimalMin": 6,
+      "optimalMax": 7.8,
+      "absoluteMax": 8.4
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1,
+    "preferredOrganicMatterPercent": 2,
+    "maximumElectricalConductivityDsM": 3,
+    "salinityTolerance": "low",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "remoteSensing": {
+    "activeVegetationNdvi": {
+      "minimum": 0.2,
+      "optimalMin": 0.35,
+      "optimalMax": 0.7
+    },
+    "activeVegetationNdmi": {
+      "minimum": -0.1,
+      "optimalMin": 0,
+      "optimalMax": 0.25
+    },
+    "maximumActiveSeasonBsi": 0.22,
+    "seasonalInterpretation": {
+      "requiresPersistentVegetation": false,
+      "expectedCycle": "annual",
+      "bareSoilBeforePlantingAcceptable": true
+    }
+  },
+  "management": {
+    "irrigationRequired": false,
+    "drainageImportance": "high",
+    "fertilityDemand": "low",
+    "mechanizationSuitability": "medium"
+  },
+  "hardConstraints": [
+    {
+      "code": "SOIL_EC_TOO_HIGH",
+      "field": "soil.electricalConductivityDsM",
+      "operator": "greater_than",
+      "value": 4,
+      "severity": "major",
+      "group": "SALINITY",
+      "message": "Tuzluluk mercimek için önemli bir kısıt oluşturabilir."
+    }
+  ],
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Değerler geliştirme amaçlı başlangıç kurallarıdır.",
+      "Ziraat mühendisi doğrulaması gerektirir."
+    ]
+  },
+  "phenology": {
+    "hemisphere": "northern",
+    "plantingWindows": [
+      {
+        "startMonth": 10,
+        "endMonth": 11,
+        "label": "Sonbahar ekim"
+      },
+      {
+        "startMonth": 2,
+        "endMonth": 3,
+        "label": "Erken ilkbahar ekim"
+      }
+    ],
+    "growthStages": [
+      {
+        "id": "germination",
+        "label": "Çimlenme",
+        "startOffsetDays": 0,
+        "endOffsetDays": 18,
+        "temperature": {
+          "absoluteMinC": 4,
+          "optimalMinC": 8,
+          "optimalMaxC": 18,
+          "absoluteMaxC": 28
+        },
+        "waterSensitivity": "low",
+        "weight": 0.15,
+        "frostSensitivity": "medium",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "vegetative",
+        "label": "Vejetatif gelişme",
+        "startOffsetDays": 19,
+        "endOffsetDays": 80,
+        "temperature": {
+          "absoluteMinC": 4,
+          "optimalMinC": 10,
+          "optimalMaxC": 22,
+          "absoluteMaxC": 30
+        },
+        "waterSensitivity": "low",
+        "weight": 0.25,
+        "frostSensitivity": "medium",
+        "heatSensitivity": "low"
+      },
+      {
+        "id": "flowering",
+        "label": "Çiçeklenme",
+        "startOffsetDays": 81,
+        "endOffsetDays": 110,
+        "temperature": {
+          "absoluteMinC": 10,
+          "optimalMinC": 14,
+          "optimalMaxC": 24,
+          "absoluteMaxC": 32
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.3,
+        "frostSensitivity": "low",
+        "heatSensitivity": "medium"
+      },
+      {
+        "id": "yieldFormation",
+        "label": "Bakla oluşumu",
+        "startOffsetDays": 111,
+        "endOffsetDays": 140,
+        "temperature": {
+          "absoluteMinC": 12,
+          "optimalMinC": 16,
+          "optimalMaxC": 28,
+          "absoluteMaxC": 35
+        },
+        "waterSensitivity": "medium",
+        "weight": 0.3,
+        "frostSensitivity": "low",
+        "heatSensitivity": "medium"
+      }
+    ],
+    "cycleLengthDays": {
+      "minimum": 120,
+      "typical": 140,
+      "maximum": 170
+    },
+    "perennial": {
+      "isPerennial": false,
+      "dormancyMonths": [],
+      "chillingRequirementHours": null,
+      "establishmentYears": null,
+      "economicLifeYears": null
+    }
+  },
+  "physicalRequirements": {
+    "rootableSoilDepth": {
+      "minimumCm": 25,
+      "preferredMinimumCm": 40,
+      "optimalMinimumCm": 60,
+      "importance": "high"
+    },
+    "slope": {
+      "preferredMaximumMeanPercent": 10,
+      "acceptableMaximumMeanPercent": 18,
+      "maximumMeanPercent": 30,
+      "maximumP90Percent": 40,
+      "importance": "medium"
+    },
+    "ruggedness": {
+      "preferredMaximumClass": "low",
+      "acceptableMaximumClass": "medium",
+      "importance": "low"
+    },
+    "surfaceStoninessTolerance": {
+      "preferredMaximum": "low",
+      "acceptableMaximum": "medium",
+      "maximum": "high",
+      "importance": "medium"
+    },
+    "bedrockOutcropTolerance": {
+      "preferredMaximum": "not_observed",
+      "acceptableMaximum": "isolated",
+      "maximum": "scattered",
+      "importance": "medium"
+    },
+    "machineAccessRequirement": {
+      "minimum": "accessible_with_limitations",
+      "importance": "medium"
+    },
+    "drainageRequirement": {
+      "preferred": [
+        "adequate"
+      ],
+      "acceptable": [
+        "moderately_limited"
+      ],
+      "notPreferred": [
+        "poor",
+        "waterlogging_observed"
+      ],
+      "importance": "medium"
+    },
+    "source": "initial-agronomic-knowledge-base",
+    "validationStatus": "unvalidated",
+    "notes": [
+      "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
+      "Bu alan crop skorunu değiştirmez."
+    ]
+  }
+}

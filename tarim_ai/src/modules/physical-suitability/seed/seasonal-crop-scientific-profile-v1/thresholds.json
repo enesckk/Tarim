@@ -1,0 +1,51 @@
+{
+  "sourceReference": {
+    "title": "Tarım AI Crop Recommendation Knowledge Package",
+    "organization": "Tarım AI",
+    "verificationStatus": "ExpertReviewed",
+    "notes": "Sayısal eşikler src/modules/crop-recommendation/knowledge/crops/*.json içindeki soil.maximumElectricalConductivityDsM alanından birebir alınmıştır. Bu paket dışında hiçbir sayısal eşik icat edilmemiştir."
+  },
+  "crops": {
+    "wheat": {
+      "cropRecommendationId": "wheat",
+      "maximumElectricalConductivityDsM": 4,
+      "hasIrrigatedScenario": true
+    },
+    "barley": {
+      "cropRecommendationId": "barley",
+      "maximumElectricalConductivityDsM": 5,
+      "hasIrrigatedScenario": false
+    },
+    "chickpea": {
+      "cropRecommendationId": "chickpea",
+      "maximumElectricalConductivityDsM": 3.5,
+      "hasIrrigatedScenario": false
+    },
+    "red_lentil": {
+      "cropRecommendationId": "lentil",
+      "maximumElectricalConductivityDsM": 3,
+      "hasIrrigatedScenario": false
+    },
+    "corn": {
+      "cropRecommendationId": "corn",
+      "maximumElectricalConductivityDsM": 2.5,
+      "hasIrrigatedScenario": true
+    },
+    "cotton": {
+      "cropRecommendationId": "cotton",
+      "maximumElectricalConductivityDsM": 4,
+      "hasIrrigatedScenario": true
+    },
+    "tomato": {
+      "cropRecommendationId": "tomato",
+      "maximumElectricalConductivityDsM": 2.5,
+      "hasIrrigatedScenario": true
+    },
+    "pepper": {
+      "cropRecommendationId": "pepper",
+      "maximumElectricalConductivityDsM": 2,
+      "hasIrrigatedScenario": true
+    }
+  },
+  "irrigationOnlyCrops": ["melon", "watermelon"]
+}

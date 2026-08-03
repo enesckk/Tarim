@@ -1,0 +1,13 @@
+{
+  "province": "Gaziantep",
+  "district": "Şehitkamil",
+  "neighborhood": "Işıklı",
+  "block": "151",
+  "parcel": "1",
+  "source": "manually_verified_real_geometry",
+  "verified": true,
+  "verifiedAt": "2026-07-30T14:14:44.450Z",
+  "verifiedBy": "tkgm_geojson_ekle",
+  "geometryFile": "isikli-151-1.geojson",
+  "checksum": "3c3e59f9a5de4eada161df03ef9411860310e6ea45a8bc13aed67fa587ebcb9f"
+}

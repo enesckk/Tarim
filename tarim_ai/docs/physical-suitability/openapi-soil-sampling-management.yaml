@@ -1,0 +1,476 @@
+openapi: 3.0.3
+info:
+  title: Soil Sampling Management (Phase 2.2F)
+  version: '2.2F'
+  description: >
+    Field soil sampling lifecycle — SamplingCampaign, SamplingPoint, SoilSample
+    (field), SamplingObservation, ChainOfCustody. Independent from laboratory
+    analysis (2.2A). No suitability, AI, OCR, map, or QR/barcode generation.
+servers:
+  - url: /api
+paths:
+  /sampling-campaigns:
+    get:
+      summary: List campaigns
+      responses:
+        '200':
+          description: Campaign list
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SamplingCampaign'
+                  count: { type: integer }
+    post:
+      summary: Create campaign
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSamplingCampaign'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SamplingCampaign'
+        '422':
+          description: Validation error
+  /sampling-campaigns/{campaignId}:
+    get:
+      summary: Get SoilSampling aggregate
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Aggregate
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoilSamplingAggregate'
+        '404':
+          description: Not found
+    put:
+      summary: Update campaign
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSamplingCampaign'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Cancel campaign (status=CANCELLED)
+      parameters:
+        - $ref: '#/components/parameters/CampaignId'
+      responses:
+        '200':
+          description: Cancelled campaign
+  /sampling-points:
+    get:
+      summary: List sampling points
+      parameters:
+        - name: campaignId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Point list
+    post:
+      summary: Create sampling point (GPS required)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSamplingPoint'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Missing GPS / validation
+        '422':
+          description: Domain validation
+  /sampling-points/{pointId}:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/PointId'
+      responses:
+        '200':
+          description: Point
+    put:
+      parameters:
+        - $ref: '#/components/parameters/PointId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSamplingPoint'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      parameters:
+        - $ref: '#/components/parameters/PointId'
+      responses:
+        '200':
+          description: Deleted
+        '422':
+          description: Point has samples
+  /sampling-samples:
+    get:
+      summary: List field SoilSample rows
+      parameters:
+        - name: samplingPointId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Sample list
+    post:
+      summary: Create field SoilSample
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSoilSample'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Duplicate SampleCode or invalid
+  /sampling-samples/{sampleId}:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200':
+          description: SoilSample
+    put:
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSoilSample'
+      responses:
+        '200':
+          description: Updated
+        '422':
+          description: Two-campaign / uniqueness violation
+    delete:
+      summary: Soft discard (CurrentStatus=DISCARDED)
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200':
+          description: Discarded
+  /sampling-samples/{sampleId}/chain-of-custody:
+    get:
+      summary: List custody entries for sample
+      parameters:
+        - $ref: '#/components/parameters/SampleId'
+      responses:
+        '200':
+          description: Custody list
+  /sampling-observations:
+    get:
+      parameters:
+        - name: samplingPointId
+          in: query
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Observation list
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSamplingObservation'
+      responses:
+        '201':
+          description: Created
+  /sampling-observations/{observationId}:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/ObservationId'
+      responses:
+        '200':
+          description: Observation
+    put:
+      parameters:
+        - $ref: '#/components/parameters/ObservationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateSamplingObservation'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      parameters:
+        - $ref: '#/components/parameters/ObservationId'
+      responses:
+        '200':
+          description: Deleted
+  /sampling-chain-of-custody:
+    get:
+      parameters:
+        - name: sampleId
+          in: query
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Custody list
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateChainOfCustody'
+      responses:
+        '201':
+          description: Created
+        '422':
+          description: Not chronological
+  /sampling-chain-of-custody/{custodyId}:
+    get:
+      parameters:
+        - $ref: '#/components/parameters/CustodyId'
+      responses:
+        '200':
+          description: Entry
+    put:
+      parameters:
+        - $ref: '#/components/parameters/CustodyId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateChainOfCustody'
+      responses:
+        '200':
+          description: Updated
+    delete:
+      parameters:
+        - $ref: '#/components/parameters/CustodyId'
+      responses:
+        '200':
+          description: Deleted
+components:
+  parameters:
+    CampaignId:
+      name: campaignId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    PointId:
+      name: pointId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    SampleId:
+      name: sampleId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    ObservationId:
+      name: observationId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+    CustodyId:
+      name: custodyId
+      in: path
+      required: true
+      schema: { type: string, format: uuid }
+  schemas:
+    SamplingCampaign:
+      type: object
+      required:
+        - id
+        - campaignCode
+        - campaignName
+        - status
+        - createdAt
+        - updatedAt
+        - version
+      properties:
+        id: { type: string, format: uuid }
+        campaignCode: { type: string }
+        campaignName: { type: string }
+        purpose: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        organization: { type: string, nullable: true }
+        responsiblePerson: { type: string, nullable: true }
+        startDate: { type: string, format: date-time, nullable: true }
+        endDate: { type: string, format: date-time, nullable: true }
+        status:
+          type: string
+          enum: [PLANNED, ONGOING, COMPLETED, CANCELLED]
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+        version: { type: integer }
+    CreateSamplingCampaign:
+      type: object
+      required: [campaignCode, campaignName]
+      properties:
+        campaignCode: { type: string }
+        campaignName: { type: string }
+        purpose: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        organization: { type: string, nullable: true }
+        responsiblePerson: { type: string, nullable: true }
+        startDate: { type: string, format: date-time, nullable: true }
+        endDate: { type: string, format: date-time, nullable: true }
+        status:
+          type: string
+          enum: [PLANNED, ONGOING, COMPLETED, CANCELLED]
+    UpdateSamplingCampaign:
+      allOf:
+        - $ref: '#/components/schemas/CreateSamplingCampaign'
+      required: []
+    CreateSamplingPoint:
+      type: object
+      required: [campaignId, pointCode, latitude, longitude]
+      properties:
+        campaignId: { type: string, format: uuid }
+        parcelId: { type: string, nullable: true }
+        pointCode: { type: string }
+        latitude: { type: number, minimum: -90, maximum: 90 }
+        longitude: { type: number, minimum: -180, maximum: 180 }
+        elevation: { type: number, nullable: true }
+        geometry: { type: string, nullable: true }
+        samplingDepthFrom: { type: number, nullable: true }
+        samplingDepthTo: { type: number, nullable: true }
+        samplingArea: { type: number, nullable: true }
+        samplingMethod: { type: string, nullable: true }
+        slope: { type: number, nullable: true }
+        aspect: { type: number, nullable: true }
+        landUse: { type: string, nullable: true }
+        cropAtSampling: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    UpdateSamplingPoint:
+      type: object
+      additionalProperties: true
+    CreateSoilSample:
+      type: object
+      required: [samplingPointId, sampleCode, sampleType]
+      properties:
+        samplingPointId: { type: string, format: uuid }
+        sampleCode: { type: string }
+        sampleType:
+          type: string
+          enum: [COMPOSITE, SINGLE_POINT, DISTURBED, UNDISTURBED]
+        collectionDate: { type: string, format: date-time, nullable: true }
+        collectedBy: { type: string, nullable: true }
+        transportDate: { type: string, format: date-time, nullable: true }
+        receivedDate: { type: string, format: date-time, nullable: true }
+        storageCondition: { type: string, nullable: true }
+        containerType: { type: string, nullable: true }
+        currentStatus:
+          type: string
+          enum:
+            [
+              COLLECTED,
+              IN_TRANSPORT,
+              RECEIVED,
+              IN_ANALYSIS,
+              ANALYZED,
+              ARCHIVED,
+              DISCARDED,
+            ]
+        barcode: { type: string, nullable: true }
+        qrCode: { type: string, nullable: true }
+        sealNumber: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    UpdateSoilSample:
+      type: object
+      additionalProperties: true
+    CreateSamplingObservation:
+      type: object
+      required: [samplingPointId, observationType]
+      properties:
+        samplingPointId: { type: string, format: uuid }
+        observationType:
+          type: string
+          enum:
+            [
+              STONE,
+              ROCK,
+              EROSION,
+              COMPACTION,
+              SURFACE_CRUST,
+              DRAINAGE,
+              ROOTING_DEPTH,
+              MOISTURE,
+              WATERLOGGING,
+              SALINITY,
+            ]
+        observationValue: { type: string, nullable: true }
+        photoPath: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    UpdateSamplingObservation:
+      type: object
+      additionalProperties: true
+    CreateChainOfCustody:
+      type: object
+      required: [sampleId, action, performedDate]
+      properties:
+        sampleId: { type: string, format: uuid }
+        action:
+          type: string
+          enum:
+            [
+              COLLECTED,
+              PACKAGED,
+              TRANSPORTED,
+              RECEIVED,
+              OPENED,
+              ANALYZED,
+              ARCHIVED,
+              DESTROYED,
+            ]
+        performedBy: { type: string, nullable: true }
+        performedDate: { type: string, format: date-time }
+        location: { type: string, nullable: true }
+        notes: { type: string, nullable: true }
+    UpdateChainOfCustody:
+      type: object
+      additionalProperties: true
+    SoilSamplingAggregate:
+      type: object
+      required: [campaignId, campaign, points, samples, observations, chainOfCustody]
+      properties:
+        campaignId: { type: string, format: uuid }
+        campaign:
+          $ref: '#/components/schemas/SamplingCampaign'
+        points:
+          type: array
+          items: { type: object }
+        samples:
+          type: array
+          items: { type: object }
+        observations:
+          type: array
+          items: { type: object }
+        chainOfCustody:
+          type: array
+          items: { type: object }
