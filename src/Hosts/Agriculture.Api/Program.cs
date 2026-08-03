@@ -85,6 +85,7 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using Agriculture.Api.Hubs;
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -121,6 +122,7 @@ try
                 .AllowCredentials());
     });
 
+    builder.Services.AddSignalR();
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(options =>
     {
@@ -199,6 +201,8 @@ try
     app.UseAuthorization();
 
     await DatabaseInitializer.InitializeAsync(app.Services, app.Environment, app.Configuration);
+
+    app.MapHub<NotificationHub>("/hubs/notifications");
 
     var api = app.MapGroup("/api").WithTags("API");
 

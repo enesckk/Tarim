@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import type { ReactNode } from 'react'
+import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './auth/AuthContext'
 import { homePathForRoles, isStaff } from './auth/roles'
 import { AppLayout } from './layout/AppLayout'
@@ -64,6 +65,7 @@ export default function App() {
         </Route>
         <Route path="*" element={<CatchAll />} />
       </Routes>
+      <Toaster />
     </AuthProvider>
   )
 }

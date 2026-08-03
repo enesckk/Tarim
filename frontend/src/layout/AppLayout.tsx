@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useSignalR } from '../hooks/useSignalR'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Bell,
@@ -108,6 +109,8 @@ export function AppLayout() {
     refetchInterval: 60_000,
   })
   const pendingCount = pendingApprovals.data?.length ?? 0
+
+  useSignalR()
 
   const title = useMemo(() => {
     if (location.pathname === '/lands') return admin ? 'Araziler' : 'Arazilerim'

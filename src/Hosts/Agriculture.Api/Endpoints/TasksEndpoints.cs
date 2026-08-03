@@ -18,6 +18,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.SignalR;
+using Agriculture.Api.Hubs;
 using Serilog;
 
 internal static class TasksEndpoints
@@ -330,7 +332,8 @@ internal static class TasksEndpoints
             ISender sender,
             IMemoryCache cache,
             AgricultureDbContext db,
-            IUserContext user) =>
+            IUserContext user,
+            IHubContext<NotificationHub> hubContext) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -368,6 +371,13 @@ internal static class TasksEndpoints
                         relatedEntityType: "Task",
                         relatedEntityId: task.Id));
                     await db.SaveChangesAsync();
+
+                    await hubContext.Clients.Group($"User_{producerUserId}").SendAsync("ReceiveNotification", new {
+                        title = "Göreviniz onaylandı",
+                        message = $"“{task.Title}” uzman tarafından onaylandı.",
+                        relatedEntityType = "Task",
+                        relatedEntityId = task.Id
+                    });
                     await ExpoPush.SendAsync(
                         db,
                         producerUserId,

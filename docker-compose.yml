@@ -33,6 +33,43 @@ services:
     volumes:
       - agriculture_minio_data:/data
 
+  tarim-api:
+    build:
+      context: .
+      dockerfile: src/Hosts/Agriculture.Api/Dockerfile
+    container_name: agriculture-api
+    ports:
+      - "5109:8080"
+    env_file:
+      - .env
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - sqlserver
+      - minio
+
+  tarim-ai:
+    build:
+      context: ./tarim_ai
+      dockerfile: Dockerfile
+    container_name: agriculture-ai
+    ports:
+      - "4000:4000"
+
+  tarim-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: agriculture-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5109
+      - VITE_TARIM_AI_PROXY_TARGET=http://tarim-ai:4000
+    depends_on:
+      - tarim-api
+      - tarim-ai
+
 volumes:
   agriculture_sql_data:
   agriculture_minio_data:
