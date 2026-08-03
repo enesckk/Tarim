@@ -15,11 +15,14 @@ internal sealed class RegisterUserCommandHandler(IIdentityService identityServic
             request.FirstName,
             request.LastName,
             request.Role,
-            phone: null,
+            phone: request.Phone,
+            specialization: request.Specialization,
+            neighborhood: request.Neighborhood,
+            isActive: request.IsActive,
             cancellationToken);
 
         if (!success)
-            return Result.Failure<Guid>(new Error("Auth.RegistrationFailed", error ?? "Registration failed."));
+            return Result.Failure<Guid>(new Error("Auth.RegistrationFailed", error ?? "Kayıt başarısız."));
 
         return Result.Success(userId);
     }

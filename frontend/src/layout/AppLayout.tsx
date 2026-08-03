@@ -5,21 +5,21 @@ import {
   Bell,
   CheckSquare,
   ChevronDown,
+  ClipboardList,
   LayoutDashboard,
   LogOut,
   Map,
   Menu,
   MessageSquare,
-  Moon,
   ShieldCheck,
   Sprout,
-  Sun,
   User,
   Users,
   UserCog,
   Wheat,
   Workflow,
   BarChart3,
+  BrainCircuit,
   X,
 } from 'lucide-react'
 import { api } from '../api/client'
@@ -36,27 +36,32 @@ type NavItem = {
   officerLabel?: string
   icon: ComponentType<{ className?: string }>
 }
-type NavGroup = { id: string; label: string; items: NavItem[] }
 
-/** Flat sidebar — no Merkez / Saha / İzleme group headers. */
-const groups: NavGroup[] = [
-  {
-    id: 'main',
-    label: '',
-    items: [
-      { to: '/', label: 'Operasyon Merkezi', end: true, icon: LayoutDashboard },
-      { to: '/approvals', label: 'Onaylar', icon: CheckSquare },
-      { to: '/lands', label: 'Araziler', officerLabel: 'Arazilerim', icon: Map },
-      { to: '/producers', label: 'Üreticiler', officerLabel: 'Atanan üreticiler', icon: Users },
-      { to: '/officers', label: 'Uzmanlar', adminOnly: true, icon: UserCog },
-      { to: '/messages', label: 'Mesajlar', icon: MessageSquare },
-      { to: '/inspections', label: 'Denetimler', officerLabel: 'Denetimlerim', icon: ShieldCheck },
-      { to: '/harvest', label: 'Hasat ve teslimat', icon: Wheat },
-      { to: '/workflows', label: 'İş akışı şablonları', icon: Workflow },
-      { to: '/reports', label: 'Raporlar', adminOnly: true, icon: BarChart3 },
-    ],
-  },
+const FIELD_PROCESS_PATHS = ['/approvals', '/inspections', '/harvest', '/workflows'] as const
+
+const fieldProcessItems: NavItem[] = [
+  { to: '/approvals', label: 'Onaylar', icon: CheckSquare },
+  { to: '/inspections', label: 'Denetimler', officerLabel: 'Denetimlerim', icon: ShieldCheck },
+  { to: '/harvest', label: 'Hasat ve teslimat', icon: Wheat },
+  { to: '/workflows', label: 'İş akışı şablonları', icon: Workflow },
 ]
+
+/** Top-level flat links (group inserted after Operasyon Merkezi). */
+const flatNavItems: NavItem[] = [
+  { to: '/', label: 'Operasyon Merkezi', end: true, icon: LayoutDashboard },
+  { to: '/lands', label: 'Araziler', officerLabel: 'Arazilerim', icon: Map },
+  { to: '/producers', label: 'Üreticiler', officerLabel: 'Atanan üreticiler', icon: Users },
+  { to: '/officers', label: 'Uzmanlar', adminOnly: true, icon: UserCog },
+  { to: '/messages', label: 'Mesajlar', icon: MessageSquare },
+  { to: '/tarim-ai', label: 'AI Destekli Analiz', icon: BrainCircuit },
+  { to: '/reports', label: 'Raporlar', adminOnly: true, icon: BarChart3 },
+]
+
+function isFieldProcessRoute(pathname: string) {
+  return FIELD_PROCESS_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  )
+}
 
 const pageTitles: Record<string, string> = {
   '/': 'Operasyon Merkezi',
@@ -68,6 +73,7 @@ const pageTitles: Record<string, string> = {
   '/messages': 'Mesajlar',
   '/notifications': 'Bildirimler',
   '/reports': 'Raporlar',
+  '/tarim-ai': 'AI Destekli Analiz',
   '/profile': 'Profil',
   '/producers': 'Üreticiler',
   '/officers': 'Uzmanlar',
@@ -85,39 +91,15 @@ function initials(name?: string) {
     .join('')
 }
 
-function useThemeMode() {
-  const [dark, setDark] = useState(() => {
-    if (typeof document === 'undefined') return false
-    return document.documentElement.classList.contains('dark')
-  })
-
-  useEffect(() => {
-    const stored = localStorage.getItem('ams-theme')
-    const preferDark =
-      stored === 'dark' ||
-      (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
-    document.documentElement.classList.toggle('dark', preferDark)
-    setDark(preferDark)
-  }, [])
-
-  function toggle() {
-    const next = !document.documentElement.classList.contains('dark')
-    document.documentElement.classList.toggle('dark', next)
-    localStorage.setItem('ams-theme', next ? 'dark' : 'light')
-    setDark(next)
-  }
-
-  return { dark, toggle }
-}
-
 export function AppLayout() {
   const { token, user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const admin = isAdmin(user?.roles)
-  const { dark, toggle } = useThemeMode()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const onFieldProcess = isFieldProcessRoute(location.pathname)
+  const [fieldProcessesOpen, setFieldProcessesOpen] = useState(onFieldProcess)
 
   const pendingApprovals = useQuery({
     queryKey: ['pending-approval'],
@@ -133,6 +115,8 @@ export function AppLayout() {
     if (pageTitles[location.pathname]) return pageTitles[location.pathname]
     if (location.pathname.startsWith('/lands/')) return 'Arazi operasyon merkezi'
     if (location.pathname.startsWith('/producers/')) return 'Üretici detayı'
+    if (location.pathname.startsWith('/officers/') || location.pathname.startsWith('/uzmanlar/'))
+      return 'Uzman detayı'
     const match = Object.keys(pageTitles)
       .filter((k) => k !== '/')
       .find((k) => location.pathname.startsWith(k))
@@ -145,67 +129,103 @@ export function AppLayout() {
   }
 
   useEffect(() => {
+    document.documentElement.classList.remove('dark')
+    localStorage.removeItem('ams-theme')
+  }, [])
+
+  useEffect(() => {
     setMobileOpen(false)
     setMenuOpen(false)
   }, [location.pathname])
 
-  const sidebar = (
-    <>
-      <div className="sidebar-brand">
-        <div className="brand-icon">
-          <Sprout className="size-5" />
-        </div>
-        <div className="brand-copy">
-          <span className="brand-mark">Tarım</span>
-          <p>{panelSubtitle(user?.roles)}</p>
-        </div>
-      </div>
+  useEffect(() => {
+    if (onFieldProcess) setFieldProcessesOpen(true)
+  }, [onFieldProcess])
 
-      <nav className="sidebar-nav">
-        <div className="nav-group nav-group-flat">
-          {groups
-            .flatMap((g) => g.items)
-            .filter((l) => !l.adminOnly || admin)
-            .map((link) => {
-              const Icon = link.icon
-              const label = !admin && link.officerLabel ? link.officerLabel : link.label
-              return (
-                <NavLink
-                  key={link.to}
-                  to={link.to}
-                  end={link.end}
-                  className={({ isActive }) => cn('nav-link', isActive && 'active')}
-                >
-                  <Icon className="nav-icon" />
-                  <span>{label}</span>
-                  {link.to === '/approvals' && pendingCount > 0 ? (
-                    <span className="nav-count" aria-label={`${pendingCount} bekleyen onay`}>
-                      {pendingCount > 99 ? '99+' : pendingCount}
-                    </span>
-                  ) : null}
-                </NavLink>
-              )
-            })}
-        </div>
-      </nav>
-
-      <div className="sidebar-footer">
-        <div className="sidebar-user-avatar">
-          {initials(displayFullName(user?.fullName, user?.roles))}
-        </div>
-        <div className="sidebar-user-meta">
-          <span className="sidebar-user-name">
-            {displayFullName(user?.fullName, user?.roles)}
+  function renderNavLink(link: NavItem, className?: string) {
+    const Icon = link.icon
+    const label = !admin && link.officerLabel ? link.officerLabel : link.label
+    return (
+      <NavLink
+        key={link.to}
+        to={link.to}
+        end={link.end}
+        className={({ isActive }) => cn('nav-link', className, isActive && 'active')}
+      >
+        <Icon className="nav-icon" />
+        <span>{label}</span>
+        {link.to === '/approvals' && pendingCount > 0 ? (
+          <span className="nav-count" aria-label={`${pendingCount} bekleyen onay`}>
+            {pendingCount > 99 ? '99+' : pendingCount}
           </span>
-          <span className="sidebar-user-email">{user?.email ?? roleLabel(user?.roles)}</span>
+        ) : null}
+      </NavLink>
+    )
+  }
+
+  function renderSidebar() {
+    const visibleFlat = flatNavItems.filter((l) => !l.adminOnly || admin)
+    const [opsCenter, ...restFlat] = visibleFlat
+
+    return (
+      <>
+        <div className="sidebar-brand">
+          <div className="brand-icon">
+            <Sprout className="size-5" />
+          </div>
+          <div className="brand-copy">
+            <span className="brand-mark">Tarım</span>
+            <p>{panelSubtitle(user?.roles)}</p>
+          </div>
         </div>
-      </div>
-    </>
-  )
+
+        <nav className="sidebar-nav">
+          <div className="nav-group nav-group-flat">
+            {opsCenter ? renderNavLink(opsCenter) : null}
+
+            <div className={cn('nav-collapsible', fieldProcessesOpen && 'open')}>
+              <button
+                type="button"
+                className={cn('nav-group-toggle', onFieldProcess && 'active')}
+                aria-expanded={fieldProcessesOpen}
+                onClick={() => setFieldProcessesOpen((v) => !v)}
+              >
+                <ClipboardList className="nav-icon" />
+                <span>Saha süreçleri</span>
+                <ChevronDown
+                  className={cn('nav-chevron', fieldProcessesOpen && 'open')}
+                  aria-hidden
+                />
+              </button>
+              {fieldProcessesOpen ? (
+                <div className="nav-subitems" role="group" aria-label="Saha süreçleri">
+                  {fieldProcessItems.map((link) => renderNavLink(link, 'nav-sublink'))}
+                </div>
+              ) : null}
+            </div>
+
+            {restFlat.map((link) => renderNavLink(link))}
+          </div>
+        </nav>
+
+        <div className="sidebar-footer">
+          <div className="sidebar-user-avatar">
+            {initials(displayFullName(user?.fullName, user?.roles))}
+          </div>
+          <div className="sidebar-user-meta">
+            <span className="sidebar-user-name">
+              {displayFullName(user?.fullName, user?.roles)}
+            </span>
+            <span className="sidebar-user-email">{user?.email ?? roleLabel(user?.roles)}</span>
+          </div>
+        </div>
+      </>
+    )
+  }
 
   return (
     <div className="shell">
-      <aside className="sidebar desktop-sidebar">{sidebar}</aside>
+      <aside className="sidebar desktop-sidebar">{renderSidebar()}</aside>
 
       {mobileOpen && (
         <div className="mobile-drawer" role="dialog" aria-modal="true">
@@ -224,7 +244,7 @@ export function AppLayout() {
             >
               <X className="size-4" />
             </button>
-            {sidebar}
+            {renderSidebar()}
           </aside>
         </div>
       )}
@@ -246,15 +266,6 @@ export function AppLayout() {
           </div>
 
           <div className="topbar-actions">
-            <button
-              type="button"
-              className="icon-btn"
-              aria-label={dark ? 'Açık temaya geç' : 'Koyu temaya geç'}
-              onClick={toggle}
-            >
-              {dark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-            </button>
-
             <NavLink to="/notifications" className="icon-btn" aria-label="Bildirimler">
               <Bell className="size-4" />
             </NavLink>

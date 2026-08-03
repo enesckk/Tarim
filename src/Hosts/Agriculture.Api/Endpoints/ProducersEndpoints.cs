@@ -141,7 +141,7 @@ internal static class ProducersEndpoints
                 lastName,
                 AppRoles.Producer,
                 phone,
-                cancellationToken);
+                cancellationToken: cancellationToken);
             if (!ok)
             {
                 return Results.BadRequest(new

@@ -12,5 +12,11 @@ public sealed class IdentityDbContext(DbContextOptions<IdentityDbContext> option
     {
         base.OnModelCreating(builder);
         builder.HasDefaultSchema("identity");
+
+        builder.Entity<ApplicationUser>(e =>
+        {
+            e.Property(x => x.Specialization).HasMaxLength(200);
+            e.Property(x => x.Neighborhood).HasMaxLength(200);
+        });
     }
 }

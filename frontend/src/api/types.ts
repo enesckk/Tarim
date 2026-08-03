@@ -107,6 +107,8 @@ export type Land = {
   sizeInDecares: number
   soilType?: string
   soilNotes?: string | null
+  city?: string | null
+  district?: string | null
   neighborhood?: string | null
   cadastralBlock?: string | null
   latitude?: number | null
@@ -154,6 +156,12 @@ export type StaffUser = {
   email?: string
   fullName: string
   phoneNumber?: string
+  specialization?: string | null
+  neighborhood?: string | null
+  isActive?: boolean
+  status?: 'Active' | 'Passive' | string
+  responsibleLandCount?: number
+  todaysInspectionCount?: number
 }
 
 export type LandProduction = {

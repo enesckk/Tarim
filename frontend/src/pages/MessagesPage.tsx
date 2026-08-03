@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type {
@@ -25,6 +25,7 @@ export function MessagesPage() {
   const admin = isAdmin(user?.roles)
   const officer = isOfficer(user?.roles)
   const queryClient = useQueryClient()
+  const [searchParams] = useSearchParams()
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [body, setBody] = useState('')
   const [staffSubject, setStaffSubject] = useState('Operasyon yazışması')
@@ -32,6 +33,13 @@ export function MessagesPage() {
   const [search, setSearch] = useState('')
   const bottomRef = useRef<HTMLDivElement | null>(null)
   const startFormRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    const fromQuery = searchParams.get('officerId')?.trim()
+    if (!fromQuery || !admin) return
+    setStaffOfficerId(fromQuery)
+    startFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [searchParams, admin])
 
   const listQuery = useQuery({
     queryKey: ['conversations', 'staff'],

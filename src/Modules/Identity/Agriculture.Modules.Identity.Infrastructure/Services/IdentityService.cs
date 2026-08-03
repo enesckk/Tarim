@@ -62,6 +62,9 @@ public sealed class IdentityService(
     public async Task<(bool Success, string? Error, Guid UserId)> RegisterAsync(
         string email, string password, string firstName, string lastName, string role,
         string? phone = null,
+        string? specialization = null,
+        string? neighborhood = null,
+        bool isActive = true,
         CancellationToken cancellationToken = default)
     {
         if (!AppRoles.All.Contains(role))
@@ -101,6 +104,9 @@ public sealed class IdentityService(
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole<Guid>(role));
 
+        var specializationTrim = specialization?.Trim();
+        var neighborhoodTrim = neighborhood?.Trim();
+
         var user = new ApplicationUser
         {
             Id = Guid.NewGuid(),
@@ -110,15 +116,32 @@ public sealed class IdentityService(
             FirstName = firstNameTrim,
             LastName = lastNameTrim,
             PhoneNumber = string.IsNullOrWhiteSpace(phoneTrim) ? null : phoneTrim,
-            IsActive = true
+            Specialization = string.IsNullOrWhiteSpace(specializationTrim) ? null : specializationTrim,
+            Neighborhood = string.IsNullOrWhiteSpace(neighborhoodTrim) ? null : neighborhoodTrim,
+            IsActive = isActive
         };
 
         var result = await userManager.CreateAsync(user, passwordTrim);
         if (!result.Succeeded)
-            return (false, string.Join("; ", result.Errors.Select(e => e.Description)), Guid.Empty);
+            return (false, string.Join("; ", result.Errors.Select(e => LocalizeIdentityError(e))), Guid.Empty);
 
         await userManager.AddToRoleAsync(user, role);
         return (true, null, user.Id);
+    }
+
+    private static string LocalizeIdentityError(IdentityError error)
+    {
+        return error.Code switch
+        {
+            "DuplicateEmail" or "DuplicateUserName" => "Bu e-posta zaten kayıtlı.",
+            "PasswordTooShort" => "Uygulama şifresi çok kısa.",
+            "PasswordRequiresDigit" => "Şifre en az bir rakam içermelidir.",
+            "PasswordRequiresLower" => "Şifre en az bir küçük harf içermelidir.",
+            "PasswordRequiresUpper" => "Şifre en az bir büyük harf içermelidir.",
+            "PasswordRequiresNonAlphanumeric" => "Şifre en az bir özel karakter içermelidir.",
+            "InvalidEmail" => "Geçerli bir e-posta girin.",
+            _ => string.IsNullOrWhiteSpace(error.Description) ? "Kayıt başarısız." : error.Description
+        };
     }
 
     public async Task<(bool Success, string? Error, LoginResponse? Response)> RefreshTokenAsync(

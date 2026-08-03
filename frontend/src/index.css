@@ -1,7 +1,5 @@
 @import 'tailwindcss';
 
-@custom-variant dark (&:is(.dark *));
-
 @theme inline {
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
@@ -109,62 +107,6 @@
   --danger-soft: color-mix(in oklch, var(--destructive) 12%, white);
   --shadow: 0 1px 2px oklch(0.24 0.02 152 / 0.04), 0 8px 24px oklch(0.24 0.02 152 / 0.05);
   --radius-sm: calc(var(--radius) * 0.8);
-}
-
-.dark {
-  color-scheme: dark;
-  --background: oklch(0.16 0.012 154);
-  --foreground: oklch(0.94 0.015 130);
-  --card: oklch(0.2 0.015 154);
-  --card-foreground: oklch(0.94 0.015 130);
-  --popover: oklch(0.2 0.015 154);
-  --popover-foreground: oklch(0.94 0.015 130);
-  --primary: oklch(0.68 0.13 138);
-  --primary-foreground: oklch(0.17 0.03 152);
-  --secondary: oklch(0.26 0.02 154);
-  --secondary-foreground: oklch(0.94 0.015 130);
-  --muted: oklch(0.25 0.018 154);
-  --muted-foreground: oklch(0.7 0.02 140);
-  --accent: oklch(0.3 0.035 152);
-  --accent-foreground: oklch(0.94 0.02 130);
-  --destructive: oklch(0.66 0.19 25);
-  --destructive-foreground: oklch(0.98 0.01 60);
-  --success: oklch(0.68 0.13 145);
-  --success-foreground: oklch(0.16 0.02 150);
-  --warning: oklch(0.78 0.14 74);
-  --warning-foreground: oklch(0.22 0.04 60);
-  --info: oklch(0.66 0.1 232);
-  --info-foreground: oklch(0.16 0.02 230);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 14%);
-  --ring: oklch(0.68 0.13 138);
-  --chart-1: oklch(0.68 0.13 138);
-  --chart-2: oklch(0.75 0.12 145);
-  --chart-3: oklch(0.78 0.14 74);
-  --chart-4: oklch(0.66 0.1 232);
-  --chart-5: oklch(0.6 0.08 120);
-  --sidebar: oklch(0.19 0.018 156);
-  --sidebar-foreground: oklch(0.9 0.02 135);
-  --sidebar-primary: oklch(0.68 0.13 138);
-  --sidebar-primary-foreground: oklch(0.16 0.03 152);
-  --sidebar-accent: oklch(0.27 0.03 156);
-  --sidebar-accent-foreground: oklch(0.95 0.015 120);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.68 0.13 138);
-
-  --bg: var(--background);
-  --bg-warm: oklch(0.14 0.01 154);
-  --surface: var(--card);
-  --surface-solid: var(--card);
-  --ink: var(--foreground);
-  --line: var(--border);
-  --line-strong: oklch(1 0 0 / 16%);
-  --brand: var(--primary);
-  --brand-pressed: oklch(0.62 0.12 138);
-  --brand-soft: var(--accent);
-  --danger: var(--destructive);
-  --danger-soft: color-mix(in oklch, var(--destructive) 20%, transparent);
-  --shadow: 0 1px 2px oklch(0 0 0 / 0.2), 0 8px 24px oklch(0 0 0 / 0.25);
 }
 
 @layer base {

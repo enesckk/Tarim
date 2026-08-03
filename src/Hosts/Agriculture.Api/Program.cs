@@ -211,6 +211,7 @@ try
     api.MapTasksEndpoints();
     api.MapCommunicationEndpoints();
     api.MapNotificationsEndpoints();
+    api.MapTarimAiIntegrationEndpoints(app.Configuration);
     api.MapInspectionsEndpoints();
     api.MapHarvestEndpoints();
     api.MapSupportEndpoints();
@@ -468,9 +469,15 @@ internal static partial class DatabaseInitializer
         {
             // Prefer Migrate when migrations exist; fall back to EnsureCreated for greenfield Mac/Docker SQL.
             if (identityDb.Database.GetMigrations().Any())
+            {
                 await identityDb.Database.MigrateAsync();
+                await EnsureIdentityOfficerProfileSchemaAsync(identityDb);
+            }
             else
+            {
                 await identityDb.Database.EnsureCreatedAsync();
+                await EnsureIdentityOfficerProfileSchemaAsync(identityDb);
+            }
 
             if (agricultureDb.Database.GetMigrations().Any())
             {
@@ -566,19 +573,41 @@ internal static partial class DatabaseInitializer
         await EnsureUserAsync(userManager, "admin@agriculture.local", "Admin123!", "System", "Administrator",
             AppRoles.Administrator, null);
         await EnsureUserAsync(userManager, "uzman@agriculture.local", "Officer123!", "Ayşe", "Uzman",
-            AppRoles.Officer, DemoOfficerUserId, phone: "05551112233");
+            AppRoles.Officer, DemoOfficerUserId, phone: "05551112233",
+            specialization: "Bitki Koruma Uzmanı", neighborhood: "Değirmiçem", isActive: true);
         await EnsureUserAsync(userManager, "uzman1@agriculture.local", "Officer123!", "Mehmet", "Yıldız",
-            AppRoles.Officer, DemoOfficer1UserId, phone: "05551112201");
+            AppRoles.Officer, DemoOfficer1UserId, phone: "05551112201",
+            specialization: "Bitki Koruma Uzmanı", neighborhood: "Değirmiçem", isActive: true);
         await EnsureUserAsync(userManager, "uzman2@agriculture.local", "Officer123!", "Elif", "Kara",
-            AppRoles.Officer, DemoOfficer2UserId, phone: "05551112202");
+            AppRoles.Officer, DemoOfficer2UserId, phone: "05551112202",
+            specialization: "Toprak ve Sulama Uzmanı", neighborhood: "İbrahimli", isActive: true);
         await EnsureUserAsync(userManager, "uzman3@agriculture.local", "Officer123!", "Can", "Özer",
-            AppRoles.Officer, DemoOfficer3UserId, phone: "05551112203");
+            AppRoles.Officer, DemoOfficer3UserId, phone: "05551112203",
+            specialization: "Hasat ve Kalite Uzmanı", neighborhood: "Mücahitler", isActive: true);
         await EnsureUserAsync(userManager, "uretici@agriculture.local", "asd", "Mehmet", "Çiftçi",
             AppRoles.Producer, DemoProducerUserId, phone: "5537472823");
         await EnsureUserAsync(userManager, "denetci@agriculture.local", "Inspector123!", "Ali", "Denetçi",
             AppRoles.Inspector, null);
 
         await SeedDemoAgricultureDataAsync(agricultureDb, DemoProducerUserId);
+    }
+
+    /// <summary>Idempotent officer profile columns for migrate / EnsureCreated paths.</summary>
+    private static async Task EnsureIdentityOfficerProfileSchemaAsync(IdentityDbContext db)
+    {
+        try
+        {
+            await db.Database.ExecuteSqlRawAsync("""
+                IF COL_LENGTH(N'identity.AspNetUsers', N'Specialization') IS NULL
+                    ALTER TABLE [identity].[AspNetUsers] ADD [Specialization] nvarchar(200) NULL;
+                IF COL_LENGTH(N'identity.AspNetUsers', N'Neighborhood') IS NULL
+                    ALTER TABLE [identity].[AspNetUsers] ADD [Neighborhood] nvarchar(200) NULL;
+                """);
+        }
+        catch
+        {
+            // Best-effort schema patch.
+        }
     }
 
     /// <summary>Idempotent SDS-R16 columns for migrate / EnsureCreated paths.</summary>
@@ -685,16 +714,34 @@ internal static partial class DatabaseInitializer
         string lastName,
         string role,
         Guid? fixedId,
-        string? phone = null)
+        string? phone = null,
+        string? specialization = null,
+        string? neighborhood = null,
+        bool? isActive = null)
     {
         var existing = await userManager.FindByEmailAsync(email);
         if (existing is not null)
         {
-            // Keep demo credentials in sync (phone / password) across restarts.
+            // Keep demo credentials / officer profile in sync across restarts.
             var dirty = false;
             if (phone is not null && existing.PhoneNumber != phone)
             {
                 existing.PhoneNumber = phone;
+                dirty = true;
+            }
+            if (specialization is not null && existing.Specialization != specialization)
+            {
+                existing.Specialization = specialization;
+                dirty = true;
+            }
+            if (neighborhood is not null && existing.Neighborhood != neighborhood)
+            {
+                existing.Neighborhood = neighborhood;
+                dirty = true;
+            }
+            if (isActive.HasValue && existing.IsActive != isActive.Value)
+            {
+                existing.IsActive = isActive.Value;
                 dirty = true;
             }
             if (dirty)
@@ -717,7 +764,9 @@ internal static partial class DatabaseInitializer
             FirstName = firstName,
             LastName = lastName,
             PhoneNumber = phone,
-            IsActive = true
+            Specialization = specialization,
+            Neighborhood = neighborhood,
+            IsActive = isActive ?? true
         };
 
         var created = await userManager.CreateAsync(user, password);
@@ -731,19 +780,20 @@ internal static partial class DatabaseInitializer
         {
             var producer = Producer.Create(
                 "Mehmet", "Çiftçi", "12345678901", "5537472823",
-                "uretici@agriculture.local", "Demo mahalle", producerUserId);
+                "uretici@agriculture.local", "Şehitkamil / Değirmiçem", producerUserId);
             SetEntityId(producer, DemoProducerId);
             await db.Producers.AddAsync(producer);
         }
         else
         {
             var existingProducer = await db.Producers.FirstOrDefaultAsync(p => p.Id == DemoProducerId);
-            existingProducer?.Update("Mehmet", "Çiftçi", "5537472823", "uretici@agriculture.local", "Demo mahalle");
+            existingProducer?.Update("Mehmet", "Çiftçi", "5537472823", "uretici@agriculture.local", "Şehitkamil / Değirmiçem");
         }
 
         // Demo field near Şehitkamil / Gaziantep — visible with SK-DEMO markers on ops map.
         const double DemoLatitude = 37.0825;
         const double DemoLongitude = 37.3550;
+        const string DemoNeighborhood = "Değirmiçem";
 
         if (!await db.Lands.AnyAsync(l => l.Id == DemoLandId))
         {
@@ -751,7 +801,7 @@ internal static partial class DatabaseInitializer
                 "Şehitkamil Demo Tarlası", "P-001", 12.5m,
                 latitude: DemoLatitude,
                 longitude: DemoLongitude,
-                city: "Gaziantep", district: "Şehitkamil", neighborhood: "Demo mahalle");
+                city: "Gaziantep", district: "Şehitkamil", neighborhood: DemoNeighborhood);
             land.AssignProducer(DemoProducerId);
             land.AssignOfficer(DemoOfficerUserId);
             SetEntityId(land, DemoLandId);
@@ -775,7 +825,10 @@ internal static partial class DatabaseInitializer
                     : existingLand.Name;
                 existingLand.Update(
                     displayName,
+                    existingLand.ParcelNumber,
                     existingLand.SizeInDecares,
+                    existingLand.CadastralBlock,
+                    DemoNeighborhood,
                     DemoLatitude,
                     DemoLongitude,
                     existingLand.SoilType,
@@ -861,14 +914,31 @@ internal static partial class DatabaseInitializer
 
         if (!await db.Inspections.AnyAsync())
         {
+            var todaySeed = DateOnly.FromDateTime(DateTime.UtcNow);
             await db.Inspections.AddAsync(Inspection.Create(
                 DemoLandId,
                 DemoProducerId,
                 DemoOfficerUserId,
                 "Hasat öncesi saha kontrolü",
-                DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(2)),
+                todaySeed,
                 "Demo denetim kaydı"));
+            await db.Inspections.AddAsync(Inspection.Create(
+                DemoLandId,
+                DemoProducerId,
+                DemoOfficer1UserId,
+                "Bitki sağlığı kontrolü",
+                todaySeed,
+                "Demo denetim — uzman1"));
+            await db.Inspections.AddAsync(Inspection.Create(
+                DemoLandId,
+                DemoProducerId,
+                DemoOfficer2UserId,
+                "Sulama sistemi denetimi",
+                todaySeed,
+                "Demo denetim — uzman2"));
         }
+
+        await EnsureTodaysDemoInspectionsAsync(db);
 
         await db.SaveChangesAsync();
 
@@ -877,6 +947,33 @@ internal static partial class DatabaseInitializer
 
         // Rename leftover English/dev smoke labels so they never appear in the UI.
         await SanitizeDevLandDisplayNamesAsync(db);
+    }
+
+    /// <summary>
+    /// Keeps at least one today-scheduled inspection per active demo officer (Uzmanlar aggregates).
+    /// </summary>
+    private static async Task EnsureTodaysDemoInspectionsAsync(AgricultureDbContext db)
+    {
+        if (!await db.Lands.AnyAsync(l => l.Id == DemoLandId))
+            return;
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var officers = new[] { DemoOfficerUserId, DemoOfficer1UserId, DemoOfficer2UserId };
+        foreach (var officerId in officers)
+        {
+            var hasToday = await db.Inspections.AnyAsync(i =>
+                i.InspectorUserId == officerId && i.ScheduledDate == today);
+            if (hasToday)
+                continue;
+
+            await db.Inspections.AddAsync(Inspection.Create(
+                DemoLandId,
+                DemoProducerId,
+                officerId,
+                "Günlük saha denetimi",
+                today,
+                "Demo — bugünkü denetim"));
+        }
     }
 
     /// <summary>

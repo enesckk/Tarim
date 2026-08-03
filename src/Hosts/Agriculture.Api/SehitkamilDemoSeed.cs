@@ -150,13 +150,16 @@ internal static partial class DatabaseInitializer
     }
 
     /// <summary>
-    /// Fills missing / stale coords and uzman/producer links without duplicating lands.
+    /// Fills missing / stale coords, neighborhood, and uzman/producer links without duplicating lands.
     /// </summary>
     private static void RepairSehitkamilLandAssignments(Land land, SkLandDef def)
     {
         land.Update(
             def.Name,
+            land.ParcelNumber,
             def.SizeInDecares,
+            land.CadastralBlock,
+            def.Neighborhood,
             def.Latitude,
             def.Longitude,
             land.SoilType,
@@ -172,7 +175,7 @@ internal static partial class DatabaseInitializer
         {
             var p = Producer.Create(
                 "Hasan", "Yılmaz", "11111111112", "05551234001",
-                "hasan.yilmaz@agriculture.local", "Şehitkamil / Karataş");
+                "hasan.yilmaz@agriculture.local", "Şehitkamil / Değirmiçem");
             SetEntityId(p, SkProducerHasanId);
             await db.Producers.AddAsync(p);
         }
@@ -190,7 +193,7 @@ internal static partial class DatabaseInitializer
         {
             var p = Producer.Create(
                 "Ahmet", "Demir", "11111111114", "05551234003",
-                "ahmet.demir@agriculture.local", "Şehitkamil / Onur");
+                "ahmet.demir@agriculture.local", "Şehitkamil / Batıkent");
             SetEntityId(p, SkProducerAhmetId);
             await db.Producers.AddAsync(p);
         }
@@ -246,10 +249,14 @@ internal static partial class DatabaseInitializer
             .SetValue(task, due);
     }
 
+    /// <summary>
+    /// Demo parcels use real Şehitkamil (Gaziantep) mahalle names only.
+    /// Replaced Şahinbey lookalikes previously used by mistake (Karataş, Akkent, 75. Yıl, Onur, Güneş, Güzelvadi, Dumlupınar).
+    /// </summary>
     private static IReadOnlyList<SkLandDef> GetSehitkamilLandDefinitions() =>
     [
         // Officer rotation: uzman1 / uzman2 / uzman3 across the 15 parcels.
-        new("SK-DEMO-01", "Şehitkamil – Karataş Tarlası 1", "Karataş", "Domates",
+        new("SK-DEMO-01", "Şehitkamil – Değirmiçem Tarlası 1", "Değirmiçem", "Domates",
             8.5m, 37.0782, 37.3821, DemoProducerId, DemoOfficer1UserId, SkMapHint.Critical,
             Guid.Parse("a4444444-4444-4444-4444-444444444401"),
             Guid.Parse("a7777777-7777-7777-7777-777777777701"),
@@ -259,7 +266,7 @@ internal static partial class DatabaseInitializer
             Guid.Parse("a4444444-4444-4444-4444-444444444402"),
             Guid.Parse("a7777777-7777-7777-7777-777777777702"),
             Guid.Parse("a5555555-5555-5555-5555-555555555502")),
-        new("SK-DEMO-03", "Şehitkamil – Onur Tarlası 1", "Onur", "Patlıcan",
+        new("SK-DEMO-03", "Şehitkamil – Batıkent Tarlası 1", "Batıkent", "Patlıcan",
             11.0m, 37.0658, 37.3652, SkProducerFatmaId, DemoOfficer3UserId, SkMapHint.Normal,
             Guid.Parse("a4444444-4444-4444-4444-444444444403"),
             Guid.Parse("a7777777-7777-7777-7777-777777777703"),
@@ -269,7 +276,7 @@ internal static partial class DatabaseInitializer
             Guid.Parse("a4444444-4444-4444-4444-444444444404"),
             Guid.Parse("a7777777-7777-7777-7777-777777777704"),
             Guid.Parse("a5555555-5555-5555-5555-555555555504")),
-        new("SK-DEMO-05", "Şehitkamil – Güneş Mahallesi Tarlası", "Güneş", "Buğday",
+        new("SK-DEMO-05", "Şehitkamil – Gazikent Tarlası", "Gazikent", "Buğday",
             35.0m, 37.0451, 37.3410, SkProducerZeynepId, DemoOfficer2UserId, SkMapHint.Normal,
             Guid.Parse("a4444444-4444-4444-4444-444444444405"),
             Guid.Parse("a7777777-7777-7777-7777-777777777705"),
@@ -284,7 +291,7 @@ internal static partial class DatabaseInitializer
             Guid.Parse("a4444444-4444-4444-4444-444444444407"),
             Guid.Parse("a7777777-7777-7777-7777-777777777707"),
             Guid.Parse("a5555555-5555-5555-5555-555555555507")),
-        new("SK-DEMO-08", "Şehitkamil – 75. Yıl Tarlası", "75. Yıl", "Zeytin",
+        new("SK-DEMO-08", "Şehitkamil – Beykent Tarlası", "Beykent", "Zeytin",
             14.6m, 37.0883, 37.3124, SkProducerFatmaId, DemoOfficer2UserId, SkMapHint.Normal,
             Guid.Parse("a4444444-4444-4444-4444-444444444408"),
             Guid.Parse("a7777777-7777-7777-7777-777777777708"),
@@ -309,17 +316,17 @@ internal static partial class DatabaseInitializer
             Guid.Parse("a4444444-4444-4444-4444-444444444412"),
             Guid.Parse("a7777777-7777-7777-7777-777777777712"),
             Guid.Parse("a5555555-5555-5555-5555-555555555512")),
-        new("SK-DEMO-13", "Şehitkamil – Güzelvadi Tarlası", "Güzelvadi", "Soğan",
+        new("SK-DEMO-13", "Şehitkamil – Güzelyurt Tarlası", "Güzelyurt", "Soğan",
             12.1m, 37.0248, 37.3683, SkProducerFatmaId, DemoOfficer1UserId, SkMapHint.Critical,
             Guid.Parse("a4444444-4444-4444-4444-444444444413"),
             Guid.Parse("a7777777-7777-7777-7777-777777777713"),
             Guid.Parse("a5555555-5555-5555-5555-555555555513")),
-        new("SK-DEMO-14", "Şehitkamil – Dumlupınar Tarlası", "Dumlupınar", "Sarımsak",
+        new("SK-DEMO-14", "Şehitkamil – Sarıgüllük Tarlası", "Sarıgüllük", "Sarımsak",
             4.9m, 37.1295, 37.4092, SkProducerAhmetId, DemoOfficer2UserId, SkMapHint.Today,
             Guid.Parse("a4444444-4444-4444-4444-444444444414"),
             Guid.Parse("a7777777-7777-7777-7777-777777777714"),
             Guid.Parse("a5555555-5555-5555-5555-555555555514")),
-        new("SK-DEMO-15", "Şehitkamil – Akkent Tarlası", "Akkent", "Yonca",
+        new("SK-DEMO-15", "Şehitkamil – Atakent Tarlası", "Atakent", "Yonca",
             20.0m, 37.0497, 37.4781, SkProducerZeynepId, DemoOfficer3UserId, SkMapHint.Normal,
             Guid.Parse("a4444444-4444-4444-4444-444444444415"),
             Guid.Parse("a7777777-7777-7777-7777-777777777715"),

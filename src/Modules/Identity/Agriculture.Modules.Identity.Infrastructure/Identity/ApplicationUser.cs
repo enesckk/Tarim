@@ -9,4 +9,8 @@ public sealed class ApplicationUser : IdentityUser<Guid>
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiresAtUtc { get; set; }
     public bool IsActive { get; set; } = true;
+    /// <summary>Officer specialization title, e.g. Bitki Koruma Uzmanı.</summary>
+    public string? Specialization { get; set; }
+    /// <summary>Primary neighborhood (Şehitkamil), e.g. Değirmiçem.</summary>
+    public string? Neighborhood { get; set; }
 }

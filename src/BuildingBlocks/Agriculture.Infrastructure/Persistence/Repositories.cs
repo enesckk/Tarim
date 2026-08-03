@@ -171,16 +171,19 @@ public sealed class ConversationRepository(AgricultureDbContext db) : IConversat
 public sealed class LandRepository(AgricultureDbContext db) : ILandRepository
 {
     public Task<Land?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-        => db.Lands.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+        => db.Lands.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted, cancellationToken);
 
     public async Task<IReadOnlyList<Land>> GetAllAsync(CancellationToken cancellationToken = default)
-        => await db.Lands.AsNoTracking().OrderBy(x => x.Name).ToListAsync(cancellationToken);
+        => await db.Lands.AsNoTracking()
+            .Where(x => !x.IsDeleted)
+            .OrderBy(x => x.Name)
+            .ToListAsync(cancellationToken);
 
     public async Task<IReadOnlyList<Land>> GetByOfficerUserIdAsync(
         Guid officerUserId,
         CancellationToken cancellationToken = default)
         => await db.Lands.AsNoTracking()
-            .Where(x => x.AssignedOfficerUserId == officerUserId)
+            .Where(x => !x.IsDeleted && x.AssignedOfficerUserId == officerUserId)
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
 
@@ -188,7 +191,7 @@ public sealed class LandRepository(AgricultureDbContext db) : ILandRepository
         Guid producerId,
         CancellationToken cancellationToken = default)
         => await db.Lands.AsNoTracking()
-            .Where(x => x.ProducerId == producerId)
+            .Where(x => !x.IsDeleted && x.ProducerId == producerId)
             .OrderBy(x => x.Name)
             .ToListAsync(cancellationToken);
 

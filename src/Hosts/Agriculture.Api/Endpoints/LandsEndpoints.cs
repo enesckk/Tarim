@@ -186,6 +186,8 @@ internal static class LandsEndpoints
                 land.Longitude,
                 land.SoilType,
                 land.SoilNotes,
+                land.City,
+                land.District,
                 land.Neighborhood,
                 land.CadastralBlock,
                 land.ProducerId,
@@ -228,7 +230,10 @@ internal static class LandsEndpoints
             var result = await sender.Send(new UpdateLandCommand(
                 id,
                 body.Name,
+                body.ParcelNumber,
                 body.SizeInDecares,
+                body.CadastralBlock,
+                body.Neighborhood,
                 body.Latitude,
                 body.Longitude,
                 body.SoilType,
@@ -598,7 +603,10 @@ internal sealed record AssignLandProducerBody(Guid ProducerId);
 internal sealed record AssignLandAssignmentsBody(Guid? ProducerId, Guid? OfficerUserId);
 internal sealed record UpdateLandBody(
     string Name,
+    string ParcelNumber,
     decimal SizeInDecares,
+    string? CadastralBlock,
+    string? Neighborhood,
     double? Latitude,
     double? Longitude,
     string? SoilType,

@@ -19,6 +19,7 @@ import { HarvestPage } from './pages/HarvestPage'
 import { NotificationsPage } from './pages/NotificationsPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { ApprovalsPage } from './pages/ApprovalsPage'
+import { TarimAiPage } from './pages/TarimAiPage'
 
 function Protected({ children }: { children: ReactNode }) {
   const { token, user } = useAuth()
@@ -44,7 +45,9 @@ export default function App() {
           <Route path="producers" element={<ProducersPage />} />
           <Route path="producers/:producerId" element={<ProducersPage />} />
           <Route path="officers" element={<OfficersPage />} />
+          <Route path="officers/:officerId" element={<OfficersPage />} />
           <Route path="uzmanlar" element={<OfficersPage />} />
+          <Route path="uzmanlar/:officerId" element={<OfficersPage />} />
           <Route path="lands" element={<LandsPage />} />
           <Route path="lands/:landId" element={<LandDetailPage />} />
           <Route path="seasons" element={<SeasonsPage />} />
@@ -56,6 +59,7 @@ export default function App() {
           <Route path="messages" element={<MessagesPage />} />
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="reports" element={<ReportsPage />} />
+          <Route path="tarim-ai" element={<TarimAiPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<CatchAll />} />

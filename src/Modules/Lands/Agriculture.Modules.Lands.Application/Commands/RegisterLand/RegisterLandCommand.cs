@@ -28,6 +28,18 @@ public sealed class RegisterLandCommandValidator : AbstractValidator<RegisterLan
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200).WithName("Arazi adı");
         RuleFor(x => x.ParcelNumber).NotEmpty().MaximumLength(50).WithName("Parsel numarası");
         RuleFor(x => x.SizeInDecares).GreaterThan(0).WithName("Alan (dekar)");
+        RuleFor(x => x.CadastralBlock).MaximumLength(50).When(x => x.CadastralBlock is not null);
+        // Optional — municipal lands often only have ada/parsel.
+        RuleFor(x => x.Latitude)
+            .InclusiveBetween(-90, 90)
+            .When(x => x.Latitude.HasValue)
+            .WithName("Enlem")
+            .WithMessage("Enlem -90 ile 90 arasında olmalı (ör. 37.08). Ada veya parsel numarasını enlem alanına yazmayın. Girdiğiniz değer: {PropertyValue}");
+        RuleFor(x => x.Longitude)
+            .InclusiveBetween(-180, 180)
+            .When(x => x.Longitude.HasValue)
+            .WithName("Boylam")
+            .WithMessage("Boylam -180 ile 180 arasında olmalı (ör. 37.38). Ada veya parsel numarasını boylam alanına yazmayın. Girdiğiniz değer: {PropertyValue}");
     }
 }
 

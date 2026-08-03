@@ -9,7 +9,10 @@ namespace Agriculture.Modules.Lands.Application.Commands.UpdateLand;
 public sealed record UpdateLandCommand(
     Guid LandId,
     string Name,
+    string ParcelNumber,
     decimal SizeInDecares,
+    string? CadastralBlock,
+    string? Neighborhood,
     double? Latitude,
     double? Longitude,
     string? SoilType,
@@ -21,13 +24,21 @@ public sealed class UpdateLandCommandValidator : AbstractValidator<UpdateLandCom
     {
         RuleFor(x => x.LandId).NotEmpty();
         RuleFor(x => x.Name).NotEmpty().MaximumLength(200);
+        RuleFor(x => x.ParcelNumber).NotEmpty().MaximumLength(50);
         RuleFor(x => x.SizeInDecares).GreaterThan(0);
+        RuleFor(x => x.CadastralBlock).MaximumLength(50).When(x => x.CadastralBlock is not null);
+        RuleFor(x => x.Neighborhood).MaximumLength(120).When(x => x.Neighborhood is not null);
+        // Optional map pin — empty/null is fine for cadastral (ada/parsel) lands.
         RuleFor(x => x.Latitude)
             .InclusiveBetween(-90, 90)
-            .When(x => x.Latitude.HasValue);
+            .When(x => x.Latitude.HasValue)
+            .WithName("Enlem")
+            .WithMessage("Enlem -90 ile 90 arasında olmalı (ör. 37.08). Ada veya parsel numarasını enlem alanına yazmayın. Girdiğiniz değer: {PropertyValue}");
         RuleFor(x => x.Longitude)
             .InclusiveBetween(-180, 180)
-            .When(x => x.Longitude.HasValue);
+            .When(x => x.Longitude.HasValue)
+            .WithName("Boylam")
+            .WithMessage("Boylam -180 ile 180 arasında olmalı (ör. 37.38). Ada veya parsel numarasını boylam alanına yazmayın. Girdiğiniz değer: {PropertyValue}");
     }
 }
 
@@ -45,7 +56,10 @@ internal sealed class UpdateLandCommandHandler(ILandRepository repository, IUnit
 
         land.Update(
             request.Name,
+            request.ParcelNumber,
             request.SizeInDecares,
+            NullIfEmpty(request.CadastralBlock),
+            NullIfEmpty(request.Neighborhood),
             request.Latitude,
             request.Longitude,
             NullIfEmpty(request.SoilType),

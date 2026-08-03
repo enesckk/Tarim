@@ -16,6 +16,9 @@ public interface IIdentityService
         string lastName,
         string role,
         string? phone = null,
+        string? specialization = null,
+        string? neighborhood = null,
+        bool isActive = true,
         CancellationToken cancellationToken = default);
 
     Task<(bool Success, string? Error, LoginResponse? Response)> RefreshTokenAsync(

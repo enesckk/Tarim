@@ -1,0 +1,2829 @@
+/* ==========================================================================
+   Tarım AI — tai2 design system
+   Scoped under .tai2-page; warm off-white, corporate green, no glass/purple.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Design tokens
+   -------------------------------------------------------------------------- */
+.tai2-page {
+  --tai2-bg: #f7f8f5;
+  --tai2-surface: #ffffff;
+  --tai2-text: #1f2933;
+  --tai2-muted: #6b7280;
+  --tai2-border: #e5e7eb;
+  --tai2-green: #1b5e3b;
+  --tai2-green-soft: #e8f2ec;
+  --tai2-orange: #c47a1a;
+  --tai2-orange-soft: #fff4e5;
+  --tai2-red: #b42318;
+  --tai2-red-soft: #fef3f2;
+  --tai2-blue: #175cd3;
+  --tai2-blue-soft: #eff8ff;
+  --tai2-radius: 12px;
+  --tai2-max: 1360px;
+
+  box-sizing: border-box;
+  max-width: var(--tai2-max);
+  margin-inline: auto;
+  padding: 32px 24px;
+  overflow-x: hidden;
+  background: var(--tai2-bg);
+  color: var(--tai2-text);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.tai2-page *,
+.tai2-page *::before,
+.tai2-page *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent flex/grid overflow */
+.tai2-page :where(
+  .tai2-page-header,
+  .tai2-page-header-titles,
+  .tai2-page-header-actions,
+  .tai2-result-header,
+  .tai2-result-header-info,
+  .tai2-result-header-actions,
+  .tai2-card-header,
+  .tai2-decision-card-body,
+  .tai2-parcel-summary-text,
+  .tai2-crop-card,
+  .tai2-tabs-scroll,
+  .tai2-tabs-list,
+  .tai2-critical-banner,
+  .tai2-accordion-header,
+  .tai2-recent-card-head,
+  .tai2-recent-card-body,
+  .tai2-top-crop-body,
+  .tai2-sat-figure
+) {
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Layout
+   -------------------------------------------------------------------------- */
+.tai2-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.tai2-secondary {
+  padding-top: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   Page header
+   -------------------------------------------------------------------------- */
+.tai2-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-bottom: 20px;
+}
+
+.tai2-page-header-titles {
+  flex: 1 1 280px;
+}
+
+.tai2-page-title {
+  margin: 0 0 6px;
+  font-size: 1.625rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--tai2-text);
+}
+
+.tai2-page-subtitle {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--tai2-muted);
+  font-size: 0.9375rem;
+}
+
+.tai2-page-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Shell tabs (secondary nav: Analiz / Araçlar / Bağlantı)
+   -------------------------------------------------------------------------- */
+.tai2-shell-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--tai2-border);
+}
+
+.tai2-shell-tab {
+  appearance: none;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: transparent;
+  color: var(--tai2-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tai2-shell-tab:hover {
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  border-color: var(--tai2-border);
+}
+
+.tai2-shell-tab.is-active {
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+  border-color: #c9ddd2;
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+.tai2-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.tai2-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tai2-btn-primary {
+  background: var(--tai2-green);
+  border-color: var(--tai2-green);
+  color: #fff;
+}
+
+.tai2-btn-primary:hover:not(:disabled) {
+  background: #164d31;
+  border-color: #164d31;
+}
+
+.tai2-btn-secondary {
+  background: var(--tai2-surface);
+  border-color: var(--tai2-border);
+  color: var(--tai2-text);
+}
+
+.tai2-btn-secondary:hover:not(:disabled) {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.tai2-btn-ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--tai2-muted);
+}
+
+.tai2-btn-ghost:hover:not(:disabled) {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--tai2-text);
+}
+
+.tai2-btn-lg {
+  min-height: 44px;
+  padding-inline: 20px;
+  font-size: 0.9375rem;
+}
+
+.tai2-btn-sm {
+  min-height: 34px;
+  padding-inline: 12px;
+  font-size: 0.8125rem;
+}
+
+.tai2-btn-icon {
+  flex-shrink: 0;
+}
+
+.tai2-link-btn {
+  appearance: none;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--tai2-green);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.tai2-link-btn:hover {
+  color: #164d31;
+}
+
+.tai2-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--tai2-border);
+  border-radius: 8px;
+  background: var(--tai2-surface);
+  color: var(--tai2-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.tai2-icon-btn:hover:not(:disabled) {
+  background: var(--tai2-green-soft);
+  border-color: #c9ddd2;
+  color: var(--tai2-green);
+}
+
+.tai2-icon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* --------------------------------------------------------------------------
+   Cards
+   -------------------------------------------------------------------------- */
+.tai2-card {
+  background: var(--tai2-surface);
+  border: 1px solid var(--tai2-border);
+  border-radius: var(--tai2-radius);
+  padding: 22px 24px;
+}
+
+.tai2-card-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.tai2-card-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--tai2-text);
+}
+
+/* --------------------------------------------------------------------------
+   Badges
+   -------------------------------------------------------------------------- */
+.tai2-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.tai2-badge-dot {
+  font-size: 0.5rem;
+  line-height: 1;
+}
+
+.tai2-badge-ok {
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+}
+
+.tai2-badge-warn {
+  background: var(--tai2-orange-soft);
+  color: var(--tai2-orange);
+}
+
+.tai2-badge-bad {
+  background: var(--tai2-red-soft);
+  color: var(--tai2-red);
+}
+
+.tai2-badge-info {
+  background: var(--tai2-blue-soft);
+  color: var(--tai2-blue);
+}
+
+.tai2-badge-idle {
+  background: #f3f4f6;
+  color: var(--tai2-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Status popover
+   -------------------------------------------------------------------------- */
+.tai2-status-popover {
+  position: relative;
+}
+
+.tai2-status-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 999px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tai2-status-trigger:hover {
+  border-color: #d1d5db;
+}
+
+.tai2-status-dot {
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
+.tai2-status-trigger-ok .tai2-status-dot {
+  color: var(--tai2-green);
+}
+
+.tai2-status-trigger-warn .tai2-status-dot {
+  color: var(--tai2-orange);
+}
+
+.tai2-status-trigger-bad .tai2-status-dot {
+  color: var(--tai2-red);
+}
+
+.tai2-status-chevron {
+  flex-shrink: 0;
+  color: var(--tai2-muted);
+  transition: transform 0.2s;
+}
+
+.tai2-status-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+.tai2-status-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 40;
+  min-width: 260px;
+  padding: 14px 16px;
+  border: 1px solid var(--tai2-border);
+  border-radius: var(--tai2-radius);
+  background: var(--tai2-surface);
+  box-shadow: 0 4px 16px rgba(31, 41, 51, 0.08);
+}
+
+.tai2-status-list {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tai2-status-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tai2-status-row-label {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-status-row-value {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  text-align: right;
+}
+
+.tai2-status-row-value-ok {
+  color: var(--tai2-green);
+}
+
+.tai2-status-row-value-warn {
+  color: var(--tai2-orange);
+}
+
+.tai2-status-row-value-bad {
+  color: var(--tai2-red);
+}
+
+.tai2-status-row-value-info {
+  color: var(--tai2-blue);
+}
+
+.tai2-status-row-value-idle {
+  color: var(--tai2-text);
+}
+
+/* --------------------------------------------------------------------------
+   Parcel selection
+   -------------------------------------------------------------------------- */
+.tai2-parcel-lead {
+  margin: 0 0 14px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--tai2-muted);
+}
+
+.tai2-path-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 6px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 12px;
+  background: var(--tai2-bg);
+}
+
+.tai2-path-toggle-btn {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--tai2-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.tai2-path-toggle-btn:hover:not(:disabled) {
+  color: var(--tai2-text);
+  background: color-mix(in oklab, var(--tai2-green-soft) 55%, white);
+}
+
+.tai2-path-toggle-btn.is-active {
+  color: #fff;
+  background: var(--tai2-green);
+  border-color: var(--tai2-green);
+  box-shadow: 0 6px 16px rgba(27, 94, 59, 0.18);
+}
+
+.tai2-parcel-manual-grid {
+  margin-top: 0;
+}
+
+.tai2-parcel-manual-grid .tai2-span-2 {
+  grid-column: 1 / -1;
+}
+
+.tai2-nbhd-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  margin-bottom: 12px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 12px;
+  background: var(--tai2-bg);
+}
+
+.tai2-nbhd-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tai2-nbhd-row:hover:not(:disabled) {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+}
+
+.tai2-nbhd-row.is-active {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+  font-weight: 600;
+}
+
+.tai2-nbhd-row-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--tai2-muted);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tai2-land-panel {
+  margin-bottom: 12px;
+  padding: 12px;
+  border: 1px solid color-mix(in oklab, var(--tai2-green) 22%, var(--tai2-border));
+  border-radius: 12px;
+  background: linear-gradient(
+    180deg,
+    color-mix(in oklab, var(--tai2-green-soft) 55%, white),
+    var(--tai2-surface)
+  );
+}
+
+.tai2-land-panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.tai2-land-panel-head strong {
+  font-size: 0.9375rem;
+}
+
+.tai2-land-panel-head span {
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-land-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+.tai2-land-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tai2-land-row:hover:not(:disabled) {
+  border-color: #c9ddd2;
+  background: #f4faf6;
+}
+
+.tai2-land-row.is-selected {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+}
+
+.tai2-land-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.tai2-land-row-main strong {
+  font-size: 0.875rem;
+}
+
+.tai2-land-row-main span {
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-parcel-search {
+  position: relative;
+  margin-bottom: 12px;
+}
+
+.tai2-parcel-search-icon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  transform: translateY(-50%);
+  color: var(--tai2-muted);
+  pointer-events: none;
+}
+
+.tai2-parcel-search-input {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px 0 36px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.tai2-parcel-search-input:focus {
+  outline: 2px solid rgba(27, 94, 59, 0.25);
+  outline-offset: 0;
+  border-color: var(--tai2-green);
+}
+
+.tai2-parcel-options {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 240px;
+  margin-bottom: 16px;
+  overflow-y: auto;
+}
+
+.tai2-parcel-option {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-bg);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tai2-parcel-option:hover:not(:disabled) {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+}
+
+.tai2-parcel-option.is-selected {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+  font-weight: 600;
+}
+
+.tai2-land-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+  max-height: 320px;
+  margin-bottom: 16px;
+  overflow-y: auto;
+  padding: 2px;
+}
+
+.tai2-land-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  min-height: 104px;
+  padding: 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 12px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.tai2-land-card:hover:not(:disabled) {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+  box-shadow: 0 6px 18px rgba(27, 94, 59, 0.06);
+}
+
+.tai2-land-card.is-selected {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tai2-green) 35%, transparent);
+}
+
+.tai2-land-card-top {
+  display: flex;
+  width: 100%;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tai2-land-card-top strong {
+  font-size: 0.9375rem;
+  line-height: 1.3;
+}
+
+.tai2-land-card-check {
+  flex-shrink: 0;
+  color: var(--tai2-green);
+}
+
+.tai2-land-card-meta,
+.tai2-land-card-ada {
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.35;
+}
+
+.tai2-land-card-ada {
+  margin-top: auto;
+  font-weight: 500;
+  color: var(--tai2-text);
+}
+
+.tai2-parcel-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 10px 16px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-green-soft);
+}
+
+.tai2-parcel-summary-icon {
+  flex-shrink: 0;
+  color: var(--tai2-green);
+  margin-top: 2px;
+}
+
+.tai2-parcel-summary-text {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tai2-parcel-summary-text strong {
+  font-size: 0.9375rem;
+}
+
+.tai2-parcel-summary-text span {
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-parcel-map-link {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tai2-green);
+  text-decoration: none;
+}
+
+.tai2-parcel-map-link:hover {
+  text-decoration: underline;
+}
+
+.tai2-parcel-autofill-note {
+  margin: 0 0 12px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-parcel-edit-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border: none;
+  background: none;
+  color: var(--tai2-green);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tai2-parcel-edit-toggle:hover {
+  text-decoration: underline;
+}
+
+.tai2-parcel-edit-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.tai2-parcel-edit-grid-always {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--tai2-border);
+}
+
+/* --------------------------------------------------------------------------
+   Accordion & choice radios
+   -------------------------------------------------------------------------- */
+.tai2-optional-data {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tai2-optional-data-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-accordion {
+  border: 1px solid var(--tai2-border);
+  border-radius: var(--tai2-radius);
+  background: var(--tai2-surface);
+  overflow: hidden;
+}
+
+.tai2-accordion-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.9375rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tai2-accordion-header:hover {
+  background: #fafafa;
+}
+
+.tai2-accordion-icon {
+  flex-shrink: 0;
+  color: var(--tai2-green);
+}
+
+.tai2-accordion-title {
+  font-weight: 600;
+}
+
+.tai2-accordion-summary {
+  margin-left: auto;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-accordion-body {
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--tai2-border);
+}
+
+.tai2-accordion-hint {
+  margin: 12px 0;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-choice-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.tai2-choice {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 999px;
+  background: var(--tai2-bg);
+  color: var(--tai2-text);
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tai2-choice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tai2-choice.is-active {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+  font-weight: 600;
+}
+
+.tai2-choice:hover {
+  border-color: #c9ddd2;
+}
+
+/* --------------------------------------------------------------------------
+   Form fields
+   -------------------------------------------------------------------------- */
+.tai2-field-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tai2-field-grid label,
+.tai2-parcel-edit-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--tai2-text);
+}
+
+.tai2-field-full {
+  grid-column: 1 / -1;
+}
+
+.tai2-checkbox-field {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 10px !important;
+  font-weight: 400 !important;
+}
+
+.tai2-field-grid input,
+.tai2-field-grid select,
+.tai2-parcel-edit-grid input,
+.tai2-parcel-edit-grid select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 8px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+}
+
+.tai2-field-grid input:focus,
+.tai2-field-grid select:focus,
+.tai2-parcel-edit-grid input:focus,
+.tai2-parcel-edit-grid select:focus {
+  outline: 2px solid rgba(27, 94, 59, 0.25);
+  outline-offset: 0;
+  border-color: var(--tai2-green);
+}
+
+.tai2-pdf-upload {
+  display: grid;
+  gap: 12px;
+  margin: 4px 0 14px;
+}
+
+.tai2-pdf-upload-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--tai2-green);
+}
+
+.tai2-pdf-upload-head strong {
+  display: block;
+  margin: 0 0 2px;
+  font-size: 0.9375rem;
+  color: var(--tai2-text);
+}
+
+.tai2-pdf-upload-head p {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.4;
+}
+
+.tai2-pdf-input-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tai2-pdf-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 168px;
+  padding: 20px 16px;
+  border: 2px dashed color-mix(in oklab, var(--tai2-green) 45%, var(--tai2-border));
+  border-radius: 12px;
+  background: var(--tai2-green-soft);
+  text-align: center;
+}
+
+.tai2-pdf-dropzone.is-dragging {
+  border-color: var(--tai2-green);
+  background: color-mix(in oklab, var(--tai2-green) 14%, white);
+}
+
+.tai2-pdf-dropzone.is-disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.tai2-pdf-dropzone-icon {
+  color: var(--tai2-green);
+}
+
+.tai2-pdf-dropzone-title {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tai2-text);
+}
+
+.tai2-pdf-dropzone-sub {
+  margin: 0 0 6px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-pdf-selected {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  padding: 14px 16px;
+  border: 1px solid color-mix(in oklab, var(--tai2-green) 35%, var(--tai2-border));
+  border-radius: 12px;
+  background: var(--tai2-green-soft);
+}
+
+.tai2-pdf-selected-icon {
+  flex-shrink: 0;
+  color: var(--tai2-green);
+}
+
+.tai2-pdf-selected-text {
+  flex: 1 1 160px;
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.tai2-pdf-selected-text strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.tai2-pdf-selected-text span {
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-start-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+}
+
+.tai2-start-panel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 20px;
+  padding: 18px 20px;
+  border: 1px solid color-mix(in oklab, var(--tai2-green) 28%, var(--tai2-border));
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at top right, color-mix(in oklab, var(--tai2-green) 14%, transparent), transparent 48%),
+    linear-gradient(135deg, #f4faf6 0%, #fff 55%);
+  box-shadow: 0 10px 28px rgba(27, 94, 59, 0.08);
+}
+
+.tai2-start-panel-copy {
+  flex: 1 1 240px;
+  display: grid;
+  gap: 4px;
+}
+
+.tai2-start-panel-copy strong {
+  font-size: 1.0625rem;
+  color: var(--tai2-text);
+}
+
+.tai2-start-panel-copy p {
+  margin: 0;
+  max-width: 42ch;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--tai2-muted);
+}
+
+.tai2-reports-hint {
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+}
+
+.tai2-inline-link {
+  color: var(--tai2-green);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.tai2-inline-link:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Recent analyses
+   -------------------------------------------------------------------------- */
+.tai2-recent-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 14px;
+  background:
+    linear-gradient(135deg, color-mix(in oklab, var(--tai2-green-soft) 65%, white), #fff 70%);
+}
+
+.tai2-recent-strip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.tai2-recent-strip-toggle strong {
+  color: var(--tai2-green);
+}
+
+.tai2-recent-peek {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tai2-recent-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.tai2-recent-chip strong {
+  font-weight: 600;
+}
+
+.tai2-recent-chip span {
+  min-width: 28px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+  font-weight: 700;
+  text-align: center;
+}
+
+.tai2-recent-chip:hover:not(:disabled) {
+  border-color: #c9ddd2;
+  box-shadow: 0 6px 14px rgba(27, 94, 59, 0.08);
+}
+
+.tai2-recent-chip.is-active {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+}
+
+.tai2-recent-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.tai2-recent-table th,
+.tai2-recent-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--tai2-border);
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tai2-recent-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tai2-recent-row.is-active {
+  background: var(--tai2-green-soft);
+}
+
+.tai2-recent-cards {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tai2-recent-cards-always {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.tai2-recent-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 12px;
+  background: var(--tai2-surface);
+  color: var(--tai2-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.tai2-recent-card:hover:not(:disabled) {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+  box-shadow: 0 8px 20px rgba(27, 94, 59, 0.07);
+}
+
+.tai2-recent-card.is-active {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+}
+
+.tai2-recent-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.875rem;
+}
+
+.tai2-recent-card-head span {
+  color: var(--tai2-muted);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.tai2-recent-card-body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-recent-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: auto;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tai2-green);
+}
+
+/* --------------------------------------------------------------------------
+   Progress
+   -------------------------------------------------------------------------- */
+.tai2-progress-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+}
+
+.tai2-progress-percent {
+  font-weight: 700;
+  color: var(--tai2-green);
+}
+
+.tai2-progress-active-step {
+  color: var(--tai2-text);
+}
+
+.tai2-progress-bar {
+  height: 8px;
+  margin-bottom: 16px;
+  border-radius: 999px;
+  background: #eef0ee;
+  overflow: hidden;
+}
+
+.tai2-progress-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--tai2-green);
+  transition: width 0.3s ease;
+}
+
+.tai2-progress-stages {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tai2-progress-stage {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-bg);
+  font-size: 0.8125rem;
+}
+
+.tai2-progress-stage.is-completed {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+}
+
+.tai2-progress-stage.is-processing {
+  border-color: #bfdbfe;
+  background: var(--tai2-blue-soft);
+}
+
+.tai2-progress-stage.is-warning {
+  border-color: #f5d9a8;
+  background: var(--tai2-orange-soft);
+}
+
+.tai2-progress-stage.is-error {
+  border-color: #fecdca;
+  background: var(--tai2-red-soft);
+}
+
+.tai2-progress-stage-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--tai2-surface);
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--tai2-muted);
+}
+
+.tai2-progress-stage-label {
+  flex: 1 1 auto;
+  font-weight: 500;
+}
+
+.tai2-technical-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border: none;
+  background: none;
+  color: var(--tai2-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.tai2-technical-toggle:hover {
+  color: var(--tai2-text);
+}
+
+.tai2-technical-steps {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.tai2-technical-step {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 0.8125rem;
+}
+
+.tai2-technical-step-label {
+  flex: 1 1 auto;
+}
+
+.tai2-technical-step-error {
+  width: 100%;
+  color: var(--tai2-red);
+  font-size: 0.75rem;
+}
+
+.tai2-progress-collapsed {
+  padding: 0;
+}
+
+.tai2-progress-collapsed-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tai2-progress-collapsed-toggle:hover {
+  background: var(--tai2-green-soft);
+}
+
+.tai2-progress-collapsed-icon {
+  flex-shrink: 0;
+  color: var(--tai2-green);
+}
+
+/* --------------------------------------------------------------------------
+   Decision cards
+   -------------------------------------------------------------------------- */
+.tai2-decision-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.tai2-decision-card {
+  display: flex;
+  gap: 12px;
+  padding: 18px 16px;
+  border: 1px solid var(--tai2-border);
+  border-radius: var(--tai2-radius);
+  background: var(--tai2-surface);
+}
+
+.tai2-decision-card.is-critical {
+  border-color: #f5d9a8;
+  background: var(--tai2-orange-soft);
+}
+
+.tai2-decision-card-ok {
+  border-color: #c9ddd2;
+}
+
+.tai2-decision-card-warn {
+  border-color: #f5d9a8;
+}
+
+.tai2-decision-card-bad {
+  border-color: #fecdca;
+}
+
+.tai2-decision-card-info {
+  border-color: #b2ddff;
+}
+
+.tai2-decision-card-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--tai2-green) 12%, transparent);
+}
+
+.tai2-decision-card-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.1;
+}
+
+.tai2-decision-card-warn .tai2-decision-card-icon,
+.tai2-decision-card.is-critical .tai2-decision-card-icon {
+  background: var(--tai2-orange-soft);
+  color: var(--tai2-orange);
+}
+
+.tai2-decision-card-bad .tai2-decision-card-icon {
+  background: var(--tai2-red-soft);
+  color: var(--tai2-red);
+}
+
+.tai2-decision-card-info .tai2-decision-card-icon {
+  background: var(--tai2-blue-soft);
+  color: var(--tai2-blue);
+}
+
+.tai2-decision-card-label {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tai2-decision-card-score {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+  margin-bottom: 6px;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.tai2-decision-card-score-text {
+  font-size: 1rem;
+}
+
+.tai2-decision-card-score-max {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--tai2-muted);
+}
+
+.tai2-decision-card-subvalue {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-decision-card-blurb {
+  margin: 8px 0 0;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.45;
+}
+
+/* --------------------------------------------------------------------------
+   Critical banner
+   -------------------------------------------------------------------------- */
+.tai2-critical-banner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px 16px;
+  padding: 14px 16px;
+  border: 1px solid #f5d9a8;
+  border-radius: var(--tai2-radius);
+  background: var(--tai2-orange-soft);
+}
+
+.tai2-critical-banner-icon {
+  flex-shrink: 0;
+  color: var(--tai2-orange);
+  margin-top: 2px;
+}
+
+.tai2-critical-banner-copy {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.tai2-critical-banner-title {
+  display: block;
+  margin: 0 0 4px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--tai2-text);
+}
+
+.tai2-critical-banner-text {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--tai2-text);
+  line-height: 1.45;
+}
+
+.tai2-critical-banner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Result header
+   -------------------------------------------------------------------------- */
+.tai2-result-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px 24px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--tai2-border);
+}
+
+.tai2-result-header.is-sticky,
+.tai2-page .tai2-result-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  background: var(--tai2-bg);
+  padding-top: 8px;
+  margin-bottom: 4px;
+}
+
+.tai2-result-header-title {
+  margin: 0 0 4px;
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.tai2-result-header-meta {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-result-header-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tai2-result-header-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Tabs
+   -------------------------------------------------------------------------- */
+.tai2-tabs {
+  margin-top: 4px;
+}
+
+.tai2-tabs-scroll {
+  position: sticky;
+  top: 0;
+  z-index: 15;
+  margin: 0 -24px;
+  padding: 0 24px 12px;
+  background: var(--tai2-bg);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.tai2-tabs-list {
+  display: flex;
+  gap: 4px;
+  min-width: min-content;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--tai2-border);
+}
+
+.tai2-tab {
+  flex-shrink: 0;
+  appearance: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--tai2-muted);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.tai2-tab:hover {
+  color: var(--tai2-text);
+}
+
+.tai2-tab.is-active {
+  color: var(--tai2-green);
+  border-bottom-color: var(--tai2-green);
+}
+
+.tai2-tabs-panel {
+  padding-top: 20px;
+}
+
+.tai2-tabs-panel:focus {
+  outline: none;
+}
+
+.tai2-tabs-panel:focus-visible {
+  outline: 2px solid rgba(27, 94, 59, 0.35);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+/* Tab content wrappers */
+.tai2-overview-tab,
+.tai2-satellite-tab,
+.tai2-climate-soil-tab,
+.tai2-crops-tab,
+.tai2-sources-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tai2-overview-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   Satellite viewer
+   -------------------------------------------------------------------------- */
+.tai2-sat-viewer {
+  padding-bottom: 20px;
+}
+
+.tai2-sat-layer-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.tai2-sat-layer-tab {
+  appearance: none;
+  border: 1px solid var(--tai2-border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: var(--tai2-bg);
+  color: var(--tai2-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.tai2-sat-layer-tab:hover {
+  border-color: #c9ddd2;
+  color: var(--tai2-text);
+}
+
+.tai2-sat-layer-tab.is-active {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+}
+
+.tai2-sat-figure {
+  margin: 0 0 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #eef0ee;
+}
+
+.tai2-sat-figure img {
+  display: block;
+  width: 100%;
+  max-height: 480px;
+  object-fit: contain;
+  background: #eef0ee;
+}
+
+.tai2-sat-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  background: #eef0ee;
+  color: var(--tai2-muted);
+  font-size: 0.875rem;
+}
+
+.tai2-sat-legend {
+  margin-bottom: 16px;
+}
+
+.tai2-sat-legend-bar {
+  height: 10px;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--tai2-border);
+}
+
+.tai2-sat-legend-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-sat-legend-hint {
+  margin: 8px 0 0;
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+  line-height: 1.45;
+}
+
+.tai2-sat-info-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+
+.tai2-sat-info-grid dt {
+  margin: 0 0 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+}
+
+.tai2-sat-info-grid dd {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.tai2-sat-dem-disclaimer {
+  margin: 14px 0 0;
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.45;
+}
+
+.tai2-land-usability-score {
+  margin: 0 0 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   KPI & metric grids
+   -------------------------------------------------------------------------- */
+.tai2-kpi-grid,
+.tai2-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px 16px;
+  margin: 0;
+}
+
+.tai2-kpi,
+.tai2-kpi-grid > div,
+.tai2-metric-grid > div {
+  min-width: 0;
+}
+
+.tai2-kpi dt,
+.tai2-kpi-grid dt,
+.tai2-metric-grid dt {
+  margin: 0 0 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.tai2-kpi dd,
+.tai2-kpi-grid dd,
+.tai2-metric-grid dd {
+  margin: 0;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.tai2-kpi-wide {
+  grid-column: span 2;
+}
+
+.tai2-kpi-meaning {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--tai2-muted);
+}
+
+.tai2-source-line {
+  margin: -8px 0 14px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-depth-layers {
+  margin-top: 14px;
+}
+
+.tai2-depth-layers-label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+}
+
+.tai2-depth-layers-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tai2-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 999px;
+  background: var(--tai2-bg);
+  font-size: 0.75rem;
+  color: var(--tai2-text);
+}
+
+/* --------------------------------------------------------------------------
+   Score bars
+   -------------------------------------------------------------------------- */
+.tai2-score-bar {
+  height: 6px;
+  margin: 6px 0;
+  border-radius: 999px;
+  background: #eef0ee;
+  overflow: hidden;
+}
+
+.tai2-score-bar-fill {
+  height: 100%;
+  border-radius: inherit;
+  transition: width 0.3s ease;
+}
+
+.tai2-score-bar-fill-ok {
+  background: var(--tai2-green);
+}
+
+.tai2-score-bar-fill-warn {
+  background: var(--tai2-orange);
+}
+
+.tai2-score-bar-fill-bad {
+  background: var(--tai2-red);
+}
+
+.tai2-score-bar-fill-info {
+  background: var(--tai2-blue);
+}
+
+.tai2-score-bar-fill-idle {
+  background: #9ca3af;
+}
+
+/* --------------------------------------------------------------------------
+   Tables
+   -------------------------------------------------------------------------- */
+.tai2-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tai2-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.tai2-table th,
+.tai2-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--tai2-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.tai2-table th {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+}
+
+.tai2-source-warning {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--tai2-orange);
+}
+
+.tai2-crop-row.is-expanded {
+  background: var(--tai2-green-soft);
+}
+
+.tai2-crop-row-detail td {
+  padding-top: 0;
+  background: #fafafa;
+}
+
+/* --------------------------------------------------------------------------
+   Lists
+   -------------------------------------------------------------------------- */
+.tai2-bullet-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.tai2-bullet-list.is-positive {
+  color: var(--tai2-green);
+}
+
+.tai2-bullet-list.is-negative {
+  color: var(--tai2-red);
+}
+
+.tai2-compact-factor-block {
+  margin-bottom: 12px;
+}
+
+.tai2-compact-factor-block:last-child {
+  margin-bottom: 0;
+}
+
+.tai2-compact-factor-block > strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8125rem;
+  color: var(--tai2-text);
+}
+
+.tai2-compact-list {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-compact-list.is-positive {
+  color: var(--tai2-green);
+}
+
+.tai2-compact-list.is-limiting {
+  color: var(--tai2-orange);
+}
+
+.tai2-checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tai2-checklist-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 8px 10px;
+  align-items: start;
+  padding: 10px 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-bg);
+  font-size: 0.8125rem;
+}
+
+.tai2-checklist-item.is-done {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+}
+
+.tai2-checklist-icon {
+  flex-shrink: 0;
+  color: var(--tai2-muted);
+  margin-top: 1px;
+}
+
+.tai2-checklist-icon.is-done {
+  color: var(--tai2-green);
+}
+
+.tai2-checklist-label {
+  font-weight: 500;
+}
+
+.tai2-checklist-priority {
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+  white-space: nowrap;
+}
+
+.tai2-checklist-action-hint {
+  grid-column: 2 / -1;
+  font-size: 0.75rem;
+  color: var(--tai2-orange);
+}
+
+.tai2-top-crops-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tai2-top-crop-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-bg);
+}
+
+.tai2-top-crop-rank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+  font-size: 0.8125rem;
+  font-weight: 700;
+}
+
+.tai2-top-crop-body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.875rem;
+}
+
+.tai2-top-crop-planting {
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-top-crop-score {
+  font-weight: 700;
+  color: var(--tai2-green);
+}
+
+.tai2-osm-link-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 12px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-osm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--tai2-green);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.tai2-osm-link:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Crop recommendations
+   -------------------------------------------------------------------------- */
+.tai2-top-crop-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.tai2-crop-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border: 1px solid var(--tai2-border);
+  border-radius: var(--tai2-radius);
+  background: var(--tai2-surface);
+}
+
+.tai2-crop-card-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.tai2-crop-card-rank {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--tai2-green);
+}
+
+.tai2-crop-card-name {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.tai2-crop-card-score-value {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--tai2-muted);
+}
+
+.tai2-crop-card-planting {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--tai2-muted);
+}
+
+.tai2-crop-card-note {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.45;
+}
+
+.tai2-crop-card-expand-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: auto;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: var(--tai2-green);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tai2-crop-detail {
+  padding-top: 8px;
+  border-top: 1px solid var(--tai2-border);
+}
+
+.tai2-crop-detail-explanation {
+  margin: 0 0 10px;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.45;
+}
+
+.tai2-how-calculated {
+  margin-bottom: 16px;
+}
+
+.tai2-how-calculated-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 0;
+  border: none;
+  background: none;
+  color: var(--tai2-muted);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.tai2-how-calculated-toggle:hover {
+  color: var(--tai2-text);
+}
+
+.tai2-how-calculated-text {
+  margin: 8px 0 0;
+  padding: 12px;
+  border-radius: 8px;
+  background: #f9fafb;
+  font-size: 0.8125rem;
+  color: var(--tai2-muted);
+  line-height: 1.5;
+}
+
+.tai2-confidence-explanation {
+  margin: 0;
+  font-size: 0.875rem;
+  color: var(--tai2-muted);
+  line-height: 1.5;
+}
+
+/* --------------------------------------------------------------------------
+   Alerts & helpers
+   -------------------------------------------------------------------------- */
+.tai2-muted {
+  margin: 0;
+  color: var(--tai2-muted);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.tai2-alert {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.tai2-alert-bad {
+  border: 1px solid #fecdca;
+  background: var(--tai2-red-soft);
+  color: var(--tai2-red);
+}
+
+.tai2-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--tai2-muted);
+  font-size: 0.875rem;
+}
+
+.tai2-error {
+  color: var(--tai2-red);
+  font-size: 0.875rem;
+}
+
+.tai2-chevron {
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.tai2-chevron.is-open {
+  transform: rotate(180deg);
+}
+
+@keyframes tai2-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tai2-spin {
+  animation: tai2-spin 0.8s linear infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Toast & dialog (portaled to body — selectors work globally)
+   -------------------------------------------------------------------------- */
+.tai2-toast-portal {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: min(420px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.tai2-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 10px;
+  background: var(--tai2-surface);
+  box-shadow: 0 4px 16px rgba(31, 41, 51, 0.1);
+  font-size: 0.875rem;
+  pointer-events: auto;
+}
+
+.tai2-toast-ok {
+  border-color: #c9ddd2;
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+}
+
+.tai2-toast-bad {
+  border-color: #fecdca;
+  background: var(--tai2-red-soft);
+  color: var(--tai2-red);
+}
+
+.tai2-toast-info {
+  border-color: #b2ddff;
+  background: var(--tai2-blue-soft);
+  color: var(--tai2-blue);
+}
+
+.tai2-toast-message {
+  flex: 1 1 auto;
+  line-height: 1.4;
+}
+
+.tai2-toast-close {
+  flex-shrink: 0;
+  display: inline-flex;
+  padding: 2px;
+  border: none;
+  background: none;
+  color: inherit;
+  opacity: 0.7;
+  cursor: pointer;
+}
+
+.tai2-toast-close:hover {
+  opacity: 1;
+}
+
+.tai2-dialog-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(31, 41, 51, 0.4);
+}
+
+.tai2-dialog {
+  width: min(480px, 100%);
+  padding: 22px 24px;
+  border: 1px solid var(--tai2-border);
+  border-radius: var(--tai2-radius);
+  background: var(--tai2-surface);
+  box-shadow: 0 8px 32px rgba(31, 41, 51, 0.12);
+}
+
+.tai2-dialog-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.tai2-dialog-title {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.tai2-dialog-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--tai2-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--tai2-muted);
+  cursor: pointer;
+}
+
+.tai2-dialog-close:hover {
+  background: #f3f4f6;
+  color: var(--tai2-text);
+}
+
+.tai2-dialog-body {
+  margin: 0 0 20px;
+  font-size: 0.875rem;
+  color: var(--tai2-muted);
+  line-height: 1.5;
+}
+
+.tai2-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* --------------------------------------------------------------------------
+   Secondary panels (tools / status)
+   -------------------------------------------------------------------------- */
+.tai2-tool-picks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 16px;
+}
+
+.tai2-tool-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 999px;
+  background: var(--tai2-bg);
+  color: var(--tai2-text);
+  font: inherit;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.tai2-tool-pick:hover {
+  border-color: #c9ddd2;
+}
+
+.tai2-tool-pick.is-active {
+  border-color: var(--tai2-green);
+  background: var(--tai2-green-soft);
+  color: var(--tai2-green);
+  font-weight: 600;
+}
+
+.tai2-json {
+  margin: 12px 0 0;
+  padding: 14px;
+  border: 1px solid var(--tai2-border);
+  border-radius: 8px;
+  background: #f9fafb;
+  overflow-x: auto;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: var(--tai2-text);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .tai2-decision-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tai2-top-crop-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tai2-kpi-grid,
+  .tai2-metric-grid,
+  .tai2-sat-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tai2-kpi-wide {
+    grid-column: span 2;
+  }
+
+  .tai2-field-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tai2-overview-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .tai2-page {
+    padding: 20px 16px;
+  }
+
+  .tai2-page-title {
+    font-size: 1.375rem;
+  }
+
+  .tai2-page-header-actions,
+  .tai2-result-header-actions {
+    width: 100%;
+  }
+
+  .tai2-page-header-actions .tai2-btn,
+  .tai2-result-header-actions .tai2-btn {
+    flex: 1 1 auto;
+    justify-content: center;
+  }
+
+  .tai2-tabs-scroll {
+    margin-inline: -16px;
+    padding-inline: 16px;
+  }
+
+  .tai2-recent-table {
+    display: none;
+  }
+
+  .tai2-recent-cards {
+    display: flex;
+  }
+
+  .tai2-recent-cards-always {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-parcel-lookup {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-path-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-land-card-grid {
+    grid-template-columns: 1fr;
+    max-height: none;
+  }
+
+  .tai2-start-panel {
+    align-items: stretch;
+  }
+
+  .tai2-start-cta {
+    width: 100%;
+  }
+
+  .tai2-decision-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-top-crop-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-parcel-edit-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-kpi-grid,
+  .tai2-metric-grid,
+  .tai2-sat-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tai2-kpi-wide {
+    grid-column: span 1;
+  }
+
+  .tai2-accordion-summary {
+    display: none;
+  }
+
+  .tai2-critical-banner-actions {
+    width: 100%;
+  }
+
+  .tai2-critical-banner-actions .tai2-btn {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 390px) {
+  .tai2-page {
+    padding: 16px 12px;
+  }
+
+  .tai2-card {
+    padding: 16px;
+  }
+
+  .tai2-page-header-actions .tai2-btn,
+  .tai2-result-header-actions .tai2-btn {
+    min-height: 40px;
+    padding-inline: 12px;
+    font-size: 0.8125rem;
+  }
+
+  .tai2-tabs-scroll {
+    margin-inline: -12px;
+    padding-inline: 12px;
+  }
+
+  .tai2-tab {
+    padding: 8px 10px;
+    font-size: 0.8125rem;
+  }
+
+  .tai2-toast-portal {
+    right: 12px;
+    left: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
+}

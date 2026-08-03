@@ -22,6 +22,17 @@ npm run dev
 Aç: http://localhost:5173  
 API tabanı: `.env.development` → `VITE_API_URL=http://localhost:5109`
 
+### Tarım AI (sibling servis)
+
+Sidebar: **Tarım AI** → `/tarim-ai`
+
+```bash
+cd ~/tarim_ai
+ANALYSIS_DATA_MODE=golden npm run dev   # http://localhost:4000
+```
+
+Panel, Vite proxy ile `/tarim-ai-api` → `localhost:4000` kullanır (`VITE_TARIM_AI_URL` ile doğrudan URL verilebilir).
+
 ## Giriş
 
 | Rol | E-posta | Şifre |

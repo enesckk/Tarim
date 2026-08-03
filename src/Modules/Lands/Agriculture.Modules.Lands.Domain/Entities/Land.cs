@@ -74,14 +74,20 @@ public sealed class Land : AuditableEntity
 
     public void Update(
         string name,
+        string parcelNumber,
         decimal sizeInDecares,
+        string? cadastralBlock,
+        string? neighborhood,
         double? latitude,
         double? longitude,
         string? soilType,
         string? soilNotes)
     {
         Name = name.Trim();
+        ParcelNumber = parcelNumber.Trim();
         SizeInDecares = sizeInDecares;
+        CadastralBlock = cadastralBlock;
+        Neighborhood = neighborhood;
         Latitude = latitude;
         Longitude = longitude;
         SoilType = soilType;
