@@ -8,6 +8,8 @@ obj/
 node_modules/
 dist/
 build/
+.dev-dist/
+frontend/dev-dist/
 .env
 .env.local
 mobile/.env
@@ -19,20 +21,3 @@ backups/
 coverage/
 TestResults/
 src/Hosts/Agriculture.Api/wwwroot/uploads/
-_design-ref-mobile/
-frontend_login_repo/
-frontend/dev-dist/
-frontend/public/drone_photos/
-
-# Runtime AI artifacts (regenerated locally)
-tarim_ai/storage/analyses/
-tarim_ai/storage/land-analyses/
-tarim_ai/storage/laboratory-reports/
-tarim_ai/storage/analysis-attachments/
-tarim_ai/node_modules/
-frontend/node_modules/
-mobile/node_modules/
-
-# Local agent/test dumps
-.cursor/*.json
-.cursor/*.mjs

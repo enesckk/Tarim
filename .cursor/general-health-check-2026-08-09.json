@@ -1,0 +1,147 @@
+{
+  "frontend": "http://localhost:5174",
+  "checks": [
+    {
+      "name": "Frontend UI :5174",
+      "ok": true,
+      "detail": "200 None"
+    },
+    {
+      "name": "SPA /login",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "SPA /tarim-ai",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "SPA /reports",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "Vite→AI proxy health",
+      "ok": true,
+      "detail": "200 ready None"
+    },
+    {
+      "name": "Vite→AI proxy cache",
+      "ok": true,
+      "detail": "200 count=7"
+    },
+    {
+      "name": "AMS login",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS dashboard",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS lands",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS producers",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS officers",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS inspections",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS harvest",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS notifications",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AMS approvals",
+      "ok": false,
+      "detail": "404"
+    },
+    {
+      "name": "AMS chat threads",
+      "ok": false,
+      "detail": "404"
+    },
+    {
+      "name": "AMS messages",
+      "ok": false,
+      "detail": "404"
+    },
+    {
+      "name": "AMS conversations",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "AI health",
+      "ok": true,
+      "detail": "readiness=ready persist=healthy"
+    },
+    {
+      "name": "AI readiness live",
+      "ok": true,
+      "detail": "mode=live services_keys=None"
+    },
+    {
+      "name": "AI crops",
+      "ok": true,
+      "detail": "count=55"
+    },
+    {
+      "name": "AI cache",
+      "ok": true,
+      "detail": "count=7"
+    },
+    {
+      "name": "AI parcel route discovery",
+      "ok": false,
+      "detail": "no route; /api => 404 {'error': 'Not found', 'code': 'NOT_FOUND', 'correlationId': '33a3b4e5-9c3a-44f0"
+    },
+    {
+      "name": "AI CORS for Vite origin",
+      "ok": true,
+      "detail": "status=200 ACAO=*"
+    }
+  ],
+  "failed": [
+    {
+      "name": "AMS approvals",
+      "ok": false,
+      "detail": "404"
+    },
+    {
+      "name": "AMS chat threads",
+      "ok": false,
+      "detail": "404"
+    },
+    {
+      "name": "AMS messages",
+      "ok": false,
+      "detail": "404"
+    },
+    {
+      "name": "AI parcel route discovery",
+      "ok": false,
+      "detail": "no route; /api => 404 {'error': 'Not found', 'code': 'NOT_FOUND', 'correlationId': '33a3b4e5-9c3a-44f0"
+    }
+  ]
+}

@@ -1,0 +1,271 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
+
+@custom-variant dark (&:is(.dark *));
+@custom-variant light (&:is(.light *));
+
+@theme inline {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-playfair), ui-serif, Georgia, serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+
+  --color-lime: var(--lime);
+  --color-lime-dim: var(--lime-dim);
+  --color-gold: var(--gold);
+  --color-gold-dim: var(--gold-dim);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+}
+
+/* DARK THEME TOKENS (DEFAULT - UNTOUCHED) */
+:root, .dark {
+  color-scheme: dark;
+  --background: #060807;
+  --surface: #0A0D0A;
+  --surface-soft: #121712;
+  --foreground: #F5F3EC;
+  --text-secondary: #A8A8A8;
+  --accent: #D6AE5E;
+  --border: rgba(255, 255, 255, 0.1);
+
+  --card: #0A0D0A;
+  --card-foreground: #F5F3EC;
+  --muted: #121712;
+  --muted-foreground: #A8A8A8;
+
+  --sidebar: #060807;
+  --sidebar-foreground: #F5F3EC;
+
+  --lime: #D7B36A;
+  --lime-dim: #C5A059;
+  --gold: #D6AE5E;
+  --gold-dim: #B88E35;
+
+  --overlay-start: #060807;
+  --overlay-end: transparent;
+
+  --radius: 0.75rem;
+}
+
+/* LIGHT THEME TOKENS (WARM PREMIUM APPLE / LINEAR / STRIPE / RAYCAST QUALITY) */
+.light {
+  color-scheme: light;
+  --background: #FAF8F3;
+  --surface: #FFFFFF;
+  --surface-soft: #F4F1EA;
+  --foreground: #1E1E1E;
+  --text-secondary: #4F4F4F;
+  --accent: #B8842F;
+  --border: rgba(184, 132, 47, 0.15);
+
+  --card: #FFFFFF;
+  --card-foreground: #1E1E1E;
+  --muted: #F4F1EA;
+  --muted-foreground: #4F4F4F;
+
+  --sidebar: #FAF8F3;
+  --sidebar-foreground: #1E1E1E;
+
+  --lime: #B8842F;
+  --lime-dim: #9E6F22;
+  --gold: #B8842F;
+  --gold-dim: #9E6F22;
+
+  --overlay-start: #FAF8F3;
+  --overlay-end: transparent;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    transition: background-color 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                color 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 300ms cubic-bezier(0.22, 1, 0.36, 1),
+                transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  html {
+    @apply bg-background;
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: 'ss01', 'cv01';
+  }
+  section[data-chapter] {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    will-change: opacity, transform;
+  }
+}
+
+/* thin scrollbar hidden for cinematic feel */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+/* Custom 60fps GPU Hardware Acceleration Utilities */
+.gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+/* Apple / Framer Custom Smooth Easing (800ms cubic-bezier(0.22, 1, 0.36, 1)) */
+.transition-smooth-cinematic {
+  transition: all 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.transition-button-180 {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Scene FX animations ---------- */
+.fx-lightsweep {
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(184, 132, 47, 0.04) 48%,
+    transparent 62%
+  );
+  background-size: 260% 100%;
+  animation: lightsweep 18s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes lightsweep {
+  0%,
+  100% {
+    background-position: 130% 0;
+  }
+  50% {
+    background-position: -30% 0;
+  }
+}
+
+.fx-line {
+  animation: lineflicker 5s ease-in-out infinite;
+}
+@keyframes lineflicker {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.fx-node {
+  animation: nodepulse 4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes nodepulse {
+  0%,
+  100% {
+    opacity: 0.25;
+    r: 0.4;
+  }
+  50% {
+    opacity: 0.65;
+    r: 0.65;
+  }
+}
+
+.fx-scangrid {
+  background-image: linear-gradient(
+      rgba(184, 132, 47, 0.15) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(184, 132, 47, 0.15) 1px, transparent 1px);
+  background-size: 11% 11%;
+  transform: perspective(600px) rotateX(58deg);
+  animation: gridpulse 5s ease-in-out infinite;
+  box-shadow: inset 0 0 60px rgba(184, 132, 47, 0.1);
+}
+@keyframes gridpulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.fx-scanline {
+  top: 10%;
+  animation: scanmove 5.5s ease-in-out infinite;
+}
+@keyframes scanmove {
+  0%,
+  100% {
+    top: 12%;
+    opacity: 0.25;
+  }
+  50% {
+    top: 82%;
+    opacity: 0.7;
+  }
+}
+
+.fx-breathe {
+  animation: breathe 8s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: translateY(-50%) scale(0.95);
+  }
+  50% {
+    opacity: 0.7;
+    transform: translateY(-50%) scale(1.05);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-lightsweep,
+  .fx-line,
+  .fx-node,
+  .fx-scangrid,
+  .fx-scanline,
+  .fx-breathe {
+    animation: none;
+  }
+}
+
+.animate-scroll-dot {
+  animation: scrolldot 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes scrolldot {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+}
