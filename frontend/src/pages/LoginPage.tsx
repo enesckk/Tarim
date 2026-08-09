@@ -7,14 +7,12 @@ import { homePathForRoles } from '../auth/roles'
 import '../layout/layout.css'
 
 export function LoginPage() {
-  const { token, user, login } = useAuth()
+  const { token, user, login, logout } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-
-  if (token && user) return <Navigate to={homePathForRoles(user.roles)} replace />
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
@@ -49,6 +47,31 @@ export function LoginPage() {
         <p className="login-lead">
           Belediye Tarım Operasyon Platformu — Yönetici ve Tarım Uzmanı girişi.
         </p>
+
+        {token && user && (
+          <div style={{ padding: '12px', borderRadius: '10px', background: 'rgba(26,107,60,0.1)', border: '1px solid rgba(26,107,60,0.3)', marginBottom: '16px', fontSize: '13px' }}>
+            <div style={{ fontWeight: 'bold', color: '#166534', marginBottom: '6px' }}>
+              ✓ Aktif Oturum: {user.fullName ?? user.email}
+            </div>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                type="button"
+                className="primary-btn"
+                style={{ padding: '6px 12px', fontSize: '12px' }}
+                onClick={() => navigate(homePathForRoles(user.roles))}
+              >
+                Sisteme / Panele Git →
+              </button>
+              <button
+                type="button"
+                style={{ padding: '6px 12px', fontSize: '12px', background: '#dc2626', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer' }}
+                onClick={() => logout()}
+              >
+                Çıkış Yap
+              </button>
+            </div>
+          </div>
+        )}
         <form onSubmit={onSubmit}>
           <label>
             E-posta

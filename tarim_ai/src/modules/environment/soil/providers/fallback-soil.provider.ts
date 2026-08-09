@@ -38,6 +38,10 @@ export class FallbackSoilProvider implements SoilProvider {
           isEstimated: true,
           fallbackFrom: this.primary.name,
           generatedAt: new Date().toISOString(),
+          mockReason: error instanceof Error ? error.message : 'Unknown provider error',
+          fallbackPolicy: 'LIVE_REJECTED_IF_STRICT',
+          mockStartedAt: new Date().toISOString(),
+          mockFinishedAt: new Date().toISOString(),
         },
       };
     }

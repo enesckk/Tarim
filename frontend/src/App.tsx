@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import LandingPage from './pages/LandingPage'
 import type { ReactNode } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider, useAuth } from './auth/AuthContext'
@@ -21,6 +22,9 @@ import { NotificationsPage } from './pages/NotificationsPage'
 import { ReportsPage } from './pages/ReportsPage'
 import { ApprovalsPage } from './pages/ApprovalsPage'
 import { TarimAiPage } from './pages/TarimAiPage'
+import CropDetailPage from './pages/CropDetailPage'
+import CropAdminPage from './pages/CropAdminPage'
+import { CropDecisionMatrixAdminPage } from './pages/CropDecisionMatrixAdminPage'
 
 function Protected({ children }: { children: ReactNode }) {
   const { token, user } = useAuth()
@@ -33,15 +37,15 @@ export default function App() {
   return (
     <AuthProvider>
       <Routes>
+        <Route path="/" element={
+          <LandingPage />
+        } />
         <Route path="/login" element={<LoginPage />} />
-        <Route
-          path="/"
-          element={
-            <Protected>
-              <AppLayout />
-            </Protected>
-          }
-        >
+        <Route path="/app/*" element={
+          <Protected>
+            <AppLayout />
+          </Protected>
+        }>
           <Route index element={<DashboardPage />} />
           <Route path="producers" element={<ProducersPage />} />
           <Route path="producers/:producerId" element={<ProducersPage />} />
@@ -61,6 +65,9 @@ export default function App() {
           <Route path="notifications" element={<NotificationsPage />} />
           <Route path="reports" element={<ReportsPage />} />
           <Route path="tarim-ai" element={<TarimAiPage />} />
+          <Route path="crop-knowledge/:cropId" element={<CropDetailPage />} />
+          <Route path="crop-admin" element={<CropAdminPage />} />
+          <Route path="crop-decision-matrix" element={<CropDecisionMatrixAdminPage />} />
           <Route path="profile" element={<ProfilePage />} />
         </Route>
         <Route path="*" element={<CatchAll />} />

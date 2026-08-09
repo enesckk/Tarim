@@ -1,0 +1,99 @@
+<!doctype html><html lang="tr"><meta charset="utf-8"/>
+<title>Tarla Günlüğü - Uzman İnceleme</title>
+<style>
+body{font-family:ui-sans-serif,system-ui;margin:0;background:#0b1f2a;color:#e8eef2}
+header{padding:24px 28px;background:linear-gradient(120deg,#0b1f2a,#163a2c);border-bottom:1px solid #2a4a3a}
+h1{margin:0;font-size:22px;letter-spacing:.02em}
+p{opacity:.85;margin:8px 0 0}
+main{padding:28px;max-width:960px}
+.card{display:block;padding:16px 18px;margin:0 0 12px;background:#122833;border:1px solid #2c4b3f;border-radius:10px;color:#d7f5e3;text-decoration:none}
+.card:hover{border-color:#4caf7a}
+button{background:#4caf7a;color:#0b1f2a;border:none;padding:10px 16px;border-radius:6px;font-weight:600;cursor:pointer;margin-right:8px}
+button.reject{background:#e53e3e;color:white}
+button.revision{background:#ed8936;color:white}
+button:hover{opacity:0.9}
+.badge{padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold}
+.badge-submitted{background:#d69e2e;color:white}
+</style>
+<body>
+<header>
+  <h1>Tarla Günlüğü - Uzman İnceleme</h1>
+  <p>Üreticiler tarafından gönderilen kayıtları inceleyin.</p>
+</header>
+<main>
+  <h3>İncelenecek Kayıtlar (Örnek Parsel: parcel-123)</h3>
+  <div id="logList">Yükleniyor...</div>
+</main>
+<script>
+const API_BASE = 'http://127.0.0.1:4000/api';
+const PARCEL_ID = 'parcel-123';
+const EXPERT_ID = 'expert-user';
+
+async function fetchLogs() {
+  try {
+    const res = await fetch(`${API_BASE}/field-logs?parcelId=${PARCEL_ID}`);
+    const data = await res.json();
+    const container = document.getElementById('logList');
+    container.innerHTML = '';
+    
+    // Yalnızca inceleme bekleyenleri (SUBMITTED, REVISION_REQUIRED) göster
+    const pendingLogs = data.filter(log => log.status === 'SUBMITTED' || log.status === 'REVISION_REQUIRED');
+
+    if (pendingLogs.length === 0) {
+      container.innerHTML = '<p>Bekleyen kayıt bulunmuyor.</p>';
+      return;
+    }
+
+    pendingLogs.forEach(log => {
+      const html = `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>${log.entryCode} - ${log.operationType}</strong>
+            <span class="badge badge-submitted">${log.status}</span>
+          </div>
+          <p>Tarih: ${new Date(log.operationDate).toLocaleString()}</p>
+          <p>Üretici: ${log.producerId}</p>
+          <p>Açıklama: ${log.description || 'Yok'}</p>
+          <div style="margin-top:16px">
+            <button onclick="reviewLog('${log.id}', 'VERIFIED')">Doğrula (Onayla)</button>
+            <button class="revision" onclick="reviewLog('${log.id}', 'REVISION_REQUIRED')">Düzeltme İste</button>
+            <button class="reject" onclick="reviewLog('${log.id}', 'REJECTED')">Reddet</button>
+          </div>
+        </div>
+      `;
+      container.innerHTML += html;
+    });
+  } catch (err) {
+    document.getElementById('logList').innerHTML = `<p style="color:red">Hata: ${err.message}</p>`;
+  }
+}
+
+async function reviewLog(id, status) {
+  const notes = prompt('İnceleme notunuzu giriniz:');
+  if (notes === null) return; // iptal
+
+  try {
+    const res = await fetch(`${API_BASE}/field-logs/${id}/${status === 'VERIFIED' ? 'verify' : status === 'REJECTED' ? 'reject' : 'request-revision'}`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-user-id': EXPERT_ID 
+      },
+      body: JSON.stringify({
+        status: status,
+        reviewNotes: notes
+      })
+    });
+    if(!res.ok) throw new Error(await res.text());
+    alert('İşlem başarılı!');
+    fetchLogs();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+// Init
+fetchLogs();
+</script>
+</body>
+</html>

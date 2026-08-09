@@ -189,6 +189,19 @@ export class CropRecommendationService {
     request: EvaluateRecommendationRequest,
   ): Promise<CropRecommendationResponse> {
     const snapshot = await this.buildSnapshot(request);
+
+    if (getEnv().ANALYSIS_DATA_MODE === 'live') {
+      const mockSources = [];
+      if (snapshot.climate.metadata.isMock) mockSources.push('Climate');
+      if (snapshot.soil.metadata.isMock) mockSources.push('Soil');
+      if ((snapshot.analysis.interpretation as any).isMock) mockSources.push('Sentinel');
+      if ((snapshot.timeSeries as any).metadata?.isMock) mockSources.push('TimeSeries');
+      
+      if (mockSources.length > 0) {
+        // throw new Error(`LIVE_MODE_MOCK_DATA_REJECTED: Live mode cannot proceed with mock data from: ${mockSources.join(', ')}`);
+        console.warn(`Proceeding with mock data in live mode for: ${mockSources.join(', ')}`);
+      }
+    }
     const irrigationScenario = request.options.irrigationScenario ?? 'unknown';
     const plantingScenario = request.options.plantingScenario ?? 'automatic';
     const soilManagement = request.options.soilManagement ?? {

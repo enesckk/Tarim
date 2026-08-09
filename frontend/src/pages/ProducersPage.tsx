@@ -847,12 +847,10 @@ function ProducersListPage() {
           <div className="officers-table-wrap" role="region" aria-label="Üreticiler listesi">
             <table className="officers-table">
               <colgroup>
-                <col style={{ width: 200 }} />
-                <col style={{ width: 170 }} />
-                <col style={{ width: 130 }} />
-                <col style={{ width: 140 }} />
-                <col style={{ width: 210 }} />
+                <col style={{ width: 220 }} />
+                <col style={{ width: 180 }} />
                 <col style={{ width: 150 }} />
+                <col style={{ width: 230 }} />
                 <col style={{ width: 110 }} />
                 <col style={{ width: 310 }} />
               </colgroup>
@@ -860,10 +858,8 @@ function ProducersListPage() {
                 <tr>
                   <th scope="col">Üretici</th>
                   <th scope="col">Mahalle</th>
-                  <th scope="col">Bağlı arazi</th>
                   <th scope="col">Toplam alan</th>
                   <th scope="col">İletişim</th>
-                  <th scope="col">T.C. Kimlik</th>
                   <th scope="col">Durum</th>
                   <th scope="col">İşlemler</th>
                 </tr>
@@ -888,9 +884,6 @@ function ProducersListPage() {
                           </span>
                           <div className="officers-table-identity-text">
                             <span className="cell-ellipsis officers-table-primary">{item.fullName}</span>
-                            <span className="cell-ellipsis officers-table-secondary">
-                              {maskNationalId(item.nationalId)}
-                            </span>
                           </div>
                         </div>
                       </td>
@@ -899,9 +892,6 @@ function ProducersListPage() {
                           <MapPin size={14} aria-hidden />
                           <span className="cell-ellipsis">{formatNeighborhood(neighborhood)}</span>
                         </span>
-                      </td>
-                      <td>
-                        <span className="officers-table-strong">{landCount}</span>
                       </td>
                       <td>
                         <span className="officers-table-strong">{formatSize(totalArea)}</span>
@@ -917,12 +907,6 @@ function ProducersListPage() {
                             <span className="cell-ellipsis">{item.email?.trim() || '—'}</span>
                           </span>
                         </div>
-                      </td>
-                      <td>
-                        <span className="officers-table-inline">
-                          <IdCard size={14} aria-hidden />
-                          <span className="cell-ellipsis">{item.nationalId || '—'}</span>
-                        </span>
                       </td>
                       <td>
                         <span
@@ -1211,7 +1195,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
           <ul className="officers-land-list">
             {lands.map((land) => (
               <li key={land.id}>
-                <Link to={`/lands/${land.id}`}>
+                <Link to={`/app/lands/${land.id}`}>
                   <strong>{land.name}</strong>
                   <span>
                     {formatSize(land.sizeInDecares)} · {formatNeighborhood(land.neighborhood)} ·

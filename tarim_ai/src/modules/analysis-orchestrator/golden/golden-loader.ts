@@ -36,6 +36,14 @@ export async function loadGoldenDatasetForAnalysis(
   const data = structuredClone(await loadGoldenDataset(request));
   data.analysisId = analysisId;
 
+  if (data.parcel) {
+    data.parcel.province = request.province;
+    data.parcel.district = request.district;
+    data.parcel.neighborhood = request.neighborhood;
+    data.parcel.block = request.block;
+    data.parcel.parcel = request.parcel;
+  }
+
   const targetDir = join(process.cwd(), 'storage', 'analyses', analysisId);
   await mkdir(targetDir, { recursive: true });
 

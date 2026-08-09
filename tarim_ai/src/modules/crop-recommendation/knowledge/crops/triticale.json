@@ -1,0 +1,19 @@
+{
+  "id": "triticale",
+  "name": "Tritikale",
+  "scientificName": "Triticosecale",
+  "category": "field_crop",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "triticale",
+  "internalCropCode": "triticale",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

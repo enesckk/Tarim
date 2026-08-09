@@ -1,0 +1,151 @@
+<!doctype html><html lang="tr"><meta charset="utf-8"/>
+<title>Tarla Günlüğü - Üretici Ekranı</title>
+<style>
+body{font-family:ui-sans-serif,system-ui;margin:0;background:#0b1f2a;color:#e8eef2}
+header{padding:24px 28px;background:linear-gradient(120deg,#0b1f2a,#163a2c);border-bottom:1px solid #2a4a3a}
+h1{margin:0;font-size:22px;letter-spacing:.02em}
+p{opacity:.85;margin:8px 0 0}
+main{padding:28px;max-width:960px}
+.card{display:block;padding:16px 18px;margin:0 0 12px;background:#122833;border:1px solid #2c4b3f;border-radius:10px;color:#d7f5e3;text-decoration:none}
+.card:hover{border-color:#4caf7a}
+button{background:#4caf7a;color:#0b1f2a;border:none;padding:10px 16px;border-radius:6px;font-weight:600;cursor:pointer}
+button:hover{background:#3d8c62}
+input,select,textarea{background:#0a1620;color:#e8eef2;border:1px solid #2c4b3f;padding:10px;border-radius:6px;width:100%;box-sizing:border-box;margin-bottom:12px}
+.form-group{margin-bottom:16px}
+.badge{padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold}
+.badge-draft{background:#4a5568;color:white}
+.badge-submitted{background:#d69e2e;color:white}
+.badge-verified{background:#38a169;color:white}
+.badge-rejected{background:#e53e3e;color:white}
+.badge-revision{background:#ed8936;color:white}
+#logList{margin-top:24px}
+</style>
+<body>
+<header>
+  <h1>Tarla Günlüğü - Üretici Ekranı</h1>
+  <p>Yapılan işlemleri kaydedin ve uzman onayına gönderin.</p>
+</header>
+<main>
+  <div class="card">
+    <h3>Yeni Kayıt Ekle</h3>
+    <form id="createForm">
+      <div class="form-group">
+        <label>İşlem Tipi</label>
+        <select id="opType" required>
+          <option value="SOWING">Ekim</option>
+          <option value="IRRIGATION">Sulama</option>
+          <option value="FERTILIZATION">Gübreleme</option>
+          <option value="PESTICIDE_APPLICATION">İlaçlama</option>
+          <option value="HARVEST">Hasat</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tarih</label>
+        <input type="datetime-local" id="opDate" required>
+      </div>
+      <div class="form-group">
+        <label>Parsel ID</label>
+        <input type="text" id="parcelId" value="parcel-123" required>
+      </div>
+      <div class="form-group">
+        <label>Açıklama</label>
+        <textarea id="desc"></textarea>
+      </div>
+      <button type="submit">Kaydet (Taslak)</button>
+    </form>
+  </div>
+
+  <h3>Geçmiş Kayıtlarım</h3>
+  <div id="logList">Yükleniyor...</div>
+</main>
+<script>
+const API_BASE = 'http://127.0.0.1:4000/api';
+const PRODUCER_ID = 'producer-123';
+const USER_ID = 'producer-user';
+
+async function fetchLogs() {
+  try {
+    const res = await fetch(`${API_BASE}/field-logs?producerId=${PRODUCER_ID}`);
+    const data = await res.json();
+    const container = document.getElementById('logList');
+    container.innerHTML = '';
+    
+    if (data.length === 0) {
+      container.innerHTML = '<p>Henüz kayıt bulunmuyor.</p>';
+      return;
+    }
+
+    data.forEach(log => {
+      let badgeCls = 'badge-draft';
+      if(log.status === 'SUBMITTED') badgeCls = 'badge-submitted';
+      if(log.status === 'VERIFIED') badgeCls = 'badge-verified';
+      if(log.status === 'REJECTED') badgeCls = 'badge-rejected';
+      if(log.status === 'REVISION_REQUIRED') badgeCls = 'badge-revision';
+
+      const html = `
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>${log.entryCode} - ${log.operationType}</strong>
+            <span class="badge ${badgeCls}">${log.status}</span>
+          </div>
+          <p>Tarih: ${new Date(log.operationDate).toLocaleString()}</p>
+          <p>Parsel: ${log.parcelId}</p>
+          ${log.status === 'DRAFT' ? `<button onclick="submitLog('${log.id}')" style="margin-top:10px">Onaya Gönder</button>` : ''}
+        </div>
+      `;
+      container.innerHTML += html;
+    });
+  } catch (err) {
+    document.getElementById('logList').innerHTML = `<p style="color:red">Hata: ${err.message}</p>`;
+  }
+}
+
+async function submitLog(id) {
+  try {
+    const res = await fetch(`${API_BASE}/field-logs/${id}/submit`, {
+      method: 'POST',
+      headers: { 'x-user-id': USER_ID }
+    });
+    if(!res.ok) throw new Error(await res.text());
+    alert('Onaya gönderildi!');
+    fetchLogs();
+  } catch (err) {
+    alert(err.message);
+  }
+}
+
+document.getElementById('createForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const payload = {
+    operationType: document.getElementById('opType').value,
+    operationDate: new Date(document.getElementById('opDate').value).toISOString(),
+    parcelId: document.getElementById('parcelId').value,
+    description: document.getElementById('desc').value
+  };
+
+  try {
+    const res = await fetch(`${API_BASE}/field-logs`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-user-id': USER_ID,
+        'x-producer-id': PRODUCER_ID
+      },
+      body: JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error(await res.text());
+    alert('Kayıt oluşturuldu!');
+    fetchLogs();
+  } catch (err) {
+    alert(err.message);
+  }
+});
+
+// Init
+const now = new Date();
+now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+document.getElementById('opDate').value = now.toISOString().slice(0,16);
+fetchLogs();
+</script>
+</body>
+</html>

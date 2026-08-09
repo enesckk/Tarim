@@ -9,7 +9,12 @@ export function useSignalR() {
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5109';
+    const apiBaseUrl = import.meta.env.VITE_API_URL;
+    if (!apiBaseUrl) {
+      console.log('SignalR disabled: VITE_API_URL is not set.');
+      return;
+    }
+
     const hubUrl = `${apiBaseUrl}/hubs/notifications`;
 
     const newConnection = new signalR.HubConnectionBuilder()

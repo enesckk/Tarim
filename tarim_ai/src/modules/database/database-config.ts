@@ -21,6 +21,11 @@ export function resolveDatabaseConfig(
   const provider = env.PERSISTENCE_PROVIDER;
   const enabled = env.DATABASE_ENABLED && provider === 'postgresql';
 
+  console.log('--- DATABASE CONFIG ---', {
+    DATABASE_URL: env.DATABASE_URL,
+    connectionString: env.DATABASE_URL?.trim() || null,
+  });
+
   return {
     enabled,
     provider,

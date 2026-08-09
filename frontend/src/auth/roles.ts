@@ -24,7 +24,7 @@ export function isStaff(roles: string[] | null | undefined) {
 }
 
 export function homePathForRoles(roles: string[] | null | undefined) {
-  if (isStaff(roles)) return '/'
+  if (isStaff(roles)) return '/app'
   return '/login'
 }
 

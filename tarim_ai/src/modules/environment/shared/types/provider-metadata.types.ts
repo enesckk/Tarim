@@ -12,6 +12,10 @@ export interface ProviderMetadata {
   isMock: boolean;
   isEstimated?: boolean;
   provider?: string;
+  mockReason?: string;
+  mockStartedAt?: string;
+  mockFinishedAt?: string;
+  fallbackPolicy?: string;
   [key: string]: unknown;
 }
 

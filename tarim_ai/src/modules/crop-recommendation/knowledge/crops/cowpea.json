@@ -1,0 +1,19 @@
+{
+  "id": "cowpea",
+  "name": "Börülce",
+  "scientificName": "Vigna unguiculata",
+  "category": "field_crop",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "cowpea",
+  "internalCropCode": "cowpea",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

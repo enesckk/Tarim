@@ -1,0 +1,19 @@
+{
+  "id": "garlic",
+  "name": "Sarımsak",
+  "scientificName": "Allium sativum",
+  "category": "vegetable",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "garlic",
+  "internalCropCode": "garlic",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

@@ -19,6 +19,19 @@ import { startWeeklyAnalysisScheduler } from './modules/analysis-orchestrator/se
 import { createDroneImageryModule } from './modules/drone-imagery/index.js';
 import { createPhysicalSuitabilityModule } from './modules/physical-suitability/index.js';
 import { createSeasonalCropAnalysisModule } from './modules/seasonal-crop-analysis/index.js';
+import { createCropGuideModule } from './modules/crop-production-guide/index.js';
+import { createProductionPlanningModule } from './modules/production-planning/index.js';
+import { createNotificationModule } from './modules/notifications/index.js';
+import { createFieldLogModule } from './modules/field-log/index.js';
+import { createSoilLaboratoryRouter } from './modules/soil-laboratory/routes/soil-laboratory.routes.js';
+import { createWaterManagementRouter } from './modules/water-management/routes/water-management.routes.js';
+import { createDecisionEngineRouter } from './modules/physical-suitability/routes/decision-engine.routes.js';
+import { createSeasonalCropRankingRouter } from './modules/seasonal-crop-ranking/routes/seasonal-crop-ranking.routes.js';
+import { createPerennialCropRankingRouter } from './modules/perennial-crop-ranking/routes/perennial-crop-ranking.routes.js';
+import { createFinalReportRouter } from './modules/final-report/routes/final-report.routes.js';
+import { createSystemRoutes } from './modules/operations/routes/system.routes.js';
+import { ProviderHealthService } from './modules/operations/health/provider-health.service.js';
+
 import { createDatabaseHealthRouter } from './modules/database/index.js';
 import {
   correlationMiddleware,
@@ -35,6 +48,21 @@ export function createApp(): Express {
   getOperationsRuntime();
 
   const app = express();
+
+  // Enable CORS for frontend web client access
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-Correlation-Id, Idempotency-Key');
+    if (req.method === 'OPTIONS') {
+      res.sendStatus(200);
+      return;
+    }
+    next();
+  });
+
+  // Serve drone photos statically
+  app.use('/drone_photos', express.static('/Users/enescikcik/Desktop/Tarım/frontend/public/drone_photos'));
   const parcelModule = createParcelModule();
   const environmentModule = createEnvironmentModule(parcelModule.parcelQueryService);
   const terrainModule = createTerrainModule(parcelModule.parcelQueryService);
@@ -91,6 +119,11 @@ export function createApp(): Express {
     cropRecommendationService: cropModule.cropRecommendationService,
   });
 
+  const cropGuideModule = createCropGuideModule();
+  const notificationModule = createNotificationModule();
+  const productionPlanningModule = createProductionPlanningModule();
+  const fieldLogModule = createFieldLogModule();
+
   // Drone uploads accept base64 images (larger than typical JSON payloads).
   app.use('/api/drone-images', express.json({ limit: '45mb' }));
   // Analysis create may include soil/irrigation lab PDFs as base64.
@@ -114,6 +147,7 @@ export function createApp(): Express {
   });
   app.use('/api/health', createOperationsHealthRouter());
   app.use('/api/health', createDatabaseHealthRouter());
+  app.use('/api/system', createSystemRoutes(new ProviderHealthService()));
 
   app.use('/api/satellite', createSatelliteRouter(parcelModule.parcelQueryService));
   app.use('/api/parcel', parcelModule.router);
@@ -137,6 +171,16 @@ export function createApp(): Express {
   app.use('/api/physical-suitability', physicalSuitabilityModule.router);
   app.use('/api', physicalSuitabilityModule.soilCatalogRouter);
   app.use('/api', seasonalCropAnalysisModule.router);
+  app.use('/api/soil-laboratory', createSoilLaboratoryRouter());
+  app.use('/api/water-management', createWaterManagementRouter());
+  app.use('/api/physical-suitability', createDecisionEngineRouter());
+  app.use('/api/seasonal-crop-ranking', createSeasonalCropRankingRouter());
+  app.use('/api/perennial-crop-ranking', createPerennialCropRankingRouter());
+  app.use('/api/reports', createFinalReportRouter());
+  app.use('/api/crop-guides', cropGuideModule.router);
+  app.use('/api/production-plans', productionPlanningModule.router);
+  app.use('/api/notifications', notificationModule.router);
+  app.use('/api/field-logs', fieldLogModule.router);
 
   startWeeklyAnalysisScheduler(analysisOrchestratorModule.service);
 
@@ -149,6 +193,8 @@ export function createApp(): Express {
   });
 
   app.use(errorHandler);
+
+  app.locals.analysisOrchestrator = analysisOrchestratorModule.service;
 
   return app;
 }

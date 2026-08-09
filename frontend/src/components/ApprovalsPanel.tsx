@@ -309,7 +309,7 @@ export function ApprovalsPanel({ embedded = false }: { embedded?: boolean }) {
                 )}
 
                 {task.landId ? (
-                  <Link to={`/lands/${task.landId}`} className="approvals-land-link">
+                  <Link to={`/app/lands/${task.landId}`} className="approvals-land-link">
                     <ExternalLink size={13} aria-hidden />
                     Araziyi aç
                   </Link>

@@ -38,24 +38,24 @@ type NavItem = {
   icon: ComponentType<{ className?: string }>
 }
 
-const FIELD_PROCESS_PATHS = ['/approvals', '/inspections', '/harvest', '/workflows'] as const
+const FIELD_PROCESS_PATHS = ['/app/approvals', '/app/inspections', '/app/harvest', '/app/workflows'] as const
 
 const fieldProcessItems: NavItem[] = [
-  { to: '/approvals', label: 'Onaylar', icon: CheckSquare },
-  { to: '/inspections', label: 'Denetimler', officerLabel: 'Denetimlerim', icon: ShieldCheck },
-  { to: '/harvest', label: 'Hasat ve teslimat', icon: Wheat },
-  { to: '/workflows', label: 'İş akışı şablonları', icon: Workflow },
+  { to: '/app/approvals', label: 'Onaylar', icon: CheckSquare },
+  { to: '/app/inspections', label: 'Denetimler', officerLabel: 'Denetimlerim', icon: ShieldCheck },
+  { to: '/app/harvest', label: 'Hasat ve teslimat', icon: Wheat },
+  { to: '/app/workflows', label: 'İş akışı şablonları', icon: Workflow },
 ]
 
 /** Top-level flat links (group inserted after Operasyon Merkezi). */
 const flatNavItems: NavItem[] = [
-  { to: '/', label: 'Operasyon Merkezi', end: true, icon: LayoutDashboard },
-  { to: '/lands', label: 'Araziler', officerLabel: 'Arazilerim', icon: Map },
-  { to: '/producers', label: 'Üreticiler', officerLabel: 'Atanan üreticiler', icon: Users },
-  { to: '/officers', label: 'Uzmanlar', adminOnly: true, icon: UserCog },
-  { to: '/messages', label: 'Mesajlar', icon: MessageSquare },
-  { to: '/tarim-ai', label: 'AI Destekli Analiz', icon: BrainCircuit },
-  { to: '/reports', label: 'Raporlar', adminOnly: true, icon: BarChart3 },
+  { to: '/app', label: 'Operasyon Merkezi', end: true, icon: LayoutDashboard },
+  { to: '/app/lands', label: 'Araziler', officerLabel: 'Arazilerim', icon: Map },
+  { to: '/app/producers', label: 'Üreticiler', officerLabel: 'Atanan üreticiler', icon: Users },
+  { to: '/app/officers', label: 'Uzmanlar', adminOnly: true, icon: UserCog },
+  { to: '/app/messages', label: 'Mesajlar', icon: MessageSquare },
+  { to: '/app/tarim-ai', label: 'AI Destekli Analiz', icon: BrainCircuit },
+  { to: '/app/reports', label: 'Raporlar', adminOnly: true, icon: BarChart3 },
 ]
 
 function isFieldProcessRoute(pathname: string) {
@@ -65,22 +65,22 @@ function isFieldProcessRoute(pathname: string) {
 }
 
 const pageTitles: Record<string, string> = {
-  '/': 'Operasyon Merkezi',
-  '/approvals': 'Onaylar',
-  '/lands': 'Araziler',
-  '/workflows': 'İş akışı şablonları',
-  '/inspections': 'Denetimler',
-  '/harvest': 'Hasat ve teslimat',
-  '/messages': 'Mesajlar',
-  '/notifications': 'Bildirimler',
-  '/reports': 'Raporlar',
-  '/tarim-ai': 'AI Destekli Analiz',
-  '/profile': 'Profil',
-  '/producers': 'Üreticiler',
-  '/officers': 'Uzmanlar',
-  '/uzmanlar': 'Uzmanlar',
-  '/seasons': 'Sezonlar',
-  '/tasks': 'Görevler',
+  '/app': 'Operasyon Merkezi',
+  '/app/approvals': 'Onaylar',
+  '/app/lands': 'Araziler',
+  '/app/workflows': 'İş akışı şablonları',
+  '/app/inspections': 'Denetimler',
+  '/app/harvest': 'Hasat ve teslimat',
+  '/app/messages': 'Mesajlar',
+  '/app/notifications': 'Bildirimler',
+  '/app/reports': 'Raporlar',
+  '/app/tarim-ai': 'AI Destekli Analiz',
+  '/app/profile': 'Profil',
+  '/app/producers': 'Üreticiler',
+  '/app/officers': 'Uzmanlar',
+  '/app/uzmanlar': 'Uzmanlar',
+  '/app/seasons': 'Sezonlar',
+  '/app/tasks': 'Görevler',
 }
 
 function initials(name?: string) {
@@ -113,17 +113,17 @@ export function AppLayout() {
   useSignalR()
 
   const title = useMemo(() => {
-    if (location.pathname === '/lands') return admin ? 'Araziler' : 'Arazilerim'
-    if (location.pathname === '/inspections') return admin ? 'Denetimler' : 'Denetimlerim'
+    if (location.pathname === '/app/lands') return admin ? 'Araziler' : 'Arazilerim'
+    if (location.pathname === '/app/inspections') return admin ? 'Denetimler' : 'Denetimlerim'
     if (pageTitles[location.pathname]) return pageTitles[location.pathname]
-    if (location.pathname.startsWith('/lands/')) return 'Arazi operasyon merkezi'
-    if (location.pathname.startsWith('/producers/')) return 'Üretici detayı'
-    if (location.pathname.startsWith('/officers/') || location.pathname.startsWith('/uzmanlar/'))
+    if (location.pathname.startsWith('/app/lands/')) return 'Arazi operasyon merkezi'
+    if (location.pathname.startsWith('/app/producers/')) return 'Üretici detayı'
+    if (location.pathname.startsWith('/app/officers/') || location.pathname.startsWith('/app/uzmanlar/'))
       return 'Uzman detayı'
     const match = Object.keys(pageTitles)
-      .filter((k) => k !== '/')
+      .filter((k) => k !== '/app')
       .find((k) => location.pathname.startsWith(k))
-    return pageTitles[match ?? '/']
+    return pageTitles[match ?? '/app']
   }, [location.pathname, admin])
 
   function onLogout() {

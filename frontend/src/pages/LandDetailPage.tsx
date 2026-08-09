@@ -32,6 +32,8 @@ import {
 import { api } from '../api/client'
 import { mediaUrl } from '../api/media'
 import { resolveTarimAiAssetUrl, tarimAi, TarimAiError } from '../api/tarimAi'
+import { getDronePhotosForParcel } from '../utils/dronePhotos'
+import { LandClimateChartCard } from '../components/LandClimateChartCard'
 import type {
   ChatMessage,
   ConversationDetail,
@@ -178,8 +180,8 @@ export function LandDetailPage() {
   const [showTaskComposer, setShowTaskComposer] = useState(false)
   const [showInspectionComposer, setShowInspectionComposer] = useState(false)
   const [openSection, setOpenSection] = useState<
-    'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | null
-  >(null)
+    'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'climate-history' | null
+  >('climate-history')
   const [landForm, setLandForm] = useState({
     name: '',
     neighborhood: '',
@@ -326,7 +328,27 @@ export function LandDetailPage() {
   const officers = officersQuery.data ?? []
   const alerts = alertsQuery.data ?? []
   const notes = notesQuery.data ?? []
-  const droneImages = droneQuery.data?.items ?? []
+  const land = landQuery.data
+  const localDronePhotos = land
+    ? getDronePhotosForParcel(
+        land.neighborhoodName || land.name || '',
+        land.cadastralBlock || (land as any).block || '',
+        land.parcelNumber || (land as any).parcel || '',
+      )
+    : []
+  const droneImages = [
+    ...localDronePhotos.map((p, idx) => ({
+      id: `local-drone-${idx}`,
+      landId: land?.id ?? '',
+      landName: land?.name ?? 'Arazi',
+      imageUrl: p.url,
+      capturedAt: '2026-08-04',
+      fileName: p.title,
+      contentType: 'image/jpeg',
+      createdAt: '2026-08-04T12:00:00Z',
+    })),
+    ...(droneQuery.data?.items ?? []),
+  ]
   const droneLightboxImages: LightboxImage[] = droneImages.flatMap((item) => {
     const src = resolveTarimAiAssetUrl(item.imageUrl)
     if (!src) return []
@@ -353,7 +375,6 @@ export function LandDetailPage() {
   const activeProduction = productions.find((p) => p.status === 1) ?? productions[0] ?? null
 
   const selectedWorkflow = workflows.find((w) => w.id === plan.workflowId)
-  const land = landQuery.data
 
   const producerName = (id?: string) =>
     id ? (producers.find((p) => p.id === id)?.fullName ?? id.slice(0, 8)) : '—'
@@ -639,6 +660,7 @@ export function LandDetailPage() {
     if (id === 'sohbet') setOpenSection('chat')
     if (id === 'notlar') setOpenSection('notes')
     if (id === 'arazi-analizi' || id === 'analiz') setOpenSection('analysis')
+    if (id === 'iklim-gecmisi' || id === 'iklim' || id === 'yagis-grafik') setOpenSection('climate-history')
     if (id === 'drone' || id === 'drone-goruntuler' || id === 'drone-gorseller') {
       setOpenSection('drone')
     }    if (id === 'arazi-bilgileri') {
@@ -654,7 +676,7 @@ export function LandDetailPage() {
   }, [location.hash, landQuery.data, landTasksQuery.data, conversationsQuery.data])
 
   function toggleSection(
-    section: 'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis',
+    section: 'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'climate-history',
   ) {
     setShowLandEdit(false)
     setOpenSection((current) => (current === section ? null : section))
@@ -1048,6 +1070,15 @@ export function LandDetailPage() {
         </button>
         <button
           type="button"
+          className={`land-action-chip${openSection === 'climate-history' ? ' is-active' : ''}`}
+          onClick={() => toggleSection('climate-history')}
+        >
+          <BarChart2 size={16} strokeWidth={1.75} aria-hidden />
+          <span>20-30 Yıllık İklim & Yağış</span>
+          <em>Grafik</em>
+        </button>
+        <button
+          type="button"
           className={`land-action-chip${openSection === 'analysis' ? ' is-active' : ''}`}
           onClick={() => toggleSection('analysis')}
         >
@@ -1074,6 +1105,16 @@ export function LandDetailPage() {
           {notes.length > 0 ? <em>{notes.length}</em> : null}
         </button>
       </nav>
+
+      {openSection === 'climate-history' && (
+        <LandClimateChartCard
+          landName={land?.name}
+          neighborhoodName={land?.neighborhoodName}
+          cadastralBlock={land?.cadastralBlock}
+          parcelNumber={land?.parcelNumber}
+          areaDekars={land?.areaDekars}
+        />
+      )}
 
       {openSection === 'analysis' && (
         <div className="panel land-content-panel" id="arazi-analizi">

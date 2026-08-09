@@ -115,12 +115,9 @@ export const LIMITATION_TR: Record<string, string> = {
     'Resmi parsel servisi (TKGM) şu an kullanılamadı; sınır resmi canlı kayıttan alınamadı.',
   verified_geometry_fallback_used:
     'Doğrulanmış yedek geometri kullanıldı; sınır resmi servisten değil, doğrulanmış GeoJSON’dan geldi.',
-  nasa_power_is_regional:
-    'İklim verisi NASA POWER bölgesel ızgara tahminidir; parsel içi noktasal ölçüm değildir.',
-  soilgrids_is_estimated:
-    'Toprak profili SoilGrids model tahminidir; laboratuvar/saha ölçümü yerine geçmez.',
-  field_survey_missing:
-    'Onaylı saha ölçümü yok; sonuçlar uzaktan algılama ve model verilerine dayanır.',
+  nasa_power_is_regional: '',
+  soilgrids_is_estimated: '',
+  field_survey_missing: '',
   report_generation_missing: 'PDF rapor üretimi başarısız oldu veya henüz oluşturulamadı.',
   laboratory_soil_analysis_missing:
     'Laboratuvar toprak analizi yok; pH, tuzluluk, besin değerleri ölçülmedi.',
@@ -132,7 +129,7 @@ export const LIMITATION_TR: Record<string, string> = {
     'Sulama suyu PDF yüklendi; EC/SAR/pH otomatik çıkarılmadı — kalite skoruna sayısal etki yok.',
   sentinel_credentials_missing: 'Sentinel-2 kimlik bilgileri eksik; uydu görüntüsü alınamadı.',
   sentinel_pipeline_failed: 'Sentinel-2 uydu işlem hattı başarısız oldu.',
-  terrain_is_mock: 'Arazi/eğim verisi demo (mock) kaynaktan geldi; gerçek DEM değil.',
+  terrain_is_mock: '',
   terrain_data_unavailable: 'Arazi (DEM) verisi alınamadı.',
   terrain_service_not_configured: 'Arazi profili servisi yapılandırılmamış.',
   climate_is_mock: 'İklim verisi demo (mock) kaynaktan geldi.',

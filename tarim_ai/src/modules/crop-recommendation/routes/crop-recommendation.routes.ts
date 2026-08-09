@@ -14,6 +14,11 @@ export function createCropRecommendationRouter(
 export function createCropsRouter(controller: CropRecommendationController): Router {
   const router = Router();
   router.get('/', controller.listCrops);
+  router.get('/admin/stats', controller.adminStats);
+  router.get('/criteria-catalog', controller.getCriteriaCatalog);
   router.get('/:cropId', controller.getCrop);
+  router.get('/:cropId/decision-rules', controller.getDecisionRules);
+  router.get('/:cropId/scientific-data', controller.getScientificData);
+  router.get('/:cropId/regional-profile', controller.getRegionalProfile);
   return router;
 }

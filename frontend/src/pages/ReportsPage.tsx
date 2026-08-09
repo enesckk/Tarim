@@ -754,7 +754,7 @@ function ReportDetail({
                   <td>{l.parcelNumber}</td>
                   <td>{l.sizeInDecares ?? '—'}</td>
                   <td>
-                    <Link to={`/lands/${l.id}`} className="text-link">
+                    <Link to={`/app/lands/${l.id}`} className="text-link">
                       Aç
                     </Link>
                   </td>
@@ -820,7 +820,7 @@ function ReportDetail({
                     <td>
                       <div className="row-actions" style={{ gap: 8 }}>
                         {a.landId ? (
-                          <Link to={`/lands/${a.landId}`} className="text-link">
+                          <Link to={`/app/lands/${a.landId}`} className="text-link">
                             Arazi
                           </Link>
                         ) : null}
@@ -892,7 +892,7 @@ function ReportDetail({
                     <td>{parcelLabel || '—'}</td>
                     <td>
                       {d.landId ? (
-                        <Link to={`/lands/${d.landId}#drone-goruntuler`} className="text-link">
+                        <Link to={`/app/lands/${d.landId}#drone-goruntuler`} className="text-link">
                           Arazi
                         </Link>
                       ) : null}
@@ -931,7 +931,7 @@ function ReportDetail({
                   <td>{h.totalAmount != null ? `${formatMoney(h.totalAmount)} ₺` : '—'}</td>
                   <td>{producerName(h.producerId)}</td>
                   <td>
-                    <Link to={`/lands/${h.landId}`} className="text-link">
+                    <Link to={`/app/lands/${h.landId}`} className="text-link">
                       {landName(h.landId)}
                     </Link>
                   </td>
@@ -997,9 +997,23 @@ function AnalysisReportPanel({
             Durum: <strong>{formatStatus(summary.status)}</strong>
           </p>
         </div>
-        <button type="button" className="ghost-btn" onClick={onClose}>
-          Kapat
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          {summary.status === 'completed' && (
+            <a
+              href={resolveTarimAiAssetUrl(`/api/analyses/${summary.analysisId}/report.pdf`) ?? '#'}
+              target="_blank"
+              rel="noreferrer"
+              className="ghost-btn"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}
+            >
+              <Download size={16} />
+              PDF İndir
+            </a>
+          )}
+          <button type="button" className="ghost-btn" onClick={onClose}>
+            Kapat
+          </button>
+        </div>
       </div>
 
       {loading ? <p className="empty">Detaylar yükleniyor…</p> : null}

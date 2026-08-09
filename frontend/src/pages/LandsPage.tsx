@@ -279,7 +279,7 @@ export function LandsPage() {
       setFormError(null)
       setShowForm(false)
       await queryClient.invalidateQueries({ queryKey: ['lands'] })
-      if (newId) navigate(`/lands/${newId}`)
+      if (newId) navigate(`/app/lands/${newId}`)
     },
   })
 
@@ -688,11 +688,11 @@ export function LandsPage() {
                                 className="lands-card-menu"
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <Link to={`/lands/${item.id}`} onClick={() => setMenuOpenId(null)}>
+                                <Link to={`/app/lands/${item.id}`} onClick={() => setMenuOpenId(null)}>
                                   Arazi Merkezi
                                 </Link>
                                 <Link
-                                  to={`/lands/${item.id}#uretim`}
+                                  to={`/app/lands/${item.id}#uretim`}
                                   onClick={() => setMenuOpenId(null)}
                                 >
                                   Üretim planı
@@ -748,7 +748,7 @@ export function LandsPage() {
                             <strong>{cropLabel}</strong>
                           </span>
                         </div>
-                        <Link to={`/lands/${item.id}`} className="lands-card-link">
+                        <Link to={`/app/lands/${item.id}`} className="lands-card-link">
                           Arazi Merkezi
                           <ChevronRight size={14} aria-hidden />
                         </Link>

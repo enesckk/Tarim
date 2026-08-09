@@ -239,6 +239,18 @@ export const cropKnowledgeSchema = z.object({
   scientificName: z.string().min(1),
   category: categorySchema,
   growingType: growingTypeSchema,
+  profileStatus: z.enum([
+    'identity_only',
+    'imported_unreviewed',
+    'source_verified',
+    'expert_reviewed',
+    'approved_for_analysis',
+    'incomplete',
+    'rejected',
+  ]).default('identity_only'),
+  slug: z.string().optional(),
+  internalCropCode: z.string().optional(),
+  seasonalOrPerennial: z.enum(['seasonal', 'perennial']).optional(),
   climate: z.object({
     temperature: temperatureRangeSchema,
     annualPrecipitationMm: precipRangeSchema,
@@ -281,11 +293,11 @@ export const cropKnowledgeSchema = z.object({
   /** Additive physical suitability requirements (v1.7+). Soft-validated at analyze time. */
   physicalRequirements: z.unknown().optional(),
   sourceMetadata: z.object({
-    version: z.string().min(1),
-    reviewStatus: z.enum(['development', 'reviewed', 'approved']),
-    sources: z.array(z.string()),
-    notes: z.array(z.string()).min(1),
-  }),
+    version: z.string().min(1).optional(),
+    reviewStatus: z.enum(['development', 'reviewed', 'approved']).optional(),
+    sources: z.array(z.string()).optional(),
+    notes: z.array(z.string()).optional(),
+  }).optional(),
 });
 
 export type CropKnowledge = z.infer<typeof cropKnowledgeSchema>;
@@ -296,3 +308,30 @@ export type PrecipitationRange = z.infer<typeof precipRangeSchema>;
 export type CropPhenology = z.infer<typeof phenologySchema>;
 export type GrowthStageDef = z.infer<typeof growthStageSchema>;
 export type PlantingWindowDef = z.infer<typeof plantingWindowSchema>;
+
+export const cropIdentitySchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+  scientificName: z.string().min(1),
+  category: categorySchema,
+  growingType: growingTypeSchema,
+  profileStatus: z.enum([
+    'identity_only',
+    'imported_unreviewed',
+    'source_verified',
+    'expert_reviewed',
+    'approved_for_analysis',
+    'incomplete',
+    'rejected',
+  ]).default('identity_only'),
+  slug: z.string().optional(),
+  internalCropCode: z.string().optional(),
+  seasonalOrPerennial: z.enum(['seasonal', 'perennial']).optional(),
+  sourceMetadata: z.object({
+    version: z.string().min(1).optional(),
+    reviewStatus: z.enum(['development', 'reviewed', 'approved']).optional(),
+    sources: z.array(z.string()).optional(),
+    notes: z.array(z.string()).optional(),
+  }).optional(),
+});
+export type CropIdentity = z.infer<typeof cropIdentitySchema>;

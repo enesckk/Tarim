@@ -1,0 +1,19 @@
+{
+  "id": "fennel",
+  "name": "Rezene",
+  "scientificName": "Foeniculum vulgare",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "fennel",
+  "internalCropCode": "fennel",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

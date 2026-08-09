@@ -281,7 +281,7 @@ export function MessagesPage() {
                     {quickLands.map((land) => (
                       <Link
                         key={land.id}
-                        to={`/lands/${land.id}`}
+                        to={`/app/lands/${land.id}`}
                         className="messages-quick-item"
                       >
                         <strong>{land.name}</strong>

@@ -1,0 +1,19 @@
+{
+  "id": "almond",
+  "name": "Badem",
+  "scientificName": "Prunus dulcis",
+  "category": "perennial",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "almond",
+  "internalCropCode": "almond",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

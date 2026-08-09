@@ -31,6 +31,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(err instanceof Error ? err.message : err);
+  console.error(err);
   process.exit(1);
 });

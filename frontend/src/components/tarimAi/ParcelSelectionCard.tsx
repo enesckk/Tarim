@@ -317,7 +317,7 @@ export function ParcelSelectionCard({
             <span>{parcelSummaryLine(parcel, areaDecares ?? selectedLand?.sizeInDecares)}</span>
           </div>
           {selectedLand ? (
-            <Link to={`/lands/${selectedLand.id}`} className="tai2-parcel-map-link">
+            <Link to={`/app/lands/${selectedLand.id}`} className="tai2-parcel-map-link">
               Arazi detayı
             </Link>
           ) : null}

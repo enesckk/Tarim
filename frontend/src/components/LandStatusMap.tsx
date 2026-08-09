@@ -210,7 +210,7 @@ export function LandStatusMap({ lands }: Props) {
                         >
                           {status.label}
                         </span>
-                        <Link to={`/lands/${land.id}`} className="ops-map-tip-link">
+                        <Link to={`/app/lands/${land.id}`} className="ops-map-tip-link">
                           Araziyi aç
                         </Link>
                       </div>

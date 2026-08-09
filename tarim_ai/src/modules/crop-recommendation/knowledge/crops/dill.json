@@ -1,0 +1,19 @@
+{
+  "id": "dill",
+  "name": "Dereotu",
+  "scientificName": "Anethum graveolens",
+  "category": "vegetable",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "dill",
+  "internalCropCode": "dill",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

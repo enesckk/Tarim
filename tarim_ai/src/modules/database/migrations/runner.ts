@@ -2,7 +2,7 @@ import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type pg from 'pg';
-import { getPool, query, withTransaction, type Queryable } from '../database-client.js';
+import { getPool, query, type Queryable } from '../database-client.js';
 import { DatabaseError } from '../errors/database-errors.js';
 
 export interface MigrationFile {
@@ -105,21 +105,34 @@ export async function migrateUp(options?: {
         }
         continue;
       }
-      await client.query(file.sql);
-      await client.query(
-        'INSERT INTO schema_migrations (id, filename) VALUES ($1, $2)',
-        [file.id, file.filename],
-      );
-      applied.push(file.id);
+      
+      try {
+        console.log(`Applying migration ${file.filename}...`);
+        await client.query('BEGIN');
+        await client.query(file.sql);
+        await client.query(
+          'INSERT INTO schema_migrations (id, filename) VALUES ($1, $2)',
+          [file.id, file.filename],
+        );
+        await client.query('COMMIT');
+        applied.push(file.id);
+      } catch (error) {
+        await client.query('ROLLBACK');
+        console.error(`Failed to apply migration ${file.filename}:`, error);
+        throw error;
+      }
     }
   };
 
   if (options?.client) {
     await run(options.client);
   } else {
-    await withTransaction(async (client) => {
-      await run(client);
-    });
+    const poolClient = await getPool().connect();
+    try {
+      await run(poolClient);
+    } finally {
+      poolClient.release();
+    }
   }
 
   return { applied, alreadyApplied };
@@ -139,7 +152,7 @@ export async function getMigrationStatus(): Promise<{
       pending,
       applied,
     };
-  } catch {
+  } catch (e) { console.error("MIGRATION ERROR:", e); 
     return { status: 'unavailable', pending: [], applied: [] };
   }
 }

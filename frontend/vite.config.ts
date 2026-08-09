@@ -6,7 +6,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
-  const tarimAiTarget = env.VITE_TARIM_AI_PROXY_TARGET || 'http://127.0.0.1:4000'
+  const tarimAiTarget = (env.VITE_TARIM_AI_PROXY_TARGET || 'http://127.0.0.1:4000').replace('localhost', '127.0.0.1')
 
   return {
     plugins: [
@@ -41,6 +41,11 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         '@': path.resolve(__dirname, './src'),
+        'next/image': path.resolve(__dirname, './src/shims/next/image.tsx'),
+        'gsap/ScrollTrigger': path.resolve(__dirname, './src/shims/gsap-scroll-trigger.ts'),
+        'gsap': path.resolve(__dirname, './src/shims/gsap.ts'),
+        'lenis': path.resolve(__dirname, './src/shims/lenis.ts'),
+        '@lenis/react': path.resolve(__dirname, './src/shims/lenis.ts'),
       },
     },
     server: {
@@ -51,6 +56,10 @@ export default defineConfig(({ mode }) => {
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/tarim-ai-api/, ''),
         },
+        '/api': {
+          target: tarimAiTarget,
+          changeOrigin: true,
+        },
       },
     },
     preview: {
@@ -59,6 +68,10 @@ export default defineConfig(({ mode }) => {
           target: tarimAiTarget,
           changeOrigin: true,
           rewrite: (p) => p.replace(/^\/tarim-ai-api/, ''),
+        },
+        '/api': {
+          target: tarimAiTarget,
+          changeOrigin: true,
         },
       },
     },

@@ -1,0 +1,19 @@
+{
+  "id": "sugar_beet",
+  "name": "Şeker Pancarı",
+  "scientificName": "Beta vulgaris",
+  "category": "field_crop",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "sugar_beet",
+  "internalCropCode": "sugar_beet",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

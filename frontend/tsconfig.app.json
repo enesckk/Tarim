@@ -10,6 +10,11 @@
     "ignoreDeprecations": "6.0",
     "baseUrl": ".",
     "paths": {
+      "next/*": ["./src/shims/next/*"],
+      "gsap": ["./src/shims/gsap"],
+      "gsap/*": ["./src/shims/gsap/*"],
+      "@lenis/react": ["./src/shims/lenis"],
+      "@base-ui/react/*": ["./src/shims/base-ui/react/*"],
       "@/*": ["./src/*"]
     },
 

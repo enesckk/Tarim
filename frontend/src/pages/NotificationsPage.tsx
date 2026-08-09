@@ -77,7 +77,7 @@ export function NotificationsPage() {
                   <strong>{n.title}</strong>
                   <p>{n.body}</p>
                   {n.relatedEntityType === 'Land' && n.relatedEntityId && (
-                    <Link to={`/lands/${n.relatedEntityId}`} className="text-link">
+                    <Link to={`/app/lands/${n.relatedEntityId}`} className="text-link">
                       Arazi Merkezine git
                     </Link>
                   )}

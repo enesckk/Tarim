@@ -1,0 +1,19 @@
+{
+  "id": "peach",
+  "name": "Şeftali",
+  "scientificName": "Prunus persica",
+  "category": "perennial",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "peach",
+  "internalCropCode": "peach",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

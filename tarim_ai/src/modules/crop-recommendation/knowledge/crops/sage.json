@@ -1,0 +1,19 @@
+{
+  "id": "sage",
+  "name": "Adaçayı",
+  "scientificName": "Salvia officinalis",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "sage",
+  "internalCropCode": "sage",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

@@ -884,7 +884,7 @@ export function WorkflowsPage() {
                                   const form = new FormData()
                                   form.append('file', file)
                                   const res = await fetch(
-                                    `${import.meta.env.VITE_API_URL ?? 'http://localhost:5109'}/api/workflows/media`,
+                                    `${import.meta.env.VITE_API_URL || ''}/api/workflows/media`,
                                     {
                                       method: 'POST',
                                       headers: { Authorization: `Bearer ${token}` },

@@ -1,0 +1,19 @@
+{
+  "id": "pomegranate",
+  "name": "Nar",
+  "scientificName": "Punica granatum",
+  "category": "perennial",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "pomegranate",
+  "internalCropCode": "pomegranate",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

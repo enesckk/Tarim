@@ -1004,7 +1004,7 @@ function OfficerDetailPage({ officerId }: { officerId: string }) {
           <ul className="officers-land-list">
             {lands.map((land) => (
               <li key={land.id}>
-                <Link to={`/lands/${land.id}`}>
+                <Link to={`/app/lands/${land.id}`}>
                   <strong>{land.name}</strong>
                   <span>
                     {formatNeighborhood(land.neighborhood)} · Parsel {land.parcelNumber}

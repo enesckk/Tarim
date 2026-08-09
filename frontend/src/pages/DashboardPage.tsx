@@ -194,7 +194,7 @@ export function DashboardPage() {
                         <li key={a.id}>
                           {landId ? (
                             <Link
-                              to={`/lands/${landId}`}
+                              to={`/app/lands/${landId}`}
                               className={`ops-alert-row${compact ? ' is-compact' : ''}`}
                             >
                               {body}
@@ -237,7 +237,7 @@ export function DashboardPage() {
             </section>
 
             <aside className="ops-people">
-              <Link to="/approvals" className="ops-nav-card">
+              <Link to="/app/approvals" className="ops-nav-card">
                 <div className="ops-nav-card-text">
                   <strong>Onaylar</strong>
                   <span>
@@ -249,7 +249,7 @@ export function DashboardPage() {
                 <ChevronRight className="ops-nav-card-chevron" aria-hidden />
               </Link>
 
-              <Link to="/producers" className="ops-nav-card">
+              <Link to="/app/producers" className="ops-nav-card">
                 <div className="ops-nav-card-text">
                   <strong>{admin ? 'Üreticiler' : 'Atanan üreticiler'}</strong>
                   <span>
@@ -264,7 +264,7 @@ export function DashboardPage() {
               </Link>
 
               {admin && (
-                <Link to="/officers" className="ops-nav-card">
+                <Link to="/app/officers" className="ops-nav-card">
                   <div className="ops-nav-card-text">
                     <strong>Uzmanlar</strong>
                     <span>Listeye git</span>
@@ -278,21 +278,21 @@ export function DashboardPage() {
           <section className="ops-shortcuts">
             <h3>Hızlı erişim</h3>
             <div className="ops-shortcut-grid">
-              <Link to="/lands" className="ops-shortcut">
+              <Link to="/app/lands" className="ops-shortcut">
                 <span className="ops-shortcut-icon" aria-hidden>
                   <Map className="size-4" />
                 </span>
                 <strong>{admin ? 'Araziler' : 'Arazilerim'}</strong>
                 <span>{admin ? 'Liste ve detay' : 'Atanan araziler'}</span>
               </Link>
-              <Link to="/messages" className="ops-shortcut">
+              <Link to="/app/messages" className="ops-shortcut">
                 <span className="ops-shortcut-icon" aria-hidden>
                   <MessageSquare className="size-4" />
                 </span>
                 <strong>Mesajlar</strong>
                 <span>{admin ? 'Personel sohbeti' : 'Yöneticiye yaz'}</span>
               </Link>
-              <Link to="/approvals" className="ops-shortcut">
+              <Link to="/app/approvals" className="ops-shortcut">
                 <span className="ops-shortcut-icon" aria-hidden>
                   <CheckCircle2 className="size-4" />
                 </span>
@@ -301,14 +301,14 @@ export function DashboardPage() {
                   {pendingCount > 0 ? `${pendingCount} bekleyen` : 'Onay kuyruğu'}
                 </span>
               </Link>
-              <Link to="/#uyarilar" className="ops-shortcut">
+              <Link to="/app#uyarilar" className="ops-shortcut">
                 <span className="ops-shortcut-icon ops-shortcut-icon-warn" aria-hidden>
                   <AlertTriangle className="size-4" />
                 </span>
                 <strong>Geciken uyarılar</strong>
                 <span>Acil listeye git</span>
               </Link>
-              <Link to="/workflows" className="ops-shortcut">
+              <Link to="/app/workflows" className="ops-shortcut">
                 <span className="ops-shortcut-icon" aria-hidden>
                   <Workflow className="size-4" />
                 </span>
@@ -316,7 +316,7 @@ export function DashboardPage() {
                 <span>{admin ? 'Şablonlar' : 'Şablon ekle / ata'}</span>
               </Link>
               {admin ? (
-                <Link to="/lands#yeni" className="ops-shortcut">
+                <Link to="/app/lands#yeni" className="ops-shortcut">
                   <span className="ops-shortcut-icon" aria-hidden>
                     <Plus className="size-4" />
                   </span>
@@ -324,7 +324,7 @@ export function DashboardPage() {
                   <span>Kayıt formu</span>
                 </Link>
               ) : (
-                <Link to="/inspections" className="ops-shortcut">
+                <Link to="/app/inspections" className="ops-shortcut">
                   <span className="ops-shortcut-icon" aria-hidden>
                     <ShieldCheck className="size-4" />
                   </span>

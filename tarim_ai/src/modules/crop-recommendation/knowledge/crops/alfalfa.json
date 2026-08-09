@@ -1,0 +1,19 @@
+{
+  "id": "alfalfa",
+  "name": "Yonca",
+  "scientificName": "Medicago sativa",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "alfalfa",
+  "internalCropCode": "alfalfa",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

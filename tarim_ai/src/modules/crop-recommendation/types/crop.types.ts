@@ -11,4 +11,6 @@ export interface CropSummary {
   name: string;
   category: string;
   reviewStatus: string;
+  profileStatus: string;
+  seasonalOrPerennial: string;
 }

@@ -51,7 +51,7 @@ function HowCalculatedToggle() {
   )
 }
 
-function CropDetail({ item }: { item: CropRecommendationItem }) {
+function CropDetail({ item, onViewGuide }: { item: CropRecommendationItem; onViewGuide?: (cropCode: string) => void }) {
   const positive = stringListFrom(item, 'positiveFactors')
   const limiting = stringListFrom(item, 'limitingFactors')
   const critical = stringListFrom(item, 'criticalFailures')
@@ -60,6 +60,17 @@ function CropDetail({ item }: { item: CropRecommendationItem }) {
 
   return (
     <div className="tai2-crop-detail">
+      {item.cropId && onViewGuide ? (
+        <div className="mb-4">
+          <button
+            type="button"
+            className="tai2-btn tai2-btn-primary"
+            onClick={() => onViewGuide(item.cropId)}
+          >
+            Üretim Rehberini Görüntüle
+          </button>
+        </div>
+      ) : null}
       {explanation ? <p className="tai2-crop-detail-explanation">{explanation}</p> : null}
       {critical.length > 0 ? (
         <div className="tai2-compact-factor-block">
@@ -115,12 +126,25 @@ function CropDetail({ item }: { item: CropRecommendationItem }) {
 export function CropRecommendationsTab({
   result,
   plantingByCropId,
+  cropsList,
+  onViewGuide,
 }: {
   result: AnalysisResult
   plantingByCropId?: Record<string, string>
+  cropsList?: any[]
+  onViewGuide?: (cropCode: string) => void
 }) {
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const items = result.cropRecommendations ?? []
+
+  const getCropType = (cropId: string) => {
+    if (!cropsList) return 'seasonal'
+    const match = cropsList.find(c => c.id === cropId)
+    return match?.seasonalOrPerennial || 'seasonal'
+  }
+
+  const seasonalItems = items.filter(i => getCropType(i.cropId) !== 'perennial')
+  const perennialItems = items.filter(i => getCropType(i.cropId) === 'perennial')
 
   if (items.length === 0) {
     return (
@@ -130,106 +154,116 @@ export function CropRecommendationsTab({
     )
   }
 
-  const topThree = items.slice(0, 3)
-  const rest = items.slice(3)
+  const renderGroup = (title: string, groupItems: CropRecommendationItem[]) => {
+    if (groupItems.length === 0) return null;
+    const topThree = groupItems.slice(0, 3)
+    const rest = groupItems.slice(3)
+    return (
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold mb-4">{title}</h3>
+        <div className="tai2-top-crop-cards">
+          {topThree.map((item, index) => {
+            const row = normalizeCropRow(item, index)
+            const tone = statusTone(row.classification)
+            const planting = row.id ? plantingByCropId?.[row.id] : undefined
+            const isExpanded = expandedId === row.id
+            return (
+              <article key={`${row.id}-${row.rank}`} className="tai2-crop-card">
+                <div className="tai2-crop-card-head">
+                  <span className="tai2-crop-card-rank">#{row.rank}</span>
+                  <h4 className="tai2-crop-card-name">{row.name}</h4>
+                </div>
+                {row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : null}
+                <ScoreBar score={row.score} tone={tone} />
+                <span className="tai2-crop-card-score-value">
+                  {typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}
+                </span>
+                {planting ? <p className="tai2-crop-card-planting">Ekim dönemi: {planting}</p> : null}
+                <p className="tai2-crop-card-note">{row.note}</p>
+                <button
+                  type="button"
+                  className="tai2-crop-card-expand-toggle"
+                  onClick={() => setExpandedId(isExpanded ? null : row.id)}
+                  aria-expanded={isExpanded}
+                >
+                  {isExpanded ? 'Detayı gizle' : 'Detayı göster'}
+                  <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={14} aria-hidden="true" />
+                </button>
+                {isExpanded ? <CropDetail item={item} onViewGuide={onViewGuide} /> : null}
+              </article>
+            )
+          })}
+        </div>
+
+        {rest.length > 0 ? (
+          <div className="tai2-card tai2-crops-table-card mt-4">
+            <div className="tai2-card-header">
+              <h3 className="tai2-card-title">Diğer öneriler</h3>
+            </div>
+            <div className="tai2-table-wrap">
+              <table className="tai2-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Ürün</th>
+                    <th>Skor</th>
+                    <th>Sınıf</th>
+                    <th>Ekim dönemi</th>
+                    <th aria-label="Detay" />
+                  </tr>
+                </thead>
+                <tbody>
+                  {rest.map((item, index) => {
+                    const row = normalizeCropRow(item, index + 3)
+                    const tone = statusTone(row.classification)
+                    const planting = row.id ? plantingByCropId?.[row.id] : undefined
+                    const isExpanded = expandedId === row.id
+                    return (
+                      <Fragment key={`${row.id}-${row.rank}`}>
+                        <tr className={cn('tai2-crop-row', isExpanded && 'is-expanded')}>
+                          <td>{row.rank}</td>
+                          <td>
+                            <strong>{row.name}</strong>
+                            <ScoreBar score={row.score} tone={tone} />
+                          </td>
+                          <td>{typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}</td>
+                          <td>{row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : '—'}</td>
+                          <td>{planting ?? '—'}</td>
+                          <td>
+                            <button
+                              type="button"
+                              className="tai2-icon-btn"
+                              onClick={() => setExpandedId(isExpanded ? null : row.id)}
+                              aria-expanded={isExpanded}
+                              aria-label="Detayı göster"
+                            >
+                              <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={16} aria-hidden="true" />
+                            </button>
+                          </td>
+                        </tr>
+                        {isExpanded ? (
+                          <tr className="tai2-crop-row-detail">
+                            <td colSpan={6}>
+                              <CropDetail item={item} onViewGuide={onViewGuide} />
+                            </td>
+                          </tr>
+                        ) : null}
+                      </Fragment>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    )
+  }
 
   return (
     <div className="tai2-crops-tab">
-      <div className="tai2-top-crop-cards">
-        {topThree.map((item, index) => {
-          const row = normalizeCropRow(item, index)
-          const tone = statusTone(row.classification)
-          const planting = row.id ? plantingByCropId?.[row.id] : undefined
-          const isExpanded = expandedId === row.id
-          return (
-            <article key={`${row.id}-${row.rank}`} className="tai2-crop-card">
-              <div className="tai2-crop-card-head">
-                <span className="tai2-crop-card-rank">#{row.rank}</span>
-                <h4 className="tai2-crop-card-name">{row.name}</h4>
-              </div>
-              {row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : null}
-              <ScoreBar score={row.score} tone={tone} />
-              <span className="tai2-crop-card-score-value">
-                {typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}
-              </span>
-              {planting ? <p className="tai2-crop-card-planting">Ekim dönemi: {planting}</p> : null}
-              <p className="tai2-crop-card-note">{row.note}</p>
-              <button
-                type="button"
-                className="tai2-crop-card-expand-toggle"
-                onClick={() => setExpandedId(isExpanded ? null : row.id)}
-                aria-expanded={isExpanded}
-              >
-                {isExpanded ? 'Detayı gizle' : 'Detayı göster'}
-                <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={14} aria-hidden="true" />
-              </button>
-              {isExpanded ? <CropDetail item={item} /> : null}
-            </article>
-          )
-        })}
-      </div>
-
-      {rest.length > 0 ? (
-        <div className="tai2-card tai2-crops-table-card">
-          <div className="tai2-card-header">
-            <h3 className="tai2-card-title">Diğer ürün önerileri</h3>
-          </div>
-          <div className="tai2-table-wrap">
-            <table className="tai2-table">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Ürün</th>
-                  <th>Skor</th>
-                  <th>Sınıf</th>
-                  <th>Ekim dönemi</th>
-                  <th aria-label="Detay" />
-                </tr>
-              </thead>
-              <tbody>
-                {rest.map((item, index) => {
-                  const row = normalizeCropRow(item, index + 3)
-                  const tone = statusTone(row.classification)
-                  const planting = row.id ? plantingByCropId?.[row.id] : undefined
-                  const isExpanded = expandedId === row.id
-                  return (
-                    <Fragment key={`${row.id}-${row.rank}`}>
-                      <tr className={cn('tai2-crop-row', isExpanded && 'is-expanded')}>
-                        <td>{row.rank}</td>
-                        <td>
-                          <strong>{row.name}</strong>
-                          <ScoreBar score={row.score} tone={tone} />
-                        </td>
-                        <td>{typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}</td>
-                        <td>{row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : '—'}</td>
-                        <td>{planting ?? '—'}</td>
-                        <td>
-                          <button
-                            type="button"
-                            className="tai2-icon-btn"
-                            onClick={() => setExpandedId(isExpanded ? null : row.id)}
-                            aria-expanded={isExpanded}
-                            aria-label="Detayı göster"
-                          >
-                            <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={16} aria-hidden="true" />
-                          </button>
-                        </td>
-                      </tr>
-                      {isExpanded ? (
-                        <tr className="tai2-crop-row-detail">
-                          <td colSpan={6}>
-                            <CropDetail item={item} />
-                          </td>
-                        </tr>
-                      ) : null}
-                    </Fragment>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
+      {renderGroup('🌾 Mevsimlik Ürünler', seasonalItems)}
+      {renderGroup('🌳 Uzun Dönem Ürünler', perennialItems)}
     </div>
   )
 }

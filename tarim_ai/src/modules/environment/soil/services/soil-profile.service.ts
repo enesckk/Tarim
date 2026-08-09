@@ -7,6 +7,7 @@ import { ParcelCentroidService } from '../../shared/services/parcel-centroid.ser
 import type { SoilProvider } from '../providers/soil-provider.interface.js';
 import type { SoilProfile } from '../types/soil.types.js';
 import { SoilNormalizationService } from './soil-normalization.service.js';
+import { SoilLaboratoryService } from '../../../soil-laboratory/services/soil-laboratory.service.js';
 
 const DEFAULT_CACHE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -35,6 +36,8 @@ export class SoilProfileService {
     private readonly cacheTtlMs: number = DEFAULT_CACHE_TTL_MS,
   ) {}
 
+  private readonly soilLabService = new SoilLaboratoryService();
+
   async getProfile(request: SoilProfileRequest): Promise<SoilProfile> {
     const { geometry, parcel } = await this.resolveGeometryAndParcel(request);
     const centroid = this.centroidService.fromGeometry(geometry);
@@ -52,13 +55,67 @@ export class SoilProfileService {
 
     console.info('[SoilCache] miss', { cacheKey, provider: this.provider.name });
 
-    const raw = await this.provider.getProfile({
-      geometry,
-      centroid,
-      parcel,
-    });
+    // Check laboratory data first
+    let profile: SoilProfile | null = null;
+    
+    if (parcel) {
+      const parcelId = `${parcel.province}-${parcel.district}-${parcel.neighborhood}-${parcel.block}-${parcel.parcel}`;
+      const labReport = await this.soilLabService.getLatestApprovedReport(parcelId);
+      if (labReport && labReport.results) {
+        // Find essential parameters
+        const ph = labReport.results.find(r => r.parameterName.toLowerCase() === 'ph');
+        const om = labReport.results.find(r => r.parameterName.toLowerCase() === 'organic matter');
+        
+        if (ph && om) {
+          // Construct partial profile from lab. Wait, the normalization service can handle missing fields or we provide defaults.
+          // For now, we will map it manually or pass it through normalization.
+          const labProfile: SoilProfile = {
+            provider: 'laboratory',
+            location: {
+              latitude: centroid.latitude,
+              longitude: centroid.longitude,
+            },
+            soil: {
+              ph: ph.value,
+              texture: 'loam', // Fallback or parsed from lab
+              organicMatterPercent: om.value,
+              electricalConductivityDsM: labReport.results.find(r => r.parameterName.toLowerCase() === 'electrical conductivity')?.value ?? null,
+              salinityRisk: 'low',
+              drainage: 'moderate',
+              waterHoldingCapacity: 'medium',
+              calciumCarbonatePercent: labReport.results.find(r => r.parameterName.toLowerCase() === 'lime')?.value ?? null,
+              depthCm: labReport.sampleDepth ? parseInt(labReport.sampleDepth) || 90 : 90,
+            },
+            suitabilitySignals: {
+              rootDevelopment: 'good',
+              waterRetention: 'moderate',
+              salinityConstraint: 'low',
+              generalSoilCondition: 'good'
+            },
+            confidence: 'high',
+            limitations: [],
+            metadata: {
+              provider: 'laboratory',
+              source: 'laboratory',
+              generatedAt: new Date().toISOString(),
+              timestamp: labReport.analysisDate || labReport.createdAt,
+              isMock: false,
+              isEstimated: false,
+            }
+          };
+          profile = labProfile;
+        }
+      }
+    }
 
-    const profile = this.normalization.normalize(raw);
+    if (!profile) {
+      const raw = await this.provider.getProfile({
+        geometry,
+        centroid,
+        parcel,
+      });
+      profile = this.normalization.normalize(raw);
+    }
     const ttl =
       profile.provider === 'soilgrids' || this.provider.name === 'soilgrids'
         ? this.cacheTtlMs

@@ -1,0 +1,19 @@
+{
+  "id": "walnut",
+  "name": "Ceviz",
+  "scientificName": "Juglans regia",
+  "category": "perennial",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "walnut",
+  "internalCropCode": "walnut",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

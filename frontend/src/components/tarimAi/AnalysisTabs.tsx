@@ -1,7 +1,7 @@
 import { useRef, type KeyboardEvent, type ReactNode } from 'react'
 import { cn } from '../../lib/utils'
 
-export type AnalysisTabId = 'overview' | 'satellite' | 'climate' | 'crops' | 'sources'
+export type AnalysisTabId = 'overview' | 'satellite' | 'climate' | 'crops' | 'sources' | 'soil-lab' | 'water-resources' | 'decision-engine' | 'seasonal-ranking' | 'perennial-ranking' | 'final-report' | 'crop-guide' | 'production-plan'
 
 const TABS: Array<{ id: AnalysisTabId; label: string }> = [
   { id: 'overview', label: 'Genel Bakış' },

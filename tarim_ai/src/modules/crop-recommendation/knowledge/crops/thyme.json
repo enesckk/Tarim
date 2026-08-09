@@ -1,0 +1,19 @@
+{
+  "id": "thyme",
+  "name": "Kekik",
+  "scientificName": "Thymus vulgaris",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "thyme",
+  "internalCropCode": "thyme",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

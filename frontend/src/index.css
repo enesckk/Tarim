@@ -120,6 +120,12 @@
   #root {
     min-height: 100%;
     margin: 0;
+    overflow-x: hidden;
+  }
+
+  html {
+    overflow-y: auto;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -162,4 +168,124 @@
     opacity: 0.55;
     cursor: not-allowed;
   }
+
+  /* Landing page: ensure animated elements are visible when GSAP is not available */
+  .reveal {
+    opacity: 1 !important;
+  }
+
+  /* GPU acceleration helper used by landing page components */
+  .gpu-accelerated {
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+
+  /* Smooth scroll easing */
+  .transition-smooth-cinematic {
+    transition: all 800ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Button transition */
+  .transition-button-180 {
+    transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 180ms cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* Scroll dot animation */
+  .animate-scroll-dot {
+    animation: scrolldot 2.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+  @keyframes scrolldot {
+    0% { transform: translateY(0); opacity: 0; }
+    30% { opacity: 1; }
+    100% { transform: translateY(12px); opacity: 0; }
+  }
 }
+
+/* =========================================
+   LANDING PAGE – Scroll Snap & Chapters
+   ========================================= */
+
+/* Native window scroll snap for chapters */
+html:has(section[data-chapter]) {
+  scroll-snap-type: y mandatory;
+}
+
+/* Hide scrollbar for cinematic feel on landing page */
+html:has(section[data-chapter])::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+section[data-chapter] {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  will-change: opacity, transform;
+}
+
+/* ---------- Scene FX animations ---------- */
+.fx-lightsweep {
+  background: linear-gradient(115deg, transparent 30%, rgba(184,132,47,0.04) 48%, transparent 62%);
+  background-size: 260% 100%;
+  animation: lightsweep 18s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes lightsweep {
+  0%, 100% { background-position: 130% 0; }
+  50%       { background-position: -30% 0; }
+}
+
+.fx-line { animation: lineflicker 5s ease-in-out infinite; }
+@keyframes lineflicker {
+  0%, 100% { opacity: 0.15; }
+  50%       { opacity: 0.35; }
+}
+
+.fx-node {
+  animation: nodepulse 4s ease-in-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes nodepulse {
+  0%, 100% { opacity: 0.25; }
+  50%       { opacity: 0.65; }
+}
+
+.fx-scangrid {
+  background-image: linear-gradient(rgba(184,132,47,0.15) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(184,132,47,0.15) 1px, transparent 1px);
+  background-size: 11% 11%;
+  transform: perspective(600px) rotateX(58deg);
+  animation: gridpulse 5s ease-in-out infinite;
+  box-shadow: inset 0 0 60px rgba(184,132,47,0.1);
+}
+@keyframes gridpulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.7;  }
+}
+
+.fx-scanline {
+  top: 10%;
+  animation: scanmove 5.5s ease-in-out infinite;
+}
+@keyframes scanmove {
+  0%, 100% { top: 12%; opacity: 0.25; }
+  50%       { top: 82%; opacity: 0.7;  }
+}
+
+.fx-breathe {
+  animation: breathe 8s ease-in-out infinite;
+}
+@keyframes breathe {
+  0%, 100% { opacity: 0.35; transform: translateY(-50%) scale(0.95); }
+  50%       { opacity: 0.7;  transform: translateY(-50%) scale(1.05); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fx-lightsweep, .fx-line, .fx-node, .fx-scangrid, .fx-scanline, .fx-breathe {
+    animation: none;
+  }
+}
+
+

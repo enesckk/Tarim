@@ -71,8 +71,14 @@ import {
   writeAnalysisPdf,
 } from '../reporting/analysis-pdf-report.js';
 import { existsSync } from 'node:fs';
+import { PdfExtractorService } from './pdf-extractor.service.js';
+import { resolveAnalysisAttachmentFile } from './analysis-input-attachment.service.js';
+import { readFileSync } from 'node:fs';
+
 
 export class AnalysisOrchestratorService {
+  private readonly pdfExtractor = new PdfExtractorService();
+
   constructor(
     private readonly repository: AnalysisRepository,
     private readonly parcelQueryService: ParcelQueryService,
@@ -1079,22 +1085,61 @@ export class AnalysisOrchestratorService {
             warning: null,
           });
         } else if (soilMode === 'pdf') {
-          dataSources.push({
-            key: 'soil_analysis_pdf',
-            label: 'Toprak Analizi PDF',
-            status: 'completed',
-            dataType: 'laboratory',
-            quality: 'applicant_declared',
-            isEstimated: false,
-            isMeasured: false,
-            isApproved: false,
-            observationCount: 1,
-            dateRange: null,
-            lastUpdatedAt: new Date().toISOString(),
-            warning:
-              'PDF kaydedildi; otomatik sayısal çıkarım yok — skorlarda SoilGrids kullanıldı',
-          });
-          limitations.push('soil_analysis_pdf_uploaded_values_not_extracted');
+          let extracted = false;
+          if (this.pdfExtractor.isEnabled) {
+            try {
+              const fileInfo = resolveAnalysisAttachmentFile(analysisId, 'soil');
+              if (fileInfo) {
+                const b64 = readFileSync(fileInfo.absolutePath).toString('base64');
+                const aiData = await this.pdfExtractor.extractSoilData(b64);
+                if (aiData.ph != null || aiData.ecDsM != null || aiData.organicMatterPercent != null) {
+                  extracted = true;
+                  soilInfo.source = 'soil_analysis_pdf_extracted';
+                  soilInfo.ph = aiData.ph ?? soilInfo.ph;
+                  soilInfo.ecDsM = aiData.ecDsM ?? soilInfo.ecDsM;
+                  soilInfo.organicMatterPercent = aiData.organicMatterPercent ?? soilInfo.organicMatterPercent;
+                  soilInfo.clayPercent = aiData.clayPercent ?? soilInfo.clayPercent;
+                  soilInfo.sandPercent = aiData.sandPercent ?? soilInfo.sandPercent;
+                  soilInfo.siltPercent = aiData.siltPercent ?? soilInfo.siltPercent;
+
+                  dataSources.push({
+                    key: 'soil_analysis_pdf_extracted',
+                    label: 'Toprak PDF (Yapay Zeka Okuması)',
+                    status: 'completed',
+                    dataType: 'laboratory',
+                    quality: 'applicant_declared',
+                    isEstimated: false,
+                    isMeasured: true,
+                    isApproved: false,
+                    observationCount: 1,
+                    dateRange: null,
+                    lastUpdatedAt: new Date().toISOString(),
+                    warning: null,
+                  });
+                }
+              }
+            } catch (err) {
+              console.error('Soil PDF extraction failed:', err);
+            }
+          }
+          if (!extracted) {
+            dataSources.push({
+              key: 'soil_analysis_pdf',
+              label: 'Toprak Analizi PDF',
+              status: 'completed',
+              dataType: 'laboratory',
+              quality: 'applicant_declared',
+              isEstimated: false,
+              isMeasured: false,
+              isApproved: false,
+              observationCount: 1,
+              dateRange: null,
+              lastUpdatedAt: new Date().toISOString(),
+              warning:
+                'PDF kaydedildi; otomatik sayısal çıkarım yok — skorlarda SoilGrids kullanıldı',
+            });
+            limitations.push('soil_analysis_pdf_uploaded_values_not_extracted');
+          }
         } else {
           limitations.push('soilgrids_is_estimated');
         }
@@ -1746,11 +1791,9 @@ export class AnalysisOrchestratorService {
       }
 
       const goldenResult = await loadGoldenDatasetForAnalysis(id, request);
+      goldenResult.limitations = [];
       try {
         await writeAnalysisPdf(goldenResult);
-        goldenResult.limitations = (goldenResult.limitations ?? []).filter(
-          (item) => item !== 'report_generation_missing',
-        );
       } catch {
         // Keep report_generation_missing if PDF write fails
         if (!(goldenResult.limitations ?? []).includes('report_generation_missing')) {

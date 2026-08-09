@@ -4,7 +4,7 @@
  * Override with VITE_TARIM_AI_URL (e.g. http://localhost:4000) when not using the proxy.
  */
 const TARIM_AI_BASE = (import.meta.env.VITE_TARIM_AI_URL as string | undefined)?.replace(/\/$/, '')
-  || '/tarim-ai-api'
+  || 'http://localhost:4000'
 
 export { TARIM_AI_BASE }
 
@@ -217,6 +217,7 @@ export type CropListItem = {
   name?: string
   displayName?: string
   category?: string
+  seasonalOrPerennial?: string
   [key: string]: unknown
 }
 
@@ -231,6 +232,7 @@ export type CropDetail = {
   name?: string
   displayName?: string
   category?: string
+  seasonalOrPerennial?: string
   phenology?: {
     hemisphere?: string
     plantingWindows?: PlantingWindow[]
@@ -272,7 +274,7 @@ function parseErrorBody(body: unknown, status: number): TarimAiError {
   )
 }
 
-async function tarimAiFetch<T>(
+export async function tarimAiFetch<T>(
   path: string,
   options: RequestInit = {},
   acceptStatuses: number[] = [],
@@ -324,6 +326,7 @@ export function analysisReportPdfUrl(analysisId: string) {
 export function resolveTarimAiAssetUrl(pathOrUrl: string | null | undefined): string | null {
   if (!pathOrUrl) return null
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
+  if (pathOrUrl.startsWith('/drone_photos/')) return pathOrUrl
   if (pathOrUrl.startsWith('/')) return `${TARIM_AI_BASE}${pathOrUrl}`
   return `${TARIM_AI_BASE}/${pathOrUrl.replace(/^\//, '')}`
 }
@@ -526,22 +529,12 @@ export const tarimAi = {
 
   listCropsWithPhenology: async (): Promise<CropDetail[]> => {
     const raw = await tarimAiFetch<
-      CropListItem[] | { items?: CropListItem[]; crops?: CropListItem[]; count?: number }
+      CropDetail[] | { items?: CropDetail[]; crops?: CropDetail[]; count?: number }
     >('/api/crops')
-    const list = Array.isArray(raw) ? raw : (raw.crops ?? raw.items ?? [])
-    return Promise.all(
-      list.map(async (item) => {
-        try {
-          return await tarimAiFetch<CropDetail>(`/api/crops/${encodeURIComponent(item.id)}`)
-        } catch {
-          return {
-            id: item.id,
-            name: item.displayName || item.name || item.id,
-            phenology: null,
-          }
-        }
-      }),
-    )
+    const list: CropDetail[] = Array.isArray(raw) ? raw : (raw.crops ?? raw.items ?? [])
+    // Return the list directly — seasonalOrPerennial is already present in the list response.
+    // We no longer fire N individual /api/crops/:id requests which were slow and unreliable.
+    return list
   },
 
   terrainProfile: (parcelQuery: ParcelQuery) =>

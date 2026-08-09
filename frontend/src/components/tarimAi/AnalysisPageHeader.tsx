@@ -2,6 +2,7 @@ import { FileDown, Loader2, RefreshCw } from 'lucide-react'
 import type { DemoReadiness } from '../../api/tarimAi'
 import { cn } from '../../lib/utils'
 import { SystemStatusPopover } from './SystemStatusPopover'
+import { NotificationBell } from './NotificationBell'
 
 export function AnalysisPageHeader({
   connected,
@@ -31,7 +32,8 @@ export function AnalysisPageHeader({
           değerlendirme oluşturulur.
         </p>
       </div>
-      <div className="tai2-page-header-actions">
+      <div className="tai2-page-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <NotificationBell />
         <SystemStatusPopover connected={connected} readiness={readiness} health={health} mode={readiness?.mode} />
 
         <button

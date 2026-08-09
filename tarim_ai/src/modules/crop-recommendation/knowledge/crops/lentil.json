@@ -242,5 +242,9 @@
       "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
       "Bu alan crop skorunu değiştirmez."
     ]
-  }
+  },
+  "profileStatus": "approved_for_analysis",
+  "slug": "lentil",
+  "internalCropCode": "lentil",
+  "seasonalOrPerennial": "seasonal"
 }

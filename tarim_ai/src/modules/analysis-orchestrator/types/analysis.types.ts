@@ -250,6 +250,12 @@ export interface SoilInfo {
   dataNature: string;
   spatialResolutionMeters: number;
   depthLayers: string[];
+  ph?: number;
+  ecDsM?: number;
+  organicMatterPercent?: number;
+  clayPercent?: number;
+  sandPercent?: number;
+  siltPercent?: number;
   properties: {
     ph: Record<string, unknown>;
     clayPercent: Record<string, unknown>;

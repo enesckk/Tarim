@@ -1,0 +1,19 @@
+{
+  "id": "red_lentil",
+  "name": "Kırmızı Mercimek",
+  "scientificName": "Lens culinaris",
+  "category": "field_crop",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "red_lentil",
+  "internalCropCode": "red_lentil",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

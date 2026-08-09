@@ -1,0 +1,19 @@
+{
+  "id": "rocket",
+  "name": "Roka",
+  "scientificName": "Eruca vesicaria",
+  "category": "vegetable",
+  "growingType": "annual",
+  "profileStatus": "identity_only",
+  "slug": "rocket",
+  "internalCropCode": "rocket",
+  "seasonalOrPerennial": "seasonal",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}

@@ -43,6 +43,10 @@ export class FallbackTerrainProvider implements TerrainProvider {
           fallbackFrom: this.primary.name,
           fallbackUsed: true,
           generatedAt: new Date().toISOString(),
+          mockReason: error instanceof Error ? error.message : 'Unknown provider error',
+          fallbackPolicy: 'LIVE_REJECTED_IF_STRICT',
+          mockStartedAt: new Date().toISOString(),
+          mockFinishedAt: new Date().toISOString(),
         },
       };
     }

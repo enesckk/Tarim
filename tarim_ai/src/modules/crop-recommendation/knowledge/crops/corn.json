@@ -246,5 +246,9 @@
       "Başlangıç fiziksel uygunluk değerleridir; saha / uzman doğrulaması yoktur.",
       "Bu alan crop skorunu değiştirmez."
     ]
-  }
+  },
+  "profileStatus": "approved_for_analysis",
+  "slug": "corn",
+  "internalCropCode": "corn",
+  "seasonalOrPerennial": "seasonal"
 }

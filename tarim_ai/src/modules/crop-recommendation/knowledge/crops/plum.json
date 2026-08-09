@@ -1,0 +1,19 @@
+{
+  "id": "plum",
+  "name": "Erik",
+  "scientificName": "Prunus domestica",
+  "category": "perennial",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "plum",
+  "internalCropCode": "plum",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Created as part of Gaziantep Master List audit"
+    ]
+  }
+}
