@@ -8459,3 +8459,261 @@ button.land-task-photo-link {
     margin: 10mm;
   }
 }
+
+/* —— Arazi bilgileri (land profile tabs + charts) —— */
+.land-profile-panel {
+  gap: 0;
+}
+
+.land-profile-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 16px 4px;
+}
+
+.land-profile-tab {
+  appearance: none;
+  border: 1px solid color-mix(in oklch, #d0d5dd 80%, transparent);
+  background: #f8faf9;
+  color: #344054;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.land-profile-tab:hover {
+  background: #eef5f0;
+}
+
+.land-profile-tab.is-active {
+  background: #1f4d3a;
+  border-color: #1f4d3a;
+  color: #fff;
+}
+
+.land-profile-tab-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 4px 16px 12px;
+  font-size: 12.5px;
+  color: #667085;
+  line-height: 1.4;
+}
+
+.land-profile-body {
+  padding: 0 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.land-profile-year-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.land-profile-year-bar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+  color: #667085;
+  font-weight: 550;
+}
+
+.land-profile-year-bar select {
+  min-width: 200px;
+  border: 1px solid #d0d5dd;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 14px;
+  background: #fff;
+  color: #101828;
+}
+
+.land-profile-extremes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+
+.land-profile-extremes > div {
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #f0f4f2;
+  border: 1px solid color-mix(in oklch, #d0d5dd 70%, transparent);
+  min-width: 0;
+}
+
+.land-profile-extremes span {
+  display: block;
+  font-size: 11.5px;
+  color: #667085;
+  margin-bottom: 3px;
+}
+
+.land-profile-extremes strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 650;
+  color: #101828;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+}
+
+.land-profile-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.land-profile-kpi {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #f6f8f7;
+  border: 1px solid color-mix(in oklch, #e4e7ec 90%, transparent);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.land-profile-kpi > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: #667085;
+}
+
+.land-profile-kpi > strong,
+.land-profile-kpi-value {
+  font-size: 1.05rem;
+  font-weight: 650;
+  color: #101828;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  white-space: normal;
+  min-width: 0;
+}
+
+.land-profile-kpi > em {
+  font-style: normal;
+  font-size: 11.5px;
+  color: #98a2b3;
+  overflow-wrap: anywhere;
+}
+
+.land-profile-chart-wrap h4 {
+  margin: 0 0 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #344054;
+}
+
+.land-profile-chart {
+  width: 100%;
+  min-height: 220px;
+  border-radius: 12px;
+  border: 1px solid color-mix(in oklch, #e4e7ec 85%, transparent);
+  background: #fff;
+  padding: 8px 4px 4px;
+}
+
+.land-profile-source {
+  margin: 0;
+  font-size: 12px;
+  color: #98a2b3;
+  line-height: 1.45;
+}
+
+.land-profile-manual-soil {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  background: #fafbfa;
+  border: 1px dashed color-mix(in oklch, #d0d5dd 80%, transparent);
+}
+
+.land-profile-manual-soil h4 {
+  margin: 0;
+  font-size: 13.5px;
+}
+
+.land-profile-manual-soil .form-grid {
+  margin: 0 !important;
+}
+
+.land-profile-ok {
+  font-size: 13px;
+  color: #027a48;
+}
+
+.land-profile-error {
+  margin: 0 16px 8px;
+  font-size: 13px;
+  color: #b42318;
+}
+
+.land-profile-sat-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.land-profile-sat-layers {
+  display: flex;
+  gap: 6px;
+}
+
+.land-profile-sat-layers button {
+  appearance: none;
+  border: 1px solid #d0d5dd;
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.land-profile-sat-layers button.is-active {
+  background: #1f4d3a;
+  border-color: #1f4d3a;
+  color: #fff;
+}
+
+.land-profile-sat-frame {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid #e4e7ec;
+  background: #0b1220;
+  aspect-ratio: 16 / 10;
+  max-height: 420px;
+}
+
+.land-profile-sat-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+@media (max-width: 720px) {
+  .land-profile-kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

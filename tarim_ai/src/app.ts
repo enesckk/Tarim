@@ -4,6 +4,7 @@ import express, {
   type NextFunction,
   type Express,
 } from 'express';
+import path from 'node:path';
 import { ZodError } from 'zod';
 import { createSatelliteRouter } from './routes/satellite.routes.js';
 import { createParcelModule } from './modules/parcel/index.js';
@@ -63,6 +64,8 @@ export function createApp(): Express {
 
   // Serve drone photos statically
   app.use('/drone_photos', express.static('/Users/enescikcik/Desktop/Tarım/frontend/public/drone_photos'));
+  // Satellite render outputs (true-color / NDVI PNGs for land profile)
+  app.use('/outputs', express.static(path.resolve(process.cwd(), 'outputs')));
   const parcelModule = createParcelModule();
   const environmentModule = createEnvironmentModule(parcelModule.parcelQueryService);
   const terrainModule = createTerrainModule(parcelModule.parcelQueryService);

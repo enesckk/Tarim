@@ -59,6 +59,8 @@ export interface ImageOutputResult {
   cloudCoverage: number | null;
   fileName: string;
   filePath: string;
+  /** Public URL path served from `/outputs` (for land profile / UI). */
+  imageUrl: string;
   fileSizeBytes: number;
   width: number;
   height: number;

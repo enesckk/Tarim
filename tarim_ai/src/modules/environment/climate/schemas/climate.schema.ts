@@ -84,6 +84,39 @@ export const climateProfileSchema = z.object({
           rainyDays: z.number().finite().nonnegative(),
         }),
       ),
+      yearly: z
+        .array(
+          z.object({
+            year: z.number().int(),
+            temperatureMeanC: z.number().finite(),
+            temperatureMinC: z.number().finite(),
+            temperatureMaxC: z.number().finite(),
+            precipitationMm: z.number().finite().nonnegative(),
+            frostDays: z.number().finite().nonnegative(),
+            extremeHeatDays: z.number().finite().nonnegative(),
+            rainyDays: z.number().finite().nonnegative(),
+          }),
+        )
+        .optional(),
+      monthlyByYear: z
+        .array(
+          z.object({
+            year: z.number().int(),
+            monthly: z.array(
+              z.object({
+                month: z.number().int().min(1).max(12),
+                temperatureMeanC: z.number().finite(),
+                temperatureMinC: z.number().finite(),
+                temperatureMaxC: z.number().finite(),
+                precipitationMm: z.number().finite().nonnegative(),
+                frostDays: z.number().finite().nonnegative(),
+                extremeHeatDays: z.number().finite().nonnegative(),
+                rainyDays: z.number().finite().nonnegative(),
+              }),
+            ),
+          }),
+        )
+        .optional(),
     })
     .optional(),
 });
