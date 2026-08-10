@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Sprout } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import { homePathForRoles } from '../auth/roles'
@@ -9,9 +9,14 @@ import '../layout/layout.css'
 export function LoginPage() {
   const { token, user, login, logout } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(
+    searchParams.get('reason') === 'staff'
+      ? 'Bu hesap operasyon paneline giriş için yetkili değil.'
+      : null,
+  )
   const [loading, setLoading] = useState(false)
 
   async function onSubmit(event: FormEvent) {
@@ -23,11 +28,18 @@ export function LoginPage() {
       navigate(homePathForRoles(nextUser.roles), { replace: true })
     } catch (err) {
       const raw = err instanceof Error ? err.message : 'Giriş başarısız'
-      setError(
-        /invalid email or password/i.test(raw)
-          ? 'E-posta veya şifre hatalı.'
-          : raw,
-      )
+      const lower = raw.toLocaleLowerCase('tr-TR')
+      if (/invalid email or password|unauthorized|401/.test(lower)) {
+        setError('E-posta veya şifre hatalı.')
+      } else if (/failed to fetch|network|timeout|load failed|err_connection|econnrefused/.test(lower)) {
+        setError('Sunucuya ulaşılamadı. Bağlantınızı kontrol edip tekrar deneyin.')
+      } else if (/forbidden|403|yetki/.test(lower)) {
+        setError('Bu hesapla panele giriş yetkiniz yok.')
+      } else if (/^https?:\/\//i.test(raw) || /exception|stack|at\s+\w+/.test(raw)) {
+        setError('Giriş yapılamadı. Lütfen tekrar deneyin.')
+      } else {
+        setError(raw)
+      }
     } finally {
       setLoading(false)
     }
@@ -60,7 +72,7 @@ export function LoginPage() {
                 style={{ padding: '6px 12px', fontSize: '12px' }}
                 onClick={() => navigate(homePathForRoles(user.roles))}
               >
-                Sisteme / Panele Git →
+                Operasyon paneline git →
               </button>
               <button
                 type="button"

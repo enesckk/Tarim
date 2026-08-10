@@ -1132,7 +1132,7 @@ export function WorkflowsPage() {
               <span className="wf-assign-title">Hızlı atama</span>
               <span className="wf-assign-hint">
                 Kısayol. Ana yol:{' '}
-                <Link to="/lands" onClick={(e) => e.stopPropagation()}>
+                <Link to="/app/lands" onClick={(e) => e.stopPropagation()}>
                   Araziler → Üretim planı
                 </Link>
               </span>

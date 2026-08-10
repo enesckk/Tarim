@@ -21,3 +21,10 @@ backups/
 coverage/
 TestResults/
 src/Hosts/Agriculture.Api/wwwroot/uploads/
+
+# local process pids/logs
+.run/
+
+# local agent/test artifacts (do not publish)
+.cursor/*-report.json
+.cursor/*-test-report.json

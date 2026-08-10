@@ -389,7 +389,7 @@ function ProducersListPage() {
         queryClient.invalidateQueries({ queryKey: ['lands'] }),
         queryClient.invalidateQueries({ queryKey: ['operations-center'] }),
       ])
-      if (producerId) navigate(`/producers/${producerId}`)
+      if (producerId) navigate(`/app/producers/${producerId}`)
     },
   })
 
@@ -872,8 +872,8 @@ function ProducersListPage() {
                   const neighborhood = producerNeighborhood(item, stats)
                   const phoneLink = telHref(item.phone)
                   const messageHref = stats?.primaryLandId
-                    ? `/lands/${stats.primaryLandId}#sohbet`
-                    : `/producers/${item.id}`
+                    ? `/app/lands/${stats.primaryLandId}#sohbet`
+                    : `/app/producers/${item.id}`
 
                   return (
                     <tr key={item.id}>
@@ -934,7 +934,7 @@ function ProducersListPage() {
                             <MessageSquare size={14} aria-hidden />
                             Mesaj gönder
                           </Link>
-                          <Link to={`/producers/${item.id}`} className="officers-action-btn">
+                          <Link to={`/app/producers/${item.id}`} className="officers-action-btn">
                             Detayları görüntüle
                             <ChevronRight size={14} aria-hidden />
                           </Link>
@@ -1048,7 +1048,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
         <p className="error empty">
           {(producerQuery.error as Error)?.message ?? 'Üretici bulunamadı.'}
         </p>
-        <button type="button" className="ghost-btn" onClick={() => navigate('/producers')}>
+        <button type="button" className="ghost-btn" onClick={() => navigate('/app/producers')}>
           <ChevronLeft size={16} /> Üreticilere dön
         </button>
       </section>
@@ -1056,7 +1056,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
   }
 
   const phoneLink = telHref(producer.phone)
-  const messageHref = lands[0] ? `/lands/${lands[0].id}#sohbet` : undefined
+  const messageHref = lands[0] ? `/app/lands/${lands[0].id}#sohbet` : undefined
   const neighborhood = producerNeighborhood(producer, {
     count: lands.length,
     totalDecares: totalArea,
@@ -1071,7 +1071,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
           <button
             type="button"
             className="ghost-btn officers-back"
-            onClick={() => navigate('/producers')}
+            onClick={() => navigate('/app/producers')}
           >
             <ChevronLeft size={16} /> Üreticiler
           </button>

@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import type { Season } from '../api/types'
 import { SEASON_STATUS } from '../api/types'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin } from '../auth/roles'
+import { AdminOnlyNotice } from '../components/AdminOnlyNotice'
 import '../layout/layout.css'
 
 export function SeasonsPage() {
@@ -45,7 +45,7 @@ export function SeasonsPage() {
     },
   })
 
-  if (!admin) return <Navigate to="/" replace />
+  if (!admin) return <AdminOnlyNotice title="Sezon yönetimi yalnızca yöneticiler içindir." />
 
   function onSubmit(event: FormEvent) {
     event.preventDefault()

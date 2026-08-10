@@ -17,7 +17,7 @@ export function ProfilePage() {
       <div className="page-header">
         <div>
           <h1>Profil</h1>
-          <p>Oturum bilgileriniz ve demo kullanıcı notları.</p>
+          <p>Oturum bilgileriniz.</p>
         </div>
       </div>
 
@@ -32,25 +32,27 @@ export function ProfilePage() {
             <dd>{roleLabel(user?.roles)}</dd>
           </dl>
 
-          <div className="seed-note">
-            <strong>Demo hesaplar (seed)</strong>
-            <br />
-            {isAdmin(user?.roles) ? (
-              <>
-                Yönetici: admin@agriculture.local / Admin123!
-                <br />
-                Tarım Uzmanı (web + mobil): uzman@agriculture.local / Officer123!
-                <br />
-                Üretici (mobil): uretici@agriculture.local / Producer123!
-              </>
-            ) : (
-              <>
-                Tarım Uzmanı (web + mobil): uzman@agriculture.local / Officer123!
-                <br />
-                Üretici mobil hesabı yönetici tarafından verilir.
-              </>
-            )}
-          </div>
+          {import.meta.env.DEV ? (
+            <div className="seed-note">
+              <strong>Demo hesaplar (yalnızca geliştirme)</strong>
+              <br />
+              {isAdmin(user?.roles) ? (
+                <>
+                  Yönetici: admin@agriculture.local / Admin123!
+                  <br />
+                  Tarım Uzmanı (web + mobil): uzman@agriculture.local / Officer123!
+                  <br />
+                  Üretici (mobil): uretici@agriculture.local / Producer123!
+                </>
+              ) : (
+                <>
+                  Tarım Uzmanı (web + mobil): uzman@agriculture.local / Officer123!
+                  <br />
+                  Üretici mobil hesabı yönetici tarafından verilir.
+                </>
+              )}
+            </div>
+          ) : null}
 
           <div>
             <button type="button" className="primary-btn" onClick={onLogout}>

@@ -50,6 +50,23 @@ const MONTHS = [
   'Ara',
 ]
 
+function friendlyLandProfileError(raw: string): string {
+  const lower = raw.toLocaleLowerCase('tr-TR')
+  if (/failed to fetch|network|timeout|econnrefused|load failed/.test(lower)) {
+    return 'Canlı veri servisine ulaşılamadı. Yenile ile tekrar deneyin.'
+  }
+  if (/not found|404/.test(lower)) {
+    return 'Bu parsel için veri bulunamadı. Ada/parsel bilgisini kontrol edin.'
+  }
+  if (/validation|400/.test(lower)) {
+    return 'Parsel bilgisi eksik veya geçersiz. Arazi kaydını kontrol edin.'
+  }
+  if (/unauthorized|401|403|forbidden/.test(lower)) {
+    return 'Bu veri için yetkiniz yok veya oturum süresi dolmuş olabilir.'
+  }
+  return raw.length > 160 ? 'Veri alınamadı. Yenile ile tekrar deneyin.' : raw
+}
+
 type TabId = 'ozet' | 'iklim' | 'toprak' | 'arazi' | 'su' | 'uydu'
 
 const TABS: { id: TabId; label: string; hint: string }[] = [
@@ -420,11 +437,12 @@ export function LandProfilePanel({
 
   const loadingAny =
     climateQuery.isLoading || terrainQuery.isLoading || soilQuery.isLoading
-  const errorMsg =
+  const rawErrorMsg =
     (climateQuery.error as Error | null)?.message ||
     (terrainQuery.error as Error | null)?.message ||
     (soilQuery.error as Error | null)?.message ||
     null
+  const errorMsg = rawErrorMsg ? friendlyLandProfileError(rawErrorMsg) : null
 
   const yearsLabel = num(period?.years) ?? 30
   const parcelLabel = [

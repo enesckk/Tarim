@@ -1136,12 +1136,12 @@ export function LandDetailPage() {
             {analysisQuery.data ? (
               <Link
                 className="ghost-btn"
-                to={`/tarim-ai?landId=${encodeURIComponent(landId!)}&analysisId=${encodeURIComponent(analysisQuery.data.analysisId)}`}
+                to={`/app/tarim-ai?landId=${encodeURIComponent(landId!)}&analysisId=${encodeURIComponent(analysisQuery.data.analysisId)}`}
               >
                 AI Destekli Analiz’de aç
               </Link>
             ) : (
-              <Link className="ghost-btn" to={`/tarim-ai?landId=${encodeURIComponent(landId!)}`}>
+              <Link className="ghost-btn" to={`/app/tarim-ai?landId=${encodeURIComponent(landId!)}`}>
                 Analiz başlat
               </Link>
             )}
@@ -1155,6 +1155,12 @@ export function LandDetailPage() {
           ) : null}
           {analysisQuery.data ? (
             <div className="land-analysis-summary">
+              {(() => {
+                const summary = analysisQuery.data.summary
+                const parcel = analysisQuery.data.parcel
+                const topCrops = summary?.topCrops ?? []
+                return (
+                  <>
               <div className="land-analysis-grid">
                 <div>
                   <span className="land-hero-meta-label">Durum</span>
@@ -1169,28 +1175,23 @@ export function LandDetailPage() {
                 <div>
                   <span className="land-hero-meta-label">Kullanılabilirlik</span>
                   <strong>
-                    {analysisQuery.data.summary.landUsabilityClassification?.replaceAll('_', ' ') ||
-                      '—'}
+                    {summary?.landUsabilityClassification?.replaceAll('_', ' ') || '—'}
                   </strong>
                 </div>
                 <div>
                   <span className="land-hero-meta-label">Skor</span>
                   <strong>
-                    {analysisQuery.data.summary.landUsabilityScore != null
-                      ? analysisQuery.data.summary.landUsabilityScore
-                      : '—'}
+                    {summary?.landUsabilityScore != null ? summary.landUsabilityScore : '—'}
                   </strong>
                 </div>
                 <div>
                   <span className="land-hero-meta-label">Güven</span>
-                  <strong>{analysisQuery.data.summary.confidenceLevel || '—'}</strong>
+                  <strong>{summary?.confidenceLevel || '—'}</strong>
                 </div>
                 <div>
                   <span className="land-hero-meta-label">NDVI ort.</span>
                   <strong>
-                    {analysisQuery.data.summary.ndviMean != null
-                      ? analysisQuery.data.summary.ndviMean.toFixed(3)
-                      : '—'}
+                    {summary?.ndviMean != null ? summary.ndviMean.toFixed(3) : '—'}
                   </strong>
                 </div>
                 <div>
@@ -1202,11 +1203,11 @@ export function LandDetailPage() {
                   </strong>
                 </div>
               </div>
-              {analysisQuery.data.summary.topCrops.length > 0 ? (
+              {topCrops.length > 0 ? (
                 <div className="land-analysis-crops">
                   <span className="land-hero-meta-label">Önerilen ürünler</span>
                   <ul>
-                    {analysisQuery.data.summary.topCrops.map((crop) => (
+                    {topCrops.map((crop) => (
                       <li key={`${crop.rank}-${crop.cropName}`}>
                         #{crop.rank} {crop.cropName}
                         {typeof crop.score === 'number' ? ` · ${crop.score.toFixed(1)}` : ''}
@@ -1215,17 +1216,22 @@ export function LandDetailPage() {
                   </ul>
                 </div>
               ) : null}
+              {parcel ? (
               <p className="muted-copy" style={{ padding: '8px 0 0' }}>
                 Parsel:{' '}
                 {[
-                  analysisQuery.data.parcel.province,
-                  analysisQuery.data.parcel.district,
-                  analysisQuery.data.parcel.neighborhood,
-                  `${analysisQuery.data.parcel.block}/${analysisQuery.data.parcel.parcel}`,
+                  parcel.province,
+                  parcel.district,
+                  parcel.neighborhood,
+                  `${parcel.block}/${parcel.parcel}`,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
               </p>
+              ) : null}
+                  </>
+                )
+              })()}
             </div>
           ) : null}
         </div>
@@ -1430,7 +1436,7 @@ export function LandDetailPage() {
                 <>
                   <p className="panel-title">İş akışı uygula</p>
                   <p className="muted-copy">
-                    Seçip başlatın. Şablon için <Link to="/workflows">İş akışları</Link>{' '}
+                    Seçip başlatın. Şablon için <Link to="/app/workflows">İş akışları</Link>{' '}
                     sayfasını kullanın.
                   </p>
                 </>
@@ -1673,7 +1679,7 @@ export function LandDetailPage() {
           </p>
           <div className="row-actions">
             {awaitingCount > 0 ? (
-              <Link to="/approvals" className="ghost-btn">
+              <Link to="/app/approvals" className="ghost-btn">
                 Onay bekleyenleri aç
               </Link>
             ) : null}
@@ -1792,6 +1798,13 @@ export function LandDetailPage() {
 
         {landTasksQuery.isLoading ? (
           <p className="empty">Yükleniyor…</p>
+        ) : landTasksQuery.isError ? (
+          <p className="error empty">
+            Görevler yüklenemedi.{' '}
+            <button type="button" className="text-link" onClick={() => void landTasksQuery.refetch()}>
+              Yenile
+            </button>
+          </p>
         ) : landTasks.length === 0 ? (
           <div className="land-empty-state">
             <div className="land-empty-icon" aria-hidden>
@@ -2212,10 +2225,21 @@ export function LandDetailPage() {
           </div>
           <p className="muted-copy">
             Bu araziye ait üretici yazışmaları burada. Yönetici–uzman mesajları{' '}
-            <Link to="/messages">Mesajlar</Link> panelindedir.
+            <Link to="/app/messages">Mesajlar</Link> panelindedir.
           </p>
           {conversationsQuery.isLoading ? (
             <p className="empty">Yükleniyor…</p>
+          ) : conversationsQuery.isError ? (
+            <p className="error empty">
+              Sohbetler yüklenemedi.{' '}
+              <button
+                type="button"
+                className="text-link"
+                onClick={() => void conversationsQuery.refetch()}
+              >
+                Yenile
+              </button>
+            </p>
           ) : landThreads.length === 0 ? (
             <div className="land-empty-state">
               <div className="land-empty-icon" aria-hidden>
@@ -2350,6 +2374,13 @@ export function LandDetailPage() {
           )}
           {notesQuery.isLoading ? (
             <p className="empty">Yükleniyor…</p>
+          ) : notesQuery.isError ? (
+            <p className="error empty">
+              Notlar yüklenemedi.{' '}
+              <button type="button" className="text-link" onClick={() => void notesQuery.refetch()}>
+                Yenile
+              </button>
+            </p>
           ) : notes.length === 0 ? (
             <div className="land-empty-state">
               <div className="land-empty-icon" aria-hidden>

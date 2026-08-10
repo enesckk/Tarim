@@ -30,7 +30,7 @@ export default function CropDetailPage() {
   return (
     <div className="p-6">
       <div className="mb-4">
-        <Link to="/tarim-ai" className="text-blue-500 hover:underline">← AI Analiz'e Dön</Link>
+        <Link to="/app/tarim-ai" className="text-blue-500 hover:underline">← AI Analiz'e Dön</Link>
       </div>
       <h1 className="text-2xl font-bold mb-4">Ürün Detayı: {cropId}</h1>
       

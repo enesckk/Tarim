@@ -1,0 +1,12 @@
+{
+  "name": "tarim",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Belediye Tarım Operasyon Platformu — monorepo kökü",
+  "scripts": {
+    "start": "bash ./start-all.sh",
+    "stop": "bash ./stop-all.sh",
+    "restart": "bash ./stop-all.sh && bash ./start-all.sh",
+    "status": "bash ./status-all.sh"
+  }
+}

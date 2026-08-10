@@ -82,8 +82,8 @@ export function NotificationsPage() {
                     </Link>
                   )}
                   {n.relatedEntityType === 'Task' && n.relatedEntityId && (
-                    <Link to="/lands" className="text-link">
-                      Arazilere git
+                    <Link to="/app/approvals" className="text-link">
+                      Onaylara git
                     </Link>
                   )}
                 </div>
