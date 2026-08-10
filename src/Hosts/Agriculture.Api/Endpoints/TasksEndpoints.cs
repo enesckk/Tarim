@@ -284,7 +284,8 @@ internal static class TasksEndpoints
             ISender sender,
             ICacheService cache,
             AgricultureDbContext db,
-            IUserContext user) =>
+            IUserContext user,
+            IConfiguration config) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -318,8 +319,9 @@ internal static class TasksEndpoints
                         relatedEntityType: "Task",
                         relatedEntityId: task.Id));
                     await db.SaveChangesAsync();
-                    await ExpoPush.SendAsync(
+                    await DevicePush.SendAsync(
                         db,
+                        config,
                         officerId,
                         "Görev onay bekliyor",
                         $"“{task.Title}” onayınızı bekliyor.",
@@ -335,7 +337,8 @@ internal static class TasksEndpoints
             ICacheService cache,
             AgricultureDbContext db,
             IUserContext user,
-            IHubContext<NotificationHub> hubContext) =>
+            IHubContext<NotificationHub> hubContext,
+            IConfiguration config) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -380,8 +383,9 @@ internal static class TasksEndpoints
                         relatedEntityType = "Task",
                         relatedEntityId = task.Id
                     });
-                    await ExpoPush.SendAsync(
+                    await DevicePush.SendAsync(
                         db,
+                        config,
                         producerUserId,
                         "Göreviniz onaylandı",
                         $"“{task.Title}” onaylandı.",
@@ -398,7 +402,8 @@ internal static class TasksEndpoints
             ISender sender,
             ICacheService cache,
             AgricultureDbContext db,
-            IUserContext user) =>
+            IUserContext user,
+            IConfiguration config) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -440,8 +445,9 @@ internal static class TasksEndpoints
                         relatedEntityType: "Task",
                         relatedEntityId: task.Id));
                     await db.SaveChangesAsync();
-                    await ExpoPush.SendAsync(
+                    await DevicePush.SendAsync(
                         db,
+                        config,
                         producerUserId,
                         "Düzeltme gerekli",
                         $"“{task.Title}”: {reason}",
@@ -456,7 +462,8 @@ internal static class TasksEndpoints
             Guid id,
             ICacheService cache,
             AgricultureDbContext db,
-            IUserContext user) =>
+            IUserContext user,
+            IConfiguration config) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -500,8 +507,9 @@ internal static class TasksEndpoints
 
             if (producer?.UserId is Guid pushUserId)
             {
-                await ExpoPush.SendAsync(
+                await DevicePush.SendAsync(
                     db,
+                    config,
                     pushUserId,
                     "Göreviniz iptal edildi",
                     $"“{task.Title}” iptal edildi.",

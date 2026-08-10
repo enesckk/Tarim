@@ -51,7 +51,7 @@ echo "  kök: $ROOT"
 
 # ─── 1) Docker altyapı ───────────────────────────────────────────────
 echo ""
-echo "[1/5] Docker altyapı (Redis, MinIO, AI Postgres)"
+echo "[1/6] Docker altyapı (Redis, MinIO, AI Postgres)"
 
 if ! command -v docker >/dev/null 2>&1; then
   fail "docker yok — Redis/MinIO/Postgres elle çalışmalı"
@@ -86,7 +86,7 @@ fi
 
 # ─── 2) AMS Backend :5109 ────────────────────────────────────────────
 echo ""
-echo "[2/5] AMS Backend :5109"
+echo "[2/6] AMS Backend :5109"
 if port_listening 5109; then
   ok "Backend zaten çalışıyor :5109"
 else
@@ -96,7 +96,7 @@ fi
 
 # ─── 3) Tarım AI :4000 ───────────────────────────────────────────────
 echo ""
-echo "[3/5] Tarım AI :4000"
+echo "[3/6] Tarım AI :4000"
 if port_listening 4000; then
   ok "Tarım AI zaten çalışıyor :4000"
 else
@@ -106,7 +106,7 @@ fi
 
 # ─── 4) Frontend :5173 ───────────────────────────────────────────────
 echo ""
-echo "[4/5] Frontend :5173"
+echo "[4/6] Frontend (yönetim) :5173"
 if port_listening 5173; then
   ok "Frontend zaten çalışıyor :5173"
 else
@@ -114,12 +114,26 @@ else
     "cd \"$ROOT/frontend\" && npm run dev -- --host 127.0.0.1 --port 5173"
 fi
 
-# ─── 5) Sağlık ───────────────────────────────────────────────────────
+# ─── 5) Üretici PWA :5174 ────────────────────────────────────────────
 echo ""
-echo "[5/5] Sağlık kontrolleri"
+echo "[5/6] Üretici PWA :5174"
+if port_listening 5174; then
+  ok "Üretici PWA zaten çalışıyor :5174"
+else
+  if [ ! -d "$ROOT/producer-web/node_modules" ]; then
+    (cd "$ROOT/producer-web" && npm install) >>"$LOG_DIR/producer-web.log" 2>&1 || true
+  fi
+  start_bg "Üretici PWA" "$RUN_DIR/producer-web.pid" "$LOG_DIR/producer-web.log" \
+    "cd \"$ROOT/producer-web\" && npm run dev"
+fi
+
+# ─── 6) Sağlık ───────────────────────────────────────────────────────
+echo ""
+echo "[6/6] Sağlık kontrolleri"
 wait_http "http://127.0.0.1:5109/swagger/index.html" "AMS" 60 || wait_http "http://127.0.0.1:5109/health" "AMS" 10 || true
 wait_http "http://127.0.0.1:4000/health" "Tarım AI" 45 || true
 wait_http "http://127.0.0.1:5173/" "Frontend" 30 || true
+wait_http "http://127.0.0.1:5174/" "Üretici PWA" 30 || true
 if curl -sf -o /dev/null --max-time 2 "http://127.0.0.1:9000/minio/health/live"; then
   ok "MinIO :9000"
 else
@@ -128,11 +142,12 @@ fi
 
 echo ""
 echo "===== TARIM SİSTEMİ HAZIR ====="
-echo "  Panel     → http://127.0.0.1:5173/login"
-echo "  Uygulama  → http://127.0.0.1:5173/app"
-echo "  AMS API   → http://127.0.0.1:5109"
-echo "  Tarım AI  → http://127.0.0.1:4000"
-echo "  MinIO     → http://127.0.0.1:9001"
-echo "  Loglar    → $LOG_DIR"
-echo "  Durdur    → npm stop  |  ./stop-all.sh"
+echo "  Yönetim    → http://127.0.0.1:5173/login"
+echo "  Üretici PWA→ http://127.0.0.1:5174/login"
+echo "  Uygulama   → http://127.0.0.1:5173/app"
+echo "  AMS API    → http://127.0.0.1:5109"
+echo "  Tarım AI   → http://127.0.0.1:4000"
+echo "  MinIO      → http://127.0.0.1:9001"
+echo "  Loglar     → $LOG_DIR"
+echo "  Durdur     → npm stop  |  ./stop-all.sh"
 echo "==============================="

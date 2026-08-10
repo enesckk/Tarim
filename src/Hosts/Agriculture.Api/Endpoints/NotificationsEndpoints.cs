@@ -61,6 +61,9 @@ internal static class NotificationsEndpoints
                 return Results.BadRequest(new { Code = "Push.TokenRequired", Message = "Token gerekli." });
 
             var token = body.Token.Trim();
+            if (token.Length > 2000)
+                return Results.BadRequest(new { Code = "Push.TokenTooLong", Message = "Token çok uzun." });
+
             var existing = await db.DevicePushTokens
                 .FirstOrDefaultAsync(t => t.Token == token && !t.IsDeleted);
             if (existing is null)
@@ -82,6 +85,14 @@ internal static class NotificationsEndpoints
             await db.SaveChangesAsync();
             return Results.Ok(new { registered = true });
         }).RequireAuthorization();
+
+        api.MapGet("/devices/web-push-public-key", (IConfiguration config) =>
+        {
+            var publicKey = config["WebPush:PublicKey"];
+            if (string.IsNullOrWhiteSpace(publicKey))
+                return Results.NotFound(new { Code = "WebPush.NotConfigured", Message = "Web Push yapılandırılmadı." });
+            return Results.Ok(new { publicKey });
+        });
 
         return api;
     }

@@ -50,11 +50,13 @@ kill_pidfile() {
 
 echo -e "${GREEN}Tarım uygulama süreçleri durduruluyor…${NC}"
 
+kill_pidfile "$RUN_DIR/producer-web.pid" "Üretici PWA"
 kill_pidfile "$RUN_DIR/frontend.pid" "Frontend"
 kill_pidfile "$RUN_DIR/tarim-ai.pid" "Tarım AI"
 kill_pidfile "$RUN_DIR/backend.pid" "Backend"
 
 # tsx/vite/dotnet bazen pidfile dışı kalır
+kill_port 5174 "Üretici PWA"
 kill_port 5173 "Frontend"
 kill_port 4000 "Tarım AI"
 kill_port 5109 "Backend"
@@ -62,6 +64,7 @@ kill_port 5109 "Backend"
 # İsimle kalan watch süreçleri
 pkill -f "tsx watch src/server.ts" 2>/dev/null || true
 pkill -f "vite --host 127.0.0.1 --port 5173" 2>/dev/null || true
+pkill -f "vite --host 127.0.0.1 --port 5174" 2>/dev/null || true
 pkill -f "Agriculture.Api" 2>/dev/null || true
 
 echo ""

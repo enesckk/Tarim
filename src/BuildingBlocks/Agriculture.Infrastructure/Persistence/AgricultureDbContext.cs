@@ -210,10 +210,10 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
         {
             e.ToTable("DevicePushTokens");
             e.HasKey(x => x.Id);
-            e.Property(x => x.Token).HasMaxLength(500).IsRequired();
+            e.Property(x => x.Token).HasMaxLength(2000).IsRequired();
             e.Property(x => x.Platform).HasMaxLength(32).IsRequired();
             e.HasIndex(x => x.UserId);
-            e.HasIndex(x => x.Token).IsUnique();
+            e.HasIndex(x => x.Token);
             e.Ignore(x => x.DomainEvents);
         });
 

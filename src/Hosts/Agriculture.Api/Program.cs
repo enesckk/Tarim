@@ -116,6 +116,8 @@ try
                     [
                         "http://localhost:5173",
                         "http://127.0.0.1:5173",
+                        "http://localhost:5174",
+                        "http://127.0.0.1:5174",
                         "http://localhost:3000",
                         "http://127.0.0.1:3000",
                         "http://localhost:8081",
@@ -743,6 +745,14 @@ internal static partial class DatabaseInitializer
                     );
                     CREATE INDEX [IX_DevicePushTokens_UserId] ON [agriculture].[DevicePushTokens]([UserId]);
                     CREATE UNIQUE INDEX [IX_DevicePushTokens_Token] ON [agriculture].[DevicePushTokens]([Token]);
+                END
+                IF COL_LENGTH(N'agriculture.DevicePushTokens', N'Token') IS NOT NULL
+                BEGIN
+                    IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_DevicePushTokens_Token' AND object_id = OBJECT_ID(N'agriculture.DevicePushTokens'))
+                        DROP INDEX [IX_DevicePushTokens_Token] ON [agriculture].[DevicePushTokens];
+                    ALTER TABLE [agriculture].[DevicePushTokens] ALTER COLUMN [Token] nvarchar(2000) NOT NULL;
+                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_DevicePushTokens_Token' AND object_id = OBJECT_ID(N'agriculture.DevicePushTokens'))
+                        CREATE INDEX [IX_DevicePushTokens_Token] ON [agriculture].[DevicePushTokens]([Token]);
                 END
                 """);
         }
