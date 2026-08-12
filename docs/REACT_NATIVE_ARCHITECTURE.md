@@ -1,5 +1,7 @@
 # React Native Architecture Specification
 
+> **Geçiş notu (2026-08-11):** React Native istemci artık ürün hedefi değildir. Üretici deneyimi `frontend` içindeki PWA'ya taşınmış, eşitlik doğrulanmış ve `mobile/` kaldırılmıştır. Bu belge yalnızca tarihsel referanstır; güncel istemci kararlarında [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md) esas alınır.
+
 # Agriculture Management System — Producer & Inspector Mobile Client
 
 | Field | Value |
@@ -2183,4 +2185,3 @@ Before marking a mobile epic “done,” verify:
 # 69. Closing Addendum
 
 This specification is intentionally long because field-offline systems fail in the seams: permission prompts, queue ordering, token rotation, push deep links, and conflict language. Municipal agriculture digitization succeeds only when those seams are designed once, shared across producer and inspector shells, and kept subordinate to the modular monolith’s API contract. The React admin SPA and the React Native client are complementary halves of one platform—not competing apps—and this document is the mobile half’s architectural constitution. **Producer screen copy and flows are owned by [`MOBILE_UX_DESIGN.md`](./MOBILE_UX_DESIGN.md)** (SDS-R13 mobile-first).
-

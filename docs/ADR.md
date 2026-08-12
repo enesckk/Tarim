@@ -1,5 +1,7 @@
 # Architecture Decision Records (ADR)
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Üretici React Native istemcisi emekliye ayrılmış ve `mobile/` kaldırılmıştır. Üreticinin tek istemcisi `frontend` içindeki kurulabilir PWA'dır. Aşağıdaki React Native/FCM kayıtları tarihsel kararlardır; güncel uygulamada PWA, Web Push, SignalR ve tarayıcı çevrimdışı kuyruğu esas alınır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Attribute | Value |

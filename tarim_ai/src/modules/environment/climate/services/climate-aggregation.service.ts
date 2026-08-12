@@ -1,5 +1,5 @@
 import type { RiskLevel } from '../../shared/types/provider-metadata.types.js';
-import type { MonthlyClimateStats, YearlyClimateStats } from '../types/climate.types.js';
+import type { MonthlyClimateStats } from '../types/climate.types.js';
 import { isMonthInSeason } from '../config/season.config.js';
 import { CLIMATE_COMPLETENESS_THRESHOLDS } from '../config/season.config.js';
 import { parseNasaDateKey } from '../utils/climate-date.utils.js';
@@ -45,8 +45,6 @@ export interface AggregatedClimateMetrics {
   };
   confidence: RiskLevel;
   monthly: MonthlyClimateStats[];
-  yearly: YearlyClimateStats[];
-  monthlyByYear: Array<{ year: number; monthly: MonthlyClimateStats[] }>;
 }
 
 export class ClimateAggregationService {
@@ -181,7 +179,6 @@ export class ClimateAggregationService {
     }
 
     const monthly = buildMonthlyClimatology(t2m, t2mMin, t2mMax, precip, yearsUsed, this.risk);
-    const { yearly, monthlyByYear } = buildYearlySeries(t2m, t2mMin, t2mMax, precip, this.risk);
 
     return {
       annualMeanC: round1(annualMeanC),
@@ -207,8 +204,6 @@ export class ClimateAggregationService {
       },
       confidence,
       monthly,
-      yearly,
-      monthlyByYear,
     };
   }
 }
@@ -314,72 +309,4 @@ function buildMonthlyClimatology(
     });
   }
   return months;
-}
-
-function buildYearlySeries(
-  t2m: Array<{ date: Date; value: number }>,
-  t2mMin: Array<{ date: Date; value: number }>,
-  t2mMax: Array<{ date: Date; value: number }>,
-  precip: Array<{ date: Date; value: number }>,
-  risk: ClimateRiskClassificationService,
-): {
-  yearly: YearlyClimateStats[];
-  monthlyByYear: Array<{ year: number; monthly: MonthlyClimateStats[] }>;
-} {
-  const years = new Set<number>();
-  for (const point of t2m) years.add(point.date.getUTCFullYear());
-  for (const point of precip) years.add(point.date.getUTCFullYear());
-  const sortedYears = [...years].sort((a, b) => a - b);
-
-  const yearly: YearlyClimateStats[] = [];
-  const monthlyByYear: Array<{ year: number; monthly: MonthlyClimateStats[] }> = [];
-
-  for (const year of sortedYears) {
-    const means = t2m.filter((d) => d.date.getUTCFullYear() === year).map((d) => d.value);
-    const mins = t2mMin.filter((d) => d.date.getUTCFullYear() === year).map((d) => d.value);
-    const maxs = t2mMax.filter((d) => d.date.getUTCFullYear() === year).map((d) => d.value);
-    const precipYear = precip.filter((d) => d.date.getUTCFullYear() === year);
-    const precipValues = precipYear.map((d) => d.value);
-    if (means.length === 0 && precipValues.length === 0) continue;
-
-    yearly.push({
-      year,
-      temperatureMeanC: round1(mean(means) ?? 0),
-      temperatureMinC: round1(min(mins) ?? 0),
-      temperatureMaxC: round1(max(maxs) ?? 0),
-      precipitationMm: round1(sum(precipValues)),
-      frostDays: round1(mins.filter((v) => risk.isFrostDay(v)).length),
-      extremeHeatDays: round1(maxs.filter((v) => risk.isExtremeHeatDay(v)).length),
-      rainyDays: round1(precipValues.filter((v) => v > 1).length),
-    });
-
-    const monthly: MonthlyClimateStats[] = [];
-    for (let month = 1; month <= 12; month++) {
-      const mMeans = t2m
-        .filter((d) => d.date.getUTCFullYear() === year && d.date.getUTCMonth() + 1 === month)
-        .map((d) => d.value);
-      const mMins = t2mMin
-        .filter((d) => d.date.getUTCFullYear() === year && d.date.getUTCMonth() + 1 === month)
-        .map((d) => d.value);
-      const mMaxs = t2mMax
-        .filter((d) => d.date.getUTCFullYear() === year && d.date.getUTCMonth() + 1 === month)
-        .map((d) => d.value);
-      const mPrecip = precip
-        .filter((d) => d.date.getUTCFullYear() === year && d.date.getUTCMonth() + 1 === month)
-        .map((d) => d.value);
-      monthly.push({
-        month,
-        temperatureMeanC: round1(mean(mMeans) ?? 0),
-        temperatureMinC: round1(min(mMins) ?? 0),
-        temperatureMaxC: round1(max(mMaxs) ?? 0),
-        precipitationMm: round1(sum(mPrecip)),
-        frostDays: round1(mMins.filter((v) => risk.isFrostDay(v)).length),
-        extremeHeatDays: round1(mMaxs.filter((v) => risk.isExtremeHeatDay(v)).length),
-        rainyDays: round1(mPrecip.filter((v) => v > 1).length),
-      });
-    }
-    monthlyByYear.push({ year, monthly });
-  }
-
-  return { yearly, monthlyByYear };
 }

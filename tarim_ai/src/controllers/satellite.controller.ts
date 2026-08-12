@@ -321,7 +321,6 @@ async function renderSelectedImage(
     cloudCoverage: selected.cloudCoverage,
     fileName,
     filePath,
-    imageUrl: `/outputs/${fileName}`,
     fileSizeBytes: stat.size,
     width: pngInfo.width,
     height: pngInfo.height,

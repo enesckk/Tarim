@@ -1,13 +1,13 @@
 // Minimal Lenis shim for smooth scrolling
 class Lenis {
-  constructor(options = {}) {
-    // store options if needed
-    this.options = options;
+  options: Record<string, unknown>
+
+  constructor(options: Record<string, unknown> = {}) {
+    this.options = options
   }
-  // called by Vite plugin code
-  raf(time) {}
-  scrollTo(target, opts = {}) {}
+  raf(_time: number) {}
+  scrollTo(_target: unknown, _opts: Record<string, unknown> = {}) {}
   destroy() {}
-  on(event, handler) {}
+  on(_event: string, _handler: (...args: unknown[]) => void) {}
 }
-export default Lenis;
+export default Lenis

@@ -20,18 +20,6 @@ export interface MonthlyClimateStats {
   rainyDays: number;
 }
 
-/** Calendar-year summary derived from the same NASA POWER daily series. */
-export interface YearlyClimateStats {
-  year: number;
-  temperatureMeanC: number;
-  temperatureMinC: number;
-  temperatureMaxC: number;
-  precipitationMm: number;
-  frostDays: number;
-  extremeHeatDays: number;
-  rainyDays: number;
-}
-
 export interface ClimateProfile {
   provider: string;
   location: ProviderLocation;
@@ -65,12 +53,5 @@ export interface ClimateProfile {
   /** Optional monthly climatology for phenology scoring (backward compatible). */
   climatology?: {
     monthly: MonthlyClimateStats[];
-    /** Per-year annual totals/means for year picker UI. */
-    yearly?: YearlyClimateStats[];
-    /** Per-year monthly series (same shape as monthly climatology). */
-    monthlyByYear?: Array<{
-      year: number;
-      monthly: MonthlyClimateStats[];
-    }>;
   };
 }

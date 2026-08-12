@@ -1,3 +1,4 @@
+/* eslint-disable react/only-export-components -- Provider and its hook intentionally share one module. */
 import {
   createContext,
   useContext,
@@ -7,7 +8,7 @@ import {
   type ReactNode,
 } from 'react'
 import { api, configureApiAuth, type LoginResponse } from '../api/client'
-import { isStaff } from './roles'
+import { isProducer, isStaff } from './roles'
 
 type AuthUser = Omit<LoginResponse, 'accessToken' | 'refreshToken' | 'expiresAtUtc'>
 
@@ -85,8 +86,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           fullName: response.fullName,
           roles: response.roles,
         }
-        if (!isStaff(nextUser.roles)) {
-          throw new Error('Bu panel yalnızca Yönetici ve Tarım Uzmanı içindir. Üreticiler mobil uygulamayı kullanır.')
+        if (!isStaff(nextUser.roles) && !isProducer(nextUser.roles)) {
+          throw new Error('Bu kullanıcı rolünün web uygulamasına erişim yetkisi yok.')
         }
         setToken(response.accessToken)
         setRefreshToken(response.refreshToken)

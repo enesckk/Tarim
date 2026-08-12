@@ -6,7 +6,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && mkdir -p dist/modules/crop-recommendation/knowledge/crops dist/modules/crop-recommendation/knowledge/calibration dist/modules/database/migrations && cp -R src/modules/crop-recommendation/knowledge/crops/*.json dist/modules/crop-recommendation/knowledge/crops/ && cp src/modules/crop-recommendation/knowledge/calibration/*.json dist/modules/crop-recommendation/knowledge/calibration/ && cp src/modules/database/migrations/*.sql dist/modules/database/migrations/",
+    "build": "tsc && node scripts/copy-build-assets.mjs",
     "start": "node dist/server.js",
     "test": "vitest run",
     "test:watch": "vitest",

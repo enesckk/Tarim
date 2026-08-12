@@ -14,6 +14,8 @@ public sealed record TaskPhotoDto(
 
 public sealed record TaskDto(
     Guid Id,
+    Guid ProductionWorkflowId,
+    Guid? WorkflowStepId,
     Guid ProducerId,
     Guid LandId,
     string Title,
@@ -71,6 +73,8 @@ internal static class TaskDtoMapper
 {
     public static TaskDto ToDto(ProductionTask t) => new(
         t.Id,
+        t.ProductionWorkflowId,
+        t.WorkflowStepId,
         t.ProducerId,
         t.LandId,
         t.Title,

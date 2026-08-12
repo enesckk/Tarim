@@ -113,7 +113,9 @@
   color: color-mix(in oklch, var(--sidebar-foreground) 82%, transparent);
   font-size: 0.9rem;
   font-weight: 500;
-  transition: background 140ms ease, color 140ms ease;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 
   /* Do not fill the whole sidebar width */
   margin: 0 var(--nav-row-inset-x);
@@ -184,7 +186,9 @@
   font-weight: 500;
   text-align: left;
   cursor: pointer;
-  transition: background 140ms ease, color 140ms ease;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 
   box-sizing: border-box;
 
@@ -356,7 +360,6 @@
 }
 
 .icon-btn {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -371,23 +374,6 @@
 
 .icon-btn:hover {
   background: var(--muted);
-}
-
-.topbar-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  min-width: 16px;
-  height: 16px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: #dc2626;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 16px;
-  text-align: center;
-  border: 2px solid var(--background, #fff);
 }
 
 .user-menu {
@@ -562,7 +548,10 @@
   padding: 8px 14px;
   font-weight: 500;
   font-size: 0.875rem;
-  transition: background 140ms ease, border-color 140ms ease, color 140ms ease;
+  transition:
+    background 140ms ease,
+    border-color 140ms ease,
+    color 140ms ease;
 }
 
 .ghost-btn {
@@ -622,7 +611,9 @@
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--background);
-  transition: border-color 140ms ease, box-shadow 140ms ease;
+  transition:
+    border-color 140ms ease,
+    box-shadow 140ms ease;
 }
 
 .list-search:focus-within {
@@ -732,7 +723,9 @@
   text-align: left;
   text-decoration: none;
   cursor: pointer;
-  transition: border-color 140ms ease, background 140ms ease;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease;
 }
 
 .messages-quick-item:hover {
@@ -900,10 +893,10 @@
   font-size: 0.9rem;
 }
 
-.form-grid input[type='checkbox'],
-.form-grid input[type='radio'],
-.field input[type='checkbox'],
-.field input[type='radio'] {
+.form-grid input[type="checkbox"],
+.form-grid input[type="radio"],
+.field input[type="checkbox"],
+.field input[type="radio"] {
   width: auto;
   padding: 0;
   border: none;
@@ -1274,7 +1267,9 @@
   background: transparent;
   color: color-mix(in oklch, var(--foreground) 70%, transparent);
   cursor: pointer;
-  transition: background 140ms ease, color 140ms ease;
+  transition:
+    background 140ms ease,
+    color 140ms ease;
 }
 
 .icon-btn:hover:not(:disabled) {
@@ -1421,7 +1416,10 @@
   font-weight: 500;
   color: var(--muted-foreground);
   cursor: pointer;
-  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+  transition:
+    border-color 140ms ease,
+    background 140ms ease,
+    color 140ms ease;
 }
 
 .wf-toggle input {
@@ -1466,7 +1464,9 @@
   color: inherit;
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .wf-list-main:hover {
@@ -1759,7 +1759,10 @@
   font-weight: 550;
   text-decoration: none;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .land-back-chip:hover {
@@ -1777,7 +1780,9 @@
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   padding: 20px 22px;
 }
 
@@ -1840,7 +1845,7 @@
 }
 
 .land-hero-location > span:not(:last-child)::after {
-  content: '•';
+  content: "•";
   margin: 0 10px;
   opacity: 0.45;
 }
@@ -1932,7 +1937,10 @@
   font-size: 0.875rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    background 0.15s ease;
 }
 
 .land-edit-btn:hover,
@@ -1975,7 +1983,11 @@
   text-decoration: none;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .land-action-chip-workflow.is-active {
@@ -2072,7 +2084,9 @@
   border-radius: 16px;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-color: color-mix(in oklch, #d0d5dd 65%, transparent);
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   background: #fff;
   min-height: 320px;
 }
@@ -2274,7 +2288,7 @@
 }
 
 .land-detail-summary > span:not(:last-child)::after {
-  content: '·';
+  content: "·";
   margin: 0 8px;
   opacity: 0.4;
 }
@@ -2324,13 +2338,17 @@
 
 .land-meta-primary > span:not(:last-child)::after,
 .land-meta-secondary > span:not(:last-child)::after {
-  content: '·';
+  content: "·";
   margin: 0 8px;
   opacity: 0.4;
 }
 
 .land-meta-alert {
-  color: color-mix(in oklch, var(--destructive, #b42318) 85%, var(--foreground));
+  color: color-mix(
+    in oklch,
+    var(--destructive, #b42318) 85%,
+    var(--foreground)
+  );
   font-weight: 500;
 }
 
@@ -2441,7 +2459,11 @@
 }
 
 .required-mark {
-  color: color-mix(in oklch, var(--destructive, #b42318) 85%, var(--foreground));
+  color: color-mix(
+    in oklch,
+    var(--destructive, #b42318) 85%,
+    var(--foreground)
+  );
   font-weight: 600;
 }
 
@@ -2512,7 +2534,11 @@
   place-items: center;
   padding: 24px;
   background:
-    radial-gradient(ellipse at 20% 10%, color-mix(in oklch, var(--primary) 28%, transparent), transparent 45%),
+    radial-gradient(
+      ellipse at 20% 10%,
+      color-mix(in oklch, var(--primary) 28%, transparent),
+      transparent 45%
+    ),
     linear-gradient(160deg, oklch(0.26 0.042 156), oklch(0.18 0.03 154));
 }
 
@@ -3437,7 +3463,6 @@ button.land-task-photo-link {
   padding-top: 0;
 }
 
-
 .ops-shortcut-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
@@ -3465,7 +3490,8 @@ button.land-task-photo-link {
 .ops-shortcut:hover {
   border-color: color-mix(in oklch, var(--primary) 32%, var(--border));
   background: color-mix(in oklch, var(--accent) 35%, var(--card));
-  box-shadow: 0 10px 22px -16px color-mix(in oklch, var(--primary) 40%, transparent);
+  box-shadow: 0 10px 22px -16px
+    color-mix(in oklch, var(--primary) 40%, transparent);
   transform: translateY(-1px);
 }
 
@@ -3514,7 +3540,9 @@ button.land-task-photo-link {
   border-radius: 12px;
   background: var(--card);
   border: 1px solid var(--border);
-  transition: border-color 160ms ease, background 160ms ease;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
 }
 
 .pulse-tile > svg:last-child {
@@ -3536,7 +3564,7 @@ button.land-task-photo-link {
 }
 
 .pulse-tile::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0 0 auto;
   height: 3px;
@@ -4347,7 +4375,9 @@ button.land-task-photo-link {
   border-radius: 14px;
   background: var(--card);
   color: var(--card-foreground);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .report-card:hover {
@@ -4411,7 +4441,9 @@ button.land-task-photo-link {
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease;
+  transition:
+    background 0.12s ease,
+    border-color 0.12s ease;
 }
 
 .report-card-btn:hover:not(:disabled) {
@@ -4950,12 +4982,16 @@ button.land-task-photo-link {
   background: var(--card);
   color: var(--card-foreground);
   box-shadow: 0 1px 0 color-mix(in oklch, var(--foreground) 3%, transparent);
-  transition: border-color 160ms ease, box-shadow 160ms ease, opacity 160ms ease;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    opacity 160ms ease;
 }
 
 .approvals-card:hover {
   border-color: color-mix(in oklch, var(--primary) 26%, var(--border));
-  box-shadow: 0 12px 26px -20px color-mix(in oklch, var(--primary) 45%, transparent);
+  box-shadow: 0 12px 26px -20px
+    color-mix(in oklch, var(--primary) 45%, transparent);
 }
 
 .approvals-card.is-busy {
@@ -5035,7 +5071,8 @@ button.land-task-photo-link {
 
 .approvals-card-variance {
   background: color-mix(in oklch, var(--warning, #d97706) 14%, transparent);
-  border: 1px solid color-mix(in oklch, var(--warning, #d97706) 32%, transparent);
+  border: 1px solid
+    color-mix(in oklch, var(--warning, #d97706) 32%, transparent);
   color: var(--foreground);
 }
 
@@ -5176,7 +5213,9 @@ button.land-task-photo-link {
   background: var(--muted);
   cursor: zoom-in;
   aspect-ratio: 4 / 3;
-  transition: border-color 140ms ease, transform 140ms ease;
+  transition:
+    border-color 140ms ease,
+    transform 140ms ease;
 }
 
 .approvals-thumb:hover {
@@ -5343,7 +5382,9 @@ button.land-task-photo-link {
   color: #fff;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 140ms ease, transform 140ms ease;
+  transition:
+    background 140ms ease,
+    transform 140ms ease;
 }
 
 .lightbox-close {
@@ -5449,7 +5490,9 @@ button.land-task-photo-link {
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   padding: 18px 20px;
   scroll-margin-top: 88px;
 }
@@ -5476,7 +5519,9 @@ button.land-task-photo-link {
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .lands-search:focus-within {
@@ -5536,7 +5581,10 @@ button.land-task-photo-link {
   font-weight: 550;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .lands-toolbar-btn:hover {
@@ -5625,7 +5673,9 @@ button.land-task-photo-link {
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   padding: 14px 14px 12px;
   position: sticky;
   top: 16px;
@@ -5769,7 +5819,10 @@ button.land-task-photo-link {
   font-size: 0.78rem;
   font-weight: 550;
   cursor: pointer;
-  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+  transition:
+    border-color 0.12s ease,
+    background 0.12s ease,
+    color 0.12s ease;
 }
 
 .lands-size-segments button:hover {
@@ -5857,9 +5910,13 @@ button.land-task-photo-link {
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .lands-card:hover {
@@ -5974,7 +6031,7 @@ button.land-task-photo-link {
 }
 
 .lands-card-meta > span:not(:last-child)::after {
-  content: '·';
+  content: "·";
   margin: 0 8px;
   opacity: 0.4;
 }
@@ -6110,7 +6167,10 @@ button.land-task-photo-link {
   font-size: 0.8125rem;
   font-weight: 550;
   text-decoration: none;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .lands-card-link:hover {
@@ -6237,7 +6297,9 @@ button.land-task-photo-link {
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   padding: 18px 20px;
   scroll-margin-top: 88px;
 }
@@ -6274,7 +6336,9 @@ button.land-task-photo-link {
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
 }
 
 .officers-summary-card span:first-child {
@@ -6330,7 +6394,9 @@ button.land-task-photo-link {
   border-radius: 12px;
   background: #fff;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .officers-search:focus-within {
@@ -6390,7 +6456,10 @@ button.land-task-photo-link {
   font-weight: 550;
   cursor: pointer;
   box-shadow: 0 1px 2px rgba(16, 24, 40, 0.03);
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .officers-toolbar-btn:hover {
@@ -6739,9 +6808,13 @@ button.land-task-photo-link {
   background: #fff;
   border: 1px solid color-mix(in oklch, #d0d5dd 65%, transparent);
   border-radius: 16px;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.03);
+  box-shadow:
+    0 1px 2px rgba(16, 24, 40, 0.04),
+    0 4px 14px rgba(16, 24, 40, 0.03);
   overflow: hidden;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .officers-card:hover {
@@ -6960,7 +7033,10 @@ button.land-task-photo-link {
   font-weight: 550;
   text-decoration: none;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease, color 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    color 0.15s ease;
 }
 
 .officers-action-btn:hover {
@@ -7129,7 +7205,9 @@ button.land-task-photo-link {
   border: 1px solid #eaecf0;
   text-decoration: none;
   color: inherit;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .officers-land-list a:hover {
@@ -7802,7 +7880,7 @@ button.land-task-photo-link {
   color: var(--muted-foreground);
 }
 
-.land-drone-field input[type='date'] {
+.land-drone-field input[type="date"] {
   width: 100%;
   min-height: 40px;
   padding: 8px 12px;
@@ -7815,7 +7893,7 @@ button.land-task-photo-link {
   box-sizing: border-box;
 }
 
-.land-drone-field input[type='date']:focus {
+.land-drone-field input[type="date"]:focus {
   outline: 2px solid color-mix(in oklch, var(--primary) 35%, transparent);
   outline-offset: 1px;
   border-color: color-mix(in oklch, var(--primary) 50%, var(--input));
@@ -7834,7 +7912,7 @@ button.land-task-photo-link {
   overflow: hidden;
 }
 
-.land-drone-file-control input[type='file'] {
+.land-drone-file-control input[type="file"] {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -7905,7 +7983,9 @@ button.land-task-photo-link {
   text-align: left;
   cursor: pointer;
   color: inherit;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .land-drone-thumb:hover {
@@ -7984,7 +8064,6 @@ button.land-task-photo-link {
   font-size: 0.8rem;
   font-weight: 600;
 }
-
 
 .tai-cell-muted {
   color: var(--muted-foreground);
@@ -8186,7 +8265,7 @@ button.land-task-photo-link {
   color: var(--muted-foreground);
 }
 
-.tai-pdf-upload input[type='file'] {
+.tai-pdf-upload input[type="file"] {
   width: 100%;
   font-size: 0.8125rem;
   color: var(--foreground);
@@ -8343,7 +8422,10 @@ button.land-task-photo-link {
     color: #000000 !important;
   }
 
-  .shell, .main, .tai2-page, .tai2-stack {
+  .shell,
+  .main,
+  .tai2-page,
+  .tai2-stack {
     display: block !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -8378,7 +8460,8 @@ button.land-task-photo-link {
     font-size: 11px !important;
   }
 
-  th, td {
+  th,
+  td {
     padding: 4px 6px !important;
   }
 
@@ -8410,7 +8493,13 @@ button.land-task-photo-link {
   }
 
   /* Reset all layout wrappers to prevent blank page clipping */
-  html, body, #root, .shell, .main, .tai2-page, .tai2-stack {
+  html,
+  body,
+  #root,
+  .shell,
+  .main,
+  .tai2-page,
+  .tai2-stack {
     display: block !important;
     position: static !important;
     width: 100% !important;
@@ -8467,7 +8556,8 @@ button.land-task-photo-link {
     border-collapse: collapse !important;
   }
 
-  th, td {
+  th,
+  td {
     padding: 4px 6px !important;
     border-bottom: 1px solid #e2e8f0 !important;
   }
@@ -8477,261 +8567,11 @@ button.land-task-photo-link {
     margin: 10mm;
   }
 }
-
-/* —— Arazi bilgileri (land profile tabs + charts) —— */
-.land-profile-panel {
-  gap: 0;
-}
-
-.land-profile-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 0 16px 4px;
-}
-
-.land-profile-tab {
-  appearance: none;
-  border: 1px solid color-mix(in oklch, #d0d5dd 80%, transparent);
-  background: #f8faf9;
-  color: #344054;
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 13px;
-  font-weight: 550;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.land-profile-tab:hover {
-  background: #eef5f0;
-}
-
-.land-profile-tab.is-active {
-  background: #1f4d3a;
-  border-color: #1f4d3a;
-  color: #fff;
-}
-
-.land-profile-tab-hint {
-  display: flex;
-  align-items: flex-start;
-  gap: 6px;
-  margin: 4px 16px 12px;
-  font-size: 12.5px;
-  color: #667085;
-  line-height: 1.4;
-}
-
-.land-profile-body {
-  padding: 0 16px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.land-profile-year-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 12px;
-}
-
-.land-profile-year-bar label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12px;
-  color: #667085;
-  font-weight: 550;
-}
-
-.land-profile-year-bar select {
-  min-width: 200px;
-  border: 1px solid #d0d5dd;
-  border-radius: 8px;
-  padding: 8px 10px;
-  font-size: 14px;
-  background: #fff;
-  color: #101828;
-}
-
-.land-profile-extremes {
+.route-loading {
+  min-height: 100dvh;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 8px;
-}
-
-.land-profile-extremes > div {
-  padding: 10px 12px;
-  border-radius: 10px;
-  background: #f0f4f2;
-  border: 1px solid color-mix(in oklch, #d0d5dd 70%, transparent);
-  min-width: 0;
-}
-
-.land-profile-extremes span {
-  display: block;
-  font-size: 11.5px;
-  color: #667085;
-  margin-bottom: 3px;
-}
-
-.land-profile-extremes strong {
-  display: block;
-  font-size: 13px;
-  font-weight: 650;
-  color: #101828;
-  line-height: 1.3;
-  overflow-wrap: anywhere;
-}
-
-.land-profile-kpi-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 10px;
-}
-
-.land-profile-kpi {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #f6f8f7;
-  border: 1px solid color-mix(in oklch, #e4e7ec 90%, transparent);
-  min-width: 0;
-  overflow: hidden;
-}
-
-.land-profile-kpi > span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 12px;
-  color: #667085;
-}
-
-.land-profile-kpi > strong,
-.land-profile-kpi-value {
-  font-size: 1.05rem;
-  font-weight: 650;
-  color: #101828;
-  letter-spacing: -0.01em;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  white-space: normal;
-  min-width: 0;
-}
-
-.land-profile-kpi > em {
-  font-style: normal;
-  font-size: 11.5px;
-  color: #98a2b3;
-  overflow-wrap: anywhere;
-}
-
-.land-profile-chart-wrap h4 {
-  margin: 0 0 8px;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #344054;
-}
-
-.land-profile-chart {
-  width: 100%;
-  min-height: 220px;
-  border-radius: 12px;
-  border: 1px solid color-mix(in oklch, #e4e7ec 85%, transparent);
-  background: #fff;
-  padding: 8px 4px 4px;
-}
-
-.land-profile-source {
-  margin: 0;
-  font-size: 12px;
-  color: #98a2b3;
-  line-height: 1.45;
-}
-
-.land-profile-manual-soil {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 14px;
-  border-radius: 12px;
-  background: #fafbfa;
-  border: 1px dashed color-mix(in oklch, #d0d5dd 80%, transparent);
-}
-
-.land-profile-manual-soil h4 {
-  margin: 0;
-  font-size: 13.5px;
-}
-
-.land-profile-manual-soil .form-grid {
-  margin: 0 !important;
-}
-
-.land-profile-ok {
-  font-size: 13px;
-  color: #027a48;
-}
-
-.land-profile-error {
-  margin: 0 16px 8px;
-  font-size: 13px;
-  color: #b42318;
-}
-
-.land-profile-sat-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.land-profile-sat-layers {
-  display: flex;
-  gap: 6px;
-}
-
-.land-profile-sat-layers button {
-  appearance: none;
-  border: 1px solid #d0d5dd;
-  background: #fff;
-  border-radius: 8px;
-  padding: 6px 12px;
-  font-size: 13px;
-  cursor: pointer;
-}
-
-.land-profile-sat-layers button.is-active {
-  background: #1f4d3a;
-  border-color: #1f4d3a;
-  color: #fff;
-}
-
-.land-profile-sat-frame {
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid #e4e7ec;
-  background: #0b1220;
-  aspect-ratio: 16 / 10;
-  max-height: 420px;
-}
-
-.land-profile-sat-frame img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-@media (max-width: 720px) {
-  .land-profile-kpi-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  place-items: center;
+  background: #f3f5f2;
+  color: #1b5e20;
+  font-weight: 700;
 }

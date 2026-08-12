@@ -6,6 +6,8 @@ using Agriculture.Modules.Identity.Infrastructure.Options;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Agriculture.Modules.Identity.Infrastructure.Services;
 
@@ -22,11 +24,17 @@ public sealed class IdentityService(
         var user = await userManager.FindByEmailAsync(login)
             ?? await userManager.FindByNameAsync(login)
             ?? await FindByPhoneAsync(login, cancellationToken);
-        if (user is null || !user.IsActive)
+        if (user is null || !user.IsActive || await userManager.IsLockedOutAsync(user))
             return (false, "Invalid email or password.", null);
 
         if (!await userManager.CheckPasswordAsync(user, password))
+        {
+            await userManager.AccessFailedAsync(user);
             return (false, "Invalid email or password.", null);
+        }
+
+        if (await userManager.GetAccessFailedCountAsync(user) > 0)
+            await userManager.ResetAccessFailedCountAsync(user);
 
         var response = await BuildLoginResponseAsync(user);
         return (true, null, response);
@@ -43,10 +51,17 @@ public sealed class IdentityService(
         if (want is null)
             return null;
 
-        var candidates = await userManager.Users
-            .Where(u => u.PhoneNumber != null)
-            .ToListAsync(cancellationToken);
-        return candidates.FirstOrDefault(u => NormalizePhoneDigits(u.PhoneNumber) == want);
+        // Turkish phone numbers are stored in a few common prefixes. Keep the
+        // comparison in SQL instead of loading every identity record into memory.
+        var local = want.Length == 10 ? "0" + want : want;
+        var international = want.Length == 10 ? "+90" + want : want;
+        var internationalDigits = want.Length == 10 ? "90" + want : want;
+        return await userManager.Users.FirstOrDefaultAsync(
+            u => u.PhoneNumber == want
+                 || u.PhoneNumber == local
+                 || u.PhoneNumber == international
+                 || u.PhoneNumber == internationalDigits,
+            cancellationToken);
     }
 
     private static string? NormalizePhoneDigits(string? value)
@@ -147,8 +162,12 @@ public sealed class IdentityService(
     public async Task<(bool Success, string? Error, LoginResponse? Response)> RefreshTokenAsync(
         string refreshToken, CancellationToken cancellationToken = default)
     {
+        var tokenHash = HashRefreshToken(refreshToken);
         var user = await userManager.Users.FirstOrDefaultAsync(
-            u => u.RefreshToken == refreshToken, cancellationToken);
+            // The plaintext comparison is a one-time compatibility path for tokens
+            // issued before hashed storage was introduced. Successful use rotates it.
+            u => u.RefreshToken == tokenHash || u.RefreshToken == refreshToken,
+            cancellationToken);
 
         if (user is null || user.RefreshTokenExpiresAtUtc is null ||
             user.RefreshTokenExpiresAtUtc < DateTime.UtcNow || !user.IsActive)
@@ -164,7 +183,7 @@ public sealed class IdentityService(
         var (accessToken, expires) = jwtTokenService.CreateAccessToken(user, roles);
         var refreshToken = jwtTokenService.CreateRefreshToken();
 
-        user.RefreshToken = refreshToken;
+        user.RefreshToken = HashRefreshToken(refreshToken);
         user.RefreshTokenExpiresAtUtc = DateTime.UtcNow.AddDays(jwtOptions.Value.RefreshTokenExpirationDays);
         await userManager.UpdateAsync(user);
 
@@ -177,4 +196,7 @@ public sealed class IdentityService(
             $"{user.FirstName} {user.LastName}",
             roles.ToList());
     }
+
+    private static string HashRefreshToken(string token)
+        => Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes(token)));
 }

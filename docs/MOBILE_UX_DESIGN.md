@@ -1,5 +1,7 @@
 # Producer Mobile UX Design
 
+> **Geçiş notu (2026-08-11):** Üretici istemcisinin güncel ve nihai hedefi `frontend` içindeki kurulabilir PWA'dır. Eşitlik doğrulanmış ve `mobile/` kaldırılmıştır; bu belge yalnızca tarihsel tasarım/akış referansıdır. Güncel durum için [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md) belgesine bakın.
+
 # Agriculture Management System — Üretici Mobil Uygulama
 
 | Attribute | Value |

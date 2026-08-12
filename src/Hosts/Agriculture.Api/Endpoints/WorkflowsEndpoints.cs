@@ -12,7 +12,6 @@ using Agriculture.Modules.Workflows.Application.Commands.UpdateWorkflow;
 using Agriculture.Modules.Workflows.Application.Queries.GetWorkflows;
 using Agriculture.Modules.Workflows.Domain.Entities;
 using MediatR;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
 using Agriculture.Application.Abstractions.Caching;
 
@@ -25,14 +24,15 @@ internal static class WorkflowsEndpoints
         // Templates: staff only (admin manages; officer needs list for land assign). Never producers.
         workflows.MapGet("/", async (ISender sender) => ApiResults.From(await sender.Send(new GetWorkflowsQuery())))
             .RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
-        // Template create/edit: admin only. Officers list + assign to lands only.
+        // Staff create/edit templates; officers author the producer-facing guidance
+        // (instructions, training link and image) used on their field workflows.
         workflows.MapPost("/", async (CreateWorkflowCommand command, ISender sender, ICacheService cache) =>
         {
             var result = await sender.Send(command);
             if (result.IsSuccess)
                 await DashboardCache.InvalidateAsync(cache);
             return ApiResults.From(result);
-        }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
+        }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         workflows.MapPost("/media", async (HttpRequest request, Agriculture.Application.Abstractions.Storage.IStorageService storageService) =>
         {
             if (!request.HasFormContentType)
@@ -41,28 +41,22 @@ internal static class WorkflowsEndpoints
             if (file is null || file.Length == 0)
                 return Results.BadRequest(new { Code = "Media.Empty", Message = "Dosya boş." });
 
-            var allowed = new[] { "image/jpeg", "image/png", "image/webp", "image/gif" };
-            var contentType = file.ContentType;
-            if (string.IsNullOrWhiteSpace(contentType) || !allowed.Contains(contentType))
-                return Results.BadRequest(new { Code = "Media.Type", Message = "Yalnızca görsel (jpg/png/webp) yükleyin." });
-
-            var ext = Path.GetExtension(file.FileName);
-            if (string.IsNullOrWhiteSpace(ext))
-                ext = contentType switch
-                {
-                    "image/png" => ".png",
-                    "image/webp" => ".webp",
-                    "image/gif" => ".gif",
-                    _ => ".jpg"
-                };
-            var storedName = $"{Guid.NewGuid():N}{ext}";
-            
-            var storageKey = $"uploads/guidance/{storedName}";
-            using var stream = file.OpenReadStream();
-            await storageService.UploadFileAsync("tarim-uploads", storageKey, stream, contentType);
-            return Results.Ok(new { storageKey, url = UploadPathResolver.ToApiPath(storageKey) });
+            try
+            {
+                await using var stream = file.OpenReadStream();
+                var validated = await ImageUploadValidator.ValidateAsync(stream, file.ContentType);
+                var storedName = $"{Guid.NewGuid():N}{validated.Extension}";
+                var storageKey = $"uploads/guidance/{storedName}";
+                await storageService.UploadFileAsync(
+                    "tarim-uploads", storageKey, stream, validated.ContentType);
+                return Results.Ok(new { storageKey, url = UploadPathResolver.ToApiPath(storageKey) });
+            }
+            catch (InvalidOperationException exception)
+            {
+                return Results.BadRequest(new { Code = "Media.Invalid", Message = exception.Message });
+            }
         }).DisableAntiforgery()
-          .RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
+          .RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         workflows.MapPut("/{id:guid}", async (
             Guid id,
             UpdateWorkflowBody body,
@@ -141,7 +135,7 @@ internal static class WorkflowsEndpoints
             }
 
             return ApiResults.From(result);
-        }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
+        }).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
         workflows.MapPost("/assign", async (
             AssignProductionWorkflowCommand command,
             IUserContext user,

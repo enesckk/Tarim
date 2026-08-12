@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile, readFile, unlink, access } from 'node:fs/promises';
-import { basename, join, extname } from 'node:path';
+import { join, extname } from 'node:path';
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import { z } from 'zod';
 import { ApiError } from '../../utils/api-error.js';
@@ -84,66 +84,26 @@ async function ensureStorage(): Promise<void> {
   }
 }
 
-function canonicalStoragePath(id: string, storagePath: string, fileName: string): string {
-  const ext =
-    extname(storagePath) ||
-    extname(fileName) ||
-    '.jpg';
-  return join(STORAGE_ROOT, `${id}${ext}`);
-}
-
-async function pathExists(path: string): Promise<boolean> {
-  try {
-    await access(path);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/** Resolve file even if index still points at an old absolute path (e.g. moved repo). */
-async function resolveStoredFilePath(record: DroneImageRecord): Promise<string> {
-  const candidates = [
-    record.storagePath,
-    canonicalStoragePath(record.id, record.storagePath, record.fileName),
-    join(STORAGE_ROOT, basename(record.storagePath || '')),
-  ].filter((p) => Boolean(p));
-
-  for (const candidate of candidates) {
-    if (await pathExists(candidate)) return candidate;
-  }
-
-  throw new ApiError(404, 'Drone image file missing on disk', {
-    code: 'DRONE_IMAGE_FILE_MISSING',
-  });
-}
-
 async function readIndex(): Promise<DroneImageRecord[]> {
   await ensureStorage();
   const raw = await readFile(META_FILE, 'utf8');
   try {
     const parsed = JSON.parse(raw) as Array<Partial<DroneImageRecord>>;
     if (!Array.isArray(parsed)) return [];
-    return parsed.map((item) => {
-      const id = String(item.id ?? '');
-      const fileName = String(item.fileName ?? '');
-      const storagePathRaw = String(item.storagePath ?? '');
-      return {
-        id,
-        capturedAt: String(item.capturedAt ?? ''),
-        uploadedAt: String(item.uploadedAt ?? ''),
-        fileName,
-        contentType: String(item.contentType ?? 'image/jpeg'),
-        byteSize: Number(item.byteSize ?? 0),
-        // Always prefer repo-local STORAGE_ROOT so path moves do not break serving.
-        storagePath: canonicalStoragePath(id, storagePathRaw, fileName),
-        analysisId: item.analysisId ?? null,
-        note: item.note ?? null,
-        landId: String(item.landId ?? '').trim() || 'unknown',
-        landName: String(item.landName ?? '').trim() || 'Bilinmeyen arazi',
-        parcel: item.parcel ?? null,
-      };
-    });
+    return parsed.map((item) => ({
+      id: String(item.id ?? ''),
+      capturedAt: String(item.capturedAt ?? ''),
+      uploadedAt: String(item.uploadedAt ?? ''),
+      fileName: String(item.fileName ?? ''),
+      contentType: String(item.contentType ?? 'image/jpeg'),
+      byteSize: Number(item.byteSize ?? 0),
+      storagePath: String(item.storagePath ?? ''),
+      analysisId: item.analysisId ?? null,
+      note: item.note ?? null,
+      landId: String(item.landId ?? '').trim() || 'unknown',
+      landName: String(item.landName ?? '').trim() || 'Bilinmeyen arazi',
+      parcel: item.parcel ?? null,
+    }));
   } catch {
     return [];
   }
@@ -261,8 +221,7 @@ export class DroneImageryService {
     if (!record) {
       throw new ApiError(404, 'Drone image not found', { code: 'DRONE_IMAGE_NOT_FOUND' });
     }
-    const filePath = await resolveStoredFilePath(record);
-    const buffer = await readFile(filePath);
+    const buffer = await readFile(record.storagePath);
     return { record, buffer };
   }
 
@@ -273,8 +232,7 @@ export class DroneImageryService {
       throw new ApiError(404, 'Drone image not found', { code: 'DRONE_IMAGE_NOT_FOUND' });
     }
     try {
-      const filePath = await resolveStoredFilePath(record);
-      await unlink(filePath);
+      await unlink(record.storagePath);
     } catch {
       // file may already be missing
     }

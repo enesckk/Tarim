@@ -1,5 +1,7 @@
 # Git & Release Management Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** React Native mağaza sürümü artık yayın kapsamı değildir; `mobile/` kaldırılmıştır. Üretici PWA, `frontend` statik artefaktıyla birlikte sürümlenir. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Field | Value |

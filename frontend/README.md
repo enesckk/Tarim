@@ -1,6 +1,6 @@
-# Tarım Yönetim Paneli (React)
+# Tarım Yönetim Sistemi ve Üretici PWA (React)
 
-Belediye **Yönetici** ve **Tarım Uzmanı** için operasyon odaklı yönetim SPA (tr-TR).  
+Belediye **Yönetici** ve **Tarım Uzmanı** için operasyon SPA'sı ile üretici için kurulabilir PWA aynı istemcide (tr-TR).  
 Bilgi mimarisi: `docs/ADMIN_IA.md` · Eleştiri: `docs/ADMIN_PANEL_CRITIQUE.md`
 
 ## Tasarım
@@ -40,7 +40,7 @@ Panel, Vite proxy ile `/tarim-ai-api` → `localhost:4000` kullanır (`VITE_TARI
 | Yönetici | `admin@agriculture.local` | `Admin123!` |
 | Tarım Uzmanı | `uzman@agriculture.local` | `Officer123!` |
 
-Üreticiler mobil uygulamayı kullanır; SPA girişi reddedilir.
+Üreticiler aynı giriş ekranından doğrulanır ve `/producer` altındaki dört sekmeli PWA'ya yönlendirilir: Görevler, Sohbet, Bildirimler, Profil.
 
 ## Ekranlar (süreç grupları)
 

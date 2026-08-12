@@ -1,0 +1,25 @@
+.pwa-notices { position: fixed; z-index: 10000; right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); display: grid; width: min(440px, calc(100vw - 32px)); gap: 10px; pointer-events: none; }
+.pwa-notice { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: 12px; padding: 14px; color: #18311d; background: rgba(255,255,255,.98); border: 1px solid #cbdcc9; border-radius: 14px; box-shadow: 0 16px 42px rgba(24,49,29,.18); pointer-events: auto; }
+.pwa-notice > svg { width: 22px; height: 22px; color: #2f6b3a; }
+.pwa-notice strong, .pwa-notice span { display: block; }
+.pwa-notice strong { margin-bottom: 2px; font-size: 14px; }
+.pwa-notice span { color: #506653; font-size: 12px; line-height: 1.45; }
+.pwa-notice-offline { color: #633a08; background: rgba(255,249,235,.98); border-color: #eccb91; }
+.pwa-notice-offline > svg { color: #a55b05; }
+.pwa-primary, .pwa-icon-button { border: 0; cursor: pointer; }
+.pwa-primary { min-height: 38px; padding: 8px 12px; color: #fff; background: #2f6b3a; border-radius: 9px; font: inherit; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.pwa-primary:hover { background: #25572f; }
+.pwa-primary:focus-visible, .pwa-icon-button:focus-visible { outline: 3px solid rgba(47,107,58,.3); outline-offset: 2px; }
+.pwa-icon-button { display: inline-grid; width: 36px; height: 36px; place-items: center; color: #506653; background: transparent; border-radius: 8px; }
+.pwa-icon-button:hover { background: #eef4ed; }
+.pwa-icon-button svg { width: 18px; height: 18px; }
+@media (max-width: 640px) {
+  .pwa-notices { right: 12px; bottom: max(12px, env(safe-area-inset-bottom)); width: calc(100vw - 24px); }
+  .pwa-notice { grid-template-columns: auto minmax(0, 1fr) auto; }
+  .pwa-primary { grid-column: 2 / -1; width: 100%; }
+  .pwa-icon-button { grid-column: 3; grid-row: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pwa-notice { animation: pwa-slide-in 180ms ease-out; }
+  @keyframes pwa-slide-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+}

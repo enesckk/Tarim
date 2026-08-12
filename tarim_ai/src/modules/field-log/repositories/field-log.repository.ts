@@ -32,6 +32,8 @@ export interface FieldLogRepository {
   addObservation(observation: FieldLogObservation, client?: PoolClient): Promise<void>;
   getObservations(entryId: string): Promise<FieldLogObservation[]>;
 
+  addReview(entryId: string, reviewerId: string, status: string, notes: string, revisionFields?: any, client?: PoolClient): Promise<void>;
+
   // Audit & Revisions
   addAuditEvent(event: FieldLogAuditEvent, client?: PoolClient): Promise<void>;
   createRevision(entryId: string, changedBy: string, reason: string | null, summaryJson: any, client?: PoolClient): Promise<void>;
@@ -57,6 +59,16 @@ export class PostgresFieldLogRepository implements FieldLogRepository {
 
   private getClient(client?: PoolClient) {
     return client || this.pool;
+  }
+
+  async addReview(entryId: string, reviewerId: string, status: string, notes: string, revisionFields?: any, client?: PoolClient): Promise<void> {
+    const now = new Date().toISOString();
+    await this.getClient(client).query(`
+      INSERT INTO fld_log_reviews (
+        id, field_log_entry_id, reviewer_id, reviewer_role, status,
+        review_notes, reviewed_at, revision_requested_fields, created_at, updated_at, row_version
+      ) VALUES ($1, $2, $3, 'EXPERT', $4, $5, $6, $7, $6, $6, 1)
+    `, [randomUUID(), entryId, reviewerId, status, notes, now, revisionFields || null]);
   }
 
   async createEntry(entry: FieldLogEntry, client?: PoolClient): Promise<void> {
@@ -263,6 +275,11 @@ export class InMemoryFieldLogRepository implements FieldLogRepository {
   private evidence: FieldLogEvidence[] = [];
   private audits: FieldLogAuditEvent[] = [];
   private revisions: any[] = [];
+  private reviews: any[] = [];
+
+  async addReview(entryId: string, reviewerId: string, status: string, notes: string, revisionFields?: any): Promise<void> {
+    this.reviews.push({ id: randomUUID(), entryId, reviewerId, status, notes, revisionFields: revisionFields || null });
+  }
 
   async withTransaction<T>(callback: (client: PoolClient) => Promise<T>): Promise<T> {
     // Mock transaction by just calling it

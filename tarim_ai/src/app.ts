@@ -63,9 +63,8 @@ export function createApp(): Express {
   });
 
   // Serve drone photos statically
-  app.use('/drone_photos', express.static('/Users/enescikcik/Desktop/Tarım/frontend/public/drone_photos'));
-  // Satellite render outputs (true-color / NDVI PNGs for land profile)
-  app.use('/outputs', express.static(path.resolve(process.cwd(), 'outputs')));
+  const dronePhotosDir = process.env.DRONE_PHOTOS_DIR || path.resolve(process.cwd(), 'public', 'drone_photos');
+  app.use('/drone_photos', express.static(dronePhotosDir));
   const parcelModule = createParcelModule();
   const environmentModule = createEnvironmentModule(parcelModule.parcelQueryService);
   const terrainModule = createTerrainModule(parcelModule.parcelQueryService);

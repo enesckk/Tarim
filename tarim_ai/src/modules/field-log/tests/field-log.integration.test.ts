@@ -13,7 +13,9 @@ const pool = new pg.Pool({
   database: 'tarim_ai',
 });
 
-describe('Field Log Integration Tests', () => {
+const describeWithPostgres = process.env.RUN_POSTGRES_INTEGRATION === 'true' ? describe : describe.skip;
+
+describeWithPostgres('Field Log Integration Tests', () => {
   let app: any;
 
   beforeEach(() => {

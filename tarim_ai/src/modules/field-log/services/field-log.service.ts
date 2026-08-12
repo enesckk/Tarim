@@ -131,19 +131,7 @@ export class FieldLogService {
         expertNotes: notes
       }, client);
 
-      // Create Review record
-      const q = `
-        INSERT INTO fld_log_reviews (
-          id, field_log_entry_id, reviewer_id, reviewer_role, status, 
-          review_notes, reviewed_at, revision_requested_fields, created_at, updated_at, row_version
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1)
-      `;
-      // Note: Assuming we have access to the raw client here since we are in transaction
-      await client.query(q, [
-        randomUUID(), entryId, reviewerId, 'EXPERT', status, 
-        notes, new Date().toISOString(), revisionFields || null, 
-        new Date().toISOString(), new Date().toISOString()
-      ]);
+      await this.repository.addReview(entryId, reviewerId, status, notes, revisionFields, client);
 
       await this.repository.addAuditEvent({
         id: randomUUID(),

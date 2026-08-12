@@ -846,6 +846,8 @@ export function WorkflowsPage() {
                           <label className="wf-field">
                             Eğitim videosu (URL)
                             <input
+                              type="url"
+                              inputMode="url"
                               value={step.videoUrl}
                               onChange={(e) =>
                                 updateStep(index, { videoUrl: e.target.value })
@@ -1132,7 +1134,7 @@ export function WorkflowsPage() {
               <span className="wf-assign-title">Hızlı atama</span>
               <span className="wf-assign-hint">
                 Kısayol. Ana yol:{' '}
-                <Link to="/app/lands" onClick={(e) => e.stopPropagation()}>
+                <Link to="/lands" onClick={(e) => e.stopPropagation()}>
                   Araziler → Üretim planı
                 </Link>
               </span>

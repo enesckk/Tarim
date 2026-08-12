@@ -25,6 +25,17 @@ declare module 'express-serve-static-core' {
   }
 }
 
+// Express 5's Request extends the global Express.Request interface. Keep the
+// augmentation on both surfaces so production `tsc` and test transpilation
+// resolve the same request contract across compatible @types versions.
+declare global {
+  namespace Express {
+    interface Request {
+      observability?: RequestObservabilityContext;
+    }
+  }
+}
+
 export function ensureObservabilityContext(
   req: Request,
   partial?: Partial<RequestObservabilityContext>,

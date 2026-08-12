@@ -1,153 +1,53 @@
-#!/usr/bin/env bash
-# Tek komut: tüm Tarım yığınını aynı repo kökünden ayağa kaldırır.
-# Kullanım: ./start-all.sh   |   npm start
-set -euo pipefail
+#!/bin/bash
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+echo -e "${GREEN}Tarim Sistemi Baslatiliyor...${NC}"
 
-ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RUN_DIR="$ROOT/.run"
-LOG_DIR="$RUN_DIR/logs"
-mkdir -p "$LOG_DIR"
-
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-RED='\033[0;31m'
-NC='\033[0m'
-
-ok()   { echo -e "${GREEN}  ✓${NC} $*"; }
-warn() { echo -e "${YELLOW}  !${NC} $*"; }
-fail() { echo -e "${RED}  ✗${NC} $*"; }
-
-port_listening() {
-  local port="$1"
-  lsof -nP -iTCP:"$port" -sTCP:LISTEN >/dev/null 2>&1
-}
-
-wait_http() {
-  local url="$1" name="$2" seconds="${3:-45}"
-  local i
-  for i in $(seq 1 "$seconds"); do
-    if curl -sf -o /dev/null --max-time 2 "$url"; then
-      ok "$name hazır ($url)"
-      return 0
-    fi
-    sleep 1
-  done
-  fail "$name zaman aşımı: $url"
-  return 1
-}
-
-start_bg() {
-  local name="$1" pidfile="$2" logfile="$3"
-  shift 3
-  nohup bash -lc "$*" >"$logfile" 2>&1 &
-  local pid=$!
-  echo "$pid" >"$pidfile"
-  disown "$pid" 2>/dev/null || true
-  ok "$name başlatıldı (pid $pid) → $logfile"
-}
-
-echo -e "${GREEN}Tarım sistemi başlatılıyor…${NC}"
-echo "  kök: $ROOT"
-
-# ─── 1) Docker altyapı ───────────────────────────────────────────────
-echo ""
-echo "[1/6] Docker altyapı (Redis, MinIO, AI Postgres)"
-
-if ! command -v docker >/dev/null 2>&1; then
-  fail "docker yok — Redis/MinIO/Postgres elle çalışmalı"
+# Redis
+if docker ps --format '{{.Names}}' | grep -q '^agriculture-redis$'; then
+  echo -e "  [1/4] Redis zaten calisiyor"
 else
-  (
-    cd "$ROOT"
-    docker compose up -d redis minio minio-setup 2>/dev/null \
-      || docker compose up -d redis minio 2>/dev/null \
-      || true
-  )
-  (
-    cd "$ROOT/tarim_ai"
-    docker compose up -d 2>/dev/null || true
-  )
-  # Eski isimler / zaten ayakta
-  docker start agriculture-redis agriculture-minio tarim-ai-postgres 2>/dev/null || true
-  ok "docker servisleri istendi"
+  docker run -d --name agriculture-redis -p 6379:6379 redis:alpine 2>/dev/null || docker start agriculture-redis 2>/dev/null || true
+  sleep 1; echo -e "  [1/4] Redis basladi :6379"
 fi
 
-# SQL Server (AMS) — compose veya mevcut container
-if port_listening 1433; then
-  ok "SQL Server :1433 dinliyor"
+# Backend
+if lsof -i :5109 -sTCP:LISTEN -n -P 2>/dev/null | grep -q LISTEN; then
+  echo -e "  [2/4] Backend zaten calisiyor :5109"
 else
-  docker start agriculture-sql personel-sql 2>/dev/null || true
-  sleep 2
-  if port_listening 1433; then
-    ok "SQL Server :1433 açıldı"
-  else
-    warn "SQL Server :1433 yok — AMS login/DB hata verebilir"
-  fi
+  cd "$SCRIPT_DIR"
+  dotnet run --project src/Hosts/Agriculture.Api/Agriculture.Api.csproj --environment Development > /tmp/tarim-backend.log 2>&1 &
+  echo $! > /tmp/tarim-backend.pid; sleep 6
+  echo -e "  [2/4] Backend basladi -> http://localhost:5109"
 fi
 
-# ─── 2) AMS Backend :5109 ────────────────────────────────────────────
-echo ""
-echo "[2/6] AMS Backend :5109"
-if port_listening 5109; then
-  ok "Backend zaten çalışıyor :5109"
+# AI
+if lsof -i :4000 -sTCP:LISTEN -n -P 2>/dev/null | grep -q LISTEN; then
+  echo -e "  [3/4] Tarim AI zaten calisiyor :4000"
 else
-  start_bg "Backend" "$RUN_DIR/backend.pid" "$LOG_DIR/backend.log" \
-    "cd \"$ROOT\" && dotnet run --project src/Hosts/Agriculture.Api/Agriculture.Api.csproj --launch-profile http --environment Development"
+  cd "$SCRIPT_DIR/tarim_ai"
+  npm run dev > /tmp/tarim-ai.log 2>&1 &
+  echo $! > /tmp/tarim-ai.pid; sleep 3
+  echo -e "  [3/4] Tarim AI basladi -> http://localhost:4000"
 fi
 
-# ─── 3) Tarım AI :4000 ───────────────────────────────────────────────
-echo ""
-echo "[3/6] Tarım AI :4000"
-if port_listening 4000; then
-  ok "Tarım AI zaten çalışıyor :4000"
+# Frontend
+if lsof -i :5173 -sTCP:LISTEN -n -P 2>/dev/null | grep -q LISTEN; then
+  echo -e "  [4/4] Frontend zaten calisiyor :5173"
 else
-  start_bg "Tarım AI" "$RUN_DIR/tarim-ai.pid" "$LOG_DIR/tarim-ai.log" \
-    "cd \"$ROOT/tarim_ai\" && npm run dev"
-fi
-
-# ─── 4) Frontend :5173 ───────────────────────────────────────────────
-echo ""
-echo "[4/6] Frontend (yönetim) :5173"
-if port_listening 5173; then
-  ok "Frontend zaten çalışıyor :5173"
-else
-  start_bg "Frontend" "$RUN_DIR/frontend.pid" "$LOG_DIR/frontend.log" \
-    "cd \"$ROOT/frontend\" && npm run dev -- --host 127.0.0.1 --port 5173"
-fi
-
-# ─── 5) Üretici PWA :5174 ────────────────────────────────────────────
-echo ""
-echo "[5/6] Üretici PWA :5174"
-if port_listening 5174; then
-  ok "Üretici PWA zaten çalışıyor :5174"
-else
-  if [ ! -d "$ROOT/producer-web/node_modules" ]; then
-    (cd "$ROOT/producer-web" && npm install) >>"$LOG_DIR/producer-web.log" 2>&1 || true
-  fi
-  start_bg "Üretici PWA" "$RUN_DIR/producer-web.pid" "$LOG_DIR/producer-web.log" \
-    "cd \"$ROOT/producer-web\" && npm run dev"
-fi
-
-# ─── 6) Sağlık ───────────────────────────────────────────────────────
-echo ""
-echo "[6/6] Sağlık kontrolleri"
-wait_http "http://127.0.0.1:5109/swagger/index.html" "AMS" 60 || wait_http "http://127.0.0.1:5109/health" "AMS" 10 || true
-wait_http "http://127.0.0.1:4000/health" "Tarım AI" 45 || true
-wait_http "http://127.0.0.1:5173/" "Frontend" 30 || true
-wait_http "http://127.0.0.1:5174/" "Üretici PWA" 30 || true
-if curl -sf -o /dev/null --max-time 2 "http://127.0.0.1:9000/minio/health/live"; then
-  ok "MinIO :9000"
-else
-  warn "MinIO yanıt vermiyor (drone CDN etkilenebilir)"
+  cd "$SCRIPT_DIR/frontend"
+  npm run dev > /tmp/tarim-frontend.log 2>&1 &
+  echo $! > /tmp/tarim-frontend.pid; sleep 3
+  echo -e "  [4/4] Frontend basladi -> http://localhost:5173"
 fi
 
 echo ""
-echo "===== TARIM SİSTEMİ HAZIR ====="
-echo "  Yönetim    → http://127.0.0.1:5173/login"
-echo "  Üretici PWA→ http://127.0.0.1:5174/login"
-echo "  Uygulama   → http://127.0.0.1:5173/app"
-echo "  AMS API    → http://127.0.0.1:5109"
-echo "  Tarım AI   → http://127.0.0.1:4000"
-echo "  MinIO      → http://127.0.0.1:9001"
-echo "  Loglar     → $LOG_DIR"
-echo "  Durdur     → npm stop  |  ./stop-all.sh"
+echo "===== TARIM SISTEMI HAZIR ====="
+echo "  Ana Site  -> http://localhost:5173"
+echo "  Giris     -> http://localhost:5173/login"
+echo "  Sistem    -> http://localhost:5173/app"
+echo "  API       -> http://localhost:5109"
+echo "  Swagger   -> http://localhost:5109/swagger"
+echo "  Tarim AI  -> http://localhost:4000"
+echo "  MinIO     -> http://localhost:9001"
 echo "==============================="

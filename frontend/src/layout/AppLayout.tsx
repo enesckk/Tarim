@@ -110,14 +110,6 @@ export function AppLayout() {
   })
   const pendingCount = pendingApprovals.data?.length ?? 0
 
-  const notificationsQuery = useQuery({
-    queryKey: ['notifications'],
-    queryFn: () => api<{ id: string; isRead: boolean }[]>('/api/notifications', {}, token),
-    enabled: Boolean(token),
-    refetchInterval: 60_000,
-  })
-  const unreadNotifications = (notificationsQuery.data ?? []).filter((n) => !n.isRead).length
-
   useSignalR()
 
   const title = useMemo(() => {
@@ -165,7 +157,7 @@ export function AppLayout() {
       >
         <Icon className="nav-icon" />
         <span>{label}</span>
-        {link.to === '/app/approvals' && pendingCount > 0 ? (
+        {link.to === '/approvals' && pendingCount > 0 ? (
           <span className="nav-count" aria-label={`${pendingCount} bekleyen onay`}>
             {pendingCount > 99 ? '99+' : pendingCount}
           </span>
@@ -277,13 +269,8 @@ export function AppLayout() {
           </div>
 
           <div className="topbar-actions">
-            <NavLink to="/app/notifications" className="icon-btn" aria-label="Bildirimler">
+            <NavLink to="/notifications" className="icon-btn" aria-label="Bildirimler">
               <Bell className="size-4" />
-              {unreadNotifications > 0 ? (
-                <span className="topbar-badge" aria-label={`${unreadNotifications} okunmamış bildirim`}>
-                  {unreadNotifications > 99 ? '99+' : unreadNotifications}
-                </span>
-              ) : null}
             </NavLink>
 
             <div className="user-menu">
@@ -307,7 +294,7 @@ export function AppLayout() {
                     <strong>{displayFullName(user?.fullName, user?.roles)}</strong>
                     <span>{user?.email}</span>
                   </div>
-                  <NavLink to="/app/profile" className="user-menu-item" onClick={() => setMenuOpen(false)}>
+                  <NavLink to="/profile" className="user-menu-item" onClick={() => setMenuOpen(false)}>
                     <User className="size-4" />
                     Profil
                   </NavLink>

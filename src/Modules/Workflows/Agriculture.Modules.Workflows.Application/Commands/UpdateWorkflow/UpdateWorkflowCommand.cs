@@ -34,7 +34,10 @@ public sealed class UpdateWorkflowCommandValidator : AbstractValidator<UpdateWor
                 .NotEmpty()
                 .MaximumLength(32)
                 .When(s => s.RequiresQuantity);
-            step.RuleFor(s => s.VideoUrl).MaximumLength(500);
+            step.RuleFor(s => s.VideoUrl)
+                .MaximumLength(500)
+                .Must(BeValidHttpUrl)
+                .WithMessage("Eğitim videosu bağlantısı http:// veya https:// ile başlamalıdır.");
             step.RuleFor(s => s.ImageUrl).MaximumLength(500);
             step.RuleFor(s => s.Theme)
                 .Must(t => string.IsNullOrWhiteSpace(t) || TaskThemes.TryNormalize(t, out _))
@@ -61,6 +64,11 @@ public sealed class UpdateWorkflowCommandValidator : AbstractValidator<UpdateWor
 
         return true;
     }
+
+    private static bool BeValidHttpUrl(string? value) =>
+        string.IsNullOrWhiteSpace(value)
+        || (Uri.TryCreate(value.Trim(), UriKind.Absolute, out var uri)
+            && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps));
 }
 
 internal sealed class UpdateWorkflowCommandHandler(IWorkflowRepository repository, IUnitOfWork uow)

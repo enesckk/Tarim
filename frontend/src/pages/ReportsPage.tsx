@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import {
   ArrowLeft,
@@ -23,7 +23,6 @@ import {
 } from '../api/tarimAi'
 import { useAuth } from '../auth/AuthContext'
 import { isAdmin } from '../auth/roles'
-import { AdminOnlyNotice } from '../components/AdminOnlyNotice'
 import '../layout/layout.css'
 
 type ReportId = 'producers' | 'officers' | 'lands' | 'harvests' | 'analyses' | 'drones'
@@ -346,7 +345,7 @@ export function ReportsPage() {
 
   const visibleCards = cards.filter((c) => !c.adminOnly || admin)
 
-  if (!admin) return <AdminOnlyNotice title="Raporlar yalnızca yöneticiler içindir." />
+  if (!admin) return <Navigate to="/" replace />
 
   if (tab === 'ai' || active === 'analyses') {
     return (
@@ -703,7 +702,7 @@ function ReportDetail({
                   <td>{p.email ?? '—'}</td>
                   <td>{p.isActive ? 'Aktif' : 'Pasif'}</td>
                   <td>
-                    <Link to={`/app/producers/${p.id}`} className="text-link">
+                    <Link to={`/producers/${p.id}`} className="text-link">
                       Detay
                     </Link>
                   </td>
@@ -1254,7 +1253,7 @@ function AnalysisReportPanel({
         </div>
           <p className="muted-copy" style={{ padding: '8px 0 0' }}>
             <Link
-              to={`/app/tarim-ai?${summary.landId ? `landId=${encodeURIComponent(summary.landId)}&` : ''}analysisId=${encodeURIComponent(summary.analysisId)}`}
+              to={`/tarim-ai?${summary.landId ? `landId=${encodeURIComponent(summary.landId)}&` : ''}analysisId=${encodeURIComponent(summary.analysisId)}`}
             >
               AI Destekli Analiz’de tam raporu aç
             </Link>

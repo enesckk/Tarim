@@ -9,11 +9,9 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: agriculture-sql
-    env_file:
-      - .env
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD}"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:-Your_strong_Password123}"
     ports:
       - "1433:1433"
     volumes:
@@ -29,8 +27,6 @@ services:
     image: minio/minio:latest
     container_name: agriculture-minio
     command: server /data --console-address ":9001"
-    env_file:
-      - .env
     environment:
       MINIO_ROOT_USER: "${MINIO_ROOT_USER:-admin}"
       MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minio-admin-password}"
@@ -44,14 +40,16 @@ services:
     image: minio/mc:latest
     container_name: agriculture-minio-setup
     depends_on:
-      - minio
-    env_file:
-      - .env
+      minio:
+        condition: service_started
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:-admin}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:-minio-admin-password}"
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://minio:9000 $${MINIO_ROOT_USER:-admin} $${MINIO_ROOT_PASSWORD:-minio-admin-password};
       /usr/bin/mc mb myminio/tarim-uploads || true;
-      /usr/bin/mc policy set public myminio/tarim-uploads || true;
+      /usr/bin/mc anonymous set none myminio/tarim-uploads || true;
       exit 0;
       "
 
@@ -72,15 +70,26 @@ services:
     container_name: agriculture-api
     ports:
       - "5109:8080"
-    env_file:
-      - .env
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__Redis=redis:6379
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AgricultureDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:-Your_strong_Password123};TrustServerCertificate=True;MultipleActiveResultSets=true"
+      ConnectionStrings__Redis: redis:6379
+      Database__ApplyMigrationsOnStartup: "true"
+      Database__SeedDemoData: "true"
+      Minio__Enabled: "true"
+      Minio__Endpoint: minio:9000
+      Minio__AccessKey: "${MINIO_ROOT_USER:-admin}"
+      Minio__SecretKey: "${MINIO_ROOT_PASSWORD:-minio-admin-password}"
+      WebPush__Subject: "${WEB_PUSH_SUBJECT:-mailto:admin@agriculture.local}"
+      WebPush__PublicKey: "${WEB_PUSH_PUBLIC_KEY:-}"
+      WebPush__PrivateKey: "${WEB_PUSH_PRIVATE_KEY:-}"
     depends_on:
-      - sqlserver
-      - minio
-      - redis
+      sqlserver:
+        condition: service_healthy
+      minio-setup:
+        condition: service_completed_successfully
+      redis:
+        condition: service_started
 
   tarim-ai:
     build:
@@ -89,6 +98,10 @@ services:
     container_name: agriculture-ai
     ports:
       - "4000:4000"
+    environment:
+      ANALYSIS_DATA_MODE: golden
+      COPERNICUS_CLIENT_ID: golden-mode
+      COPERNICUS_CLIENT_SECRET: golden-mode
 
   tarim-frontend:
     build:
@@ -96,10 +109,7 @@ services:
       dockerfile: Dockerfile
     container_name: agriculture-frontend
     ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_URL=http://localhost:5109
-      - VITE_TARIM_AI_PROXY_TARGET=http://tarim-ai:4000
+      - "5173:8080"
     depends_on:
       - tarim-api
       - tarim-ai

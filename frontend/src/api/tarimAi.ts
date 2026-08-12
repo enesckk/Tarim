@@ -4,7 +4,7 @@
  * Override with VITE_TARIM_AI_URL (e.g. http://localhost:4000) when not using the proxy.
  */
 const TARIM_AI_BASE = (import.meta.env.VITE_TARIM_AI_URL as string | undefined)?.replace(/\/$/, '')
-  || 'http://localhost:4000'
+  || '/tarim-ai-api'
 
 export { TARIM_AI_BASE }
 
@@ -292,7 +292,7 @@ export async function tarimAiFetch<T>(
     })
   } catch {
     throw new TarimAiError(
-      'AI Destekli Analiz servisine bağlanılamadı. Servisin http://localhost:4000 adresinde çalıştığından emin olun.',
+      'AI Destekli Analiz servisine bağlanılamadı. Lütfen daha sonra tekrar deneyin.',
       0,
       { code: 'CONNECTION_REFUSED' },
     )
@@ -543,10 +543,10 @@ export const tarimAi = {
       body: JSON.stringify({ parcelQuery }),
     }),
 
-  climateProfile: (parcelQuery: ParcelQuery, years = 30) =>
+  climateProfile: (parcelQuery: ParcelQuery) =>
     tarimAiFetch<Record<string, unknown>>('/api/environment/climate/profile', {
       method: 'POST',
-      body: JSON.stringify({ parcelQuery, years }),
+      body: JSON.stringify({ parcelQuery }),
     }),
 
   soilProfile: (parcelQuery: ParcelQuery) =>
@@ -571,33 +571,6 @@ export const tarimAi = {
     tarimAiFetch<Record<string, unknown>>('/api/satellite/surface-analysis', {
       method: 'POST',
       body: JSON.stringify({ parcelQuery, months }),
-    }),
-
-  /** Best cloud-free true-color snapshot for a parcel (geometry resolved client-side). */
-  bestTrueColor: (geometry: unknown, days = 60) =>
-    tarimAiFetch<{
-      datetime: string
-      cloudCoverage: number | null
-      fileName: string
-      imageUrl?: string
-      selectionReason?: string
-      type: string
-    }>('/api/satellite/best/true-color', {
-      method: 'POST',
-      body: JSON.stringify({ geometry, days }),
-    }),
-
-  bestNdvi: (geometry: unknown, days = 60) =>
-    tarimAiFetch<{
-      datetime: string
-      cloudCoverage: number | null
-      fileName: string
-      imageUrl?: string
-      selectionReason?: string
-      type: string
-    }>('/api/satellite/best/ndvi', {
-      method: 'POST',
-      body: JSON.stringify({ geometry, days }),
     }),
 
   listDroneImages: (filters?: {

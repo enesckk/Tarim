@@ -10,9 +10,7 @@ using Agriculture.Modules.Notifications.Domain.Entities;
 using MediatR;
 using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Mvc;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Agriculture.Application.Abstractions.Caching;
 
 internal static class InspectionsEndpoints
 {

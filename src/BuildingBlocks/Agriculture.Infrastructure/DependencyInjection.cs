@@ -18,6 +18,7 @@ using Agriculture.Infrastructure.Caching;
 using Agriculture.Infrastructure.Storage;
 using Hangfire;
 using Hangfire.SqlServer;
+using Hangfire.MemoryStorage;
 using StackExchange.Redis;
 using Minio;
 using Microsoft.EntityFrameworkCore;
@@ -52,23 +53,44 @@ public static class DependencyInjection
         
         services.AddScoped<IUserContext, UserContext>();
 
-        services.AddDbContext<AgricultureDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"))
-                .ConfigureWarnings(w =>
-                    w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+        var connStr = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=AgricultureDb.sqlite";
+        var isSqlite = connStr.Contains("Data Source=", StringComparison.OrdinalIgnoreCase)
+                    || connStr.EndsWith(".db", StringComparison.OrdinalIgnoreCase)
+                    || connStr.EndsWith(".sqlite", StringComparison.OrdinalIgnoreCase);
 
-        // Hangfire Entegrasyonu
-        services.AddHangfire(config => config
-            .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-            .UseSimpleAssemblyNameTypeSerializer()
-            .UseRecommendedSerializerSettings()
-            .UseSqlServerStorage(configuration.GetConnectionString("DefaultConnection"), new SqlServerStorageOptions
-            {
-                CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
-                PrepareSchemaIfNecessary = true,
-                DashboardJobListLimit = 50000,
-                TransactionTimeout = TimeSpan.FromMinutes(1)
-            }));
+        if (isSqlite)
+        {
+            services.AddDbContext<AgricultureDbContext>(options =>
+                options.UseSqlite(connStr)
+                    .ConfigureWarnings(w =>
+                        w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseMemoryStorage());
+        }
+        else
+        {
+            services.AddDbContext<AgricultureDbContext>(options =>
+                options.UseSqlServer(connStr)
+                    .ConfigureWarnings(w =>
+                        w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+
+            // Hangfire Entegrasyonu
+            services.AddHangfire(config => config
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(connStr, new SqlServerStorageOptions
+                {
+                    CommandBatchMaxTimeout = TimeSpan.FromMinutes(5),
+                    PrepareSchemaIfNecessary = true,
+                    DashboardJobListLimit = 50000,
+                    TransactionTimeout = TimeSpan.FromMinutes(1)
+                }));
+        }
 
         services.AddHangfireServer();
 
@@ -76,14 +98,18 @@ public static class DependencyInjection
         var minioEndpoint = configuration["Minio:Endpoint"] ?? "localhost:9000";
         var minioAccessKey = configuration["Minio:AccessKey"] ?? "admin";
         var minioSecretKey = configuration["Minio:SecretKey"] ?? "minio-admin-password";
+        var minioUseSsl = configuration.GetValue("Minio:UseSsl", false);
         
         services.AddSingleton<Minio.IMinioClient>(sp => new Minio.MinioClient()
             .WithEndpoint(minioEndpoint)
             .WithCredentials(minioAccessKey, minioSecretKey)
-            .WithSSL(false)
+            .WithSSL(minioUseSsl)
             .Build());
 
-        services.AddSingleton<IStorageService, MinioStorageService>();
+        if (configuration.GetValue("Minio:Enabled", false))
+            services.AddSingleton<IStorageService, MinioStorageService>();
+        else
+            services.AddSingleton<IStorageService, LocalStorageService>();
 
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<AgricultureDbContext>());
         services.AddScoped<IProducerRepository, ProducerRepository>();

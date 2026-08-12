@@ -1,5 +1,7 @@
 # Deployment & DevOps Architecture Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Mağaza dağıtımlı React Native istemci kaldırılmıştır. Üretici deneyimi HTTPS üzerinden servis edilen kurulabilir `frontend` PWA'dır; React Native dağıtım bölümleri tarihsel bağlamdır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Attribute | Value |

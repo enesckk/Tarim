@@ -3,8 +3,12 @@ bin/
 obj/
 .vs/
 *.user
+.dev-vapid.json
 *.suo
 .idea/
+.config/
+.dotnet/
+.pnpm-store/
 node_modules/
 dist/
 build/
@@ -12,19 +16,14 @@ build/
 frontend/dev-dist/
 .env
 .env.local
-mobile/.env
 appsettings.*.local.json
 backups/
 *.bak
 *.log
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 .DS_Store
 coverage/
 TestResults/
 src/Hosts/Agriculture.Api/wwwroot/uploads/
-
-# local process pids/logs
-.run/
-
-# local agent/test artifacts (do not publish)
-.cursor/*-report.json
-.cursor/*-test-report.json

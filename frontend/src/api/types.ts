@@ -53,6 +53,8 @@ export type LandMapItem = {
   longitude: number
   mapStatus: LandMapStatus
   neighborhood?: string | null
+  /** Compatibility alias returned by some AI endpoints. */
+  neighborhoodName?: string | null
   district?: string | null
   parcelNumber?: string | null
 }
@@ -105,11 +107,15 @@ export type Land = {
   name: string
   parcelNumber: string
   sizeInDecares: number
+  /** Compatibility alias used by the AI presentation layer. */
+  areaDekars?: number
   soilType?: string
   soilNotes?: string | null
   city?: string | null
   district?: string | null
   neighborhood?: string | null
+  /** Compatibility alias returned by some AI endpoints. */
+  neighborhoodName?: string | null
   cadastralBlock?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -232,6 +238,8 @@ export type TaskPhoto = {
 
 export type TaskItem = {
   id: string
+  productionWorkflowId: string
+  workflowStepId?: string | null
   producerId: string
   landId: string
   title: string

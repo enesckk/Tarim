@@ -1,5 +1,7 @@
 # Backend Architecture Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** `mobile/` kaldırılmıştır; üreticinin tek istemcisi `frontend` PWA'dır. Belgedeki React Native/FCM ifadeleri tarihsel tasarım bağlamıdır; güncel istemci Web Push + SignalR kullanır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Field | Value |

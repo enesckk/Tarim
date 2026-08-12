@@ -1,5 +1,7 @@
 # React Architecture Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Üretici PWA artık bu React istemcisinin birinci sınıf parçasıdır; `mobile/` kaldırılmıştır. Üreticiyi React Native'e yönlendiren eski sınırlar tarihsel kabul edilir. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System — Municipal Admin / Web Client
 
 | Field | Value |

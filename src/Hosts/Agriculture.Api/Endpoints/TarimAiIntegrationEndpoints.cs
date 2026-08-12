@@ -5,6 +5,8 @@ using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.Modules.Notifications.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 internal static class TarimAiIntegrationEndpoints
 {
@@ -127,7 +129,9 @@ internal static class TarimAiIntegrationEndpoints
             return false;
         if (!request.Headers.TryGetValue("X-TarimAi-Key", out var provided))
             return false;
-        return string.Equals(provided.ToString(), expected, StringComparison.Ordinal);
+        var expectedHash = SHA256.HashData(Encoding.UTF8.GetBytes(expected));
+        var providedHash = SHA256.HashData(Encoding.UTF8.GetBytes(provided.ToString()));
+        return CryptographicOperations.FixedTimeEquals(expectedHash, providedHash);
     }
 
     private sealed record AnalysisCompletedRequest(

@@ -1,5 +1,7 @@
 # REST API Contract / API Design Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Üretici API tüketicisi artık yalnızca `frontend` PWA'dır; `mobile/` kaldırılmıştır. React Native referansları tarihsel bağlamdır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Field | Value |

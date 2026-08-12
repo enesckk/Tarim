@@ -4,7 +4,7 @@ using Agriculture.Modules.Notifications.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
-/// <summary>Best-effort Expo push delivery for native mobile tokens.</summary>
+/// <summary>Best-effort Expo push delivery for in-app notification events.</summary>
 internal static class ExpoPush
 {
     private static readonly HttpClient Http = new()
@@ -19,26 +19,20 @@ internal static class ExpoPush
         string body,
         object? data = null)
     {
+        await WebPushDelivery.SendAsync(db, userId, title, body, data);
+
         try
         {
             var tokens = await db.Set<DevicePushToken>().AsNoTracking()
-                .Where(t => t.UserId == userId && !t.IsDeleted)
-                .Select(t => new { t.Token, t.Platform })
-                .ToListAsync();
-
-            var expoTokens = tokens
-                .Where(t =>
-                    (t.Platform is "ios" or "android" or "unknown") &&
-                    (t.Token.StartsWith("ExponentPushToken", StringComparison.Ordinal) ||
-                     t.Token.StartsWith("ExpoPushToken", StringComparison.Ordinal)))
+                .Where(t => t.UserId == userId && !t.IsDeleted && t.Platform != "web-push")
                 .Select(t => t.Token)
                 .Distinct()
-                .ToList();
+                .ToListAsync();
 
-            if (expoTokens.Count == 0)
+            if (tokens.Count == 0)
                 return;
 
-            var messages = expoTokens.Select(token => new Dictionary<string, object?>
+            var messages = tokens.Select(token => new Dictionary<string, object?>
             {
                 ["to"] = token,
                 ["sound"] = "default",

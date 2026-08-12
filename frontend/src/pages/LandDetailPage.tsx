@@ -4,7 +4,6 @@ import { createPortal } from 'react-dom'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Activity,
   AlertTriangle,
   ArrowLeft,
   BarChart2,
@@ -25,6 +24,7 @@ import {
   Scan,
   ShieldCheck,
   Sprout,
+  Activity,
   UserCog,
   UserRound,
   Workflow as WorkflowIcon,
@@ -34,7 +34,7 @@ import { api } from '../api/client'
 import { mediaUrl } from '../api/media'
 import { resolveTarimAiAssetUrl, tarimAi, TarimAiError } from '../api/tarimAi'
 import { getDronePhotosForParcel } from '../utils/dronePhotos'
-import { LandProfilePanel } from '../components/LandProfilePanel'
+import { LandClimateChartCard } from '../components/LandClimateChartCard'
 import type {
   ChatMessage,
   ConversationDetail,
@@ -181,8 +181,8 @@ export function LandDetailPage() {
   const [showTaskComposer, setShowTaskComposer] = useState(false)
   const [showInspectionComposer, setShowInspectionComposer] = useState(false)
   const [openSection, setOpenSection] = useState<
-    'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'land-profile' | null
-  >('land-profile')
+    'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'climate-history' | null
+  >('climate-history')
   const [landForm, setLandForm] = useState({
     name: '',
     neighborhood: '',
@@ -332,7 +332,7 @@ export function LandDetailPage() {
   const land = landQuery.data
   const localDronePhotos = land
     ? getDronePhotosForParcel(
-        land.neighborhoodName || land.name || '',
+        land.neighborhood || land.neighborhoodName || land.name || '',
         land.cadastralBlock || (land as any).block || '',
         land.parcelNumber || (land as any).parcel || '',
       )
@@ -661,20 +661,10 @@ export function LandDetailPage() {
     if (id === 'sohbet') setOpenSection('chat')
     if (id === 'notlar') setOpenSection('notes')
     if (id === 'arazi-analizi' || id === 'analiz') setOpenSection('analysis')
-    if (
-      id === 'iklim-gecmisi' ||
-      id === 'iklim' ||
-      id === 'yagis-grafik' ||
-      id === 'arazi-bilgileri' ||
-      id === 'toprak' ||
-      id === 'uydu'
-    ) {
-      setOpenSection('land-profile')
-    }
+    if (id === 'iklim-gecmisi' || id === 'iklim' || id === 'yagis-grafik') setOpenSection('climate-history')
     if (id === 'drone' || id === 'drone-goruntuler' || id === 'drone-gorseller') {
       setOpenSection('drone')
-    }
-    if (id === 'arazi-duzenle') {
+    }    if (id === 'arazi-bilgileri') {
       setOpenSection(null)
       setShowLandEdit(true)
     }
@@ -687,7 +677,7 @@ export function LandDetailPage() {
   }, [location.hash, landQuery.data, landTasksQuery.data, conversationsQuery.data])
 
   function toggleSection(
-    section: 'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'land-profile',
+    section: 'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'climate-history',
   ) {
     setShowLandEdit(false)
     setOpenSection((current) => (current === section ? null : section))
@@ -762,7 +752,7 @@ export function LandDetailPage() {
   if (landQuery.error || !land) {
     return (
       <section>
-        <Link to="/app/lands" className="land-back-chip" style={{ marginBottom: 12 }}>
+        <Link to="/lands" className="land-back-chip" style={{ marginBottom: 12 }}>
           <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
           Arazilere geri dön
         </Link>
@@ -790,7 +780,7 @@ export function LandDetailPage() {
 
   return (
     <section className="land-detail-page">
-      <Link to="/app/lands" className="land-back-chip">
+      <Link to="/lands" className="land-back-chip">
         <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
         Arazilere geri dön
       </Link>
@@ -1081,12 +1071,12 @@ export function LandDetailPage() {
         </button>
         <button
           type="button"
-          className={`land-action-chip${openSection === 'land-profile' ? ' is-active' : ''}`}
-          onClick={() => toggleSection('land-profile')}
+          className={`land-action-chip${openSection === 'climate-history' ? ' is-active' : ''}`}
+          onClick={() => toggleSection('climate-history')}
         >
           <BarChart2 size={16} strokeWidth={1.75} aria-hidden />
-          <span>Arazi bilgileri</span>
-          <em>İklim · Toprak · Uydu</em>
+          <span>20-30 Yıllık İklim & Yağış</span>
+          <em>Grafik</em>
         </button>
         <button
           type="button"
@@ -1117,14 +1107,15 @@ export function LandDetailPage() {
         </button>
       </nav>
 
-      {openSection === 'land-profile' && land && token ? (
-        <LandProfilePanel
-          land={land}
-          landId={landId!}
-          token={token}
-          analysisId={analysisQuery.data?.analysisId ?? null}
+      {openSection === 'climate-history' && (
+        <LandClimateChartCard
+          landName={land?.name}
+          neighborhoodName={land?.neighborhoodName ?? undefined}
+          cadastralBlock={land?.cadastralBlock ?? undefined}
+          parcelNumber={land?.parcelNumber}
+          areaDekars={land?.areaDekars}
         />
-      ) : null}
+      )}
 
       {openSection === 'analysis' && (
         <div className="panel land-content-panel" id="arazi-analizi">
@@ -1136,12 +1127,12 @@ export function LandDetailPage() {
             {analysisQuery.data ? (
               <Link
                 className="ghost-btn"
-                to={`/app/tarim-ai?landId=${encodeURIComponent(landId!)}&analysisId=${encodeURIComponent(analysisQuery.data.analysisId)}`}
+                to={`/tarim-ai?landId=${encodeURIComponent(landId!)}&analysisId=${encodeURIComponent(analysisQuery.data.analysisId)}`}
               >
                 AI Destekli Analiz’de aç
               </Link>
             ) : (
-              <Link className="ghost-btn" to={`/app/tarim-ai?landId=${encodeURIComponent(landId!)}`}>
+              <Link className="ghost-btn" to={`/tarim-ai?landId=${encodeURIComponent(landId!)}`}>
                 Analiz başlat
               </Link>
             )}
@@ -1155,12 +1146,6 @@ export function LandDetailPage() {
           ) : null}
           {analysisQuery.data ? (
             <div className="land-analysis-summary">
-              {(() => {
-                const summary = analysisQuery.data.summary
-                const parcel = analysisQuery.data.parcel
-                const topCrops = summary?.topCrops ?? []
-                return (
-                  <>
               <div className="land-analysis-grid">
                 <div>
                   <span className="land-hero-meta-label">Durum</span>
@@ -1175,23 +1160,28 @@ export function LandDetailPage() {
                 <div>
                   <span className="land-hero-meta-label">Kullanılabilirlik</span>
                   <strong>
-                    {summary?.landUsabilityClassification?.replaceAll('_', ' ') || '—'}
+                    {analysisQuery.data.summary.landUsabilityClassification?.replaceAll('_', ' ') ||
+                      '—'}
                   </strong>
                 </div>
                 <div>
                   <span className="land-hero-meta-label">Skor</span>
                   <strong>
-                    {summary?.landUsabilityScore != null ? summary.landUsabilityScore : '—'}
+                    {analysisQuery.data.summary.landUsabilityScore != null
+                      ? analysisQuery.data.summary.landUsabilityScore
+                      : '—'}
                   </strong>
                 </div>
                 <div>
                   <span className="land-hero-meta-label">Güven</span>
-                  <strong>{summary?.confidenceLevel || '—'}</strong>
+                  <strong>{analysisQuery.data.summary.confidenceLevel || '—'}</strong>
                 </div>
                 <div>
                   <span className="land-hero-meta-label">NDVI ort.</span>
                   <strong>
-                    {summary?.ndviMean != null ? summary.ndviMean.toFixed(3) : '—'}
+                    {analysisQuery.data.summary.ndviMean != null
+                      ? analysisQuery.data.summary.ndviMean.toFixed(3)
+                      : '—'}
                   </strong>
                 </div>
                 <div>
@@ -1203,11 +1193,11 @@ export function LandDetailPage() {
                   </strong>
                 </div>
               </div>
-              {topCrops.length > 0 ? (
+              {analysisQuery.data.summary.topCrops.length > 0 ? (
                 <div className="land-analysis-crops">
                   <span className="land-hero-meta-label">Önerilen ürünler</span>
                   <ul>
-                    {topCrops.map((crop) => (
+                    {analysisQuery.data.summary.topCrops.map((crop) => (
                       <li key={`${crop.rank}-${crop.cropName}`}>
                         #{crop.rank} {crop.cropName}
                         {typeof crop.score === 'number' ? ` · ${crop.score.toFixed(1)}` : ''}
@@ -1216,22 +1206,17 @@ export function LandDetailPage() {
                   </ul>
                 </div>
               ) : null}
-              {parcel ? (
               <p className="muted-copy" style={{ padding: '8px 0 0' }}>
                 Parsel:{' '}
                 {[
-                  parcel.province,
-                  parcel.district,
-                  parcel.neighborhood,
-                  `${parcel.block}/${parcel.parcel}`,
+                  analysisQuery.data.parcel.province,
+                  analysisQuery.data.parcel.district,
+                  analysisQuery.data.parcel.neighborhood,
+                  `${analysisQuery.data.parcel.block}/${analysisQuery.data.parcel.parcel}`,
                 ]
                   .filter(Boolean)
                   .join(' · ')}
               </p>
-              ) : null}
-                  </>
-                )
-              })()}
             </div>
           ) : null}
         </div>
@@ -1436,7 +1421,7 @@ export function LandDetailPage() {
                 <>
                   <p className="panel-title">İş akışı uygula</p>
                   <p className="muted-copy">
-                    Seçip başlatın. Şablon için <Link to="/app/workflows">İş akışları</Link>{' '}
+                    Seçip başlatın. Şablon için <Link to="/workflows">İş akışları</Link>{' '}
                     sayfasını kullanın.
                   </p>
                 </>
@@ -1679,7 +1664,7 @@ export function LandDetailPage() {
           </p>
           <div className="row-actions">
             {awaitingCount > 0 ? (
-              <Link to="/app/approvals" className="ghost-btn">
+              <Link to="/approvals" className="ghost-btn">
                 Onay bekleyenleri aç
               </Link>
             ) : null}
@@ -1798,13 +1783,6 @@ export function LandDetailPage() {
 
         {landTasksQuery.isLoading ? (
           <p className="empty">Yükleniyor…</p>
-        ) : landTasksQuery.isError ? (
-          <p className="error empty">
-            Görevler yüklenemedi.{' '}
-            <button type="button" className="text-link" onClick={() => void landTasksQuery.refetch()}>
-              Yenile
-            </button>
-          </p>
         ) : landTasks.length === 0 ? (
           <div className="land-empty-state">
             <div className="land-empty-icon" aria-hidden>
@@ -2225,21 +2203,10 @@ export function LandDetailPage() {
           </div>
           <p className="muted-copy">
             Bu araziye ait üretici yazışmaları burada. Yönetici–uzman mesajları{' '}
-            <Link to="/app/messages">Mesajlar</Link> panelindedir.
+            <Link to="/messages">Mesajlar</Link> panelindedir.
           </p>
           {conversationsQuery.isLoading ? (
             <p className="empty">Yükleniyor…</p>
-          ) : conversationsQuery.isError ? (
-            <p className="error empty">
-              Sohbetler yüklenemedi.{' '}
-              <button
-                type="button"
-                className="text-link"
-                onClick={() => void conversationsQuery.refetch()}
-              >
-                Yenile
-              </button>
-            </p>
           ) : landThreads.length === 0 ? (
             <div className="land-empty-state">
               <div className="land-empty-icon" aria-hidden>
@@ -2374,13 +2341,6 @@ export function LandDetailPage() {
           )}
           {notesQuery.isLoading ? (
             <p className="empty">Yükleniyor…</p>
-          ) : notesQuery.isError ? (
-            <p className="error empty">
-              Notlar yüklenemedi.{' '}
-              <button type="button" className="text-link" onClick={() => void notesQuery.refetch()}>
-                Yenile
-              </button>
-            </p>
           ) : notes.length === 0 ? (
             <div className="land-empty-state">
               <div className="land-empty-icon" aria-hidden>

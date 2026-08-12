@@ -23,8 +23,13 @@ export function isStaff(roles: string[] | null | undefined) {
   return isAdmin(roles) || isOfficer(roles)
 }
 
+export function isProducer(roles: string[] | null | undefined) {
+  return hasRole(roles, Roles.Producer)
+}
+
 export function homePathForRoles(roles: string[] | null | undefined) {
   if (isStaff(roles)) return '/app'
+  if (isProducer(roles)) return '/producer'
   return '/login'
 }
 

@@ -9,7 +9,6 @@ using Agriculture.Modules.Producers.Application.Queries.GetProducerNotes;
 using Agriculture.Modules.Producers.Application.Queries.GetProducers;
 using Agriculture.Modules.Producers.Domain.Entities;
 using MediatR;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
 using Agriculture.Application.Abstractions.Caching;
 

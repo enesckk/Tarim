@@ -21,8 +21,25 @@ public static class DependencyInjection
         services.AddIdentityApplication();
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
 
-        services.AddDbContext<IdentityDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+        var connStr = configuration.GetConnectionString("DefaultConnection") ?? "Data Source=AgricultureDb.sqlite";
+        var isSqlite = connStr.Contains("Data Source=", StringComparison.OrdinalIgnoreCase)
+                    || connStr.EndsWith(".db", StringComparison.OrdinalIgnoreCase)
+                    || connStr.EndsWith(".sqlite", StringComparison.OrdinalIgnoreCase);
+
+        if (isSqlite)
+        {
+            services.AddDbContext<IdentityDbContext>(options =>
+                options.UseSqlite(connStr)
+                    .ConfigureWarnings(w =>
+                        w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+        }
+        else
+        {
+            services.AddDbContext<IdentityDbContext>(options =>
+                options.UseSqlServer(connStr)
+                    .ConfigureWarnings(w =>
+                        w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
+        }
 
         services
             .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
@@ -38,6 +55,9 @@ public static class DependencyInjection
                 options.Password.RequireLowercase = !isDev;
                 options.Password.RequireUppercase = !isDev;
                 options.User.RequireUniqueEmail = true;
+                options.Lockout.AllowedForNewUsers = true;
+                options.Lockout.MaxFailedAccessAttempts = 5;
+                options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
             })
             .AddEntityFrameworkStores<IdentityDbContext>()
             .AddDefaultTokenProviders();
@@ -70,7 +90,8 @@ public static class DependencyInjection
                         var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
                         if (!string.IsNullOrEmpty(accessToken)
-                            && path.StartsWithSegments("/api/files"))
+                            && (path.StartsWithSegments("/api/files")
+                                || path.StartsWithSegments("/hubs/notifications")))
                         {
                             context.Token = accessToken;
                         }

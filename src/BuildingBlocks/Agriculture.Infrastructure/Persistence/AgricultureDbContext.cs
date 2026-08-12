@@ -109,7 +109,7 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.Property(x => x.Theme).HasMaxLength(32);
             e.Property(x => x.VideoUrl).HasMaxLength(500);
             e.Property(x => x.ImageUrl).HasMaxLength(500);
-            e.Property(x => x.PlannedEvidenceJson).HasColumnType("nvarchar(max)");
+            e.Property(x => x.PlannedEvidenceJson);
             e.Ignore(x => x.DomainEvents);
         });
 
@@ -130,8 +130,8 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.Property(x => x.VideoUrl).HasMaxLength(500);
             e.Property(x => x.ImageUrl).HasMaxLength(500);
             e.Property(x => x.RevisionReason).HasMaxLength(1000);
-            e.Property(x => x.PlannedEvidenceJson).HasColumnType("nvarchar(max)");
-            e.Property(x => x.EvidenceJson).HasColumnType("nvarchar(max)");
+            e.Property(x => x.PlannedEvidenceJson);
+            e.Property(x => x.EvidenceJson);
             e.HasIndex(x => new { x.ProducerId, x.Status });
             e.HasIndex(x => new { x.LandId, x.Status });
             e.HasMany(x => x.Photos).WithOne().HasForeignKey(x => x.TaskId);
@@ -210,10 +210,10 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
         {
             e.ToTable("DevicePushTokens");
             e.HasKey(x => x.Id);
-            e.Property(x => x.Token).HasMaxLength(2000).IsRequired();
+            e.Property(x => x.Token).HasMaxLength(500).IsRequired();
             e.Property(x => x.Platform).HasMaxLength(32).IsRequired();
             e.HasIndex(x => x.UserId);
-            e.HasIndex(x => x.Token);
+            e.HasIndex(x => x.Token).IsUnique();
             e.Ignore(x => x.DomainEvents);
         });
 

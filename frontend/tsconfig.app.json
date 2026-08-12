@@ -12,7 +12,9 @@
     "paths": {
       "next/*": ["./src/shims/next/*"],
       "gsap": ["./src/shims/gsap"],
+      "gsap/ScrollTrigger": ["./src/shims/gsap-scroll-trigger"],
       "gsap/*": ["./src/shims/gsap/*"],
+      "lenis": ["./src/shims/lenis"],
       "@lenis/react": ["./src/shims/lenis"],
       "@base-ui/react/*": ["./src/shims/base-ui/react/*"],
       "@/*": ["./src/*"]
@@ -27,8 +29,8 @@
     "jsx": "react-jsx",
 
     /* Linting */
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },

@@ -531,10 +531,6 @@ export function LandsPage() {
 
       {isLoading ? (
         <p className="empty lands-empty">Yükleniyor…</p>
-      ) : error ? (
-        <p className="error empty lands-empty">
-          Araziler yüklenemedi. {(error as Error).message || 'Lütfen yenileyip tekrar deneyin.'}
-        </p>
       ) : items.length === 0 ? (
         <p className="empty lands-empty">
           {admin

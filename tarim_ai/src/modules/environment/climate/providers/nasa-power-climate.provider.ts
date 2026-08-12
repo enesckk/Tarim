@@ -168,8 +168,6 @@ export class NasaPowerClimateProvider implements ClimateProvider {
       },
       climatology: {
         monthly: metrics.monthly,
-        yearly: metrics.yearly,
-        monthlyByYear: metrics.monthlyByYear,
       },
     };
   }

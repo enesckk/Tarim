@@ -1,5 +1,7 @@
 # Testing Architecture Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** `mobile/` test paketi kaldırılmıştır. Üretici kabul kapsamı `frontend` PWA için responsive UI, API, Service Worker, çevrimdışı kuyruk ve Web Push testleridir. React Native test bölümleri tarihsel bağlamdır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Field | Value |

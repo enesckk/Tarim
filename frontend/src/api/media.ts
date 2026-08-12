@@ -21,6 +21,10 @@ export function mediaUrl(storageKey: string, token?: string | null): string {
     return raw
   }
 
+  // Versioned PWA guidance assets are served by Vite/the service worker,
+  // not by the authenticated upload endpoint.
+  if (raw.startsWith('/guidance/') || raw.startsWith('/chapters/')) return raw
+
   let key = raw.replace(/^\/+/, '')
   if (key.startsWith('api/files/')) key = key.slice('api/files/'.length)
 

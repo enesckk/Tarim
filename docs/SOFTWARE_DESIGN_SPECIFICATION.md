@@ -1,5 +1,7 @@
 # Software Design Specification (SDS)
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Üreticinin tek istemcisi `frontend` PWA'dır ve `mobile/` kaldırılmıştır. React Native/FCM gereksinimleri PWA/Service Worker/Web Push karşılıklarıyla değiştirilmiştir; eski ifadeler tarihsel bağlamdır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Attribute | Value |

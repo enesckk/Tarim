@@ -7,7 +7,6 @@ using Agriculture.Modules.Identity.Domain.Roles;
 using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.Modules.Producers.Domain.Entities;
 using MediatR;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
 using Agriculture.Application.Abstractions.Caching;
 

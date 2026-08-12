@@ -17,9 +17,7 @@ using Agriculture.Modules.Tasks.Domain.Entities;
 using MediatR;
 using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Mvc;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.SignalR;
 using Agriculture.Api.Hubs;
 using Serilog;
@@ -253,9 +251,10 @@ internal static class TasksEndpoints
             if (!allowed)
                 return Results.Forbid();
 
+            SavedTaskPhoto? saved = null;
             try
             {
-                var saved = await TaskPhotoStorage.SaveAsync(id, request, storageService);
+                saved = await TaskPhotoStorage.SaveAsync(id, request, storageService);
                 if (saved is null)
                     return Results.BadRequest(new { Code = "Photo.Missing", Message = "Fotoğraf dosyası gerekli." });
 
@@ -264,16 +263,37 @@ internal static class TasksEndpoints
                     saved.StorageKey,
                     saved.FileName,
                     saved.ContentType));
-                if (result.IsSuccess)
-                    await DashboardCache.InvalidateAsync(cache);
+                if (!result.IsSuccess)
+                {
+                    await storageService.DeleteFileAsync("tarim-uploads", saved.StorageKey);
+                    return ApiResults.From(result);
+                }
+
+                await DashboardCache.InvalidateAsync(cache);
                 return ApiResults.From(result);
             }
             catch (InvalidOperationException ex)
             {
+                if (saved is not null)
+                {
+                    try { await storageService.DeleteFileAsync("tarim-uploads", saved.StorageKey); }
+                    catch (Exception cleanupException)
+                    {
+                        Log.Warning(cleanupException, "Failed to clean orphan task photo {StorageKey}", saved.StorageKey);
+                    }
+                }
                 return Results.BadRequest(new { Code = "Photo.Invalid", Message = ex.Message });
             }
             catch (Exception ex)
             {
+                if (saved is not null)
+                {
+                    try { await storageService.DeleteFileAsync("tarim-uploads", saved.StorageKey); }
+                    catch (Exception cleanupException)
+                    {
+                        Log.Warning(cleanupException, "Failed to clean orphan task photo {StorageKey}", saved.StorageKey);
+                    }
+                }
                 Log.Error(ex, "Photo upload failed for task {TaskId}", id);
                 return Results.BadRequest(new { Code = "Photo.UploadFailed", Message = "Fotoğraf yüklenemedi." });
             }
@@ -284,8 +304,7 @@ internal static class TasksEndpoints
             ISender sender,
             ICacheService cache,
             AgricultureDbContext db,
-            IUserContext user,
-            IConfiguration config) =>
+            IUserContext user) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -319,9 +338,8 @@ internal static class TasksEndpoints
                         relatedEntityType: "Task",
                         relatedEntityId: task.Id));
                     await db.SaveChangesAsync();
-                    await DevicePush.SendAsync(
+                    await ExpoPush.SendAsync(
                         db,
-                        config,
                         officerId,
                         "Görev onay bekliyor",
                         $"“{task.Title}” onayınızı bekliyor.",
@@ -337,8 +355,7 @@ internal static class TasksEndpoints
             ICacheService cache,
             AgricultureDbContext db,
             IUserContext user,
-            IHubContext<NotificationHub> hubContext,
-            IConfiguration config) =>
+            IHubContext<NotificationHub> hubContext) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -383,9 +400,8 @@ internal static class TasksEndpoints
                         relatedEntityType = "Task",
                         relatedEntityId = task.Id
                     });
-                    await DevicePush.SendAsync(
+                    await ExpoPush.SendAsync(
                         db,
-                        config,
                         producerUserId,
                         "Göreviniz onaylandı",
                         $"“{task.Title}” onaylandı.",
@@ -402,8 +418,7 @@ internal static class TasksEndpoints
             ISender sender,
             ICacheService cache,
             AgricultureDbContext db,
-            IUserContext user,
-            IConfiguration config) =>
+            IUserContext user) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -445,9 +460,8 @@ internal static class TasksEndpoints
                         relatedEntityType: "Task",
                         relatedEntityId: task.Id));
                     await db.SaveChangesAsync();
-                    await DevicePush.SendAsync(
+                    await ExpoPush.SendAsync(
                         db,
-                        config,
                         producerUserId,
                         "Düzeltme gerekli",
                         $"“{task.Title}”: {reason}",
@@ -462,8 +476,7 @@ internal static class TasksEndpoints
             Guid id,
             ICacheService cache,
             AgricultureDbContext db,
-            IUserContext user,
-            IConfiguration config) =>
+            IUserContext user) =>
         {
             if (user.UserId is null)
                 return Results.Unauthorized();
@@ -507,9 +520,8 @@ internal static class TasksEndpoints
 
             if (producer?.UserId is Guid pushUserId)
             {
-                await DevicePush.SendAsync(
+                await ExpoPush.SendAsync(
                     db,
-                    config,
                     pushUserId,
                     "Göreviniz iptal edildi",
                     $"“{task.Title}” iptal edildi.",
@@ -533,14 +545,6 @@ internal sealed record SavedTaskPhoto(string StorageKey, string FileName, string
 
 internal static class TaskPhotoStorage
 {
-    private static readonly HashSet<string> AllowedContentTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "image/jpeg",
-        "image/jpg",
-        "image/png",
-        "image/webp"
-    };
-
     public static async Task<SavedTaskPhoto?> SaveAsync(Guid taskId, HttpRequest request, Agriculture.Application.Abstractions.Storage.IStorageService storageService)
     {
         if (request.HasFormContentType)
@@ -582,34 +586,15 @@ internal static class TaskPhotoStorage
         string? originalFileName,
         string? contentType)
     {
-        var normalizedType = string.IsNullOrWhiteSpace(contentType)
-            ? "image/jpeg"
-            : contentType.Split(';', 2)[0].Trim();
-        if (string.Equals(normalizedType, "image/jpg", StringComparison.OrdinalIgnoreCase))
-            normalizedType = "image/jpeg";
-
-        if (!AllowedContentTypes.Contains(normalizedType))
-            throw new InvalidOperationException(
-                "Desteklenen formatlar: JPEG, PNG, WebP.");
+        var validated = await ImageUploadValidator.ValidateAsync(content, contentType);
 
         var safeName = Path.GetFileName(string.IsNullOrWhiteSpace(originalFileName) ? "photo.jpg" : originalFileName);
-        var ext = Path.GetExtension(safeName);
-        if (string.IsNullOrWhiteSpace(ext))
-        {
-            ext = normalizedType switch
-            {
-                "image/png" => ".png",
-                "image/webp" => ".webp",
-                _ => ".jpg"
-            };
-        }
-
-        var storedName = $"{Guid.NewGuid():N}{ext}";
+        var storedName = $"{Guid.NewGuid():N}{validated.Extension}";
         var storageKey = $"uploads/tasks/{taskId:N}/{storedName}";
         
         // Upload to MinIO
-        await storageService.UploadFileAsync("tarim-uploads", storageKey, content, normalizedType);
+        await storageService.UploadFileAsync("tarim-uploads", storageKey, content, validated.ContentType);
 
-        return new SavedTaskPhoto(storageKey, safeName, normalizedType);
+        return new SavedTaskPhoto(storageKey, safeName, validated.ContentType);
     }
 }

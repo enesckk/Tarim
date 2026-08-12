@@ -116,8 +116,6 @@ try
                     [
                         "http://localhost:5173",
                         "http://127.0.0.1:5173",
-                        "http://localhost:5174",
-                        "http://127.0.0.1:5174",
                         "http://localhost:3000",
                         "http://127.0.0.1:3000",
                         "http://localhost:8081",
@@ -135,6 +133,8 @@ try
         signalRBuilder.AddStackExchangeRedis(redisConnStr);
     }
     builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddProblemDetails();
+    builder.Services.AddHttpClient();
     builder.Services.AddSwaggerGen(options =>
     {
         options.SwaggerDoc("v1", new OpenApiInfo
@@ -201,6 +201,18 @@ try
                     QueueLimit = 0,
                     Window = TimeSpan.FromMinutes(1)
                 }));
+
+        options.AddPolicy("authentication", httpContext =>
+            RateLimitPartition.GetFixedWindowLimiter(
+                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString()
+                    ?? httpContext.Request.Headers.Host.ToString(),
+                factory: _ => new FixedWindowRateLimiterOptions
+                {
+                    AutoReplenishment = true,
+                    PermitLimit = 10,
+                    QueueLimit = 0,
+                    Window = TimeSpan.FromMinutes(1)
+                }));
         
         options.OnRejected = async (context, token) =>
         {
@@ -210,8 +222,10 @@ try
     });
 
     var app = builder.Build();
+    WebPushDelivery.Configure(app.Configuration, app.Environment);
 
     app.UseSerilogRequestLogging();
+    app.UseExceptionHandler();
     app.UseCors("Frontend");
     app.UseRateLimiter();
 
@@ -317,6 +331,42 @@ internal static class RuntimeConfigGuard
             throw new InvalidOperationException(
                 "Database:SeedDemoData must be false outside Development.");
         }
+
+        var origins = configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
+        if (origins.Length == 0 || origins.Any(origin =>
+                !Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+                || uri.Scheme != Uri.UriSchemeHttps))
+        {
+            throw new InvalidOperationException(
+                "Cors:Origins must contain only explicit HTTPS origins outside Development.");
+        }
+
+        if (configuration.GetValue("Minio:Enabled", false))
+        {
+            var accessKey = configuration["Minio:AccessKey"];
+            var minioSecret = configuration["Minio:SecretKey"];
+            if (string.IsNullOrWhiteSpace(accessKey) || string.IsNullOrWhiteSpace(minioSecret)
+                || accessKey.Equals("admin", StringComparison.OrdinalIgnoreCase)
+                || minioSecret.Equals("minio-admin-password", StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException(
+                    "MinIO credentials are required and must not use development defaults outside Development.");
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(configuration["TarimAi:IntegrationApiKey"])
+            || configuration["TarimAi:IntegrationApiKey"]!.Length < 32)
+        {
+            throw new InvalidOperationException(
+                "TarimAi:IntegrationApiKey is required (min 32 chars) outside Development.");
+        }
+
+        if (string.IsNullOrWhiteSpace(configuration["WebPush:PublicKey"])
+            || string.IsNullOrWhiteSpace(configuration["WebPush:PrivateKey"]))
+        {
+            throw new InvalidOperationException(
+                "WebPush public/private VAPID keys are required outside Development.");
+        }
     }
 }
 
@@ -336,6 +386,9 @@ internal static class DashboardCache
         await cache.IncrementAsync(GenerationKey);
     }
 }
+
+// Exposes the top-level application entry point to WebApplicationFactory integration tests.
+public partial class Program;
 
 internal static class ProducerAccess
 {
@@ -394,7 +447,6 @@ internal static class LandAlertNotifications
                     n.UserId == userId
                     && n.RelatedEntityType == "Land"
                     && n.RelatedEntityId == land.Id
-                    && !n.IsRead
                     && n.Body == body, cancellationToken);
 
                 if (exists)
@@ -474,12 +526,46 @@ internal static class LandAlertCopy
 internal static class ApiResults
 {
     public static IResult From(Result result)
-        => result.IsSuccess ? Results.Ok() : Results.BadRequest(new { result.Error.Code, result.Error.Message });
+        => result.IsSuccess ? Results.Ok() : Failure(result.Error);
 
     public static IResult From<T>(Result<T> result)
         => result.IsSuccess
             ? Results.Ok(result.Value)
-            : Results.BadRequest(new { result.Error.Code, result.Error.Message });
+            : Failure(result.Error);
+
+    private static IResult Failure(Error error)
+    {
+        var statusCode = GetStatusCode(error.Code);
+        return Results.Problem(
+            statusCode: statusCode,
+            title: GetTitle(statusCode),
+            detail: error.Message,
+            extensions: new Dictionary<string, object?> { ["code"] = error.Code });
+    }
+
+    private static int GetStatusCode(string code)
+    {
+        if (code.EndsWith(".NotFound", StringComparison.OrdinalIgnoreCase))
+            return StatusCodes.Status404NotFound;
+        if (code.EndsWith(".Forbidden", StringComparison.OrdinalIgnoreCase))
+            return StatusCodes.Status403Forbidden;
+        if (code is "Auth.InvalidCredentials" or "Auth.InvalidRefreshToken")
+            return StatusCodes.Status401Unauthorized;
+        if (code.EndsWith(".InvalidState", StringComparison.OrdinalIgnoreCase)
+            || code.EndsWith(".Closed", StringComparison.OrdinalIgnoreCase))
+            return StatusCodes.Status409Conflict;
+
+        return StatusCodes.Status400BadRequest;
+    }
+
+    private static string GetTitle(int statusCode) => statusCode switch
+    {
+        StatusCodes.Status401Unauthorized => "Unauthorized",
+        StatusCodes.Status403Forbidden => "Forbidden",
+        StatusCodes.Status404NotFound => "Resource not found",
+        StatusCodes.Status409Conflict => "Conflict",
+        _ => "Validation failed"
+    };
 }
 
 
@@ -512,8 +598,18 @@ internal static partial class DatabaseInitializer
         var seedDemo = configuration.GetValue(
             "Database:SeedDemoData",
             environment.IsDevelopment());
+        var seedVerifiedParcels = configuration.GetValue(
+            "Database:SeedVerifiedParcelData",
+            environment.IsDevelopment());
 
-        if (applyMigrations)
+        if (identityDb.Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true)
+        {
+            try { await identityDb.GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>().CreateTablesAsync(); } catch { }
+            try { await agricultureDb.GetService<Microsoft.EntityFrameworkCore.Storage.IRelationalDatabaseCreator>().CreateTablesAsync(); } catch { }
+            await EnsureIdentityOfficerProfileSchemaAsync(identityDb);
+            await EnsureSdsR16SchemaAsync(agricultureDb);
+        }
+        else if (applyMigrations)
         {
             // Prefer Migrate when migrations exist; fall back to EnsureCreated for greenfield Mac/Docker SQL.
             if (identityDb.Database.GetMigrations().Any())
@@ -614,6 +710,9 @@ internal static partial class DatabaseInitializer
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
 
+        if (seedVerifiedParcels)
+            await SeedVerifiedParcelDataAsync(agricultureDb);
+
         if (!seedDemo)
             return;
 
@@ -632,7 +731,7 @@ internal static partial class DatabaseInitializer
         await EnsureUserAsync(userManager, "uzman3@agriculture.local", "Officer123!", "Can", "Özer",
             AppRoles.Officer, DemoOfficer3UserId, phone: "05551112203",
             specialization: "Hasat ve Kalite Uzmanı", neighborhood: "Mücahitler", isActive: true);
-        await EnsureUserAsync(userManager, "uretici@agriculture.local", "asd", "Mehmet", "Çiftçi",
+        await EnsureUserAsync(userManager, "uretici@agriculture.local", "Producer123!", "Mehmet", "Çiftçi",
             AppRoles.Producer, DemoProducerUserId, phone: "5537472823");
         await EnsureUserAsync(userManager, "denetci@agriculture.local", "Inspector123!", "Ali", "Denetçi",
             AppRoles.Inspector, null);
@@ -643,6 +742,9 @@ internal static partial class DatabaseInitializer
     /// <summary>Idempotent officer profile columns for migrate / EnsureCreated paths.</summary>
     private static async Task EnsureIdentityOfficerProfileSchemaAsync(IdentityDbContext db)
     {
+        if (db.Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true)
+            return;
+
         try
         {
             await db.Database.ExecuteSqlRawAsync("""
@@ -661,6 +763,9 @@ internal static partial class DatabaseInitializer
     /// <summary>Idempotent SDS-R16 columns for migrate / EnsureCreated paths.</summary>
     private static async Task EnsureSdsR16SchemaAsync(AgricultureDbContext db)
     {
+        if (db.Database.ProviderName?.Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true)
+            return;
+
         try
         {
             await db.Database.ExecuteSqlRawAsync("""
@@ -745,14 +850,6 @@ internal static partial class DatabaseInitializer
                     );
                     CREATE INDEX [IX_DevicePushTokens_UserId] ON [agriculture].[DevicePushTokens]([UserId]);
                     CREATE UNIQUE INDEX [IX_DevicePushTokens_Token] ON [agriculture].[DevicePushTokens]([Token]);
-                END
-                IF COL_LENGTH(N'agriculture.DevicePushTokens', N'Token') IS NOT NULL
-                BEGIN
-                    IF EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_DevicePushTokens_Token' AND object_id = OBJECT_ID(N'agriculture.DevicePushTokens'))
-                        DROP INDEX [IX_DevicePushTokens_Token] ON [agriculture].[DevicePushTokens];
-                    ALTER TABLE [agriculture].[DevicePushTokens] ALTER COLUMN [Token] nvarchar(2000) NOT NULL;
-                    IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_DevicePushTokens_Token' AND object_id = OBJECT_ID(N'agriculture.DevicePushTokens'))
-                        CREATE INDEX [IX_DevicePushTokens_Token] ON [agriculture].[DevicePushTokens]([Token]);
                 END
                 """);
         }
@@ -1130,6 +1227,8 @@ internal static partial class DatabaseInitializer
 
         await using var tx = await db.Database.BeginTransactionAsync();
 
+        await EnsureDemoSowingGuidanceTaskAsync(db);
+
         var hadAnyTasks = await db.Tasks.AnyAsync(t => t.ProducerId == DemoProducerId);
         var hasOpenToday = await db.Tasks.AnyAsync(t =>
             t.ProducerId == DemoProducerId
@@ -1172,6 +1271,32 @@ internal static partial class DatabaseInitializer
 
         await db.SaveChangesAsync();
         await tx.CommitAsync();
+    }
+
+    /// <summary>
+    /// Keeps one realistic producer walkthrough task with expert-authored guidance.
+    /// The image is a versioned PWA asset; uploaded expert images still use /api/files/.
+    /// </summary>
+    private static async Task EnsureDemoSowingGuidanceTaskAsync(AgricultureDbContext db)
+    {
+        var exists = await db.Tasks.AnyAsync(t =>
+            t.ProductionWorkflowId == DemoProductionWorkflowId
+            && t.Title == "Ekim uygulaması");
+        if (exists)
+            return;
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        await db.Tasks.AddAsync(ProductionTask.Create(
+            DemoProductionWorkflowId,
+            DemoProducerId,
+            DemoLandId,
+            "Ekim uygulaması",
+            "Toprak tavını kontrol edin. Sıraları eşit aralıkla açın ve tohumu ürün için önerilen derinliğe bırakın. Ekim bittikten sonra yüzeyi hafifçe bastırıp can suyunu verin. İşlem sonunda uygulama alanının net bir fotoğrafını ekleyin.",
+            dueDate: today.AddDays(-10),
+            requiresPhoto: true,
+            videoUrl: "https://www.youtube.com/live/mu4KUKzpnW8",
+            imageUrl: "/guidance/ekim-adimi.svg"));
+        await db.SaveChangesAsync();
     }
 
     /// <summary>Ensures a single overdue "Can suyu" task exists for SDS-R16 alert demos.</summary>

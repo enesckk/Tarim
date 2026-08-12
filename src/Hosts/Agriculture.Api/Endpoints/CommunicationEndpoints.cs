@@ -17,9 +17,7 @@ using MediatR;
 using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Agriculture.Application.Abstractions.Caching;
 using Microsoft.EntityFrameworkCore;
-using Agriculture.Application.Abstractions.Caching;
 
 internal static class CommunicationEndpoints
 {

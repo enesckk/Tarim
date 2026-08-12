@@ -3,6 +3,7 @@ using Agriculture.Infrastructure.Persistence;
 using Agriculture.Modules.Communication.Domain.Entities;
 using Agriculture.Modules.Identity.Domain.Roles;
 using Agriculture.Modules.Identity.Infrastructure.Identity;
+using Agriculture.Modules.Identity.Infrastructure.Persistence;
 using Agriculture.Modules.Inspections.Domain.Entities;
 using Agriculture.Modules.Lands.Domain.Entities;
 using Agriculture.Modules.Producers.Domain.Entities;
@@ -293,7 +294,91 @@ internal static class DashboardEndpoints
 
     public static WebApplication MapHealthEndpoints(this WebApplication app)
     {
-        app.MapGet("/health", () => Results.Ok(new { status = "healthy", service = "Agriculture.Api" }));
+        static IResult Live() => Results.Ok(new
+        {
+            status = "healthy",
+            service = "Agriculture.Api"
+        });
+
+        app.MapGet("/health", Live);
+        app.MapGet("/health/live", Live);
+        app.MapGet("/health/ready", async (
+            AgricultureDbContext agricultureDb,
+            IdentityDbContext identityDb,
+            IConfiguration configuration,
+            IHttpClientFactory httpClientFactory,
+            ILoggerFactory loggerFactory,
+            CancellationToken cancellationToken) =>
+        {
+            try
+            {
+                var agricultureConnected = await agricultureDb.Database.CanConnectAsync(cancellationToken);
+                var identityConnected = await identityDb.Database.CanConnectAsync(cancellationToken);
+                if (!agricultureConnected || !identityConnected)
+                {
+                    return Results.Json(
+                        new { status = "unhealthy", database = "unavailable" },
+                        statusCode: StatusCodes.Status503ServiceUnavailable);
+                }
+
+                // CanConnect succeeds for an empty SQLite file; query real tables as well.
+                await agricultureDb.Producers.AsNoTracking().AnyAsync(cancellationToken);
+                await identityDb.Users.AsNoTracking().AnyAsync(cancellationToken);
+
+                // Development SQLite uses CreateTables for the two contexts sharing one file.
+                // Production SQL Server is migration-governed and must have no pending migration.
+                var sqlite = agricultureDb.Database.ProviderName?
+                    .Contains("Sqlite", StringComparison.OrdinalIgnoreCase) == true;
+                var agriculturePending = !sqlite && (await agricultureDb.Database
+                    .GetPendingMigrationsAsync(cancellationToken)).Any();
+                var identityPending = !sqlite && (await identityDb.Database
+                    .GetPendingMigrationsAsync(cancellationToken)).Any();
+                if (agriculturePending || identityPending)
+                {
+                    return Results.Json(
+                        new
+                        {
+                            status = "unhealthy",
+                            database = "migration-required",
+                            agriculturePending,
+                            identityPending
+                        },
+                        statusCode: StatusCodes.Status503ServiceUnavailable);
+                }
+
+                var minioEnabled = configuration.GetValue("Minio:Enabled", false);
+                if (minioEnabled)
+                {
+                    var endpoint = configuration["Minio:Endpoint"] ?? "localhost:9000";
+                    var scheme = configuration.GetValue("Minio:UseSsl", false) ? "https" : "http";
+                    using var minioRequest = new HttpRequestMessage(
+                        HttpMethod.Get, $"{scheme}://{endpoint}/minio/health/live");
+                    using var minioResponse = await httpClientFactory.CreateClient()
+                        .SendAsync(minioRequest, cancellationToken);
+                    if (!minioResponse.IsSuccessStatusCode)
+                    {
+                        return Results.Json(
+                            new { status = "unhealthy", storage = "unavailable" },
+                            statusCode: StatusCodes.Status503ServiceUnavailable);
+                    }
+                }
+
+                return Results.Ok(new
+                {
+                    status = "ready",
+                    database = "connected",
+                    storage = minioEnabled ? "connected" : "local"
+                });
+            }
+            catch (Exception exception)
+            {
+                loggerFactory.CreateLogger("Readiness")
+                    .LogError(exception, "Database readiness check failed");
+                return Results.Json(
+                    new { status = "unhealthy", database = "check-failed" },
+                    statusCode: StatusCodes.Status503ServiceUnavailable);
+            }
+        });
         return app;
     }
 }

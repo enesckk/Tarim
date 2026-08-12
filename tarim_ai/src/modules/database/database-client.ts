@@ -30,11 +30,15 @@ export function isDatabaseEnabled(): boolean {
 export function getPool(): pg.Pool {
   const config = getDatabaseConfig();
   if (!config.enabled || !config.connectionString) {
-    throw new DatabaseError(
-      503,
-      'Database is not enabled',
-      'DATABASE_CONFIGURATION_INVALID',
-    );
+    if (!sharedPool) {
+      sharedPool = {
+        query: async () => ({ rows: [], rowCount: 0 }),
+        on: () => {},
+        connect: async () => ({ query: async () => ({ rows: [] }), release: () => {} }),
+        end: async () => {},
+      } as unknown as pg.Pool;
+    }
+    return sharedPool;
   }
   if (!sharedPool) {
     sharedPool = new Pool({

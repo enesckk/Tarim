@@ -11,20 +11,32 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
         
     - name: Restore dependencies
-      run: dotnet restore src/Hosts/Agriculture.Api/Agriculture.Api.csproj
+      run: dotnet restore Agriculture.sln
+
+    - name: Restore repository tools
+      run: dotnet tool restore
       
-    - name: Build API
-      run: dotnet build src/Hosts/Agriculture.Api/Agriculture.Api.csproj --no-restore
+    - name: Build backend
+      run: dotnet build Agriculture.sln --no-restore --configuration Release
+
+    - name: Run backend tests
+      run: dotnet test Agriculture.sln --no-build --configuration Release
+
+    - name: Verify Agriculture migrations match the model
+      run: dotnet ef migrations has-pending-model-changes --project src/BuildingBlocks/Agriculture.Infrastructure --startup-project src/Hosts/Agriculture.Api --context AgricultureDbContext --no-build --configuration Release
+
+    - name: Verify Identity migrations match the model
+      run: dotnet ef migrations has-pending-model-changes --project src/Modules/Identity/Agriculture.Modules.Identity.Infrastructure --startup-project src/Hosts/Agriculture.Api --context IdentityDbContext --no-build --configuration Release
       
-  build-and-test-node:
+  build-and-test-tarim-ai:
     runs-on: ubuntu-latest
     
     defaults:
@@ -32,15 +44,44 @@ jobs:
         working-directory: ./tarim_ai
         
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     
     - name: Setup Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18'
         
     - name: Install dependencies
-      run: npm install
+      run: npm ci
+
+    - name: Test Tarım AI
+      run: npm test
       
     - name: Build Tarım AI
+      run: npm run build
+
+  build-pwa:
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./frontend
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+        cache: npm
+        cache-dependency-path: frontend/package-lock.json
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Lint PWA
+      run: npm run lint
+
+    - name: Build PWA
       run: npm run build

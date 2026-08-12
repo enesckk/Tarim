@@ -1,5 +1,7 @@
 # Engineering Development Handbook
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Üretici React Native uygulaması emekliye ayrılmış ve `mobile/` kaldırılmıştır. Güncel geliştirme hedefi `frontend` içindeki PWA'dır. Eski mobil komutları ve dizin anlatımları tarihsel referanstır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 **Product:** Agriculture Management System  
 **Document:** Official Engineering Development Handbook  
 **Status:** Normative — enforceable for all contributors  

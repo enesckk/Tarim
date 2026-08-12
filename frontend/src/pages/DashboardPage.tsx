@@ -125,7 +125,7 @@ export function DashboardPage() {
                     <span className="ops-alert-count">{allAlerts.length}</span>
                   ) : null}
                 </div>
-                <Link to="/app/lands" className="text-link">
+                <Link to="/lands" className="text-link">
                   Araziler
                 </Link>
               </div>

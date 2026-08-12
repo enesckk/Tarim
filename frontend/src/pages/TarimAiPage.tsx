@@ -730,7 +730,7 @@ export function TarimAiPage() {
 
               <p className="tai2-muted tai2-reports-hint">
                 Geçmiş analizler{' '}
-                <Link to="/app/reports?tab=ai" className="tai2-inline-link">
+                <Link to="/reports?tab=ai" className="tai2-inline-link">
                   Raporlar → AI analiz geçmişi
                 </Link>{' '}
                 sekmesindedir.
@@ -796,6 +796,9 @@ export function TarimAiPage() {
                   window.setTimeout(() => {
                     missingRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
                   }, 50)
+                }}
+                onFieldSurvey={() => {
+                  pushToast('Saha kontrolü oluşturma formu yakında eklenecek.', 'info')
                 }}
               />
 

@@ -56,7 +56,6 @@ const SORT_OPTIONS: { id: SortKey; label: string }[] = [
   { id: 'name-asc', label: 'Ada göre (A-Z)' },
   { id: 'name-desc', label: 'Ada göre (Z-A)' },
   { id: 'lands-desc', label: 'Bağlı arazi (çok → az)' },
-  { id: 'area-desc', label: 'Toplam alan (büyük → küçük)' },
 ]
 
 const emptyForm = {
@@ -389,7 +388,7 @@ function ProducersListPage() {
         queryClient.invalidateQueries({ queryKey: ['lands'] }),
         queryClient.invalidateQueries({ queryKey: ['operations-center'] }),
       ])
-      if (producerId) navigate(`/app/producers/${producerId}`)
+      if (producerId) navigate(`/producers/${producerId}`)
     },
   })
 
@@ -847,18 +846,16 @@ function ProducersListPage() {
           <div className="officers-table-wrap" role="region" aria-label="Üreticiler listesi">
             <table className="officers-table">
               <colgroup>
-                <col style={{ width: 220 }} />
-                <col style={{ width: 180 }} />
-                <col style={{ width: 150 }} />
-                <col style={{ width: 230 }} />
-                <col style={{ width: 110 }} />
+                <col style={{ width: 250 }} />
+                <col style={{ width: 200 }} />
+                <col style={{ width: 240 }} />
+                <col style={{ width: 120 }} />
                 <col style={{ width: 310 }} />
               </colgroup>
               <thead>
                 <tr>
                   <th scope="col">Üretici</th>
                   <th scope="col">Mahalle</th>
-                  <th scope="col">Toplam alan</th>
                   <th scope="col">İletişim</th>
                   <th scope="col">Durum</th>
                   <th scope="col">İşlemler</th>
@@ -868,12 +865,11 @@ function ProducersListPage() {
                 {pageItems.map((item) => {
                   const stats = statsByProducer.get(item.id)
                   const landCount = stats?.count ?? 0
-                  const totalArea = stats?.totalDecares ?? 0
                   const neighborhood = producerNeighborhood(item, stats)
                   const phoneLink = telHref(item.phone)
                   const messageHref = stats?.primaryLandId
-                    ? `/app/lands/${stats.primaryLandId}#sohbet`
-                    : `/app/producers/${item.id}`
+                    ? `/lands/${stats.primaryLandId}#sohbet`
+                    : `/producers/${item.id}`
 
                   return (
                     <tr key={item.id}>
@@ -892,9 +888,6 @@ function ProducersListPage() {
                           <MapPin size={14} aria-hidden />
                           <span className="cell-ellipsis">{formatNeighborhood(neighborhood)}</span>
                         </span>
-                      </td>
-                      <td>
-                        <span className="officers-table-strong">{formatSize(totalArea)}</span>
                       </td>
                       <td>
                         <div className="officers-table-stack">
@@ -934,7 +927,7 @@ function ProducersListPage() {
                             <MessageSquare size={14} aria-hidden />
                             Mesaj gönder
                           </Link>
-                          <Link to={`/app/producers/${item.id}`} className="officers-action-btn">
+                          <Link to={`/producers/${item.id}`} className="officers-action-btn">
                             Detayları görüntüle
                             <ChevronRight size={14} aria-hidden />
                           </Link>
@@ -1048,7 +1041,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
         <p className="error empty">
           {(producerQuery.error as Error)?.message ?? 'Üretici bulunamadı.'}
         </p>
-        <button type="button" className="ghost-btn" onClick={() => navigate('/app/producers')}>
+        <button type="button" className="ghost-btn" onClick={() => navigate('/producers')}>
           <ChevronLeft size={16} /> Üreticilere dön
         </button>
       </section>
@@ -1056,7 +1049,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
   }
 
   const phoneLink = telHref(producer.phone)
-  const messageHref = lands[0] ? `/app/lands/${lands[0].id}#sohbet` : undefined
+  const messageHref = lands[0] ? `/lands/${lands[0].id}#sohbet` : undefined
   const neighborhood = producerNeighborhood(producer, {
     count: lands.length,
     totalDecares: totalArea,
@@ -1071,7 +1064,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
           <button
             type="button"
             className="ghost-btn officers-back"
-            onClick={() => navigate('/app/producers')}
+            onClick={() => navigate('/producers')}
           >
             <ChevronLeft size={16} /> Üreticiler
           </button>

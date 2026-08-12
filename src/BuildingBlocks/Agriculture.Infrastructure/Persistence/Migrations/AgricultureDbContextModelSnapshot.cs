@@ -327,6 +327,9 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AssignedOfficerUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("CadastralBlock")
                         .HasColumnType("nvarchar(max)");
 
@@ -368,9 +371,6 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<Guid?>("ProducerId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("AssignedOfficerUserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("SizeInDecares")
@@ -421,6 +421,53 @@ namespace Agriculture.Infrastructure.Persistence.Migrations
                     b.HasIndex("LandId");
 
                     b.ToTable("LandNotes", "agriculture");
+                });
+
+            modelBuilder.Entity("Agriculture.Modules.Notifications.Domain.Entities.DevicePushToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("LastSeenAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Platform")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("DevicePushTokens", "agriculture");
                 });
 
             modelBuilder.Entity("Agriculture.Modules.Notifications.Domain.Entities.Notification", b =>

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.Authorization;
 using Agriculture.Application.Abstractions.Authentication;
 using System.Security.Claims;
 
 namespace Agriculture.Api.Hubs;
 
+[Authorize]
 public class NotificationHub : Hub
 {
     private readonly IUserContext _userContext;

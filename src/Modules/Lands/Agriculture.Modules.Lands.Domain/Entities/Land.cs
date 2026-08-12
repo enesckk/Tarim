@@ -94,4 +94,33 @@ public sealed class Land : AuditableEntity
         SoilNotes = soilNotes;
         UpdatedAtUtc = DateTime.UtcNow;
     }
+
+    /// <summary>
+    /// Restores authoritative cadastral fields without touching producer/officer assignments.
+    /// Used by the idempotent verified-parcel repair at application startup.
+    /// </summary>
+    public void RepairRegistryData(
+        string name,
+        string parcelNumber,
+        decimal sizeInDecares,
+        string cadastralBlock,
+        string neighborhood,
+        double latitude,
+        double longitude,
+        string soilType,
+        string city,
+        string district)
+    {
+        Name = name.Trim();
+        ParcelNumber = parcelNumber.Trim();
+        SizeInDecares = sizeInDecares;
+        CadastralBlock = cadastralBlock.Trim();
+        Neighborhood = neighborhood.Trim();
+        Latitude = latitude;
+        Longitude = longitude;
+        SoilType = soilType.Trim();
+        City = city.Trim();
+        District = district.Trim();
+        UpdatedAtUtc = DateTime.UtcNow;
+    }
 }

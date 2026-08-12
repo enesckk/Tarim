@@ -1,5 +1,7 @@
 # Physical Architecture Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** `mobile/` kaldırılmıştır. Üreticinin fiziksel istemcisi mağaza uygulaması değil, HTTPS/Service Worker/Web Push kullanan `frontend` PWA'dır; React Native/FCM bölümleri tarihsel bağlamdır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Attribute | Value |
@@ -3251,4 +3253,3 @@ Any yes answer blocks go-live under this specification.
 ---
 
 **Document complete.** This Physical Architecture Specification, including primary Sections 1–20 and normative supplements, is the authoritative runtime and operations architecture for the Agriculture Management System Version 1.0 Draft.
-

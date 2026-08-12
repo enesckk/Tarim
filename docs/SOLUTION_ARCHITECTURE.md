@@ -1,5 +1,7 @@
 # Solution Architecture Specification
 
+> **Ürün istemcisi güncellemesi (2026-08-11):** Çözümde ayrı React Native üretici istemcisi kalmamıştır; `mobile/` kaldırılmıştır. Yönetici/uzman SPA ve üretici PWA tek `frontend` artefaktıdır. Ayrıntı: [PWA_MOBILE_PARITY.md](./PWA_MOBILE_PARITY.md).
+
 # Agriculture Management System
 
 | Field | Value |
@@ -4655,4 +4657,3 @@ A feature slice is structurally done when:
 | **Implementation authority** | This SAS + MODULE_DESIGN + Accepted ADRs |
 
 **End of Solution Architecture Specification**
-

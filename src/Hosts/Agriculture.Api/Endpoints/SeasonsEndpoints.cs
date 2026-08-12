@@ -4,7 +4,6 @@ using Agriculture.Modules.Seasons.Application.Commands.StartSeason;
 using Agriculture.Modules.Seasons.Application.Queries.GetSeasons;
 using MediatR;
 using Agriculture.Application.Abstractions.Caching;
-using Agriculture.Application.Abstractions.Caching;
 
 internal static class SeasonsEndpoints
 {

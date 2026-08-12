@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AdminOnlyNotice } from '../components/AdminOnlyNotice'
 import {
   ChevronDown,
   ChevronLeft,
@@ -163,7 +162,7 @@ export function OfficersPage() {
   const { officerId } = useParams()
   const { user } = useAuth()
   const admin = isAdmin(user?.roles)
-  if (!admin) return <AdminOnlyNotice title="Uzman listesi ve yönetimi yalnızca yöneticiler içindir." />
+  if (!admin) return <Navigate to="/" replace />
   if (officerId) return <OfficerDetailPage officerId={officerId} />
   return <OfficersListPage />
 }
@@ -267,7 +266,7 @@ function OfficersListPage() {
       setShowForm(false)
       await queryClient.invalidateQueries({ queryKey: ['staff-officers'] })
       await queryClient.invalidateQueries({ queryKey: ['officers'] })
-      if (id) navigate(`/app/officers/${id}`)
+      if (id) navigate(`/officers/${id}`)
     },
   })
 
@@ -743,11 +742,11 @@ function OfficersListPage() {
                               Telefon et
                             </span>
                           )}
-                          <Link to={`/app/messages?officerId=${item.id}`} className="officers-action-btn">
+                          <Link to={`/messages?officerId=${item.id}`} className="officers-action-btn">
                             <MessageSquare size={14} aria-hidden />
                             Mesaj gönder
                           </Link>
-                          <Link to={`/app/officers/${item.id}`} className="officers-action-btn">
+                          <Link to={`/officers/${item.id}`} className="officers-action-btn">
                             Detayları görüntüle
                             <ChevronRight size={14} aria-hidden />
                           </Link>
@@ -874,7 +873,7 @@ function OfficerDetailPage({ officerId }: { officerId: string }) {
         <p className="error empty">
           {(officerQuery.error as Error)?.message ?? 'Uzman bulunamadı.'}
         </p>
-        <button type="button" className="ghost-btn" onClick={() => navigate('/app/officers')}>
+        <button type="button" className="ghost-btn" onClick={() => navigate('/officers')}>
           <ChevronLeft size={16} /> Uzmanlara dön
         </button>
       </section>
@@ -888,7 +887,7 @@ function OfficerDetailPage({ officerId }: { officerId: string }) {
     <section className="officers-page">
       <div className="officers-page-header">
         <div>
-          <button type="button" className="ghost-btn officers-back" onClick={() => navigate('/app/officers')}>
+          <button type="button" className="ghost-btn officers-back" onClick={() => navigate('/officers')}>
             <ChevronLeft size={16} /> Uzmanlar
           </button>
           <h1>{officer.fullName}</h1>
@@ -935,7 +934,7 @@ function OfficerDetailPage({ officerId }: { officerId: string }) {
                 <Phone size={14} /> Telefon et
               </a>
             ) : null}
-            <Link to={`/app/messages?officerId=${officer.id}`} className="officers-action-btn">
+            <Link to={`/messages?officerId=${officer.id}`} className="officers-action-btn">
               <MessageSquare size={14} /> Mesaj gönder
             </Link>
           </div>

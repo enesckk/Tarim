@@ -18,11 +18,13 @@ internal static class AuthEndpoints
         // Auth
         var auth = api.MapGroup("/auth").WithTags("Auth");
         auth.MapPost("/login", async (LoginCommand command, ISender sender) =>
-            ApiResults.From(await sender.Send(command)));
+            ApiResults.From(await sender.Send(command)))
+            .RequireRateLimiting("authentication");
         auth.MapPost("/register", async (RegisterUserCommand command, ISender sender) =>
             ApiResults.From(await sender.Send(command))).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
         auth.MapPost("/refresh", async (RefreshTokenCommand command, ISender sender) =>
-            ApiResults.From(await sender.Send(command)));
+            ApiResults.From(await sender.Send(command)))
+            .RequireRateLimiting("authentication");
 
         // Me (producer profile + staff identity)
         api.MapGet("/me", async (

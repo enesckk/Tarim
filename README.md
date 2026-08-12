@@ -12,8 +12,8 @@ src/
   Modules/            Identity, Producers, Lands, Seasons, Workflows, Tasks,
                       Inspections, Harvest, Support, Notifications, Communication
   Hosts/Agriculture.Api
-frontend/             React admin panel (Vite + TypeScript, tr-TR; UI chrome from v0 AgroYönetim design)
-mobile/               Expo React Native producer app (tr-TR)
+frontend/             Tek istemci: yönetici/uzman SPA + üretici PWA (Vite + TypeScript, tr-TR)
+                      Üretici istemcisi frontend PWA'ya taşındı; eski mobile/ kaldırıldı
 ```
 
 **Stack:** ASP.NET Core 9, EF Core, SQL Server, MediatR, FluentValidation, JWT Identity, Serilog, `IMemoryCache` (dashboard). MinIO optional via docker-compose; photo upload falls back to local disk (`wwwroot/uploads`).
@@ -81,19 +81,15 @@ IA: `docs/ADMIN_IA.md` · Critique: `docs/ADMIN_PANEL_CRITIQUE.md`
 **Şehitkamil demo (Gaziantep):** API açılışında idempotent seed `SK-DEMO-01`…`SK-DEMO-15` parsellerini (mahalle, ürün, sezon, iş akışı, görevler, uzman/üretici ataması) ekler. Eksik koordinat veya atamalar her açılışta repair edilir (parseller çoğaltılmaz). Görmek için: `admin@agriculture.local` / `Admin123!` → Operasyon Merkezi → **Arazi durumu haritası**. “Demo Tarla” da Şehitkamil kümesinde gösterilir.
 
 **Note:** Destek programları deferred from admin UI (backend Support API kept for later).
-### 4. Producer mobile (Expo)
+### 4. Producer PWA
 
 ```bash
-cd mobile
+cd frontend
 npm install
-npx expo start
+npm run dev
 ```
 
-| Target | API URL |
-|--------|---------|
-| iOS Simulator / web | `http://127.0.0.1:5109` (default) |
-| Android emulator | `http://10.0.2.2:5109` (default) |
-| Physical device | `EXPO_PUBLIC_API_URL=http://<your-lan-ip>:5109 npx expo start` |
+Üretici girişi: `http://localhost:5173/login`. Android Chromium veya iOS Safari'de açıp **Ana ekrana ekle** seçeneğini kullanın; mağaza kurulumu gerekmez.
 
 ## Demo credentials
 
@@ -104,16 +100,16 @@ npx expo start
 | Officer | `uzman1@agriculture.local` | `Officer123!` | Mehmet Yıldız |
 | Officer | `uzman2@agriculture.local` | `Officer123!` | Elif Kara |
 | Officer | `uzman3@agriculture.local` | `Officer123!` | Can Özer |
-| **Producer** | `uretici@agriculture.local` | `Producer123!` | **Mobile login** |
+| **Producer** | `uretici@agriculture.local` | `Producer123!` | **PWA login** |
 | Inspector | `denetci@agriculture.local` | `Inspector123!` | Field role |
 
 Producer phone (login identifier): `05559876543`
 
-## Demo click-path (Türkçe — mobil)
+## Demo click-path (Türkçe — üretici PWA)
 
 1. Uygulamayı açın → **Giriş yap** (`uretici@agriculture.local` / `Producer123!`)
 2. Alt sekme **Görevler** → bugünün açık görevleri
-3. **Yaprak fotoğrafı** (veya fotoğraf gerektiren görev) → **Kamera ile çek** / **Galeriden seç** → önizleme → **Yükle ve devam et** → **Evet, tamamla**
+3. **Yaprak fotoğrafı** (veya fotoğraf gerektiren görev) → **Kamera veya galeriden seç** → önizleme → **Devam et** → **Evet, onaya gönder**
 4. Görev listesi yenilenir
 5. **Sohbet** → **Uzmana sor** → mesaj gönder
 6. **Bildirimler** → seed hatırlatmaları

@@ -296,7 +296,7 @@ export function MessagesPage() {
                     {quickProducers.map((producer) => (
                       <Link
                         key={producer.id}
-                        to={`/app/producers/${producer.id}`}
+                        to={`/producers/${producer.id}`}
                         className="messages-quick-item"
                       >
                         <strong>{producer.fullName}</strong>
@@ -331,9 +331,7 @@ export function MessagesPage() {
           )}
           {!listQuery.isLoading && threads.length === 0 && (
             <p className="empty">
-              {officer
-                ? 'Personel yazışması yok. Yukarıdan “Yöneticiye yaz” ile yeni sohbet başlatın.'
-                : 'Personel yazışması yok. Yukarıdan yönetici↔uzman sohbeti başlatın.'}
+              Personel yazışması yok. Yukarıdan yönetici↔uzman sohbeti başlatın.
             </p>
           )}
           {!listQuery.isLoading && threads.length > 0 && filteredThreads.length === 0 && (

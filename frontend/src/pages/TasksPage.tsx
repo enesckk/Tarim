@@ -52,7 +52,7 @@ export function TasksPage() {
           <h1>Görev listesi</h1>
           <p>
             Bu ekran yardımcı toplu listedir. Ana operasyon arazi detayında, ayrıntılı inceleme ise
-            <Link to="/app/approvals"> Onaylar</Link> ekranında yürür.
+            <Link to="/approvals"> Onaylar</Link> ekranında yürür.
           </p>
         </div>
       </div>
@@ -66,10 +66,10 @@ export function TasksPage() {
           </p>
         </div>
         <div className="row-actions tasks-page-shortcuts">
-          <Link to="/app/lands" className="ghost-btn">
+          <Link to="/lands" className="ghost-btn">
             Arazilerden yönet
           </Link>
-          <Link to="/app/approvals" className="ghost-btn">
+          <Link to="/approvals" className="ghost-btn">
             Onay kuyruğunu aç
           </Link>
         </div>
