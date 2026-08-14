@@ -34,14 +34,14 @@ for ($attempt = 0; $attempt -lt 60; $attempt++) {
 & $DockerExe rm -f $seedName | Out-Null
 if (-not $seedReady) { throw "Cihaz kabul verisi zamanında tamamlanamadı." }
 
-& $DockerExe compose -p agriculture-staging --env-file $EnvFile -f $ComposeFile --profile device-acceptance up -d device-tunnel
+& $DockerExe compose -p agriculture-staging --env-file $EnvFile -f $ComposeFile --profile device-acceptance up -d --force-recreate device-tunnel
 if ($LASTEXITCODE -ne 0) { throw "HTTPS cihaz tüneli başlatılamadı." }
 
 $deviceUrl = $null
 for ($attempt = 0; $attempt -lt 60; $attempt++) {
     $logs = & $DockerExe compose -p agriculture-staging --env-file $EnvFile -f $ComposeFile logs --no-color device-tunnel
-    $match = [regex]::Match(($logs -join "`n"), 'https://[a-z0-9-]+\.trycloudflare\.com')
-    if ($match.Success) { $deviceUrl = $match.Value; break }
+    $matches = [regex]::Matches(($logs -join "`n"), 'https://[a-z0-9-]+\.trycloudflare\.com')
+    if ($matches.Count -gt 0) { $deviceUrl = $matches[$matches.Count - 1].Value; break }
     Start-Sleep -Seconds 1
 }
 if (-not $deviceUrl) { throw "HTTPS cihaz URL'si alınamadı." }
