@@ -270,22 +270,55 @@
   font-weight: 700;
 }
 .pr-message {
-  grid-template-columns: auto 1fr auto;
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
-  border-width: 0 0 1px;
-  border-radius: 0;
-  padding: 15px 0;
-  background: transparent;
+  border: 1px solid #dce6df;
+  border-radius: 16px;
+  padding: 14px;
+  background: #fff;
+  box-shadow: 0 5px 16px rgba(24, 49, 29, 0.05);
+  cursor: pointer;
+}
+.pr-message > div {
+  min-width: 0;
 }
 .pr-message header {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
+.pr-message header strong,
+.pr-message > div > span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pr-message header strong {
+  min-width: 0;
+}
 .pr-message time {
+  flex: 0 0 auto;
   color: #6b756f;
   font-size: 11px;
   font-weight: 500;
+}
+.pr-message-end {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  color: #78907d;
+}
+.pr-message-end svg {
+  width: 18px;
+  height: 18px;
+}
+.pr-message-end i {
+  width: 8px;
+  height: 8px;
 }
 .pr-avatar {
   display: grid;
@@ -298,7 +331,66 @@
   font-weight: 800;
 }
 .pr-messages-page > .pr-list {
-  gap: 0;
+  gap: 10px;
+}
+
+/* Chat must remain inside the viewport even on narrow phones and while the
+   virtual keyboard changes the dynamic viewport height. */
+.pr-chat {
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+.pr-chat-list {
+  min-width: 0;
+  min-height: 0;
+  overflow-wrap: anywhere;
+}
+.pr-chat-form {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  grid-template-columns: minmax(0, 1fr) 52px;
+  align-items: end;
+  padding-bottom: max(11px, env(safe-area-inset-bottom));
+}
+.pr-chat-form textarea {
+  width: 100%;
+  min-width: 0;
+  height: 52px;
+  min-height: 52px;
+  box-sizing: border-box;
+  line-height: 1.35;
+}
+.pr-chat-form button {
+  width: 52px;
+  height: 52px;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+}
+.pr-chat-form button:disabled {
+  opacity: 0.55;
+}
+.pr-chat-form button svg {
+  width: 22px;
+  height: 22px;
+}
+
+@media (max-width: 360px) {
+  .pr-chat-form {
+    grid-template-columns: minmax(0, 1fr) 48px;
+    gap: 8px;
+    padding-inline: 8px;
+  }
+  .pr-chat-form button {
+    width: 48px;
+    height: 48px;
+  }
+  .pr-message {
+    padding: 12px;
+  }
 }
 .pr-report-link {
   display: flex;

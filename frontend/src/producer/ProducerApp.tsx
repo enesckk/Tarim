@@ -1225,7 +1225,10 @@ function MessagesPage() {
                   </header>
                   <span>{i.lastMessagePreview || "Henüz mesaj yok"}</span>
                 </div>
-                {i.hasUnread && <i />}
+                <span className="pr-message-end" aria-hidden="true">
+                  {i.hasUnread && <i />}
+                  <ChevronRight />
+                </span>
               </button>
             ))
           ) : (
@@ -1330,7 +1333,11 @@ function ChatPage() {
           placeholder="Mesajınızı yazın…"
           maxLength={2000}
         />
-        <button aria-label="Gönder" disabled={sending || !text.trim()}>
+        <button
+          type="submit"
+          aria-label="Gönder"
+          disabled={sending || !text.trim()}
+        >
           <Send />
         </button>
       </form>

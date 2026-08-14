@@ -50,6 +50,7 @@ internal static partial class DatabaseInitializer
             else
             {
                 RepairSehitkamilLandAssignments(land, def);
+                await RepairSehitkamilBundleAssignmentsAsync(db, def);
             }
         }
 
@@ -169,6 +170,27 @@ internal static partial class DatabaseInitializer
         land.AssignOfficer(def.OfficerUserId);
     }
 
+    private static async Task RepairSehitkamilBundleAssignmentsAsync(
+        AgricultureDbContext db,
+        SkLandDef def)
+    {
+        // Demo ownership used to assign three catalog parcels to the PWA smoke
+        // producer. Repair every dependent row so producer-scoped screens do
+        // not leak stale tasks or harvest data after the land itself is fixed.
+        await db.ProductionWorkflows
+            .Where(item => item.LandId == def.LandId && item.ProducerId != def.ProducerId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(item => item.ProducerId, def.ProducerId));
+        await db.Tasks
+            .Where(item => item.LandId == def.LandId && item.ProducerId != def.ProducerId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(item => item.ProducerId, def.ProducerId));
+        await db.HarvestRecords
+            .Where(item => item.LandId == def.LandId && item.ProducerId != def.ProducerId)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(item => item.ProducerId, def.ProducerId));
+    }
+
     private static async Task EnsureSehitkamilProducersAsync(AgricultureDbContext db)
     {
         if (!await db.Producers.AnyAsync(p => p.Id == SkProducerHasanId))
@@ -257,7 +279,7 @@ internal static partial class DatabaseInitializer
     [
         // Officer rotation: uzman1 / uzman2 / uzman3 across the 15 parcels.
         new("SK-DEMO-01", "Şehitkamil – Değirmiçem Tarlası 1", "Değirmiçem", "Domates",
-            8.5m, 37.0782, 37.3821, DemoProducerId, DemoOfficer1UserId, SkMapHint.Critical,
+            8.5m, 37.0782, 37.3821, SkProducerHasanId, DemoOfficer1UserId, SkMapHint.Critical,
             Guid.Parse("a4444444-4444-4444-4444-444444444401"),
             Guid.Parse("a7777777-7777-7777-7777-777777777701"),
             Guid.Parse("a5555555-5555-5555-5555-555555555501")),
@@ -282,7 +304,7 @@ internal static partial class DatabaseInitializer
             Guid.Parse("a7777777-7777-7777-7777-777777777705"),
             Guid.Parse("a5555555-5555-5555-5555-555555555505")),
         new("SK-DEMO-06", "Şehitkamil – Beylerbeyi Tarlası", "Beylerbeyi", "Pamuk",
-            28.7m, 37.1186, 37.3795, DemoProducerId, DemoOfficer3UserId, SkMapHint.Today,
+            28.7m, 37.1186, 37.3795, SkProducerFatmaId, DemoOfficer3UserId, SkMapHint.Today,
             Guid.Parse("a4444444-4444-4444-4444-444444444406"),
             Guid.Parse("a7777777-7777-7777-7777-777777777706"),
             Guid.Parse("a5555555-5555-5555-5555-555555555506")),
@@ -307,7 +329,7 @@ internal static partial class DatabaseInitializer
             Guid.Parse("a7777777-7777-7777-7777-777777777710"),
             Guid.Parse("a5555555-5555-5555-5555-555555555510")),
         new("SK-DEMO-11", "Şehitkamil – Eyüpsultan Tarlası", "Eyüpsultan", "Fasulye",
-            5.5m, 37.0711, 37.4286, DemoProducerId, DemoOfficer2UserId, SkMapHint.Normal,
+            5.5m, 37.0711, 37.4286, SkProducerAhmetId, DemoOfficer2UserId, SkMapHint.Normal,
             Guid.Parse("a4444444-4444-4444-4444-444444444411"),
             Guid.Parse("a7777777-7777-7777-7777-777777777711"),
             Guid.Parse("a5555555-5555-5555-5555-555555555511")),

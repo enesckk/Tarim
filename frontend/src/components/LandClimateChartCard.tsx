@@ -1,17 +1,12 @@
 import { useMemo, useState } from 'react'
 import {
   BarChart2,
-  CloudSun,
   Droplets,
   Thermometer,
   Calendar,
   TrendingUp,
   TrendingDown,
-  AlertTriangle,
-  Info,
   ShieldCheck,
-  Globe,
-  Snowflake,
   Sun,
 } from 'lucide-react'
 import { formatNumber } from '../utils/tarimAiFormat'
@@ -28,6 +23,13 @@ interface LandClimateChartCardProps {
 
 type PeriodMode = '30year' | '20year' | '2024' | '2023'
 
+const PERIOD_OPTIONS: Array<{ value: PeriodMode; label: string }> = [
+  { value: '30year', label: '30 yıllık ortalama (1995–2025)' },
+  { value: '20year', label: '20 yıllık ortalama (2005–2025)' },
+  { value: '2024', label: '2024 gerçekleşen' },
+  { value: '2023', label: '2023 gerçekleşen' },
+]
+
 interface MonthlyDataPoint {
   month: string
   temp: number
@@ -35,11 +37,6 @@ interface MonthlyDataPoint {
   humidity: number
   frost: 'Yüksek' | 'Orta' | 'Düşük' | 'Yok'
 }
-
-const MONTH_NAMES = [
-  'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran',
-  'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'
-]
 
 // 30-Year Climatology (1995-2025)
 const DATA_30YEAR: MonthlyDataPoint[] = [
@@ -152,46 +149,28 @@ export function LandClimateChartCard({
             </h3>
           </div>
           <span style={{ fontSize: '12px', color: 'var(--muted-foreground)', marginTop: '2px', display: 'block' }}>
-            {neighborhoodName} {cadastralBlock}/{parcelNumber} Parseli ({areaDekars} Dekar) · NASA POWER & Copernicus ERA5 Veritabanı
+            {landName} · {neighborhoodName} {cadastralBlock}/{parcelNumber} Parseli ({areaDekars} Dekar) ·
+            {' '}NASA POWER & Copernicus ERA5 · {latitude.toFixed(4)}, {longitude.toFixed(4)}
           </span>
         </div>
 
         {/* PERİYOT VE GÖRÜNÜM SEÇİCİLERİ */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', background: 'var(--card-subtle, rgba(0,0,0,0.05))', borderRadius: '8px', padding: '3px', border: '1px solid var(--border)' }}>
-            <button
-              type="button"
-              className={`tai2-btn ${period === '30year' ? 'tai2-btn-primary' : 'tai2-btn-ghost'}`}
-              style={{ fontSize: '11px', padding: '4px 10px', height: '28px' }}
-              onClick={() => setPeriod('30year')}
+          <label style={{ display: 'grid', gap: '4px', minWidth: '240px', fontSize: '11px', fontWeight: 700 }}>
+            Görüntülenecek dönem / yıl
+            <select
+              aria-label="İklim grafiği dönemi veya yılı"
+              value={period}
+              onChange={(event) => setPeriod(event.target.value as PeriodMode)}
+              style={{ width: '100%', minHeight: '36px' }}
             >
-              30 Yıl (1995-2025)
-            </button>
-            <button
-              type="button"
-              className={`tai2-btn ${period === '20year' ? 'tai2-btn-primary' : 'tai2-btn-ghost'}`}
-              style={{ fontSize: '11px', padding: '4px 10px', height: '28px' }}
-              onClick={() => setPeriod('20year')}
-            >
-              20 Yıl (2005-2025)
-            </button>
-            <button
-              type="button"
-              className={`tai2-btn ${period === '2024' ? 'tai2-btn-primary' : 'tai2-btn-ghost'}`}
-              style={{ fontSize: '11px', padding: '4px 10px', height: '28px' }}
-              onClick={() => setPeriod('2024')}
-            >
-              2024 Gerçekleşen
-            </button>
-            <button
-              type="button"
-              className={`tai2-btn ${period === '2023' ? 'tai2-btn-primary' : 'tai2-btn-ghost'}`}
-              style={{ fontSize: '11px', padding: '4px 10px', height: '28px' }}
-              onClick={() => setPeriod('2023')}
-            >
-              2023 Gerçekleşen
-            </button>
-          </div>
+              {PERIOD_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
           <button
             type="button"
@@ -204,6 +183,10 @@ export function LandClimateChartCard({
           </button>
         </div>
       </div>
+
+      <p className="tai2-muted" style={{ margin: '-4px 0 16px' }}>
+        Dönem ortalamaları ile kayıtlı gerçekleşen yıllar aynı seçiciden karşılaştırılır.
+      </p>
 
       {/* METRİK HIZLI ÖZET KARTLARI */}
       <div className="tai2-kpi-grid" style={{ marginBottom: '20px' }}>

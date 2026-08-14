@@ -88,6 +88,8 @@ using Hangfire;
 using Agriculture.Api.Hubs;
 using Agriculture.Application.Abstractions.Caching;
 using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 Log.Logger = new LoggerConfiguration()
@@ -189,27 +191,32 @@ try
     builder.Services.AddNotificationsModule();
     builder.Services.AddCommunicationModule();
 
+    var globalPermitLimit = builder.Environment.IsDevelopment()
+        ? builder.Configuration.GetValue("RateLimit:DevelopmentGlobalPermitLimit", 10_000)
+        : builder.Configuration.GetValue("RateLimit:GlobalPermitLimit", 100);
+    var authenticationPermitLimit = builder.Environment.IsDevelopment()
+        ? builder.Configuration.GetValue("RateLimit:DevelopmentAuthenticationPermitLimit", 1_000)
+        : builder.Configuration.GetValue("RateLimit:AuthenticationPermitLimit", 10);
     builder.Services.AddRateLimiter(options =>
     {
         options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
             RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? httpContext.Request.Headers.Host.ToString(),
+                partitionKey: RateLimitKeys.For(httpContext),
                 factory: partition => new FixedWindowRateLimiterOptions
                 {
                     AutoReplenishment = true,
-                    PermitLimit = 100,
+                    PermitLimit = globalPermitLimit,
                     QueueLimit = 0,
                     Window = TimeSpan.FromMinutes(1)
                 }));
 
         options.AddPolicy("authentication", httpContext =>
             RateLimitPartition.GetFixedWindowLimiter(
-                partitionKey: httpContext.Connection.RemoteIpAddress?.ToString()
-                    ?? httpContext.Request.Headers.Host.ToString(),
+                partitionKey: RateLimitKeys.For(httpContext),
                 factory: _ => new FixedWindowRateLimiterOptions
                 {
                     AutoReplenishment = true,
-                    PermitLimit = 10,
+                    PermitLimit = authenticationPermitLimit,
                     QueueLimit = 0,
                     Window = TimeSpan.FromMinutes(1)
                 }));
@@ -221,13 +228,28 @@ try
         };
     });
 
+    var trustForwardedHeaders = builder.Configuration.GetValue("ReverseProxy:TrustForwardedHeaders", false);
+    if (trustForwardedHeaders)
+    {
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            options.ForwardLimit = builder.Configuration.GetValue("ReverseProxy:ForwardLimit", 2);
+            // The API is reachable only from the internal app network in the supported deployment.
+            // Production config validation below rejects this mode unless the explicit trust flag is set.
+            options.KnownNetworks.Clear();
+            options.KnownProxies.Clear();
+        });
+    }
+
     var app = builder.Build();
     WebPushDelivery.Configure(app.Configuration, app.Environment);
 
+    if (trustForwardedHeaders)
+        app.UseForwardedHeaders();
     app.UseSerilogRequestLogging();
     app.UseExceptionHandler();
     app.UseCors("Frontend");
-    app.UseRateLimiter();
 
     // Serve wwwroot except /uploads — evidence/guidance files go through authenticated GET /api/files/...
     app.UseWhen(
@@ -241,6 +263,7 @@ try
     }
 
     app.UseAuthentication();
+    app.UseRateLimiter();
     app.UseAuthorization();
 
     await DatabaseInitializer.InitializeAsync(app.Services, app.Environment, app.Configuration);
@@ -313,14 +336,15 @@ internal static class RuntimeConfigGuard
         }
 
         var secret = configuration["Jwt:Secret"];
-        if (string.IsNullOrWhiteSpace(secret) || secret.Length < 32)
+        if (string.IsNullOrWhiteSpace(secret) || secret.Length < 64)
         {
             throw new InvalidOperationException(
-                "Jwt:Secret is required (min 32 chars) outside Development (set env Jwt__Secret).");
+                "Jwt:Secret is required (min 64 chars) outside Development (set env Jwt__Secret).");
         }
 
         if (secret.Contains("ChangeInProduction", StringComparison.OrdinalIgnoreCase)
-            || secret.Contains("AgricultureDevSecretKey", StringComparison.Ordinal))
+            || secret.Contains("AgricultureDevSecretKey", StringComparison.Ordinal)
+            || secret.Contains("CHANGE_ME", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
                 "Refusing to start: Jwt:Secret is still a development placeholder.");
@@ -333,9 +357,14 @@ internal static class RuntimeConfigGuard
         }
 
         var origins = configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
-        if (origins.Length == 0 || origins.Any(origin =>
+        if (origins.Length == 0 || origins.Distinct(StringComparer.OrdinalIgnoreCase).Count() != origins.Length
+            || origins.Any(origin =>
                 !Uri.TryCreate(origin, UriKind.Absolute, out var uri)
-                || uri.Scheme != Uri.UriSchemeHttps))
+                || uri.Scheme != Uri.UriSchemeHttps
+                || !string.IsNullOrEmpty(uri.UserInfo)
+                || uri.AbsolutePath != "/"
+                || !string.IsNullOrEmpty(uri.Query)
+                || !string.IsNullOrEmpty(uri.Fragment)))
         {
             throw new InvalidOperationException(
                 "Cors:Origins must contain only explicit HTTPS origins outside Development.");
@@ -354,11 +383,23 @@ internal static class RuntimeConfigGuard
             }
         }
 
-        if (string.IsNullOrWhiteSpace(configuration["TarimAi:IntegrationApiKey"])
-            || configuration["TarimAi:IntegrationApiKey"]!.Length < 32)
+        var integrationKey = configuration["TarimAi:IntegrationApiKey"];
+        if (string.IsNullOrWhiteSpace(integrationKey)
+            || integrationKey.Length < 64
+            || integrationKey.Contains("CHANGE_ME", StringComparison.OrdinalIgnoreCase))
         {
             throw new InvalidOperationException(
-                "TarimAi:IntegrationApiKey is required (min 32 chars) outside Development.");
+                "TarimAi:IntegrationApiKey is required (min 64 chars, no placeholder) outside Development.");
+        }
+
+        if (string.Equals(secret, integrationKey, StringComparison.Ordinal))
+            throw new InvalidOperationException("Jwt:Secret and TarimAi:IntegrationApiKey must be different secrets.");
+
+        if (!configuration.GetValue("ReverseProxy:TrustForwardedHeaders", false))
+        {
+            throw new InvalidOperationException(
+                "ReverseProxy:TrustForwardedHeaders must be true outside Development. " +
+                "The API must remain private behind the supported reverse proxy.");
         }
 
         if (string.IsNullOrWhiteSpace(configuration["WebPush:PublicKey"])
@@ -367,6 +408,18 @@ internal static class RuntimeConfigGuard
             throw new InvalidOperationException(
                 "WebPush public/private VAPID keys are required outside Development.");
         }
+    }
+}
+
+internal static class RateLimitKeys
+{
+    public static string For(HttpContext context)
+    {
+        var userId = context.User.FindFirstValue(ClaimTypes.NameIdentifier)
+            ?? context.User.FindFirstValue("sub");
+        return !string.IsNullOrWhiteSpace(userId)
+            ? $"user:{userId}"
+            : $"ip:{context.Connection.RemoteIpAddress?.ToString() ?? "unknown"}";
     }
 }
 

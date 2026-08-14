@@ -1,0 +1,235 @@
+name: agriculture-staging
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD}"
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 15
+      start_period: 40s
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: tarim
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}"
+      POSTGRES_DB: tarim_ai
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tarim -d tarim_ai"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?set MINIO_ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}"
+    volumes:
+      - minio_data:/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  minio-setup:
+    image: minio/mc:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: "${MINIO_ROOT_USER:?set MINIO_ROOT_USER}"
+      MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}"
+    networks: [data]
+    entrypoint: >-
+      /bin/sh -ec '
+      mc alias set staging http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD";
+      mc mb --ignore-existing staging/tarim-uploads;
+      mc anonymous set none staging/tarim-uploads'
+    restart: "no"
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    networks: [data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  seq:
+    image: datalust/seq:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:?set SEQ_ADMIN_PASSWORD}"
+    volumes:
+      - seq_data:/data
+    ports:
+      - "127.0.0.1:5341:80"
+    networks: [app]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  tarim-ai-migrate:
+    build:
+      context: ../../tarim_ai
+    environment:
+      DATABASE_ENABLED: "true"
+      PERSISTENCE_PROVIDER: postgresql
+      DATABASE_URL: "postgresql://tarim:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/tarim_ai"
+    command: ["npm", "run", "db:migrate"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks: [data]
+    restart: "no"
+
+  tarim-ai:
+    build:
+      context: ../../tarim_ai
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      ANALYSIS_DATA_MODE: golden
+      DATABASE_ENABLED: "true"
+      PERSISTENCE_PROVIDER: postgresql
+      DATABASE_URL: "postgresql://tarim:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/tarim_ai"
+      AMS_API_BASE_URL: http://tarim-api:8080
+      AMS_INTEGRATION_API_KEY: "${TARIM_AI_INTEGRATION_KEY:?set TARIM_AI_INTEGRATION_KEY}"
+    depends_on:
+      tarim-ai-migrate:
+        condition: service_completed_successfully
+    networks: [app, data]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  api-migrate:
+    build:
+      context: ../..
+      dockerfile: src/Hosts/Agriculture.Api/Dockerfile
+      target: build
+    working_dir: /src
+    environment:
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AgricultureDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
+    command: >-
+      /bin/sh -ec '
+      dotnet ef database update --project src/Modules/Identity/Agriculture.Modules.Identity.Infrastructure --startup-project src/Hosts/Agriculture.Api --context IdentityDbContext;
+      dotnet ef database update --project src/BuildingBlocks/Agriculture.Infrastructure --startup-project src/Hosts/Agriculture.Api --context AgricultureDbContext'
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+    networks: [data]
+    restart: "no"
+
+  tarim-api:
+    build:
+      context: ../..
+      dockerfile: src/Hosts/Agriculture.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Staging
+      ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AgricultureDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
+      ConnectionStrings__Redis: redis:6379
+      Database__ApplyMigrationsOnStartup: "false"
+      Database__SeedDemoData: "false"
+      Database__SeedVerifiedParcelData: "false"
+      Jwt__Secret: "${JWT_SECRET:?set JWT_SECRET}"
+      ReverseProxy__TrustForwardedHeaders: "true"
+      ReverseProxy__ForwardLimit: "2"
+      Cors__Origins__0: "https://${STAGING_HOST:?set STAGING_HOST}"
+      Minio__Enabled: "true"
+      Minio__Endpoint: minio:9000
+      Minio__AccessKey: "${MINIO_ROOT_USER:?set MINIO_ROOT_USER}"
+      Minio__SecretKey: "${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}"
+      TarimAi__BaseUrl: http://tarim-ai:4000
+      TarimAi__IntegrationApiKey: "${TARIM_AI_INTEGRATION_KEY:?set TARIM_AI_INTEGRATION_KEY}"
+      Seq__ServerUrl: http://seq
+      WebPush__Subject: "${WEB_PUSH_SUBJECT:?set WEB_PUSH_SUBJECT}"
+      WebPush__PublicKey: "${WEB_PUSH_PUBLIC_KEY:?set WEB_PUSH_PUBLIC_KEY}"
+      WebPush__PrivateKey: "${WEB_PUSH_PRIVATE_KEY:?set WEB_PUSH_PRIVATE_KEY}"
+    depends_on:
+      api-migrate:
+        condition: service_completed_successfully
+      minio-setup:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+      tarim-ai:
+        condition: service_healthy
+      seq:
+        condition: service_healthy
+    networks: [app, data]
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/ready"]
+      interval: 15s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ../../frontend
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      tarim-api:
+        condition: service_healthy
+    networks: [app]
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  device-tunnel:
+    image: cloudflare/cloudflared:latest
+    profiles: [device-acceptance]
+    command: ["tunnel", "--no-autoupdate", "--url", "http://frontend:8080"]
+    depends_on:
+      frontend:
+        condition: service_healthy
+    networks: [app]
+    restart: "no"
+
+networks:
+  app:
+  data:
+    internal: true
+
+volumes:
+  sql_data:
+  postgres_data:
+  minio_data:
+  redis_data:
+  seq_data:

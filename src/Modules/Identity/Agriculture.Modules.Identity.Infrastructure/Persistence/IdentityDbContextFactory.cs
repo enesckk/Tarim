@@ -7,8 +7,14 @@ public sealed class IdentityDbContextFactory : IDesignTimeDbContextFactory<Ident
 {
     public IdentityDbContext CreateDbContext(string[] args)
     {
+        var connectionString = Environment.GetEnvironmentVariable(
+            "ConnectionStrings__DefaultConnection");
+        connectionString = string.IsNullOrWhiteSpace(connectionString)
+            ? "Server=(localdb)\\MSSQLLocalDB;Database=AgricultureDesign;Trusted_Connection=True;TrustServerCertificate=True"
+            : connectionString;
+
         var options = new DbContextOptionsBuilder<IdentityDbContext>()
-            .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=AgricultureDesign;Trusted_Connection=True;TrustServerCertificate=True")
+            .UseSqlServer(connectionString)
             .Options;
 
         return new IdentityDbContext(options);

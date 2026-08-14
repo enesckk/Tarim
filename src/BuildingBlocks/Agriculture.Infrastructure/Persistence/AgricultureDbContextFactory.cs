@@ -7,8 +7,14 @@ public sealed class AgricultureDbContextFactory : IDesignTimeDbContextFactory<Ag
 {
     public AgricultureDbContext CreateDbContext(string[] args)
     {
+        var connectionString = Environment.GetEnvironmentVariable(
+            "ConnectionStrings__DefaultConnection");
+        connectionString = string.IsNullOrWhiteSpace(connectionString)
+            ? "Server=(localdb)\\MSSQLLocalDB;Database=AgricultureDesign;Trusted_Connection=True;TrustServerCertificate=True"
+            : connectionString;
+
         var options = new DbContextOptionsBuilder<AgricultureDbContext>()
-            .UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=AgricultureDesign;Trusted_Connection=True;TrustServerCertificate=True")
+            .UseSqlServer(connectionString)
             .Options;
 
         return new AgricultureDbContext(options);

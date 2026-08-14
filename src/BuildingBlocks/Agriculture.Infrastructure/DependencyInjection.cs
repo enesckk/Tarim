@@ -36,11 +36,17 @@ public static class DependencyInjection
         var redisConnStr = configuration.GetConnectionString("Redis");
         if (!string.IsNullOrEmpty(redisConnStr))
         {
+            var redisCacheInstanceName = configuration["Redis:CacheInstanceName"]
+                ?? "agriculture-api:cache:";
             var multiplexer = ConnectionMultiplexer.Connect(redisConnStr);
             services.AddSingleton<IConnectionMultiplexer>(multiplexer);
             services.AddStackExchangeRedisCache(options =>
             {
                 options.Configuration = redisConnStr;
+                // Redis is shared with SignalR and Tarim AI. Namespace every
+                // distributed-cache key so an unrelated component cannot reuse it
+                // with a different Redis data type.
+                options.InstanceName = redisCacheInstanceName;
             });
             services.AddSingleton<ICacheService, RedisCacheService>();
         }

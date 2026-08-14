@@ -100,6 +100,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return nextUser
       },
       logout() {
+        if (token) {
+          void api('/api/auth/logout', { method: 'POST' }, token).catch(() => {
+            // Local credentials are cleared even if the server is temporarily unreachable.
+          })
+        }
         setToken(null)
         setRefreshToken(null)
         setUser(null)

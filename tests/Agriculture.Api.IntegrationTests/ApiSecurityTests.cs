@@ -104,6 +104,24 @@ public sealed class ApiSecurityTests(ApiFactory factory) : IClassFixture<ApiFact
     }
 
     [Fact]
+    public async Task Demo_producer_sees_only_the_single_acceptance_land()
+    {
+        var login = await LoginAsync("uretici@agriculture.local", "Producer123!");
+        _client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", login.AccessToken);
+
+        using var response = await _client.GetAsync("/api/lands");
+        response.EnsureSuccessStatusCode();
+        using var body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        var land = Assert.Single(body.RootElement.EnumerateArray());
+        Assert.Equal(
+            Guid.Parse("44444444-4444-4444-4444-444444444444"),
+            land.GetProperty("id").GetGuid());
+        Assert.Equal("Şehitkamil Demo Tarlası", land.GetProperty("name").GetString());
+    }
+
+    [Fact]
     public async Task Refresh_token_is_rotated_and_cannot_be_replayed()
     {
         var login = await LoginAsync("uretici@agriculture.local", "Producer123!");
@@ -118,6 +136,47 @@ public sealed class ApiSecurityTests(ApiFactory factory) : IClassFixture<ApiFact
         var next = await refreshed.Content.ReadFromJsonAsync<LoginResponse>();
         Assert.NotNull(next);
         Assert.NotEqual(login.RefreshToken, next.RefreshToken);
+        using var replay = await _client.PostAsJsonAsync(
+            "/api/auth/refresh", new { refreshToken = login.RefreshToken });
+        Assert.Equal(HttpStatusCode.Unauthorized, replay.StatusCode);
+    }
+
+    [Fact]
+    public async Task Login_uses_scoped_http_only_media_cookie_and_files_reject_query_jwt()
+    {
+        using var noCookieClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
+        {
+            HandleCookies = false
+        });
+        using var loginResponse = await noCookieClient.PostAsJsonAsync(
+            "/api/auth/login", new { email = "uretici@agriculture.local", password = "Producer123!" });
+        loginResponse.EnsureSuccessStatusCode();
+        var login = await loginResponse.Content.ReadFromJsonAsync<LoginResponse>();
+        Assert.NotNull(login);
+
+        var cookie = Assert.Single(loginResponse.Headers.GetValues("Set-Cookie"));
+        Assert.Contains("agriculture.media_access=", cookie);
+        Assert.Contains("httponly", cookie, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("samesite=strict", cookie, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("path=/api/files", cookie, StringComparison.OrdinalIgnoreCase);
+
+        using var queryJwt = await noCookieClient.GetAsync(
+            $"/api/files/uploads/guidance/missing.png?access_token={Uri.EscapeDataString(login.AccessToken)}");
+        Assert.Equal(HttpStatusCode.Unauthorized, queryJwt.StatusCode);
+    }
+
+    [Fact]
+    public async Task Logout_revokes_refresh_token_and_expires_media_cookie()
+    {
+        var login = await LoginAsync("uretici@agriculture.local", "Producer123!");
+        using var request = new HttpRequestMessage(HttpMethod.Post, "/api/auth/logout");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", login.AccessToken);
+        using var logout = await _client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, logout.StatusCode);
+        Assert.Contains(logout.Headers.GetValues("Set-Cookie"), value =>
+            value.Contains("agriculture.media_access=", StringComparison.Ordinal)
+            && value.Contains("expires=", StringComparison.OrdinalIgnoreCase));
+
         using var replay = await _client.PostAsJsonAsync(
             "/api/auth/refresh", new { refreshToken = login.RefreshToken });
         Assert.Equal(HttpStatusCode.Unauthorized, replay.StatusCode);

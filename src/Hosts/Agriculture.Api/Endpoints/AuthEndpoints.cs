@@ -17,14 +17,52 @@ internal static class AuthEndpoints
     {
         // Auth
         var auth = api.MapGroup("/auth").WithTags("Auth");
-        auth.MapPost("/login", async (LoginCommand command, ISender sender) =>
-            ApiResults.From(await sender.Send(command)))
+        auth.MapPost("/login", async (
+            LoginCommand command,
+            ISender sender,
+            HttpResponse response,
+            IWebHostEnvironment environment) =>
+        {
+            var result = await sender.Send(command);
+            if (result.IsSuccess)
+                MediaAccessCookie.Set(response, environment, result.Value.AccessToken, result.Value.ExpiresAtUtc);
+            return ApiResults.From(result);
+        })
             .RequireRateLimiting("authentication");
         auth.MapPost("/register", async (RegisterUserCommand command, ISender sender) =>
             ApiResults.From(await sender.Send(command))).RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
-        auth.MapPost("/refresh", async (RefreshTokenCommand command, ISender sender) =>
-            ApiResults.From(await sender.Send(command)))
+        auth.MapPost("/refresh", async (
+            RefreshTokenCommand command,
+            ISender sender,
+            HttpResponse response,
+            IWebHostEnvironment environment) =>
+        {
+            var result = await sender.Send(command);
+            if (result.IsSuccess)
+                MediaAccessCookie.Set(response, environment, result.Value.AccessToken, result.Value.ExpiresAtUtc);
+            return ApiResults.From(result);
+        })
             .RequireRateLimiting("authentication");
+        auth.MapPost("/logout", async (
+            IUserContext user,
+            UserManager<ApplicationUser> userManager,
+            HttpResponse response,
+            IWebHostEnvironment environment) =>
+        {
+            if (user.UserId is null)
+                return Results.Unauthorized();
+
+            var account = await userManager.FindByIdAsync(user.UserId.Value.ToString());
+            if (account is not null)
+            {
+                account.RefreshToken = null;
+                account.RefreshTokenExpiresAtUtc = null;
+                await userManager.UpdateAsync(account);
+            }
+
+            MediaAccessCookie.Delete(response, environment);
+            return Results.Ok(new { signedOut = true });
+        }).RequireAuthorization();
 
         // Me (producer profile + staff identity)
         api.MapGet("/me", async (
@@ -198,4 +236,30 @@ internal static class AuthEndpoints
         string? Specialization,
         string? Neighborhood,
         bool? IsActive);
+}
+
+internal static class MediaAccessCookie
+{
+    public const string Name = "agriculture.media_access";
+    private const string Path = "/api/files";
+
+    public static void Set(
+        HttpResponse response,
+        IWebHostEnvironment environment,
+        string accessToken,
+        DateTime expiresAtUtc) =>
+        response.Cookies.Append(Name, accessToken, Options(environment, expiresAtUtc));
+
+    public static void Delete(HttpResponse response, IWebHostEnvironment environment) =>
+        response.Cookies.Delete(Name, Options(environment, DateTime.UnixEpoch));
+
+    private static CookieOptions Options(IWebHostEnvironment environment, DateTime expiresAtUtc) => new()
+    {
+        HttpOnly = true,
+        Secure = !environment.IsDevelopment(),
+        SameSite = SameSiteMode.Strict,
+        Path = Path,
+        IsEssential = true,
+        Expires = new DateTimeOffset(DateTime.SpecifyKind(expiresAtUtc, DateTimeKind.Utc))
+    };
 }

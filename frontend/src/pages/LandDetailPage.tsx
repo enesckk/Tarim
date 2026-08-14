@@ -1110,10 +1110,12 @@ export function LandDetailPage() {
       {openSection === 'climate-history' && (
         <LandClimateChartCard
           landName={land?.name}
-          neighborhoodName={land?.neighborhoodName ?? undefined}
+          neighborhoodName={land?.neighborhood ?? land?.neighborhoodName ?? undefined}
           cadastralBlock={land?.cadastralBlock ?? undefined}
           parcelNumber={land?.parcelNumber}
-          areaDekars={land?.areaDekars}
+          areaDekars={land?.sizeInDecares ?? land?.areaDekars}
+          latitude={land?.latitude ?? undefined}
+          longitude={land?.longitude ?? undefined}
         />
       )}
 

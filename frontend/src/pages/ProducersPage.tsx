@@ -44,6 +44,7 @@ type ProducerLandStats = {
   totalDecares: number
   neighborhood: string | null
   primaryLandId: string | null
+  primaryLandName: string | null
 }
 
 const EMPTY_FILTERS: DraftFilters = {
@@ -136,6 +137,7 @@ function buildLandStatsByProducer(lands: Land[]): Map<string, ProducerLandStats>
       totalDecares: 0,
       neighborhood: null,
       primaryLandId: null,
+      primaryLandName: null,
     }
     const neighborhood = (land.neighborhood ?? '').trim() || null
     map.set(producerId, {
@@ -143,6 +145,7 @@ function buildLandStatsByProducer(lands: Land[]): Map<string, ProducerLandStats>
       totalDecares: current.totalDecares + (land.sizeInDecares || 0),
       neighborhood: current.neighborhood ?? neighborhood,
       primaryLandId: current.primaryLandId ?? land.id,
+      primaryLandName: current.primaryLandName ?? land.name?.trim() ?? null,
     })
   }
   return map
@@ -418,7 +421,7 @@ function ProducersListPage() {
           <h1>Üreticiler</h1>
           <p>
             {admin
-              ? 'Üreticileri yönetin, iletişim bilgilerine ve bağlı arazilere erişin.'
+              ? 'Üreticileri mahalle ve ana arazileriyle birlikte yönetin.'
               : 'Atandığınız arazilere bağlı üreticiler.'}
           </p>
         </div>
@@ -849,15 +852,13 @@ function ProducersListPage() {
                 <col style={{ width: 250 }} />
                 <col style={{ width: 200 }} />
                 <col style={{ width: 240 }} />
-                <col style={{ width: 120 }} />
                 <col style={{ width: 310 }} />
               </colgroup>
               <thead>
                 <tr>
                   <th scope="col">Üretici</th>
                   <th scope="col">Mahalle</th>
-                  <th scope="col">İletişim</th>
-                  <th scope="col">Durum</th>
+                  <th scope="col">Ana arazi</th>
                   <th scope="col">İşlemler</th>
                 </tr>
               </thead>
@@ -890,24 +891,9 @@ function ProducersListPage() {
                         </span>
                       </td>
                       <td>
-                        <div className="officers-table-stack">
-                          <span className="officers-table-inline">
-                            <Phone size={14} aria-hidden />
-                            <span className="cell-ellipsis">{formatPhone(item.phone)}</span>
-                          </span>
-                          <span className="officers-table-inline">
-                            <Mail size={14} aria-hidden />
-                            <span className="cell-ellipsis">{item.email?.trim() || '—'}</span>
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span
-                          className={`officers-status officers-table-status ${
-                            item.isActive ? 'is-active' : 'is-passive'
-                          }`}
-                        >
-                          {item.isActive ? 'Aktif' : 'Pasif'}
+                        <span className="officers-table-inline">
+                          <MapIcon size={14} aria-hidden />
+                          <span className="cell-ellipsis">{stats?.primaryLandName || 'Arazi atanmamış'}</span>
                         </span>
                       </td>
                       <td>
@@ -1055,6 +1041,7 @@ function ProducerDetailPage({ producerId }: { producerId: string }) {
     totalDecares: totalArea,
     neighborhood: lands.find((l) => l.neighborhood?.trim())?.neighborhood ?? null,
     primaryLandId: lands[0]?.id ?? null,
+    primaryLandName: lands[0]?.name ?? null,
   })
 
   return (

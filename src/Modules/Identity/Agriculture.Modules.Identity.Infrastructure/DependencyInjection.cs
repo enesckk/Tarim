@@ -82,18 +82,19 @@ public static class DependencyInjection
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.Secret)),
                     ClockSkew = TimeSpan.FromMinutes(1)
                 };
-                // Allow <img src> / RN Image to load media without custom headers.
                 options.Events = new JwtBearerEvents
                 {
                     OnMessageReceived = context =>
                     {
-                        var accessToken = context.Request.Query["access_token"];
                         var path = context.HttpContext.Request.Path;
-                        if (!string.IsNullOrEmpty(accessToken)
-                            && (path.StartsWithSegments("/api/files")
-                                || path.StartsWithSegments("/hubs/notifications")))
+                        if (path.StartsWithSegments("/api/files"))
                         {
-                            context.Token = accessToken;
+                            context.Token = context.Request.Cookies["agriculture.media_access"];
+                        }
+                        else if (path.StartsWithSegments("/hubs/notifications"))
+                        {
+                            // SignalR WebSocket negotiation uses the standard query-token transport.
+                            context.Token = context.Request.Query["access_token"];
                         }
 
                         return Task.CompletedTask;

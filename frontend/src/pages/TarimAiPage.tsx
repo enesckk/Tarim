@@ -925,7 +925,37 @@ export function TarimAiPage() {
                       : readinessQuery.data?.mode ?? '—'}
                 </dd>
               </div>
+              {readinessQuery.data?.mode === 'golden' ? (
+                <>
+                  <div>
+                    <dt>Altın veri seti</dt>
+                    <dd>
+                      {readinessQuery.data.goldenDataset?.demoReady === true
+                        ? 'Doğrulandı ve hazır'
+                        : 'Hazır değil'}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>İklim verisi</dt>
+                    <dd>Yakalanmış NASA POWER verisi kullanılıyor</dd>
+                  </div>
+                  <div>
+                    <dt>Toprak verisi</dt>
+                    <dd>Yakalanmış SoilGrids verisi kullanılıyor</dd>
+                  </div>
+                </>
+              ) : null}
             </dl>
+            {readinessQuery.data?.mode === 'golden' ? (
+              <p className="tai2-muted">
+                Sağlayıcılardaki “Demo (mock)” etiketi, her analizde dış servise yeniden bağlanılmadığını
+                gösterir. Analiz; daha önce canlı kaynaklardan alınmış, bütünlüğü doğrulanmış iklim,
+                toprak ve uydu verilerinden oluşan altın veri setini kullanır
+                {typeof readinessQuery.data.goldenDataset?.parcel === 'string'
+                  ? ` (${readinessQuery.data.goldenDataset.parcel})`
+                  : ''}.
+              </p>
+            ) : null}
             {cropsQuery.data ? (
               <p className="tai2-muted">Ürün kataloğu: {cropsQuery.data.length} kayıt</p>
             ) : null}
