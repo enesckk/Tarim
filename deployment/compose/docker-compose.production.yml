@@ -1,13 +1,12 @@
-name: agriculture-staging
+name: agriculture-production
 
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    image: "${SQLSERVER_IMAGE:?set immutable SQLSERVER_IMAGE}"
     environment:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD}"
-    volumes:
-      - sql_data:/var/opt/mssql
+    volumes: [sql_data:/var/opt/mssql]
     networks: [data]
     healthcheck:
       test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q \"SELECT 1\" || exit 1"]
@@ -18,13 +17,12 @@ services:
     restart: unless-stopped
 
   postgres:
-    image: pgvector/pgvector:pg16
+    image: "${POSTGRES_IMAGE:?set immutable POSTGRES_IMAGE}"
     environment:
       POSTGRES_USER: tarim
       POSTGRES_PASSWORD: "${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}"
       POSTGRES_DB: tarim_ai
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+    volumes: [postgres_data:/var/lib/postgresql/data]
     networks: [data]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U tarim -d tarim_ai"]
@@ -34,13 +32,12 @@ services:
     restart: unless-stopped
 
   minio:
-    image: minio/minio:latest
+    image: "${MINIO_IMAGE:?set immutable MINIO_IMAGE}"
     command: server /data
     environment:
       MINIO_ROOT_USER: "${MINIO_ROOT_USER:?set MINIO_ROOT_USER}"
       MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}"
-    volumes:
-      - minio_data:/data
+    volumes: [minio_data:/data]
     networks: [data]
     healthcheck:
       test: ["CMD", "mc", "ready", "local"]
@@ -50,26 +47,24 @@ services:
     restart: unless-stopped
 
   minio-setup:
-    image: minio/mc:latest
+    image: "${MINIO_MC_IMAGE:?set immutable MINIO_MC_IMAGE}"
     depends_on:
-      minio:
-        condition: service_healthy
+      minio: { condition: service_healthy }
     environment:
       MINIO_ROOT_USER: "${MINIO_ROOT_USER:?set MINIO_ROOT_USER}"
       MINIO_ROOT_PASSWORD: "${MINIO_ROOT_PASSWORD:?set MINIO_ROOT_PASSWORD}"
     networks: [data]
     entrypoint: >-
       /bin/sh -ec '
-      mc alias set staging http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD";
-      mc mb --ignore-existing staging/tarim-uploads;
-      mc anonymous set none staging/tarim-uploads'
+      mc alias set production http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD";
+      mc mb --ignore-existing production/tarim-uploads;
+      mc anonymous set none production/tarim-uploads'
     restart: "no"
 
   redis:
-    image: redis:7-alpine
+    image: "${REDIS_IMAGE:?set immutable REDIS_IMAGE}"
     command: ["redis-server", "--appendonly", "yes"]
-    volumes:
-      - redis_data:/data
+    volumes: [redis_data:/data]
     networks: [data]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -79,14 +74,12 @@ services:
     restart: unless-stopped
 
   seq:
-    image: datalust/seq:latest
+    image: "${SEQ_IMAGE:?set immutable SEQ_IMAGE}"
     environment:
       ACCEPT_EULA: "Y"
       SEQ_FIRSTRUN_ADMINPASSWORD: "${SEQ_ADMIN_PASSWORD:?set SEQ_ADMIN_PASSWORD}"
-    volumes:
-      - seq_data:/data
-    ports:
-      - "127.0.0.1:5341:80"
+    volumes: [seq_data:/data]
+    ports: ["127.0.0.1:5341:80"]
     networks: [app]
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1/health"]
@@ -97,23 +90,19 @@ services:
     restart: unless-stopped
 
   tarim-ai-migrate:
-    build:
-      context: ../../tarim_ai
-      target: migration
+    image: "${TARIM_AI_MIGRATION_IMAGE:?set immutable TARIM_AI_MIGRATION_IMAGE}"
     environment:
       DATABASE_ENABLED: "true"
       PERSISTENCE_PROVIDER: postgresql
       DATABASE_URL: "postgresql://tarim:${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}@postgres:5432/tarim_ai"
     command: ["npm", "run", "db:migrate"]
     depends_on:
-      postgres:
-        condition: service_healthy
+      postgres: { condition: service_healthy }
     networks: [data]
     restart: "no"
 
   tarim-ai:
-    build:
-      context: ../../tarim_ai
+    image: "${TARIM_AI_IMAGE:?set immutable TARIM_AI_IMAGE}"
     environment:
       NODE_ENV: production
       PORT: "4000"
@@ -124,11 +113,9 @@ services:
       AMS_API_BASE_URL: http://tarim-api:8080
       AMS_INTEGRATION_API_KEY: "${TARIM_AI_INTEGRATION_KEY:?set TARIM_AI_INTEGRATION_KEY}"
     depends_on:
-      tarim-ai-migrate:
-        condition: service_completed_successfully
+      tarim-ai-migrate: { condition: service_completed_successfully }
+    volumes: [tarim_ai_storage:/app/storage]
     networks: [app, data]
-    volumes:
-      - tarim_ai_storage:/app/storage
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
       interval: 15s
@@ -137,10 +124,7 @@ services:
     restart: unless-stopped
 
   api-migrate:
-    build:
-      context: ../..
-      dockerfile: src/Hosts/Agriculture.Api/Dockerfile
-      target: build
+    image: "${API_MIGRATION_IMAGE:?set immutable API_MIGRATION_IMAGE}"
     working_dir: /src
     environment:
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AgricultureDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
@@ -149,26 +133,28 @@ services:
       dotnet ef database update --project src/Modules/Identity/Agriculture.Modules.Identity.Infrastructure --startup-project src/Hosts/Agriculture.Api --context IdentityDbContext;
       dotnet ef database update --project src/BuildingBlocks/Agriculture.Infrastructure --startup-project src/Hosts/Agriculture.Api --context AgricultureDbContext'
     depends_on:
-      sqlserver:
-        condition: service_healthy
+      sqlserver: { condition: service_healthy }
     networks: [data]
     restart: "no"
 
   tarim-api:
-    build:
-      context: ../..
-      dockerfile: src/Hosts/Agriculture.Api/Dockerfile
+    image: "${API_IMAGE:?set immutable API_IMAGE}"
     environment:
-      ASPNETCORE_ENVIRONMENT: Staging
+      ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: "Server=sqlserver,1433;Database=AgricultureDb;User Id=sa;Password=${MSSQL_SA_PASSWORD:?set MSSQL_SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true"
       ConnectionStrings__Redis: redis:6379
       Database__ApplyMigrationsOnStartup: "false"
       Database__SeedDemoData: "false"
       Database__SeedVerifiedParcelData: "false"
+      BootstrapAdmin__Enabled: "${BOOTSTRAP_ADMIN_ENABLED:-false}"
+      BootstrapAdmin__Email: "${BOOTSTRAP_ADMIN_EMAIL:-}"
+      BootstrapAdmin__Password: "${BOOTSTRAP_ADMIN_PASSWORD:-}"
+      BootstrapAdmin__FirstName: "${BOOTSTRAP_ADMIN_FIRST_NAME:-Sistem}"
+      BootstrapAdmin__LastName: "${BOOTSTRAP_ADMIN_LAST_NAME:-Yöneticisi}"
       Jwt__Secret: "${JWT_SECRET:?set JWT_SECRET}"
       ReverseProxy__TrustForwardedHeaders: "true"
-      ReverseProxy__ForwardLimit: "2"
-      Cors__Origins__0: "https://${STAGING_HOST:?set STAGING_HOST}"
+      ReverseProxy__ForwardLimit: "1"
+      Cors__Origins__0: "https://${PRODUCTION_HOST:?set PRODUCTION_HOST}"
       Minio__Enabled: "true"
       Minio__Endpoint: minio:9000
       Minio__AccessKey: "${MINIO_ROOT_USER:?set MINIO_ROOT_USER}"
@@ -180,16 +166,11 @@ services:
       WebPush__PublicKey: "${WEB_PUSH_PUBLIC_KEY:?set WEB_PUSH_PUBLIC_KEY}"
       WebPush__PrivateKey: "${WEB_PUSH_PRIVATE_KEY:?set WEB_PUSH_PRIVATE_KEY}"
     depends_on:
-      api-migrate:
-        condition: service_completed_successfully
-      minio-setup:
-        condition: service_completed_successfully
-      redis:
-        condition: service_healthy
-      tarim-ai:
-        condition: service_healthy
-      seq:
-        condition: service_healthy
+      api-migrate: { condition: service_completed_successfully }
+      minio-setup: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      tarim-ai: { condition: service_healthy }
+      seq: { condition: service_healthy }
     networks: [app, data]
     healthcheck:
       test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1:8080/health/ready"]
@@ -200,13 +181,10 @@ services:
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ../../frontend
-    ports:
-      - "127.0.0.1:8080:8080"
+    image: "${FRONTEND_IMAGE:?set immutable FRONTEND_IMAGE}"
+    ports: ["127.0.0.1:${FRONTEND_PORT:-8080}:8080"]
     depends_on:
-      tarim-api:
-        condition: service_healthy
+      tarim-api: { condition: service_healthy }
     networks: [app]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:8080/healthz"]
@@ -214,16 +192,6 @@ services:
       timeout: 3s
       retries: 10
     restart: unless-stopped
-
-  device-tunnel:
-    image: cloudflare/cloudflared:latest
-    profiles: [device-acceptance]
-    command: ["tunnel", "--no-autoupdate", "--url", "http://frontend:8080"]
-    depends_on:
-      frontend:
-        condition: service_healthy
-    networks: [app]
-    restart: "no"
 
 networks:
   app:

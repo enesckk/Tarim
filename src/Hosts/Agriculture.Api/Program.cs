@@ -356,6 +356,21 @@ internal static class RuntimeConfigGuard
                 "Database:SeedDemoData must be false outside Development.");
         }
 
+        if (configuration.GetValue("BootstrapAdmin:Enabled", false))
+        {
+            var bootstrapEmail = configuration["BootstrapAdmin:Email"]?.Trim();
+            var bootstrapPassword = configuration["BootstrapAdmin:Password"];
+            if (string.IsNullOrWhiteSpace(bootstrapEmail)
+                || !bootstrapEmail.Contains('@')
+                || bootstrapEmail.EndsWith("@agriculture.local", StringComparison.OrdinalIgnoreCase)
+                || string.IsNullOrWhiteSpace(bootstrapPassword)
+                || bootstrapPassword.Length < 14)
+            {
+                throw new InvalidOperationException(
+                    "BootstrapAdmin requires a non-demo email and a password of at least 14 characters.");
+            }
+        }
+
         var origins = configuration.GetSection("Cors:Origins").Get<string[]>() ?? [];
         if (origins.Length == 0 || origins.Distinct(StringComparer.OrdinalIgnoreCase).Count() != origins.Length
             || origins.Any(origin =>
@@ -763,6 +778,8 @@ internal static partial class DatabaseInitializer
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
 
+        await BootstrapProductionAdminAsync(scope.ServiceProvider, configuration);
+
         if (seedVerifiedParcels)
             await SeedVerifiedParcelDataAsync(agricultureDb);
 
@@ -790,6 +807,58 @@ internal static partial class DatabaseInitializer
             AppRoles.Inspector, null);
 
         await SeedDemoAgricultureDataAsync(agricultureDb, DemoProducerUserId);
+    }
+
+    private static async Task BootstrapProductionAdminAsync(
+        IServiceProvider services,
+        IConfiguration configuration)
+    {
+        if (!configuration.GetValue("BootstrapAdmin:Enabled", false))
+            return;
+
+        var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+        var existingAdmins = await userManager.GetUsersInRoleAsync(AppRoles.Administrator);
+        if (existingAdmins.Count > 0)
+        {
+            Log.Information("Production administrator bootstrap skipped because an administrator already exists.");
+            return;
+        }
+
+        var email = configuration["BootstrapAdmin:Email"]!.Trim();
+        var password = configuration["BootstrapAdmin:Password"]!;
+        var firstName = configuration["BootstrapAdmin:FirstName"]?.Trim() ?? "Sistem";
+        var lastName = configuration["BootstrapAdmin:LastName"]?.Trim() ?? "Yöneticisi";
+        var user = new ApplicationUser
+        {
+            Id = Guid.NewGuid(),
+            UserName = email,
+            Email = email,
+            EmailConfirmed = true,
+            FirstName = firstName,
+            LastName = lastName,
+            IsActive = true
+        };
+
+        var createResult = await userManager.CreateAsync(user, password);
+        if (!createResult.Succeeded)
+        {
+            throw new InvalidOperationException(
+                "Production administrator could not be created: " +
+                string.Join("; ", createResult.Errors.Select(error => error.Code)));
+        }
+
+        var roleResult = await userManager.AddToRoleAsync(user, AppRoles.Administrator);
+        if (!roleResult.Succeeded)
+        {
+            await userManager.DeleteAsync(user);
+            throw new InvalidOperationException(
+                "Production administrator role could not be assigned: " +
+                string.Join("; ", roleResult.Errors.Select(error => error.Code)));
+        }
+
+        Log.Warning(
+            "Initial production administrator {Email} was created. Disable BootstrapAdmin and remove its password from the environment before the next start.",
+            email);
     }
 
     /// <summary>Idempotent officer profile columns for migrate / EnsureCreated paths.</summary>

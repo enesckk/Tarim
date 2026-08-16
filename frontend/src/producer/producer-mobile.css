@@ -1,4 +1,6 @@
 .pr-shell {
+  max-width: 100%;
+  overflow-x: clip;
   background: #f3f5f2;
   color: #1a1f1c;
   padding-bottom: calc(76px + env(safe-area-inset-bottom));
@@ -271,7 +273,10 @@
 }
 .pr-message {
   width: 100%;
+  max-width: 100%;
   min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
   grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
   border: 1px solid #dce6df;
@@ -283,9 +288,11 @@
 }
 .pr-message > div {
   min-width: 0;
+  overflow: hidden;
 }
 .pr-message header {
   display: flex;
+  min-width: 0;
   justify-content: space-between;
   gap: 12px;
 }
@@ -307,6 +314,7 @@
 }
 .pr-message-end {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   gap: 7px;
   margin: 0;
@@ -331,6 +339,8 @@
   font-weight: 800;
 }
 .pr-messages-page > .pr-list {
+  width: 100%;
+  min-width: 0;
   gap: 10px;
 }
 
@@ -389,7 +399,13 @@
     height: 48px;
   }
   .pr-message {
+    grid-template-columns: 40px minmax(0, 1fr) 18px;
+    gap: 10px;
     padding: 12px;
+  }
+  .pr-message .pr-avatar {
+    width: 40px;
+    height: 40px;
   }
 }
 .pr-report-link {
@@ -501,6 +517,9 @@
   background: #1b5e20;
 }
 .pr-profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   padding: 28px 20px;
   border-radius: 20px;
   background: #1b5e20;
@@ -517,8 +536,18 @@
   color: #fff;
   font-size: 22px;
 }
+.pr-profile > span {
+  display: block;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.86);
+  line-height: 1.4;
+}
 .pr-profile > button {
-  margin-top: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  margin-top: 12px;
   padding: 9px 15px;
   border: 1px solid #ffffff70;
   border-radius: 999px;

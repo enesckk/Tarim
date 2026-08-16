@@ -1,5 +1,12 @@
 name: Tarım CI
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches: [ "main" ]
@@ -49,10 +56,13 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         
     - name: Install dependencies
       run: npm ci
+
+    - name: Audit all Tarim AI dependencies
+      run: npm audit --audit-level=high
 
     - name: Test Tarım AI
       run: npm test
@@ -80,8 +90,27 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    - name: Audit all PWA dependencies
+      run: npm audit --audit-level=high
+
     - name: Lint PWA
       run: npm run lint
 
     - name: Build PWA
       run: npm run build
+
+  build-container-images:
+    runs-on: ubuntu-latest
+    needs: [build-and-test-dotnet, build-and-test-tarim-ai, build-pwa]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build API image
+      run: docker build --tag agriculture-api:${{ github.sha }} --file src/Hosts/Agriculture.Api/Dockerfile .
+
+    - name: Build Tarim AI runtime image
+      run: docker build --tag agriculture-tarim-ai:${{ github.sha }} --file tarim_ai/Dockerfile tarim_ai
+
+    - name: Build frontend image
+      run: docker build --tag agriculture-frontend:${{ github.sha }} --file frontend/Dockerfile frontend

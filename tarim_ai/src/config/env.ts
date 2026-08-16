@@ -5,8 +5,8 @@ dotenv.config();
 
 const envSchema = z
   .object({
-    COPERNICUS_CLIENT_ID: z.string().min(1, 'COPERNICUS_CLIENT_ID is required'),
-    COPERNICUS_CLIENT_SECRET: z.string().min(1, 'COPERNICUS_CLIENT_SECRET is required'),
+    COPERNICUS_CLIENT_ID: z.string().optional().default(''),
+    COPERNICUS_CLIENT_SECRET: z.string().optional().default(''),
     COPERNICUS_TOKEN_URL: z
       .string()
       .url()
@@ -158,6 +158,29 @@ const envSchema = z
     AMS_INTEGRATION_API_KEY: z.string().optional().default(''),
   })
   .superRefine((value, ctx) => {
+    const hasCopernicusClientId = Boolean(value.COPERNICUS_CLIENT_ID.trim());
+    const hasCopernicusClientSecret = Boolean(value.COPERNICUS_CLIENT_SECRET.trim());
+    if (hasCopernicusClientId !== hasCopernicusClientSecret) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: hasCopernicusClientId
+          ? ['COPERNICUS_CLIENT_SECRET']
+          : ['COPERNICUS_CLIENT_ID'],
+        message: 'Copernicus client ID and secret must be configured together',
+      });
+    }
+    if (
+      value.TERRAIN_DEM_ENABLED &&
+      value.TERRAIN_PROVIDER === 'copernicus-dem' &&
+      (!hasCopernicusClientId || !hasCopernicusClientSecret)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['COPERNICUS_CLIENT_ID'],
+        message:
+          'Copernicus credentials are required when TERRAIN_PROVIDER=copernicus-dem and TERRAIN_DEM_ENABLED=true',
+      });
+    }
     if (value.PARCEL_PROVIDER === 'tkgm' && !value.TKGM_BASE_URL.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
