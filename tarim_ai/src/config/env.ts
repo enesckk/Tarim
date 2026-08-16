@@ -219,6 +219,16 @@ const envSchema = z
         });
       }
     }
+    if (
+      process.env.NODE_ENV === 'production' &&
+      value.AMS_INTEGRATION_API_KEY.trim().length < 64
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['AMS_INTEGRATION_API_KEY'],
+        message: 'must contain at least 64 characters in production',
+      });
+    }
   });
 
 export type Env = z.infer<typeof envSchema>;

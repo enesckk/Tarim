@@ -22,13 +22,19 @@ internal static class TarimAiProxyEndpoints
 
                 var target = new Uri(serviceUri, $"/{path ?? string.Empty}{context.Request.QueryString}");
                 using var request = new HttpRequestMessage(new HttpMethod(context.Request.Method), target);
+                var integrationKey = configuration["TarimAi:IntegrationApiKey"];
+                if (string.IsNullOrWhiteSpace(integrationKey))
+                    return Results.Problem("Tarım AI servis anahtarı yapılandırılmamış.", statusCode: 503);
+                request.Headers.TryAddWithoutValidation("X-TarimAi-Key", integrationKey);
 
                 if (context.Request.ContentLength > 0 || context.Request.Headers.ContainsKey("Transfer-Encoding"))
                     request.Content = new StreamContent(context.Request.Body);
 
                 foreach (var header in context.Request.Headers)
                 {
-                    if (HopByHopHeaders.Contains(header.Key) || header.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
+                    if (HopByHopHeaders.Contains(header.Key)
+                        || header.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase)
+                        || header.Key.Equals("X-TarimAi-Key", StringComparison.OrdinalIgnoreCase))
                         continue;
                     if (!request.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
                         request.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());
