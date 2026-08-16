@@ -37,3 +37,21 @@ project and redeploy the frontend:
 Do not set `VITE_TARIM_AI_URL`; authenticated AI traffic is routed through the API to
 the private AI service. Confirm `/health/live`, `/health/ready`, login, an image upload,
 and one AI analysis before inviting users.
+
+## Temporary free web-service mode
+
+For a manual free Render Web Service, explicitly enable the temporary mode with the
+environment variable below. It uses an ephemeral SQLite database and local files,
+disables MinIO, and permits only `https://tarim-two.vercel.app` through CORS:
+
+- `Deployment__FreeDemoMode=true`
+
+Add these Render environment variables to create the first login:
+
+- `BootstrapAdmin__Enabled=true`
+- `BootstrapAdmin__Email=your real email`
+- `BootstrapAdmin__Password=a unique password of at least 14 characters`
+
+This mode is for evaluation only. Data and uploaded files can disappear whenever the
+free instance sleeps, restarts, or redeploys, and the separate Tarım AI service is not
+included. Use the Blueprint configuration above for durable production.

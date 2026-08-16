@@ -100,6 +100,8 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
 
+    FreeRenderDeployment.Configure(builder.Configuration);
+
     RuntimeConfigGuard.Validate(builder.Environment, builder.Configuration);
 
     builder.Host.UseSerilog((context, services, configuration) =>
@@ -424,12 +426,44 @@ internal static class RuntimeConfigGuard
                 "The API must remain private behind the supported reverse proxy.");
         }
 
-        if (string.IsNullOrWhiteSpace(configuration["WebPush:PublicKey"])
-            || string.IsNullOrWhiteSpace(configuration["WebPush:PrivateKey"]))
+        if (!configuration.GetValue("Deployment:FreeDemoMode", false)
+            && (string.IsNullOrWhiteSpace(configuration["WebPush:PublicKey"])
+            || string.IsNullOrWhiteSpace(configuration["WebPush:PrivateKey"])))
         {
             throw new InvalidOperationException(
                 "WebPush public/private VAPID keys are required outside Development.");
         }
+    }
+}
+
+internal static class FreeRenderDeployment
+{
+    public static void Configure(ConfigurationManager configuration)
+    {
+        if (!configuration.GetValue("Deployment:FreeDemoMode", false))
+            return;
+
+        static string Secret() => Convert.ToHexString(
+            System.Security.Cryptography.RandomNumberGenerator.GetBytes(48));
+
+        var defaults = new Dictionary<string, string?>
+        {
+            ["ConnectionStrings:DefaultConnection"] = "Data Source=/tmp/AgricultureDb.sqlite",
+            ["Database:ApplyMigrationsOnStartup"] = "true",
+            ["Database:SeedDemoData"] = "false",
+            ["Database:SeedVerifiedParcelData"] = "false",
+            ["Minio:Enabled"] = "false",
+            ["ReverseProxy:TrustForwardedHeaders"] = "true",
+            ["ReverseProxy:ForwardLimit"] = "1",
+            ["Cors:Origins:0"] = "https://tarim-two.vercel.app"
+        };
+
+        if (string.IsNullOrWhiteSpace(configuration["Jwt:Secret"]))
+            defaults["Jwt:Secret"] = Secret();
+        if (string.IsNullOrWhiteSpace(configuration["TarimAi:IntegrationApiKey"]))
+            defaults["TarimAi:IntegrationApiKey"] = Secret();
+
+        configuration.AddInMemoryCollection(defaults);
     }
 }
 
