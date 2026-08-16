@@ -448,7 +448,8 @@ internal static class FreeRenderDeployment
 
         var defaults = new Dictionary<string, string?>
         {
-            ["ConnectionStrings:DefaultConnection"] = "Data Source=/tmp/AgricultureDb.sqlite",
+            ["ConnectionStrings:DefaultConnection"] =
+                $"Data Source={Path.Combine(Path.GetTempPath(), "AgricultureDb.sqlite")}",
             ["Database:ApplyMigrationsOnStartup"] = "true",
             ["Database:SeedDemoData"] = "false",
             ["Database:SeedVerifiedParcelData"] = "false",
