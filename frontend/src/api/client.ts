@@ -1,4 +1,9 @@
-const API_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
+const configuredApiBase = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, '') || ''
+// Vercel proxies API traffic through the same origin. This avoids browser/network
+// cross-site restrictions and keeps the HttpOnly media cookie first-party.
+const API_BASE = typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app')
+  ? '/backend'
+  : configuredApiBase
 
 export { API_BASE }
 
