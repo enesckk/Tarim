@@ -449,10 +449,11 @@ internal static class FreeRenderDeployment
         var defaults = new Dictionary<string, string?>
         {
             ["ConnectionStrings:DefaultConnection"] =
-                $"Data Source={Path.Combine(Path.GetTempPath(), "AgricultureDb.sqlite")}",
+                $"Data Source={Path.Combine(Path.GetTempPath(), "AgricultureDb-free-v2.sqlite")}",
             ["Database:ApplyMigrationsOnStartup"] = "true",
             ["Database:SeedDemoData"] = "false",
-            ["Database:SeedVerifiedParcelData"] = "false",
+            ["Database:SeedVerifiedParcelData"] = "true",
+            ["Database:VerifiedParcelSeedSelection"] = "Güngürge,Sinan",
             ["Minio:Enabled"] = "false",
             ["ReverseProxy:TrustForwardedHeaders"] = "true",
             ["ReverseProxy:ForwardLimit"] = "1",
@@ -464,6 +465,8 @@ internal static class FreeRenderDeployment
         if (string.IsNullOrWhiteSpace(configuration["TarimAi:IntegrationApiKey"]))
             defaults["TarimAi:IntegrationApiKey"] = Secret();
 
+        // Use escapes so deployment source encoding can never corrupt Turkish names.
+        defaults["Database:VerifiedParcelSeedSelection"] = "G\u00FCng\u00FCrge,Sinan";
         configuration.AddInMemoryCollection(defaults);
     }
 }
@@ -823,7 +826,9 @@ internal static partial class DatabaseInitializer
         await BootstrapProductionAdminAsync(scope.ServiceProvider, configuration);
 
         if (seedVerifiedParcels)
-            await SeedVerifiedParcelDataAsync(agricultureDb);
+            await SeedVerifiedParcelDataAsync(
+                agricultureDb,
+                configuration["Database:VerifiedParcelSeedSelection"]);
 
         if (!seedDemo)
             return;

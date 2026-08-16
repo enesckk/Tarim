@@ -13,12 +13,22 @@ internal static partial class DatabaseInitializer
     /// Existing records are matched by cadastral identity and repaired in place;
     /// only genuinely missing records are inserted.
     /// </summary>
-    public static async Task SeedVerifiedParcelDataAsync(AgricultureDbContext db)
+    public static async Task SeedVerifiedParcelDataAsync(
+        AgricultureDbContext db,
+        string? neighborhoodSelection = null)
     {
         var lands = await db.Lands.ToListAsync();
         var matchedLandIds = new HashSet<Guid>();
+        var selectedNeighborhoods = string.IsNullOrWhiteSpace(neighborhoodSelection)
+            ? null
+            : neighborhoodSelection
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var def in GetVerifiedParcelDefinitions())
+        foreach (var def in GetVerifiedParcelDefinitions()
+                     .DistinctBy(def => def.LandId)
+                     .Where(def => selectedNeighborhoods is null
+                         || selectedNeighborhoods.Contains(def.Neighborhood)))
         {
             var existing = lands.FirstOrDefault(land =>
                 !matchedLandIds.Contains(land.Id)
@@ -84,6 +94,16 @@ internal static partial class DatabaseInitializer
 
     private static IReadOnlyList<VerifiedParcelDef> GetVerifiedParcelDefinitions() =>
     [
+        // Canonical UTF-16 escapes keep these production demo records stable even
+        // when a deployment tool reads source files with a non-UTF-8 code page.
+        new(
+            Guid.Parse("b4444444-4444-4444-4444-444444444401"),
+            "G\u00FCng\u00FCrge 108/7 Arazisi", "G\u00FCng\u00FCrge", "108", "7", 21.91316m,
+            37.2062788, 37.4750187, "Tarla"),
+        new(
+            Guid.Parse("b4444444-4444-4444-4444-444444444402"),
+            "G\u00FCng\u00FCrge 131/80 Arazisi", "G\u00FCng\u00FCrge", "131", "80", 7.58998m,
+            37.2155686, 37.4599571, "Tarla"),
         new(
             Guid.Parse("b4444444-4444-4444-4444-444444444401"),
             "Güngürge 108/7 Arazisi", "Güngürge", "108", "7", 21.91316m,
