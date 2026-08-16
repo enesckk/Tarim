@@ -47,6 +47,10 @@ export function configureApiAuth(options: {
   onAuthFailure = options.onFailure
 }
 
+export function currentAccessToken(): string | null {
+  return tokenGetter?.().token ?? null
+}
+
 async function tryRefresh(): Promise<string | null> {
   if (!tokenGetter || !onTokensRefreshed) return null
   const { refreshToken } = tokenGetter()
@@ -57,6 +61,7 @@ async function tryRefresh(): Promise<string | null> {
       try {
         const response = await fetch(`${API_BASE}/api/auth/refresh`, {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ refreshToken }),
         })
@@ -91,13 +96,14 @@ export async function api<T>(
   const response = await fetch(`${API_BASE}${path}`, {
     ...options,
     headers,
+    credentials: 'include',
   })
 
   if (response.status === 401 && refreshTokenAvailable()) {
     const next = await tryRefresh()
     if (next) {
       headers.set('Authorization', `Bearer ${next}`)
-      const retry = await fetch(`${API_BASE}${path}`, { ...options, headers })
+      const retry = await fetch(`${API_BASE}${path}`, { ...options, headers, credentials: 'include' })
       return parseResponse<T>(retry)
     }
     onAuthFailure?.()

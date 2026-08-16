@@ -142,7 +142,7 @@ public sealed class ApiSecurityTests(ApiFactory factory) : IClassFixture<ApiFact
     }
 
     [Fact]
-    public async Task Login_uses_scoped_http_only_media_cookie_and_files_reject_query_jwt()
+    public async Task Login_uses_scoped_http_only_media_cookie_and_protected_routes_reject_query_jwt()
     {
         using var noCookieClient = _factory.CreateClient(new WebApplicationFactoryClientOptions
         {
@@ -157,12 +157,16 @@ public sealed class ApiSecurityTests(ApiFactory factory) : IClassFixture<ApiFact
         var cookie = Assert.Single(loginResponse.Headers.GetValues("Set-Cookie"));
         Assert.Contains("agriculture.media_access=", cookie);
         Assert.Contains("httponly", cookie, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("samesite=strict", cookie, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("path=/api/files", cookie, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("samesite=lax", cookie, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("path=/api", cookie, StringComparison.OrdinalIgnoreCase);
 
         using var queryJwt = await noCookieClient.GetAsync(
             $"/api/files/uploads/guidance/missing.png?access_token={Uri.EscapeDataString(login.AccessToken)}");
         Assert.Equal(HttpStatusCode.Unauthorized, queryJwt.StatusCode);
+
+        using var aiQueryJwt = await noCookieClient.GetAsync(
+            $"/api/tarim-ai/health?access_token={Uri.EscapeDataString(login.AccessToken)}");
+        Assert.Equal(HttpStatusCode.Unauthorized, aiQueryJwt.StatusCode);
     }
 
     [Fact]

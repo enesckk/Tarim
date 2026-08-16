@@ -241,7 +241,7 @@ internal static class AuthEndpoints
 internal static class MediaAccessCookie
 {
     public const string Name = "agriculture.media_access";
-    private const string Path = "/api/files";
+    private const string Path = "/api";
 
     public static void Set(
         HttpResponse response,
@@ -257,7 +257,10 @@ internal static class MediaAccessCookie
     {
         HttpOnly = true,
         Secure = !environment.IsDevelopment(),
-        SameSite = SameSiteMode.Strict,
+        // The production UI is hosted on Vercel while the API is hosted on Render.
+        // Restrict cookie authentication to the two read-only media/proxy route families
+        // in JwtBearerEvents; SameSite=None is required for cross-site image/PDF requests.
+        SameSite = environment.IsDevelopment() ? SameSiteMode.Lax : SameSiteMode.None,
         Path = Path,
         IsEssential = true,
         Expires = new DateTimeOffset(DateTime.SpecifyKind(expiresAtUtc, DateTimeKind.Utc))

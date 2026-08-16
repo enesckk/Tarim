@@ -3,8 +3,10 @@
  * In Vite dev/preview, requests go through the `/tarim-ai-api` proxy to avoid CORS.
  * Override with VITE_TARIM_AI_URL (e.g. http://localhost:4000) when not using the proxy.
  */
+import { API_BASE, currentAccessToken } from './client'
+
 const TARIM_AI_BASE = (import.meta.env.VITE_TARIM_AI_URL as string | undefined)?.replace(/\/$/, '')
-  || '/tarim-ai-api'
+  || (API_BASE ? `${API_BASE}/api/tarim-ai` : '/tarim-ai-api')
 
 export { TARIM_AI_BASE }
 
@@ -283,12 +285,15 @@ export async function tarimAiFetch<T>(
   if (options.body != null && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json')
   }
+  const accessToken = currentAccessToken()
+  if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
 
   let response: Response
   try {
     response = await fetch(`${TARIM_AI_BASE}${path}`, {
       ...options,
       headers,
+      credentials: 'include',
     })
   } catch {
     throw new TarimAiError(
@@ -453,7 +458,11 @@ export const tarimAi = {
 
   downloadAnalysisReportPdf: async (analysisId: string) => {
     const url = analysisReportPdfUrl(analysisId)
-    const response = await fetch(url)
+    const token = currentAccessToken()
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
     if (!response.ok) {
       let body: unknown = null
       try {
@@ -483,7 +492,11 @@ export const tarimAi = {
     fileName?: string,
   ) => {
     const url = `${TARIM_AI_BASE}/api/analyses/${encodeURIComponent(analysisId)}/attachments/${kind}`
-    const response = await fetch(url)
+    const token = currentAccessToken()
+    const response = await fetch(url, {
+      credentials: 'include',
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    })
     if (!response.ok) {
       let body: unknown = null
       try {

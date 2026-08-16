@@ -102,12 +102,18 @@ try
 
     RuntimeConfigGuard.Validate(builder.Environment, builder.Configuration);
 
-    builder.Host.UseSerilog((context, services, configuration) => configuration
-        .ReadFrom.Configuration(context.Configuration)
-        .ReadFrom.Services(services)
-        .Enrich.FromLogContext()
-        .WriteTo.Console()
-        .WriteTo.Seq(context.Configuration["Seq:ServerUrl"] ?? "http://localhost:5341"));
+    builder.Host.UseSerilog((context, services, configuration) =>
+    {
+        configuration
+            .ReadFrom.Configuration(context.Configuration)
+            .ReadFrom.Services(services)
+            .Enrich.FromLogContext()
+            .WriteTo.Console();
+
+        var seqUrl = context.Configuration["Seq:ServerUrl"];
+        if (!string.IsNullOrWhiteSpace(seqUrl))
+            configuration.WriteTo.Seq(seqUrl);
+    });
 
     builder.Services.AddCors(options =>
     {
@@ -294,6 +300,7 @@ try
     api.MapCommunicationEndpoints();
     api.MapNotificationsEndpoints();
     api.MapTarimAiIntegrationEndpoints(app.Configuration);
+    api.MapTarimAiProxyEndpoints(app.Configuration);
     api.MapInspectionsEndpoints();
     api.MapHarvestEndpoints();
     api.MapSupportEndpoints();

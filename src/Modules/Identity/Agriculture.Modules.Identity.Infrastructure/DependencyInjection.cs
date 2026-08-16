@@ -87,7 +87,8 @@ public static class DependencyInjection
                     OnMessageReceived = context =>
                     {
                         var path = context.HttpContext.Request.Path;
-                        if (path.StartsWithSegments("/api/files"))
+                        if (path.StartsWithSegments("/api/files")
+                            || path.StartsWithSegments("/api/tarim-ai"))
                         {
                             context.Token = context.Request.Cookies["agriculture.media_access"];
                         }
