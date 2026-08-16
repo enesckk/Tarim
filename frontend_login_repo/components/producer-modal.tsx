@@ -4,20 +4,16 @@ import React, { useState, memo } from 'react'
 import Image from 'next/image'
 import {
   X,
-  CheckCircle2,
-  Sprout,
   User,
-  MapPin,
-  FileText,
+  Tractor,
+  Award,
   ShieldCheck,
+  CheckCircle2,
   ChevronRight,
   ChevronLeft,
-  Award,
   Sparkles,
-  Phone,
   Send,
-  Building2,
-  Tractor,
+  Sprout,
 } from 'lucide-react'
 import { useTheme } from '@/components/theme-context'
 import { cn } from '@/lib/utils'
@@ -28,21 +24,20 @@ interface ProducerModalProps {
 }
 
 const PRODUCE_TYPES = [
-  'Gaziantep Antep Fıstığı',
-  'Zeytin & Zeytinyağı',
-  'Bağcılık (Üzüm & Pekmez)',
-  'Buğday & Arpa',
-  'Pamuk & Lifli Bitkiler',
-  'Mevsimsel Sebze & Meyve',
-  'Atıl Arazi Dönüşüm Talebi',
+  'Tahıl (Buğday / Arpa)',
+  'Lavanta & Aromatik Bitki',
+  'Arıcılık & Bal',
+  'Bitki Klonlama & Fide',
+  'Sebze & Meyve',
+  'Yem Bitkileri',
 ]
 
 const SUPPORT_TYPES = [
-  'Garantili Alım Sözleşmesi',
-  'Sertifikalı Tohum & Gübre Desteği',
-  'Ücretsiz Toprak & Yaprak Analizi',
-  'Agropark Dronlu Uydu Takibi',
-  'Soğuk Hava Deposu & Lojistik Desteği',
+  'Dönemlik Arazi Tahsisi Desteği',
+  'Uygulamalı Teknik Eğitim ve Danışmanlık',
+  'Sertifikalı Tohum / Fide / Gübre Desteği',
+  'Modern Ekipman ve Tarla İşleme Desteği',
+  'Alım Garantili Kooperatif Satış Sözleşmesi',
 ]
 
 function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
@@ -53,45 +48,43 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
   const [submitted, setSubmitted] = useState(false)
   const [trackingCode, setTrackingCode] = useState('')
 
-  // Form State
   const [formData, setFormData] = useState({
     fullName: '',
     tcNo: '',
     phone: '',
-    district: 'Şehitkamil',
     neighborhood: '',
-    landStatus: 'mulk', // mulk | kiralik | atil
     landSize: '',
+    landStatus: 'mulk',
+    hasIrrigation: 'evet',
     selectedProducts: [] as string[],
     selectedSupports: [] as string[],
-    hasIrrigation: 'evet',
     kvkkConsent: false,
   })
 
   if (!isOpen) return null
 
-  const handleProductToggle = (prod: string) => {
+  const handleProductToggle = (item: string) => {
     setFormData((prev) => ({
       ...prev,
-      selectedProducts: prev.selectedProducts.includes(prod)
-        ? prev.selectedProducts.filter((p) => p !== prod)
-        : [...prev.selectedProducts, prod],
+      selectedProducts: prev.selectedProducts.includes(item)
+        ? prev.selectedProducts.filter((i) => i !== item)
+        : [...prev.selectedProducts, item],
     }))
   }
 
-  const handleSupportToggle = (sup: string) => {
+  const handleSupportToggle = (item: string) => {
     setFormData((prev) => ({
       ...prev,
-      selectedSupports: prev.selectedSupports.includes(sup)
-        ? prev.selectedSupports.filter((s) => s !== sup)
-        : [...prev.selectedSupports, sup],
+      selectedSupports: prev.selectedSupports.includes(item)
+        ? prev.selectedSupports.filter((i) => i !== item)
+        : [...prev.selectedSupports, item],
     }))
   }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const code = `SKT-2026-${Math.floor(100000 + Math.random() * 900000)}`
-    setTrackingCode(code)
+    const randomCode = 'SK-TARIM-' + Math.floor(100000 + Math.random() * 900000)
+    setTrackingCode(randomCode)
     setSubmitted(true)
   }
 
@@ -101,8 +94,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
         className={cn(
           'relative w-full max-w-3xl rounded-3xl border shadow-2xl overflow-hidden transition-all duration-300 my-auto',
           isLight
-            ? 'bg-[#FAF8F3] border-[#B8842F]/30 text-[#1E1E1E]'
-            : 'bg-[#060807] border-[#D6AE5E]/30 text-white',
+            ? 'bg-[#F8F7F2] border-[#3D6436]/30 text-[#1E1E1E]'
+            : 'bg-[#060807] border-[#6B9E5E]/30 text-white',
         )}
       >
         {/* Background Ambient Glow */}
@@ -110,7 +103,7 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
           aria-hidden="true"
           className={cn(
             'pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 w-[600px] h-[250px] rounded-full blur-[120px] opacity-20',
-            isLight ? 'bg-[#B8842F]' : 'bg-[#D6AE5E]',
+            isLight ? 'bg-[#3D6436]' : 'bg-[#588B4B]',
           )}
         />
 
@@ -122,7 +115,7 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
           className={cn(
             'absolute top-5 right-5 p-2 rounded-full border transition-all duration-200 hover:scale-110 active:scale-95 z-20',
             isLight
-              ? 'border-[#B8842F]/30 bg-white text-[#1E1E1E]'
+              ? 'border-[#3D6436]/30 bg-white text-[#1E1E1E]'
               : 'border-white/20 bg-black/60 text-white',
           )}
         >
@@ -142,7 +135,7 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
               />
             </div>
             <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-extrabold tracking-widest uppercase bg-[#9E6F22]/10 text-[#9E6F22] dark:text-[#D6AE5E]">
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-extrabold tracking-widest uppercase bg-[#3D6436]/10 text-[#3D6436] dark:text-[#6B9E5E]">
                 <Sparkles className="w-3 h-3" />
                 <span>ŞEHİTKAMİL TARIM EKOSİSTEMİ</span>
               </div>
@@ -167,10 +160,10 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                       'h-1.5 rounded-full transition-all duration-300',
                       step >= s.num
                         ? isLight
-                          ? 'bg-[#9E6F22]'
-                          : 'bg-[#D6AE5E]'
+                          ? 'bg-[#3D6436]'
+                          : 'bg-[#6B9E5E]'
                         : isLight
-                        ? 'bg-[#B8842F]/20'
+                        ? 'bg-[#3D6436]/20'
                         : 'bg-white/10',
                     )}
                   />
@@ -179,8 +172,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                       'block text-[10px] font-mono font-bold tracking-wider uppercase text-center',
                       step === s.num
                         ? isLight
-                          ? 'text-[#9E6F22]'
-                          : 'text-[#D6AE5E]'
+                          ? 'text-[#3D6436]'
+                          : 'text-[#6B9E5E]'
                         : 'opacity-50',
                     )}
                   >
@@ -205,7 +198,7 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                 <h3 className="text-2xl font-sans font-extrabold tracking-tight uppercase">
                   BAŞVURUNUZ BAŞARIYLA ALINDI!
                 </h3>
-                <p className={cn('text-xs max-w-md mx-auto leading-relaxed', isLight ? 'text-[#333735]' : 'text-slate-300')}>
+                <p className={cn('text-xs max-w-md mx-auto leading-relaxed', isLight ? 'text-gray-700' : 'text-slate-300')}>
                   T.C. Şehitkamil Belediyesi ve Şekabel Kooperatifi uzman saha ekiplerimiz en geç 48 saat içerisinde sizinle iletişime geçecektir.
                 </p>
               </div>
@@ -215,14 +208,14 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                 className={cn(
                   'max-w-xs mx-auto p-4 rounded-2xl border backdrop-blur-md text-center space-y-1',
                   isLight
-                    ? 'bg-white border-[#B8842F]/30 shadow-md'
-                    : 'bg-black/60 border-[#D6AE5E]/40 shadow-xl',
+                    ? 'bg-white border-[#3D6436]/30 shadow-md'
+                    : 'bg-black/60 border-[#6B9E5E]/40 shadow-xl',
                 )}
               >
                 <span className="block text-[10px] font-mono tracking-widest uppercase opacity-70">
                   BAŞVURU TAKİP KODUNUZ
                 </span>
-                <span className="block font-mono text-xl font-extrabold tracking-widest text-[#9E6F22] dark:text-[#D6AE5E]">
+                <span className="block font-mono text-xl font-extrabold tracking-widest text-[#3D6436] dark:text-[#6B9E5E]">
                   {trackingCode}
                 </span>
               </div>
@@ -232,10 +225,10 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                   type="button"
                   onClick={onClose}
                   className={cn(
-                    'px-8 py-3 rounded-full text-xs font-sans font-extrabold tracking-wider uppercase transition-all duration-200 shadow-md',
+                    'px-8 py-3 rounded-full text-xs font-sans font-extrabold tracking-wider uppercase transition-all duration-200 shadow-md text-white',
                     isLight
-                      ? 'bg-[#9E6F22] text-white hover:bg-[#855B19]'
-                      : 'bg-[#D6AE5E] text-black hover:bg-[#C29B4B]',
+                      ? 'bg-[#3D6436] hover:bg-[#2E4C29]'
+                      : 'bg-[#588B4B] hover:bg-[#46703B]',
                   )}
                 >
                   TAMAMLA VE KAPAT
@@ -248,7 +241,7 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
               {/* STEP 1: PERSONAL & CONTACT */}
               {step === 1 && (
                 <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#9E6F22] dark:text-[#D6AE5E]">
+                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#3D6436] dark:text-[#6B9E5E]">
                     <User className="w-4 h-4" />
                     <span>01 — KİŞİSEL VE İLETİŞİM BİLGİLERİ</span>
                   </div>
@@ -267,8 +260,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                         className={cn(
                           'w-full px-4 py-3 rounded-xl border text-xs font-medium focus:outline-none transition-all duration-200',
                           isLight
-                            ? 'bg-white border-[#B8842F]/30 focus:border-[#9E6F22]'
-                            : 'bg-black/60 border-white/20 focus:border-[#D6AE5E]',
+                            ? 'bg-white border-[#3D6436]/30 focus:border-[#3D6436]'
+                            : 'bg-black/60 border-white/20 focus:border-[#6B9E5E]',
                         )}
                       />
                     </div>
@@ -287,8 +280,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                         className={cn(
                           'w-full px-4 py-3 rounded-xl border text-xs font-medium focus:outline-none transition-all duration-200',
                           isLight
-                            ? 'bg-white border-[#B8842F]/30 focus:border-[#9E6F22]'
-                            : 'bg-black/60 border-white/20 focus:border-[#D6AE5E]',
+                            ? 'bg-white border-[#3D6436]/30 focus:border-[#3D6436]'
+                            : 'bg-black/60 border-white/20 focus:border-[#6B9E5E]',
                         )}
                       />
                     </div>
@@ -306,8 +299,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                         className={cn(
                           'w-full px-4 py-3 rounded-xl border text-xs font-medium focus:outline-none transition-all duration-200',
                           isLight
-                            ? 'bg-white border-[#B8842F]/30 focus:border-[#9E6F22]'
-                            : 'bg-black/60 border-white/20 focus:border-[#D6AE5E]',
+                            ? 'bg-white border-[#3D6436]/30 focus:border-[#3D6436]'
+                            : 'bg-black/60 border-white/20 focus:border-[#6B9E5E]',
                         )}
                       />
                     </div>
@@ -325,8 +318,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                         className={cn(
                           'w-full px-4 py-3 rounded-xl border text-xs font-medium focus:outline-none transition-all duration-200',
                           isLight
-                            ? 'bg-white border-[#B8842F]/30 focus:border-[#9E6F22]'
-                            : 'bg-black/60 border-white/20 focus:border-[#D6AE5E]',
+                            ? 'bg-white border-[#3D6436]/30 focus:border-[#3D6436]'
+                            : 'bg-black/60 border-white/20 focus:border-[#6B9E5E]',
                         )}
                       />
                     </div>
@@ -337,12 +330,11 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
               {/* STEP 2: LAND & PRODUCTION DETAILS */}
               {step === 2 && (
                 <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#9E6F22] dark:text-[#D6AE5E]">
+                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#3D6436] dark:text-[#6B9E5E]">
                     <Tractor className="w-4 h-4" />
                     <span>02 — ARAZİ VE ÜRETİM DETAYLARI</span>
                   </div>
 
-                  {/* Land Status Selector */}
                   <div className="space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-wider">
                       Arazi Mülkiyet Durumu *
@@ -361,10 +353,10 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                             'p-2.5 rounded-xl border text-xs font-bold transition-all duration-200 text-center',
                             formData.landStatus === item.id
                               ? isLight
-                                ? 'border-[#9E6F22] bg-[#9E6F22] text-white shadow-md'
-                                : 'border-[#D6AE5E] bg-[#D6AE5E] text-black shadow-md'
+                                ? 'border-[#3D6436] bg-[#3D6436] text-white shadow-md'
+                                : 'border-[#6B9E5E] bg-[#588B4B] text-white shadow-md'
                               : isLight
-                              ? 'border-[#B8842F]/30 bg-white text-[#1E1E1E]'
+                              ? 'border-[#3D6436]/30 bg-white text-[#1E1E1E]'
                               : 'border-white/20 bg-black/60 text-white',
                           )}
                         >
@@ -388,8 +380,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                         className={cn(
                           'w-full px-4 py-3 rounded-xl border text-xs font-medium focus:outline-none transition-all duration-200',
                           isLight
-                            ? 'bg-white border-[#B8842F]/30 focus:border-[#9E6F22]'
-                            : 'bg-black/60 border-white/20 focus:border-[#D6AE5E]',
+                            ? 'bg-white border-[#3D6436]/30 focus:border-[#3D6436]'
+                            : 'bg-black/60 border-white/20 focus:border-[#6B9E5E]',
                         )}
                       />
                     </div>
@@ -404,8 +396,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                         className={cn(
                           'w-full px-4 py-3 rounded-xl border text-xs font-medium focus:outline-none transition-all duration-200',
                           isLight
-                            ? 'bg-white border-[#B8842F]/30 focus:border-[#9E6F22]'
-                            : 'bg-black/60 border-white/20 focus:border-[#D6AE5E]',
+                            ? 'bg-white border-[#3D6436]/30 focus:border-[#3D6436]'
+                            : 'bg-black/60 border-white/20 focus:border-[#6B9E5E]',
                         )}
                       >
                         <option value="evet">Evet (Kuyu / Şebeke / Damlama)</option>
@@ -415,7 +407,6 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                     </div>
                   </div>
 
-                  {/* Produce Type Multiple Selection */}
                   <div className="space-y-2 pt-1">
                     <label className="block text-xs font-bold uppercase tracking-wider">
                       Üretilen / Üretilmesi Planlanan Mahsuller *
@@ -432,10 +423,10 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                               'px-3 py-1.5 rounded-full border text-[11px] font-semibold transition-all duration-200 flex items-center gap-1.5',
                               isSelected
                                 ? isLight
-                                  ? 'border-[#9E6F22] bg-[#9E6F22] text-white shadow-sm'
-                                  : 'border-[#D6AE5E] bg-[#D6AE5E] text-black shadow-sm'
+                                  ? 'border-[#3D6436] bg-[#3D6436] text-white shadow-sm'
+                                  : 'border-[#6B9E5E] bg-[#588B4B] text-white shadow-sm'
                                 : isLight
-                                ? 'border-[#B8842F]/30 bg-white text-[#333735]'
+                                ? 'border-[#3D6436]/30 bg-white text-gray-800'
                                 : 'border-white/20 bg-black/60 text-slate-300',
                             )}
                           >
@@ -452,12 +443,12 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
               {/* STEP 3: COOP & SUPPORT REQUESTS */}
               {step === 3 && (
                 <div className="space-y-3.5 animate-in fade-in duration-300">
-                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#9E6F22] dark:text-[#D6AE5E]">
+                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#3D6436] dark:text-[#6B9E5E]">
                     <Award className="w-4 h-4" />
                     <span>03 — TALEPLER VE KOOPERATİF DESTEKLERİ</span>
                   </div>
 
-                  <p className={cn('text-xs leading-relaxed', isLight ? 'text-[#333735]' : 'text-slate-300')}>
+                  <p className={cn('text-xs leading-relaxed', isLight ? 'text-gray-700' : 'text-slate-300')}>
                     Şehitkamil Tarım Ekosistemi ve Şekabel Kooperatifi bünyesinde yararlanmak istediğiniz hizmetleri seçiniz:
                   </p>
 
@@ -472,15 +463,15 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                             'p-3 rounded-2xl border cursor-pointer transition-all duration-200 flex items-center justify-between gap-3',
                             isSelected
                               ? isLight
-                                ? 'border-[#9E6F22] bg-[#9E6F22]/10 text-[#9E6F22]'
-                                : 'border-[#D6AE5E] bg-[#D6AE5E]/10 text-[#D6AE5E]'
+                                ? 'border-[#3D6436] bg-[#3D6436]/10 text-[#3D6436]'
+                                : 'border-[#6B9E5E] bg-[#588B4B]/20 text-[#6B9E5E]'
                               : isLight
-                              ? 'border-[#B8842F]/20 bg-white hover:border-[#9E6F22]/50'
-                              : 'border-white/10 bg-black/40 hover:border-[#D6AE5E]/50',
+                              ? 'border-[#3D6436]/20 bg-white hover:border-[#3D6436]/50'
+                              : 'border-white/10 bg-black/40 hover:border-[#6B9E5E]/50',
                           )}
                         >
                           <div className="flex items-center gap-2.5">
-                            <Sprout className="w-4 h-4 shrink-0 text-[#9E6F22] dark:text-[#D6AE5E]" />
+                            <Sprout className="w-4 h-4 shrink-0 text-[#3D6436] dark:text-[#6B9E5E]" />
                             <span className="text-xs font-bold">{sup}</span>
                           </div>
                           <div
@@ -488,8 +479,8 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                               'w-5 h-5 rounded-full border flex items-center justify-center transition-all shrink-0',
                               isSelected
                                 ? isLight
-                                  ? 'border-[#9E6F22] bg-[#9E6F22] text-white'
-                                  : 'border-[#D6AE5E] bg-[#D6AE5E] text-black'
+                                  ? 'border-[#3D6436] bg-[#3D6436] text-white'
+                                  : 'border-[#6B9E5E] bg-[#588B4B] text-white'
                                 : 'border-current/30',
                             )}
                           >
@@ -505,16 +496,15 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
               {/* STEP 4: VERIFICATION & SUMMARY */}
               {step === 4 && (
                 <div className="space-y-4 animate-in fade-in duration-300">
-                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#9E6F22] dark:text-[#D6AE5E]">
+                  <div className="flex items-center gap-2 text-xs font-mono font-extrabold tracking-wider uppercase text-[#3D6436] dark:text-[#6B9E5E]">
                     <ShieldCheck className="w-4 h-4" />
                     <span>04 — BAŞVURU ÖZETİ VE ONAY</span>
                   </div>
 
-                  {/* Summary Box */}
                   <div
                     className={cn(
                       'p-4 rounded-2xl border space-y-2.5 text-xs',
-                      isLight ? 'bg-white border-[#B8842F]/30' : 'bg-black/60 border-white/15',
+                      isLight ? 'bg-white border-[#3D6436]/30' : 'bg-black/60 border-white/15',
                     )}
                   >
                     <div className="flex justify-between border-b border-current/10 pb-2">
@@ -541,16 +531,15 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                     </div>
                   </div>
 
-                  {/* KVKK Checkbox */}
                   <label className="flex items-start gap-3 cursor-pointer pt-2">
                     <input
                       type="checkbox"
                       required
                       checked={formData.kvkkConsent}
                       onChange={(e) => setFormData({ ...formData, kvkkConsent: e.target.checked })}
-                      className="mt-1 w-4 h-4 rounded text-[#9E6F22] accent-[#9E6F22]"
+                      className="mt-1 w-4 h-4 rounded text-[#3D6436] accent-[#3D6436]"
                     />
-                    <span className={cn('text-[11px] leading-relaxed', isLight ? 'text-[#333735]' : 'text-slate-300')}>
+                    <span className={cn('text-[11px] leading-relaxed', isLight ? 'text-gray-700' : 'text-slate-300')}>
                       KVKK Aydınlatma Metnini ve Çiftçi Ortaklık Taahhütnamesini okudum, T.C. Şehitkamil Belediyesi ve Şekabel Kooperatifi tarafından tarafımla iletişime geçilmesini onaylıyorum.
                     </span>
                   </label>
@@ -560,12 +549,12 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
           )}
         </div>
 
-        {/* PINNED MODAL FOOTER ACTION BAR (Always visible, never cut off) */}
+        {/* PINNED MODAL FOOTER ACTION BAR */}
         {!submitted && (
           <div
             className={cn(
               'p-4 sm:p-6 border-t flex items-center justify-between gap-3 relative z-20 backdrop-blur-md',
-              isLight ? 'bg-[#FAF8F3]/95 border-[#B8842F]/20' : 'bg-[#060807]/95 border-white/15',
+              isLight ? 'bg-[#F8F7F2]/95 border-[#3D6436]/20' : 'bg-[#060807]/95 border-white/15',
             )}
           >
             {step > 1 ? (
@@ -575,7 +564,7 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                 className={cn(
                   'inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full text-xs font-bold uppercase transition-all',
                   isLight
-                    ? 'border border-[#B8842F]/30 bg-white text-[#1E1E1E] hover:bg-slate-100'
+                    ? 'border border-[#3D6436]/30 bg-white text-[#1E1E1E] hover:bg-slate-100'
                     : 'border border-white/20 bg-black/60 text-white hover:bg-white/10',
                 )}
               >
@@ -589,10 +578,10 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                 type="button"
                 onClick={() => setStep((s) => s + 1)}
                 className={cn(
-                  'inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold tracking-wider uppercase transition-all duration-200 shadow-md',
+                  'inline-flex items-center gap-1.5 px-6 py-2.5 rounded-full text-xs font-extrabold tracking-wider uppercase transition-all duration-200 shadow-md text-white',
                   isLight
-                    ? 'bg-[#9E6F22] text-white hover:bg-[#855B19]'
-                    : 'bg-[#D6AE5E] text-black hover:bg-[#C29B4B]',
+                    ? 'bg-[#3D6436] hover:bg-[#2E4C29]'
+                    : 'bg-[#588B4B] hover:bg-[#46703B]',
                 )}
               >
                 <span>SONRAKİ ADIM</span>
@@ -604,10 +593,10 @@ function ProducerModalComponent({ isOpen, onClose }: ProducerModalProps) {
                 form="producer-form"
                 disabled={!formData.kvkkConsent}
                 className={cn(
-                  'inline-flex items-center gap-2 px-8 py-3 rounded-full text-xs font-extrabold tracking-wider uppercase transition-all duration-200 shadow-xl disabled:opacity-50 disabled:cursor-not-allowed',
+                  'inline-flex items-center gap-2 px-8 py-3 rounded-full text-xs font-extrabold tracking-wider uppercase transition-all duration-200 shadow-xl text-white disabled:opacity-50 disabled:cursor-not-allowed',
                   isLight
-                    ? 'bg-[#9E6F22] text-white hover:bg-[#855B19]'
-                    : 'bg-[#D6AE5E] text-black hover:bg-[#C29B4B]',
+                    ? 'bg-[#3D6436] hover:bg-[#2E4C29]'
+                    : 'bg-[#588B4B] hover:bg-[#46703B]',
                 )}
               >
                 <span>BAŞVURUYU GÖNDER</span>

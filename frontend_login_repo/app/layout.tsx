@@ -41,6 +41,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" className={`dark bg-black ${inter.variable} ${playfair.variable}`}>
+      <head>
+        {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+          <link key={n} rel="preload" as="image" href={`/chapters/${n}.png`} />
+        ))}
+      </head>
       <body className="antialiased font-sans">
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}

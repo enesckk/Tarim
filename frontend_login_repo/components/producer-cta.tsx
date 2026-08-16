@@ -216,7 +216,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
           <span
             className={cn(
               'text-[11px] font-sans font-extrabold tracking-[0.16em] uppercase leading-none transition-colors duration-300 whitespace-nowrap',
-              isLight ? 'text-[#9E6F22]' : 'text-[#D6AE5E]',
+              isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E]',
             )}
           >
             ŞEHİTKAMİL TARIM
@@ -230,7 +230,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
             ref={trackRef}
             className={cn(
               'absolute bottom-1 left-0 h-[2px] border-b-2 border-dashed transition-opacity duration-300',
-              isLight ? 'border-[#B8842F]' : 'border-[#D6AE5E]',
+              isLight ? 'border-[#3D6436]' : 'border-[#6B9E5E]',
             )}
           />
 
@@ -252,13 +252,13 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
             <span
               className={cn(
                 'text-[15px] sm:text-[17px] md:text-[19px] font-sans font-extrabold tracking-[0.25em] uppercase leading-none transition-colors duration-300',
-                isLight ? 'text-[#B8842F]' : 'text-[#D6AE5E] drop-shadow-[0_0_14px_rgba(214,174,94,0.6)]',
+                isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E] drop-shadow-[0_0_14px_rgba(107,158,94,0.6)]',
               )}
             >
               ŞEHİTKAMİL
             </span>
 
-            <span className={cn('font-extrabold text-base opacity-90 transition-colors duration-300', isLight ? 'text-[#B8842F]' : 'text-[#D6AE5E]')}>•</span>
+            <span className={cn('font-extrabold text-base opacity-90 transition-colors duration-300', isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E]')}>•</span>
 
             <span
               className={cn(
@@ -272,17 +272,17 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
 
           {/* Layer 3: Dust Particles Layer */}
           <div ref={dustRef} className="pointer-events-none absolute bottom-2 left-0 z-20 flex gap-2">
-            <div className={cn('dust-particle w-2 h-2 rounded-full blur-[0.5px] opacity-0', isLight ? 'bg-[#B8842F]/50' : 'bg-[#D6AE5E]/50')} />
-            <div className={cn('dust-particle w-2.5 h-2.5 rounded-full blur-[1px] opacity-0', isLight ? 'bg-[#B8842F]/40' : 'bg-[#D6AE5E]/40')} />
-            <div className={cn('dust-particle w-1.5 h-1.5 rounded-full blur-[0.5px] opacity-0', isLight ? 'bg-[#B8842F]/60' : 'bg-[#D6AE5E]/60')} />
+            <div className={cn('dust-particle w-2 h-2 rounded-full blur-[0.5px] opacity-0', isLight ? 'bg-[#3D6436]/50' : 'bg-[#6B9E5E]/50')} />
+            <div className={cn('dust-particle w-2.5 h-2.5 rounded-full blur-[1px] opacity-0', isLight ? 'bg-[#3D6436]/40' : 'bg-[#6B9E5E]/40')} />
+            <div className={cn('dust-particle w-1.5 h-1.5 rounded-full blur-[0.5px] opacity-0', isLight ? 'bg-[#3D6436]/60' : 'bg-[#6B9E5E]/60')} />
           </div>
 
           {/* Layer 4: Vector SVG Tractor */}
           <div
             ref={tractorRef}
-            className="pointer-events-none absolute bottom-1 left-0 z-30 flex items-center justify-center will-change-transform scale-100 md:scale-110 drop-shadow-[0_0_16px_rgba(214,174,94,0.7)]"
+            className="pointer-events-none absolute bottom-1 left-0 z-30 flex items-center justify-center will-change-transform scale-100 md:scale-110 drop-shadow-[0_0_16px_rgba(107,158,94,0.7)]"
           >
-            <svg viewBox="0 0 84 50" className={cn('w-16 h-10 transition-colors duration-300', isLight ? 'text-[#B8842F]' : 'text-[#D6AE5E]')}>
+            <svg viewBox="0 0 84 50" className={cn('w-16 h-10 transition-colors duration-300', isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E]')}>
               <path
                 d="M70 24L84 18V30L70 24Z"
                 fill="url(#headlight-glow)"
@@ -291,40 +291,40 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
               <defs>
                 <linearGradient id="headlight-glow" x1="0%" y1="0%" x2="100%" y2="0%">
                   <stop offset="0%" stopColor="#FFF" stopOpacity="0.9" />
-                  <stop offset="100%" stopColor={isLight ? '#B8842F' : '#D6AE5E'} stopOpacity="0" />
+                  <stop offset="100%" stopColor={isLight ? '#3D6436' : '#6B9E5E'} stopOpacity="0" />
                 </linearGradient>
               </defs>
 
               <path
                 d="M14 28H44V16L34 8H20L14 16V28Z"
                 fill={isLight ? '#FFFFFF' : '#121712'}
-                stroke={isLight ? '#B8842F' : '#D6AE5E'}
+                stroke={isLight ? '#3D6436' : '#6B9E5E'}
                 strokeWidth="2"
               />
 
               <path
                 d="M44 20H70V28H44V20Z"
-                fill={isLight ? '#B8842F' : '#D6AE5E'}
+                fill={isLight ? '#3D6436' : '#6B9E5E'}
                 stroke="#FFF"
                 strokeWidth="1.5"
               />
 
-              <path d="M60 20V8H64V20" stroke="#FFF" strokeWidth="2" fill={isLight ? '#B8842F' : '#D6AE5E'} />
+              <path d="M60 20V8H64V20" stroke="#FFF" strokeWidth="2" fill={isLight ? '#3D6436' : '#6B9E5E'} />
 
-              <path d="M20 16H34V10H20V16Z" fill={isLight ? '#B8842F' : '#D6AE5E'} fillOpacity="0.4" stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="1" />
+              <path d="M20 16H34V10H20V16Z" fill={isLight ? '#3D6436' : '#6B9E5E'} fillOpacity="0.4" stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="1" />
 
               <g className="wheel wheel-rear" style={{ transformOrigin: '26px 35px' }}>
-                <circle cx="26" cy="35" r="11" fill={isLight ? '#F4F1EA' : '#0A0D0A'} stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="2.5" />
-                <circle cx="26" cy="35" r="7" fill="none" stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="1.5" />
-                <line x1="26" y1="24" x2="26" y2="46" stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="2" />
-                <line x1="15" y1="35" x2="37" y2="35" stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="2" />
+                <circle cx="26" cy="35" r="11" fill={isLight ? '#F4F1EA' : '#0A0D0A'} stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="2.5" />
+                <circle cx="26" cy="35" r="7" fill="none" stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="1.5" />
+                <line x1="26" y1="24" x2="26" y2="46" stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="2" />
+                <line x1="15" y1="35" x2="37" y2="35" stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="2" />
                 <circle cx="26" cy="35" r="3.5" fill="#FFF" />
               </g>
 
               <g className="wheel wheel-front" style={{ transformOrigin: '63px 37px' }}>
-                <circle cx="63" cy="37" r="7" fill={isLight ? '#F4F1EA' : '#0A0D0A'} stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="2.5" />
-                <line x1="63" y1="30" x2="63" y2="44" stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="1.8" />
-                <line x1="56" y1="37" x2="70" y2="37" stroke={isLight ? '#B8842F' : '#D6AE5E'} strokeWidth="1.8" />
+                <circle cx="63" cy="37" r="7" fill={isLight ? '#F4F1EA' : '#0A0D0A'} stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="2.5" />
+                <line x1="63" y1="30" x2="63" y2="44" stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="1.8" />
+                <line x1="56" y1="37" x2="70" y2="37" stroke={isLight ? '#3D6436' : '#6B9E5E'} strokeWidth="1.8" />
                 <circle cx="63" cy="37" r="2.5" fill="#FFF" />
               </g>
             </svg>
@@ -332,56 +332,64 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
         </div>
       </div>
 
-      {/* Right Controls: Compact Theme Switcher & Application Button */}
-      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+      {/* Right Controls: Theme Switcher, Application Button & Login Button matching mockup */}
+      <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 shrink-0">
 
         <button
           type="button"
           onClick={toggleTheme}
           aria-label="Karanlık/Açık Tema Değiştir"
           className={cn(
-            'flex items-center gap-1 px-2 sm:px-3.5 py-1 sm:py-1.5 rounded-full border backdrop-blur-[12px] transition-button-180 hover:scale-[1.02] active:scale-[0.99] shadow-sm text-xs font-medium',
+            'grid place-items-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border backdrop-blur-[12px] transition-all duration-200 hover:scale-[1.05] active:scale-[0.98] shadow-sm text-xs font-medium',
             isLight
-              ? 'border-[rgba(184,132,47,0.2)] bg-white/90 text-[#1E1E1E] hover:border-[#B8842F]'
-              : 'border-white/20 bg-black/70 text-white hover:border-[#D6AE5E]',
+              ? 'border-gray-300 bg-white/90 text-gray-700 hover:border-[#3D6436] hover:text-[#3D6436]'
+              : 'border-white/20 bg-black/70 text-white hover:border-[#6B9E5E] hover:text-[#6B9E5E]',
           )}
         >
           {isLight ? (
-            <>
-              <Moon className="w-3 h-3 text-[#B8842F]" />
-              <span className="text-[9px] font-mono tracking-wider font-semibold hidden xs:inline">KOYU</span>
-            </>
+            <Moon className="w-4 h-4 text-gray-700" />
           ) : (
-            <>
-              <Sun className="w-3 h-3 text-[#D6AE5E]" />
-              <span className="text-[9px] font-mono tracking-wider font-semibold hidden xs:inline">AÇIK</span>
-            </>
+            <Sun className="w-4 h-4 text-[#6B9E5E]" />
           )}
         </button>
 
+        {/* BAŞVURU YAP Button */}
         <button
           type="button"
           onClick={() => {
             if (onOpenModal) onOpenModal()
             else {
-              const el = document.getElementById('basvuru') || document.getElementById('footer')
+              const el = document.getElementById('sosyal-uretim') || document.getElementById('footer')
               if (el) el.scrollIntoView({ behavior: 'smooth' })
             }
           }}
           className={cn(
-            'group inline-flex items-center gap-1 sm:gap-2 rounded-full border px-2.5 sm:px-4 py-1 sm:py-1.5 text-[9.5px] sm:text-[11px] font-sans font-extrabold tracking-[0.1em] sm:tracking-[0.16em] backdrop-blur-[12px] transition-button-180 hover:scale-[1.02] active:scale-[0.99] shadow-sm whitespace-nowrap',
+            'inline-flex items-center gap-1.5 rounded-full border px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-[11.5px] font-sans font-bold tracking-[0.12em] backdrop-blur-[12px] transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-sm whitespace-nowrap cursor-pointer',
             isLight
-              ? 'border-[#B8842F] bg-white/90 text-[#B8842F] hover:bg-[#B8842F] hover:text-white'
-              : 'border-[#D6AE5E]/40 bg-black/70 text-[#F5F3EC] hover:border-[#D6AE5E] hover:bg-[#D6AE5E] hover:text-black',
+              ? 'border-gray-300 bg-white/90 text-gray-800 hover:border-[#3D6436] hover:text-[#3D6436]'
+              : 'border-white/25 bg-black/70 text-white hover:border-[#6B9E5E]',
           )}
         >
-          <span>BAŞVURU</span>
+          <span>BAŞVURU YAP</span>
+        </button>
+
+        {/* GİRİŞ YAP Button */}
+        <button
+          type="button"
+          onClick={() => {
+            window.location.href = 'https://tarim-two.vercel.app'
+          }}
+          className={cn(
+            'group inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-[11.5px] font-sans font-bold tracking-[0.12em] text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md whitespace-nowrap cursor-pointer',
+            isLight
+              ? 'bg-[#3D6436] hover:bg-[#2E4C29]'
+              : 'bg-[#588B4B] hover:bg-[#46703B]',
+          )}
+        >
+          <span>GİRİŞ YAP</span>
           <ArrowRight
-            className={cn(
-              'h-3.5 w-3.5 transition-transform duration-180 group-hover:translate-x-1',
-              isLight ? 'text-[#B8842F] group-hover:text-white' : 'text-[#D6AE5E] group-hover:text-black',
-            )}
-            strokeWidth={1.8}
+            className="h-3.5 w-3.5 transition-transform duration-180 group-hover:translate-x-0.5"
+            strokeWidth={2}
           />
         </button>
       </div>

@@ -1,71 +1,55 @@
 'use client'
 
-import React, { useEffect, useState, memo } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Sparkles } from 'lucide-react'
 import { useTheme } from '@/components/theme-context'
 import { cn } from '@/lib/utils'
 
-interface PreloaderProps {
-  onComplete?: () => void
-}
-
-function PreloaderComponent({ onComplete }: PreloaderProps) {
+export function Preloader() {
+  const [progress, setProgress] = useState(0)
+  const [isLoaded, setIsLoaded] = useState(false)
   const { theme } = useTheme()
   const isLight = theme === 'light'
 
-  const [progress, setProgress] = useState(0)
-  const [isFading, setIsFading] = useState(false)
-  const [isHidden, setIsHidden] = useState(false)
-
   useEffect(() => {
-    // Lock background scroll during preloader
-    document.body.style.overflow = 'hidden'
+    // Pre-cache all 8 chapter background images upfront to eliminate Vercel slide loading delays
+    [1, 2, 3, 4, 5, 6, 7, 8].forEach((n) => {
+      const img = new window.Image()
+      img.src = `/chapters/${n}.png`
+    })
 
-    const startTime = Date.now()
-    const duration = 2000 // 2.0s cinematic load time
+    // Fast high-precision progress increment
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval)
+          setTimeout(() => setIsLoaded(true), 150)
+          return 100
+        }
+        // Accelerating fill logic
+        const diff = Math.max(1, Math.floor((100 - prev) / 4))
+        return Math.min(100, prev + diff)
+      })
+    }, 30)
 
-    const timer = setInterval(() => {
-      const elapsed = Date.now() - startTime
-      const rawProgress = Math.min(1, elapsed / duration)
-      // Ease out quad
-      const eased = 1 - (1 - rawProgress) * (1 - rawProgress)
-      const currentVal = Math.floor(eased * 100)
+    return () => clearInterval(interval)
+  }, [])
 
-      setProgress(currentVal)
-
-      if (rawProgress >= 1) {
-        clearInterval(timer)
-        setIsFading(true)
-        setTimeout(() => {
-          setIsHidden(true)
-          document.body.style.overflow = ''
-          if (onComplete) onComplete()
-        }, 600) // Match fade out duration
-      }
-    }, 20)
-
-    return () => {
-      clearInterval(timer)
-      document.body.style.overflow = ''
-    }
-  }, [onComplete])
-
-  if (isHidden) return null
+  if (isLoaded) return null
 
   const getStatusText = () => {
-    if (progress < 30) return 'T.C. ŞEHİTKAMİL BELEDİYESİ'
-    if (progress < 60) return 'AGROPARK UYDU VERİLERİ YÜKLENİYOR...'
-    if (progress < 90) return 'SÖZLEŞMELİ TARIM SAHASI HAZIRLANIYOR...'
-    return 'ŞEHİTKAMİL TARIM EKOSİSTEMİNE HOŞ GELDİNİZ'
+    if (progress < 30) return 'SİSTEM MODÜLLERİ YÜKLENİYOR...'
+    if (progress < 60) return 'UYDU & ARAZİ VERİLERİ İŞLENİYOR...'
+    if (progress < 90) return 'ŞEKABEL EKOSİSTEMİ HAZIRLANANİYOR...'
+    return 'YÜKLEME TAMAMLANDI'
   }
 
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[100] flex flex-col items-center justify-center transition-all duration-700 ease-out select-none pointer-events-auto',
-        isFading ? 'opacity-0 scale-105 pointer-events-none' : 'opacity-100 scale-100',
-        isLight ? 'bg-[#FAF8F3] text-[#1E1E1E]' : 'bg-[#060807] text-white',
+        'fixed inset-0 z-[100] flex flex-col items-center justify-center transition-opacity duration-500 gpu-accelerated select-none',
+        isLight ? 'bg-[#F8F7F2] text-[#1E1E1E]' : 'bg-[#060807] text-white',
       )}
     >
       {/* Background Ambient Glows */}
@@ -73,7 +57,7 @@ function PreloaderComponent({ onComplete }: PreloaderProps) {
         aria-hidden="true"
         className={cn(
           'absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full blur-[140px] opacity-25 animate-pulse',
-          isLight ? 'bg-[#B8842F]' : 'bg-[#D6AE5E]',
+          isLight ? 'bg-[#3D6436]' : 'bg-[#588B4B]',
         )}
       />
 
@@ -84,7 +68,7 @@ function PreloaderComponent({ onComplete }: PreloaderProps) {
           <div
             className={cn(
               'absolute inset-0 rounded-full blur-xl opacity-50 animate-ping',
-              isLight ? 'bg-[#9E6F22]' : 'bg-[#D6AE5E]',
+              isLight ? 'bg-[#3D6436]' : 'bg-[#6B9E5E]',
             )}
           />
           <Image
@@ -99,7 +83,7 @@ function PreloaderComponent({ onComplete }: PreloaderProps) {
 
         {/* Corporate Title Badge */}
         <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-extrabold tracking-widest uppercase bg-[#9E6F22]/10 text-[#9E6F22] dark:text-[#D6AE5E] border border-current/20">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-mono font-extrabold tracking-widest uppercase bg-[#3D6436]/10 text-[#3D6436] dark:text-[#6B9E5E] border border-current/20">
             <Sparkles className="w-3 h-3 animate-spin" />
             <span>STRATEJİ VE GELİŞTİRME MERKEZİ</span>
           </div>
@@ -113,13 +97,13 @@ function PreloaderComponent({ onComplete }: PreloaderProps) {
           <div
             className={cn(
               'h-1.5 w-full rounded-full overflow-hidden border p-0.5 backdrop-blur-md',
-              isLight ? 'border-[#B8842F]/30 bg-white/80' : 'border-white/20 bg-black/60',
+              isLight ? 'border-[#3D6436]/30 bg-white/80' : 'border-white/20 bg-black/60',
             )}
           >
             <div
               className={cn(
                 'h-full rounded-full transition-all duration-150 ease-out',
-                isLight ? 'bg-[#9E6F22]' : 'bg-[#D6AE5E]',
+                isLight ? 'bg-[#3D6436]' : 'bg-[#6B9E5E]',
               )}
               style={{ width: `${progress}%` }}
             />
@@ -128,12 +112,10 @@ function PreloaderComponent({ onComplete }: PreloaderProps) {
           {/* Status Label & Counter */}
           <div className="flex items-center justify-between text-[10px] font-mono font-bold tracking-widest opacity-80 pt-1">
             <span className="truncate pr-2">{getStatusText()}</span>
-            <span className="shrink-0 text-[#9E6F22] dark:text-[#D6AE5E] font-extrabold">{progress}%</span>
+            <span className="shrink-0 text-[#3D6436] dark:text-[#6B9E5E] font-extrabold">{progress}%</span>
           </div>
         </div>
       </div>
     </div>
   )
 }
-
-export const Preloader = memo(PreloaderComponent)

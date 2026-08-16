@@ -32,7 +32,7 @@
   --radius-3xl: calc(var(--radius) * 2.2);
 }
 
-/* DARK THEME TOKENS (DEFAULT - UNTOUCHED) */
+/* DARK THEME TOKENS */
 :root, .dark {
   color-scheme: dark;
   --background: #060807;
@@ -40,7 +40,7 @@
   --surface-soft: #121712;
   --foreground: #F5F3EC;
   --text-secondary: #A8A8A8;
-  --accent: #D6AE5E;
+  --accent: #588B4B;
   --border: rgba(255, 255, 255, 0.1);
 
   --card: #0A0D0A;
@@ -51,10 +51,10 @@
   --sidebar: #060807;
   --sidebar-foreground: #F5F3EC;
 
-  --lime: #D7B36A;
-  --lime-dim: #C5A059;
-  --gold: #D6AE5E;
-  --gold-dim: #B88E35;
+  --lime: #6B9E5E;
+  --lime-dim: #588B4B;
+  --gold: #588B4B;
+  --gold-dim: #446B38;
 
   --overlay-start: #060807;
   --overlay-end: transparent;
@@ -62,31 +62,31 @@
   --radius: 0.75rem;
 }
 
-/* LIGHT THEME TOKENS (WARM PREMIUM APPLE / LINEAR / STRIPE / RAYCAST QUALITY) */
+/* LIGHT THEME TOKENS */
 .light {
   color-scheme: light;
-  --background: #FAF8F3;
+  --background: #F8F7F2;
   --surface: #FFFFFF;
-  --surface-soft: #F4F1EA;
+  --surface-soft: #F1EFE6;
   --foreground: #1E1E1E;
   --text-secondary: #4F4F4F;
-  --accent: #B8842F;
-  --border: rgba(184, 132, 47, 0.15);
+  --accent: #3D6436;
+  --border: rgba(61, 100, 54, 0.15);
 
   --card: #FFFFFF;
   --card-foreground: #1E1E1E;
-  --muted: #F4F1EA;
+  --muted: #F1EFE6;
   --muted-foreground: #4F4F4F;
 
-  --sidebar: #FAF8F3;
+  --sidebar: #F8F7F2;
   --sidebar-foreground: #1E1E1E;
 
-  --lime: #B8842F;
-  --lime-dim: #9E6F22;
-  --gold: #B8842F;
-  --gold-dim: #9E6F22;
+  --lime: #3D6436;
+  --lime-dim: #2E4C29;
+  --gold: #3D6436;
+  --gold-dim: #2E4C29;
 
-  --overlay-start: #FAF8F3;
+  --overlay-start: #F8F7F2;
   --overlay-end: transparent;
 }
 

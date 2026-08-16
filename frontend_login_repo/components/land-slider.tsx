@@ -33,7 +33,7 @@ function LandSliderComponent() {
   return (
     <div className="w-full mt-5 reveal space-y-2">
       <div className="flex items-center justify-between text-[10px] font-mono font-extrabold tracking-widest uppercase">
-        <span className={cn('flex items-center gap-1', isLight ? 'text-[#9E6F22]' : 'text-[#D6AE5E]')}>
+        <span className={cn('flex items-center gap-1', isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E]')}>
           <Sparkles className="w-3 h-3" />
           <span>İNTERAKTİF DÖNÜŞÜM İNCELEME</span>
         </span>
@@ -47,10 +47,10 @@ function LandSliderComponent() {
         onTouchMove={handleTouchMove}
         className={cn(
           'relative w-full h-[180px] sm:h-[220px] rounded-2xl overflow-hidden border shadow-xl cursor-ew-resize select-none touch-none',
-          isLight ? 'border-[#B8842F]/30' : 'border-white/20',
+          isLight ? 'border-[#3D6436]/30' : 'border-white/20',
         )}
       >
-        {/* Layer 1: Right Image (Verimli Yeşil Üretim Tarlası) */}
+        {/* Layer 1: Right Image */}
         <div className="absolute inset-0 w-full h-full">
           <Image
             src={isLight ? '/chapters/uretim-light.png' : '/chapters/uretim.png'}
@@ -63,7 +63,7 @@ function LandSliderComponent() {
           </div>
         </div>
 
-        {/* Layer 2: Left Image (Atıl Arazi - Clipped by sliderPos) */}
+        {/* Layer 2: Left Image */}
         <div
           className="absolute inset-y-0 left-0 h-full overflow-hidden"
           style={{ width: `${sliderPos}%` }}

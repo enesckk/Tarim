@@ -1,11 +1,11 @@
 export function BrandMark({
   className,
-  tone = 'lime',
+  tone = 'white',
 }: {
   className?: string
-  tone?: 'lime' | 'gold'
+  tone?: 'white' | 'green'
 }) {
-  const stroke = tone === 'lime' ? 'var(--lime)' : 'var(--gold)'
+  const stroke = tone === 'white' ? '#FFFFFF' : '#3D6436'
   return (
     <svg
       viewBox="0 0 48 52"

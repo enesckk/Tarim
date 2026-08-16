@@ -56,6 +56,7 @@ export function Experience() {
               chapter={c}
               activeIndex={active}
               onActive={onActive}
+              onOpenModal={handleOpenModal}
             />
           ))}
         </main>
