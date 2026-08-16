@@ -18,7 +18,7 @@ export default defineConfig(({ mode }) => {
       react(),
       tailwindcss(),
       VitePWA({
-        registerType: "prompt",
+        registerType: "autoUpdate",
         injectRegister: false,
         includeAssets: [
           "favicon.svg",
@@ -88,7 +88,7 @@ export default defineConfig(({ mode }) => {
           importScripts: ["/push-sw.js"],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
-          skipWaiting: false,
+          skipWaiting: true,
           navigateFallback: "/index.html",
           navigateFallbackDenylist: [
             /^\/api(?:\/|$)/,
