@@ -28,8 +28,8 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore Agriculture.sln
 
-    - name: Restore repository tools
-      run: dotnet tool restore
+    - name: Install EF Core CLI Tool
+      run: dotnet tool install --global dotnet-ef
       
     - name: Build backend
       run: dotnet build Agriculture.sln --no-restore --configuration Release
