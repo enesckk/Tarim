@@ -359,7 +359,7 @@ function ChapterStageComponent({
             <div className="reveal mt-auto pt-2 sm:pt-3 w-full">
               <div
                 className={cn(
-                  'w-full max-w-5xl rounded-2xl p-3.5 sm:p-4.5 backdrop-blur-xl border shadow-xl transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5',
+                  'w-full max-w-5xl rounded-2xl p-2.5 sm:p-4.5 backdrop-blur-xl border shadow-xl transition-all duration-300 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5',
                   isLight
                     ? 'bg-white/95 border-gray-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.06)]'
                     : 'bg-[#0A0D0A]/90 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
@@ -368,14 +368,14 @@ function ChapterStageComponent({
                 {chapter.bottomCards.map((card, i) => {
                   const Icon = CARD_ICON[card.icon] || Sprout
                   return (
-                    <div key={i} className="flex items-start gap-3.5 group">
+                    <div key={i} className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3.5 group">
                       <div
                         className={cn(
-                          'grid h-10 w-10 shrink-0 place-items-center rounded-full transition-transform duration-200 group-hover:scale-105',
+                          'grid h-7 w-7 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-full transition-transform duration-200 group-hover:scale-105',
                           isLight ? style.cardIconLight : style.cardIconDark,
                         )}
                       >
-                        <Icon className="h-5 w-5" strokeWidth={1.8} />
+                        <Icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={1.8} />
                       </div>
                       <div className="pt-0.5">
                         <h4
