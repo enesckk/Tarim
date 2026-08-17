@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import Image from 'next/image'
 import gsap from 'gsap'
 import { ArrowRight, Sun, Moon, Volume2, VolumeX } from 'lucide-react'
@@ -13,6 +14,7 @@ interface ProducerCtaProps {
 }
 
 export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
+  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const tractorRef = useRef<HTMLDivElement>(null)
@@ -375,7 +377,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
         <button
           type="button"
           onClick={() => {
-            window.location.href = 'https://tarim-two.vercel.app'
+            navigate('/login')
           }}
           className={cn(
             'group inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-[11.5px] font-sans font-bold tracking-[0.12em] text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md whitespace-nowrap cursor-pointer',
