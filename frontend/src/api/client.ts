@@ -134,6 +134,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
         body.message ??
         body.Message ??
         validationMessage ??
+        body.detail ??
         (body.title && body.title !== 'One or more validation errors occurred.'
           ? body.title
           : null) ??

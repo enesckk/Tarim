@@ -71,6 +71,9 @@ function validateOfficerCreateForm(form: typeof emptyForm): string | null {
   const password = form.password.trim()
   if (!password) return 'Uygulama şifresi zorunludur.'
   if (password.length < 8) return 'Uygulama şifresi en az 8 karakter olmalıdır.'
+  if (!/[a-z]/.test(password)) return 'Uygulama şifresi en az bir küçük harf içermelidir.'
+  if (!/[A-Z]/.test(password)) return 'Uygulama şifresi en az bir büyük harf içermelidir.'
+  if (!/\d/.test(password)) return 'Uygulama şifresi en az bir rakam içermelidir.'
   if (password !== form.passwordConfirm.trim()) return 'Şifreler eşleşmiyor.'
   return null
 }
@@ -266,7 +269,7 @@ function OfficersListPage() {
       setShowForm(false)
       await queryClient.invalidateQueries({ queryKey: ['staff-officers'] })
       await queryClient.invalidateQueries({ queryKey: ['officers'] })
-      if (id) navigate(`/officers/${id}`)
+      if (id) navigate(`/app/officers/${id}`)
     },
   })
 
@@ -360,19 +363,19 @@ function OfficersListPage() {
             <label>
               Uygulama şifresi <span className="required-mark">*</span>
               <input
-                type="text"
+                type="password"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
                 minLength={8}
                 autoComplete="new-password"
-                placeholder="En az 8 karakter"
+                placeholder="En az 8 karakter; büyük/küçük harf ve rakam"
               />
             </label>
             <label>
               Şifre tekrar <span className="required-mark">*</span>
               <input
-                type="text"
+                type="password"
                 value={form.passwordConfirm}
                 onChange={(e) => setForm({ ...form, passwordConfirm: e.target.value })}
                 required
@@ -746,7 +749,7 @@ function OfficersListPage() {
                             <MessageSquare size={14} aria-hidden />
                             Mesaj gönder
                           </Link>
-                          <Link to={`/officers/${item.id}`} className="officers-action-btn">
+                          <Link to={`/app/officers/${item.id}`} className="officers-action-btn">
                             Detayları görüntüle
                             <ChevronRight size={14} aria-hidden />
                           </Link>
@@ -873,7 +876,7 @@ function OfficerDetailPage({ officerId }: { officerId: string }) {
         <p className="error empty">
           {(officerQuery.error as Error)?.message ?? 'Uzman bulunamadı.'}
         </p>
-        <button type="button" className="ghost-btn" onClick={() => navigate('/officers')}>
+        <button type="button" className="ghost-btn" onClick={() => navigate('/app/officers')}>
           <ChevronLeft size={16} /> Uzmanlara dön
         </button>
       </section>
@@ -887,7 +890,7 @@ function OfficerDetailPage({ officerId }: { officerId: string }) {
     <section className="officers-page">
       <div className="officers-page-header">
         <div>
-          <button type="button" className="ghost-btn officers-back" onClick={() => navigate('/officers')}>
+          <button type="button" className="ghost-btn officers-back" onClick={() => navigate('/app/officers')}>
             <ChevronLeft size={16} /> Uzmanlar
           </button>
           <h1>{officer.fullName}</h1>
