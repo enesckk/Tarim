@@ -16,15 +16,50 @@ import { cn } from '@/lib/utils'
 import { soundManager } from '@/lib/sound'
 
 export const TIMELINE_ITEMS = [
-  { id: 'baslangic', index: 1, number: '01', label: 'Başlangıç', icon: Sprout },
-  { id: 'sosyal-uretim', index: 2, number: '02', label: 'Sosyal Üretim', icon: Users },
-  { id: 'tahil-uretimi', index: 3, number: '03', label: 'Tahıl Üretimi', icon: Wheat },
-  { id: 'aromatik-bitkiler', index: 4, number: '04', label: 'Aromatik Bitkiler', icon: Flower2 },
-  { id: 'bitki-klonlama', index: 5, number: '05', label: 'Bitki Klonlama', icon: Dna },
-  { id: 'aricilik-bal', index: 6, number: '06', label: 'Arıcılık & Bal', icon: Hexagon },
-  { id: 'katma-deger', index: 7, number: '07', label: 'Katma Değer', icon: Factory },
-  { id: 'sekabel', index: 8, number: '08', label: 'Şekabel', icon: Store },
+  { id: 'baslangic', index: 1, number: '01', label: 'Başlangıç', icon: Sprout, accent: 'green' },
+  { id: 'sosyal-uretim', index: 2, number: '02', label: 'Sosyal Üretim', icon: Users, accent: 'green' },
+  { id: 'tahil-uretimi', index: 3, number: '03', label: 'Tahıl Üretimi', icon: Wheat, accent: 'amber' },
+  { id: 'aromatik-bitkiler', index: 4, number: '04', label: 'Aromatik Bitkiler', icon: Flower2, accent: 'lavender' },
+  { id: 'bitki-klonlama', index: 5, number: '05', label: 'Bitki Klonlama', icon: Dna, accent: 'cyan' },
+  { id: 'aricilik-bal', index: 6, number: '06', label: 'Arıcılık & Bal', icon: Hexagon, accent: 'amber' },
+  { id: 'katma-deger', index: 7, number: '07', label: 'Katma Değer', icon: Factory, accent: 'green' },
+  { id: 'sekabel', index: 8, number: '08', label: 'Şekabel', icon: Store, accent: 'green' },
 ]
+
+const SIDEBAR_ACCENTS = {
+  green: {
+    badgeLight: 'bg-[#3D6436] text-white shadow-[0_4px_16px_rgba(61,100,54,0.3)]',
+    badgeDark: 'bg-[#588B4B] text-white shadow-[0_0_18px_rgba(88,139,75,0.4)]',
+    textLight: 'text-[#3D6436] font-extrabold',
+    textDark: 'text-[#6B9E5E] font-extrabold',
+    dotLight: 'bg-[#3D6436]',
+    dotDark: 'bg-[#6B9E5E] shadow-[0_0_8px_#6B9E5E]',
+  },
+  lavender: {
+    badgeLight: 'bg-[#7E22CE] text-white shadow-[0_4px_16px_rgba(126,34,206,0.4)]',
+    badgeDark: 'bg-[#9333EA] text-white shadow-[0_0_18px_rgba(168,85,247,0.6)]',
+    textLight: 'text-[#7E22CE] font-extrabold',
+    textDark: 'text-[#C084FC] font-extrabold',
+    dotLight: 'bg-[#7E22CE]',
+    dotDark: 'bg-[#A855F7] shadow-[0_0_8px_#A855F7]',
+  },
+  amber: {
+    badgeLight: 'bg-[#B45309] text-white shadow-[0_4px_16px_rgba(180,83,9,0.4)]',
+    badgeDark: 'bg-[#F59E0B] text-white shadow-[0_0_18px_rgba(245,158,11,0.6)]',
+    textLight: 'text-[#B45309] font-extrabold',
+    textDark: 'text-[#FBBF24] font-extrabold',
+    dotLight: 'bg-[#B45309]',
+    dotDark: 'bg-[#F59E0B] shadow-[0_0_8px_#F59E0B]',
+  },
+  cyan: {
+    badgeLight: 'bg-[#0369A1] text-white shadow-[0_4px_16px_rgba(3,105,161,0.4)]',
+    badgeDark: 'bg-[#0EA5E9] text-white shadow-[0_0_18px_rgba(14,165,233,0.6)]',
+    textLight: 'text-[#0369A1] font-extrabold',
+    textDark: 'text-[#38BDF8] font-extrabold',
+    dotLight: 'bg-[#0369A1]',
+    dotDark: 'bg-[#0EA5E9] shadow-[0_0_8px_#0EA5E9]',
+  },
+}
 
 interface SidebarNavProps {
   activeIndex: number
@@ -70,52 +105,56 @@ function SidebarNavComponent({
           {TIMELINE_ITEMS.map((item) => {
             const Icon = item.icon
             const isActive = activeIndex === item.index
+            const accStyle = SIDEBAR_ACCENTS[item.accent as keyof typeof SIDEBAR_ACCENTS] || SIDEBAR_ACCENTS.green
 
             return (
               <div
                 key={item.id}
                 onClick={() => {
-                  soundManager.playTransition()
                   onNavigate(item.id)
                 }}
                 className="flex items-center gap-3 cursor-pointer group py-1"
               >
-                {/* Number / Icon Badge */}
+                {/* Circle Badge: Always displays item.number (01, 02, 03...) */}
                 <div className="relative flex items-center justify-center w-8 h-8 shrink-0">
-                  {isActive ? (
-                    <div
-                      className={cn(
-                        'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 scale-110 shadow-md relative z-10 font-mono text-xs font-bold',
-                        isLight
-                          ? 'bg-[#3D6436] text-white shadow-[0_4px_16px_rgba(61,100,54,0.3)]'
-                          : 'bg-[#588B4B] text-white shadow-[0_0_18px_rgba(88,139,75,0.4)]',
-                      )}
-                    >
-                      <span className="text-[11px] font-bold">{item.number}</span>
-                    </div>
-                  ) : (
-                    <div
-                      className={cn(
-                        'w-7 h-7 rounded-full flex items-center justify-center transition-all duration-300 border font-mono text-[10px] font-bold',
-                        isLight
-                          ? 'border-gray-300 bg-white/80 text-gray-600 group-hover:border-[#3D6436] group-hover:text-[#3D6436]'
-                          : 'border-white/20 bg-black/60 text-slate-400 group-hover:border-[#6B9E5E] group-hover:text-[#6B9E5E]',
-                      )}
-                    >
-                      <Icon className="w-3.5 h-3.5" strokeWidth={1.5} />
-                    </div>
-                  )}
+                  <div
+                    className={cn(
+                      'w-8 h-8 rounded-full flex items-center justify-center transition-all duration-300 font-mono text-xs font-bold border',
+                      isActive
+                        ? isLight
+                          ? accStyle.badgeLight
+                          : accStyle.badgeDark
+                        : isLight
+                        ? 'border-gray-300/80 bg-white/80 text-gray-600 group-hover:border-[#3D6436] group-hover:text-[#3D6436] group-hover:scale-105'
+                        : 'border-white/20 bg-black/60 text-slate-400 group-hover:border-[#6B9E5E] group-hover:text-[#6B9E5E] group-hover:scale-105',
+                    )}
+                  >
+                    <span className="text-[11px] font-bold tracking-tight">{item.number}</span>
+                  </div>
                 </div>
 
-                {/* Label */}
+                {/* Icon & Label beside circle */}
                 <div className="flex items-center gap-2 text-left overflow-hidden">
+                  <Icon
+                    className={cn(
+                      'w-4 h-4 shrink-0 transition-all duration-300',
+                      isActive
+                        ? isLight
+                          ? accStyle.textLight
+                          : accStyle.textDark
+                        : isLight
+                        ? 'text-gray-500 group-hover:text-gray-900'
+                        : 'text-slate-400 group-hover:text-slate-200',
+                    )}
+                    strokeWidth={isActive ? 2 : 1.6}
+                  />
                   <span
                     className={cn(
                       'text-xs font-sans transition-all duration-300 truncate',
                       isActive
                         ? isLight
-                          ? 'text-[#3D6436] font-extrabold'
-                          : 'text-[#6B9E5E] font-extrabold'
+                          ? accStyle.textLight
+                          : accStyle.textDark
                         : isLight
                         ? 'text-gray-600 font-medium group-hover:text-gray-900'
                         : 'text-slate-400 font-medium group-hover:text-slate-200',
@@ -165,6 +204,7 @@ function SidebarNavComponent({
             {currentItem.number} / 08
           </span>
           <span className="w-1 h-1 rounded-full bg-[#6B9E5E] shrink-0" />
+          {React.createElement(currentItem.icon, { className: 'w-3.5 h-3.5 shrink-0 text-[#6B9E5E]', strokeWidth: 2 })}
           <span className="text-[11px] font-sans font-extrabold tracking-wider uppercase truncate text-slate-100">
             {currentItem.label}
           </span>

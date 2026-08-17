@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import Image from 'next/image'
 import gsap from 'gsap'
 import { ArrowRight, Sun, Moon, Volume2, VolumeX } from 'lucide-react'
@@ -14,7 +13,6 @@ interface ProducerCtaProps {
 }
 
 export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
-  const navigate = useNavigate()
   const [scrolled, setScrolled] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const tractorRef = useRef<HTMLDivElement>(null)
@@ -69,6 +67,18 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
 
     resetTractor()
 
+    // Dust particles independent animation
+    let dustAnim: gsap.core.Tween | null = null
+    if (particles && particles.length > 0) {
+      dustAnim = gsap.to(particles, {
+        opacity: 0.9,
+        y: -6,
+        x: -12,
+        stagger: { each: 0.15, repeat: -1, yoyo: true },
+        duration: 0.35,
+      })
+    }
+
     // Master Drive & Reveal Timeline
     const masterTl = gsap.timeline({
       repeat: -1,
@@ -76,21 +86,6 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
       onRepeat: resetTractor,
       defaults: { ease: 'none' },
     })
-
-    // Dust particles animation
-    if (particles) {
-      masterTl.to(
-        particles,
-        {
-          opacity: 0.9,
-          y: -6,
-          x: -12,
-          stagger: { each: 0.15, repeat: -1, yoyo: true },
-          duration: 0.35,
-        },
-        0,
-      )
-    }
 
     // 1. Tractor Drives from 0% to 100% width across header
     masterTl.fromTo(
@@ -129,6 +124,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
 
     return () => {
       wheelAnimation.kill()
+      if (dustAnim) dustAnim.kill()
       masterTl.kill()
     }
   }, [])
@@ -379,7 +375,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
         <button
           type="button"
           onClick={() => {
-            navigate('/login')
+            window.location.href = 'https://tarim-two.vercel.app'
           }}
           className={cn(
             'group inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3.5 sm:px-5 py-1.5 sm:py-2 text-[10px] sm:text-[11.5px] font-sans font-bold tracking-[0.12em] text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md whitespace-nowrap cursor-pointer',
