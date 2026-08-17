@@ -2836,7 +2836,8 @@ button.land-task-photo-link {
   display: flex;
   flex-direction: column;
   gap: 22px;
-  max-width: 1120px;
+  width: 100%;
+  max-width: none;
 }
 
 .ops-hero {
