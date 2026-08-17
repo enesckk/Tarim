@@ -189,7 +189,7 @@ function ChapterStageComponent({
         trigger: root,
         start: 'top 50%',
         end: 'bottom 50%',
-        onToggle: (self) => {
+        onToggle: (self: any) => {
           if (self.isActive) {
             onActive(chapter.index)
             soundManager.playTransition()

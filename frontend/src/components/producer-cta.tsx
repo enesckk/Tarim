@@ -68,7 +68,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
     resetTractor()
 
     // Dust particles independent animation
-    let dustAnim: gsap.core.Tween | null = null
+    let dustAnim: any = null
     if (particles && particles.length > 0) {
       dustAnim = gsap.to(particles, {
         opacity: 0.9,
