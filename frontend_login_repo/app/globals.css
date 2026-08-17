@@ -96,8 +96,7 @@
   }
   html {
     @apply bg-background;
-    scroll-snap-type: y proximity;
-    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
   }
   body {
     @apply bg-background text-foreground;
@@ -105,7 +104,7 @@
   }
   section[data-chapter] {
     scroll-snap-align: start;
-    scroll-snap-stop: normal;
+    scroll-snap-stop: always;
     will-change: opacity, transform;
   }
 }

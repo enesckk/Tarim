@@ -27,7 +27,13 @@ function FooterComponent({ onOpenModal }: FooterProps) {
 
   const scrollToChapter = (id: string) => {
     const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (!el) return
+    const lenis = (window as any).__lenis
+    if (lenis) {
+      lenis.scrollTo(el, { offset: 0, duration: 0.8 })
+    } else {
+      el.scrollIntoView({ behavior: 'auto', block: 'start' })
+    }
   }
 
   return (

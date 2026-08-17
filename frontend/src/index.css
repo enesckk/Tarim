@@ -116,8 +116,7 @@
   }
 
   html {
-    scroll-snap-type: y proximity;
-    scroll-behavior: smooth;
+    scroll-snap-type: y mandatory;
   }
 
   html,
@@ -128,10 +127,11 @@
     overflow-x: hidden;
   }
 
-  html {
-    overflow-y: auto;
-    scroll-behavior: smooth;
+  section[data-chapter] {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
+}
 
   body {
     min-width: 320px;
