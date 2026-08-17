@@ -122,15 +122,15 @@ function ImpactStatsComponent() {
             className={cn(
               'p-3.5 sm:p-4 rounded-2xl border backdrop-blur-md transition-all duration-300 hover:scale-[1.03] shadow-md group relative overflow-hidden',
               isLight
-                ? 'bg-white/90 border-[#B8842F]/25 text-[#1E1E1E] hover:border-[#9E6F22]'
-                : 'bg-black/60 border-white/15 text-white hover:border-[#D6AE5E]',
+                ? 'bg-white/90 border-[#3D6436]/25 text-[#1E1E1E] hover:border-[#3D6436]'
+                : 'bg-black/60 border-white/15 text-white hover:border-[#6B9E5E]',
             )}
           >
             <div className="flex items-center justify-between gap-2 mb-2">
               <span
                 className={cn(
                   'text-[9px] sm:text-[10px] font-mono font-extrabold tracking-widest uppercase truncate',
-                  isLight ? 'text-[#9E6F22]' : 'text-[#D6AE5E]',
+                  isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E]',
                 )}
               >
                 {stat.label}
@@ -139,8 +139,8 @@ function ImpactStatsComponent() {
                 className={cn(
                   'w-6 h-6 rounded-full border flex items-center justify-center shrink-0 transition-transform duration-300 group-hover:rotate-12',
                   isLight
-                    ? 'border-[#9E6F22]/30 bg-[#FAF8F3] text-[#9E6F22]'
-                    : 'border-[#D6AE5E]/30 bg-white/5 text-[#D6AE5E]',
+                    ? 'border-[#3D6436]/30 bg-[#F8F7F2] text-[#3D6436]'
+                    : 'border-[#6B9E5E]/30 bg-white/5 text-[#6B9E5E]',
                 )}
               >
                 <Icon className="w-3.5 h-3.5" />

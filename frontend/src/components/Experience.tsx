@@ -29,36 +29,42 @@ export function Experience() {
 
   return (
     <ThemeProvider>
-      {/* Root fills viewport with native scroll — no overflow restriction */}
-      <div style={{ position: 'relative', minHeight: '100vh' }}>
-
-        {/* ── Loading screen (fixed, portal-like) ── */}
+      <div className="relative min-h-screen">
+        {/* Sinematik İlk Açılış & Yenileme Yükleme Animasyonu */}
         <Preloader />
 
-        {/* ── Smooth scroll driver (no-op shim when Lenis unavailable) ── */}
         <SmoothScroll />
 
-        {/* ── Ambient background particles ── */}
+        {/* ambient particles */}
         <Particles />
 
-        {/* ── Fixed UI chrome (all use position:fixed so they sit above chapters) ── */}
-        <SidebarNav activeIndex={active} onNavigate={onNavigate} progress={progress} />
-        <ProducerCta onTabClick={onNavigate} onOpenModal={handleOpenModal} />
-        <Footer onOpenModal={handleOpenModal} />
+        {/* fixed vertical stepper timeline sidebar */}
+        <SidebarNav
+          activeIndex={active}
+          onNavigate={onNavigate}
+          progress={progress}
+        />
 
-        {/* ── Scrollable chapter list — native window scroll ── */}
-        <main>
+        {/* fixed top header bar */}
+        <ProducerCta onTabClick={onNavigate} onOpenModal={handleOpenModal} />
+
+        {/* fullscreen chapter stages */}
+        <main className="relative w-full">
           {CHAPTERS.map((c) => (
             <ChapterStage
               key={c.id}
               chapter={c}
               activeIndex={active}
               onActive={onActive}
+              onOpenModal={handleOpenModal}
             />
           ))}
         </main>
 
-        {/* ── Modal ── */}
+        {/* Modern Corporate Executive Footer */}
+        <Footer onOpenModal={handleOpenModal} />
+
+        {/* Executive Producer Application Modal */}
         <ProducerModal isOpen={isModalOpen} onClose={handleCloseModal} />
       </div>
     </ThemeProvider>
