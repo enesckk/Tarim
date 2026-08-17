@@ -131,7 +131,6 @@
     scroll-snap-align: start;
     scroll-snap-stop: always;
   }
-}
 
   body {
     min-width: 320px;
