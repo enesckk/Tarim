@@ -18,7 +18,7 @@ export type IconKey =
   | 'tahsis'
   | 'alim'
 
-export type Accent = 'green'
+export type Accent = 'green' | 'lavender' | 'amber' | 'cyan'
 
 export type TitleSeg = { text: string; accent?: boolean }
 export type TitleLine = TitleSeg[]
@@ -117,7 +117,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     description:
       'Modern tarım teknikleri, doğru planlama ve nitelikli tohumlarla yüksek verim hedefliyoruz. Toprağımıza değer katıyor, geleceğe güvenle üretiyoruz.',
-    accent: 'green',
+    accent: 'amber',
     image: '/chapters/3.png',
     icon: 'tahil',
     primaryCta: { label: 'TAHIL ÜRETİMİ SÜRECİ' },
@@ -142,7 +142,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     description:
       'İlk lokomotif ürünümüz lavanta başta olmak üzere, katma değeri yüksek tıbbi ve aromatik bitkileri yerli üreticilerimizle birlikte yetiştiriyoruz.',
-    accent: 'green',
+    accent: 'lavender',
     image: '/chapters/4.png',
     icon: 'aromatik',
     primaryCta: { label: 'LAVANTA ÜRETİMİ' },
@@ -167,7 +167,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     description:
       'Kaliteli bitki materyallerini bilimsel yöntemlerle çoğaltıyor, daha güçlü ve hastalıksız bir tarımsal üretimi destekliyoruz.',
-    accent: 'green',
+    accent: 'cyan',
     image: '/chapters/5.png',
     icon: 'klonlama',
     primaryCta: { label: 'SÜRECİ KEŞFET' },
@@ -192,7 +192,7 @@ export const CHAPTERS: Chapter[] = [
     ],
     description:
       'Lavanta bahçelerimiz ve florası zengin alanlarımızda modern arıcılık teknikleriyle katkısız, saf ve kaliteli bal üretiyoruz.',
-    accent: 'green',
+    accent: 'amber',
     image: '/chapters/6.png',
     icon: 'aricilik',
     primaryCta: { label: 'ARICILIK MODELİ' },

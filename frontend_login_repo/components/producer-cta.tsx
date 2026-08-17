@@ -67,6 +67,18 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
 
     resetTractor()
 
+    // Dust particles independent animation
+    let dustAnim: gsap.core.Tween | null = null
+    if (particles && particles.length > 0) {
+      dustAnim = gsap.to(particles, {
+        opacity: 0.9,
+        y: -6,
+        x: -12,
+        stagger: { each: 0.15, repeat: -1, yoyo: true },
+        duration: 0.35,
+      })
+    }
+
     // Master Drive & Reveal Timeline
     const masterTl = gsap.timeline({
       repeat: -1,
@@ -74,21 +86,6 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
       onRepeat: resetTractor,
       defaults: { ease: 'none' },
     })
-
-    // Dust particles animation
-    if (particles) {
-      masterTl.to(
-        particles,
-        {
-          opacity: 0.9,
-          y: -6,
-          x: -12,
-          stagger: { each: 0.15, repeat: -1, yoyo: true },
-          duration: 0.35,
-        },
-        0,
-      )
-    }
 
     // 1. Tractor Drives from 0% to 100% width across header
     masterTl.fromTo(
@@ -127,6 +124,7 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
 
     return () => {
       wheelAnimation.kill()
+      if (dustAnim) dustAnim.kill()
       masterTl.kill()
     }
   }, [])

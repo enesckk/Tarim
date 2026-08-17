@@ -46,6 +46,65 @@ interface ChapterStageProps {
   onOpenModal?: () => void
 }
 
+const ACCENT_STYLES = {
+  green: {
+    eyebrowLight: 'text-[#3D6436]',
+    eyebrowDark: 'text-[#6B9E5E] drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]',
+    titleSegLight: 'text-[#3D6436] font-black',
+    titleSegDark: 'text-[#6B9E5E] font-black',
+    barLight: 'bg-[#3D6436]',
+    barDark: 'bg-[#6B9E5E]',
+    primaryCtaLight: 'bg-[#3D6436] hover:bg-[#2E4C29]',
+    primaryCtaDark: 'bg-[#588B4B] hover:bg-[#46703B]',
+    secondaryCtaLight: 'text-[#3D6436] hover:text-[#2E4C29]',
+    secondaryCtaDark: 'text-[#6B9E5E] hover:text-white',
+    cardIconLight: 'bg-[#3D6436]/10 text-[#3D6436]',
+    cardIconDark: 'bg-[#588B4B]/20 text-[#6B9E5E]',
+  },
+  lavender: {
+    eyebrowLight: 'text-[#7E22CE]',
+    eyebrowDark: 'text-[#C084FC] drop-shadow-[0_1px_8px_rgba(168,85,247,0.5)]',
+    titleSegLight: 'text-[#7E22CE] font-black',
+    titleSegDark: 'text-[#C084FC] font-black',
+    barLight: 'bg-[#7E22CE]',
+    barDark: 'bg-[#A855F7] shadow-[0_0_12px_rgba(168,85,247,0.6)]',
+    primaryCtaLight: 'bg-[#7E22CE] hover:bg-[#6B21A8]',
+    primaryCtaDark: 'bg-[#9333EA] hover:bg-[#7E22CE] shadow-[0_0_18px_rgba(147,51,234,0.4)]',
+    secondaryCtaLight: 'text-[#7E22CE] hover:text-[#6B21A8]',
+    secondaryCtaDark: 'text-[#C084FC] hover:text-white',
+    cardIconLight: 'bg-[#7E22CE]/10 text-[#7E22CE]',
+    cardIconDark: 'bg-[#9333EA]/20 text-[#C084FC]',
+  },
+  amber: {
+    eyebrowLight: 'text-[#B45309]',
+    eyebrowDark: 'text-[#FBBF24] drop-shadow-[0_1px_8px_rgba(245,158,11,0.5)]',
+    titleSegLight: 'text-[#B45309] font-black',
+    titleSegDark: 'text-[#FBBF24] font-black',
+    barLight: 'bg-[#B45309]',
+    barDark: 'bg-[#F59E0B] shadow-[0_0_12px_rgba(245,158,11,0.6)]',
+    primaryCtaLight: 'bg-[#B45309] hover:bg-[#78350F]',
+    primaryCtaDark: 'bg-[#D97706] hover:bg-[#B45309] shadow-[0_0_18px_rgba(217,119,6,0.4)]',
+    secondaryCtaLight: 'text-[#B45309] hover:text-[#78350F]',
+    secondaryCtaDark: 'text-[#FBBF24] hover:text-white',
+    cardIconLight: 'bg-[#B45309]/10 text-[#B45309]',
+    cardIconDark: 'bg-[#D97706]/20 text-[#FBBF24]',
+  },
+  cyan: {
+    eyebrowLight: 'text-[#0369A1]',
+    eyebrowDark: 'text-[#38BDF8] drop-shadow-[0_1px_8px_rgba(56,189,248,0.5)]',
+    titleSegLight: 'text-[#0369A1] font-black',
+    titleSegDark: 'text-[#38BDF8] font-black',
+    barLight: 'bg-[#0369A1]',
+    barDark: 'bg-[#0EA5E9] shadow-[0_0_12px_rgba(14,165,233,0.6)]',
+    primaryCtaLight: 'bg-[#0369A1] hover:bg-[#075985]',
+    primaryCtaDark: 'bg-[#0284C7] hover:bg-[#0369A1] shadow-[0_0_18px_rgba(2,132,199,0.4)]',
+    secondaryCtaLight: 'text-[#0369A1] hover:text-[#075985]',
+    secondaryCtaDark: 'text-[#38BDF8] hover:text-white',
+    cardIconLight: 'bg-[#0369A1]/10 text-[#0369A1]',
+    cardIconDark: 'bg-[#0284C7]/20 text-[#38BDF8]',
+  },
+}
+
 function ChapterStageComponent({
   chapter,
   activeIndex,
@@ -55,6 +114,28 @@ function ChapterStageComponent({
   const rootRef = useRef<HTMLElement>(null)
   const imageLayerRef = useRef<HTMLDivElement>(null)
   const { theme } = useTheme()
+
+  // Native IntersectionObserver for 100% reliable active section tracking
+  useEffect(() => {
+    const root = rootRef.current
+    if (!root) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.35) {
+            onActive(chapter.index)
+          }
+        })
+      },
+      {
+        threshold: [0.35, 0.6],
+      },
+    )
+
+    observer.observe(root)
+    return () => observer.disconnect()
+  }, [chapter.index, onActive])
 
   useEffect(() => {
     const root = rootRef.current
@@ -122,8 +203,9 @@ function ChapterStageComponent({
 
   const isLight = theme === 'light'
   const imageSrc = chapter.image || `/chapters/${chapter.index}.png`
-
   const artDir = SECTION_ART_DIRECTION[chapter.id] || { className: 'object-right' }
+
+  const style = ACCENT_STYLES[chapter.accent] || ACCENT_STYLES.green
 
   return (
     <section
@@ -172,7 +254,7 @@ function ChapterStageComponent({
         {/* Scene FX */}
         <SceneFx scene={chapter.scene} />
         {/* Main Content & Bottom Bar Container */}
-        <div className="relative z-30 flex flex-col justify-between h-full w-full pl-4 sm:pl-8 md:pl-36 lg:pl-60 xl:pl-64 pr-4 sm:pr-8 pt-16 sm:pt-20 lg:pt-16 pb-16 sm:pb-20 lg:pb-20 overflow-y-auto lg:overflow-visible">
+        <div className="relative z-30 flex flex-col justify-between h-full w-full pl-4 sm:pl-8 md:pl-36 lg:pl-60 xl:pl-64 pr-4 sm:pr-8 pt-16 sm:pt-20 lg:pt-16 pb-14 sm:pb-16 lg:pb-16 overflow-hidden">
           {/* Upper / Center Column: Typography & CTAs */}
           <div
             className={cn(
@@ -180,11 +262,11 @@ function ChapterStageComponent({
             )}
           >
             {/* Eyebrow */}
-            <div className="reveal mb-2.5 flex items-center gap-2.5">
+            <div className="reveal mb-2 flex items-center gap-2.5">
               <span
                 className={cn(
                   'text-[11px] sm:text-[12px] font-sans font-bold uppercase tracking-[0.2em] transition-colors duration-300',
-                  isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E] drop-shadow-[0_1px_6px_rgba(0,0,0,0.8)]',
+                  isLight ? style.eyebrowLight : style.eyebrowDark,
                 )}
               >
                 {chapter.eyebrow}
@@ -194,7 +276,7 @@ function ChapterStageComponent({
             {/* Headline */}
             <h2
               className={cn(
-                'reveal text-balance text-2xl sm:text-3xl lg:text-[3rem] xl:text-[3.25rem] font-sans font-extrabold leading-[1.14] tracking-[-0.02em] transition-colors duration-300',
+                'reveal text-balance text-xl sm:text-2xl lg:text-[2.5rem] xl:text-[2.85rem] font-sans font-extrabold leading-[1.14] tracking-[-0.02em] transition-colors duration-300',
                 isLight ? 'text-[#1E1E1E]' : 'text-[#F5F3EC]',
               )}
             >
@@ -204,8 +286,7 @@ function ChapterStageComponent({
                     <span
                       key={si}
                       className={cn(
-                        seg.accent &&
-                        (isLight ? 'text-[#3D6436] font-black' : 'text-[#6B9E5E] font-black'),
+                        seg.accent && (isLight ? style.titleSegLight : style.titleSegDark),
                       )}
                     >
                       {seg.text}
@@ -219,7 +300,7 @@ function ChapterStageComponent({
             <div
               className={cn(
                 'reveal mt-3 h-0.5 w-10 rounded-full transition-colors duration-300',
-                isLight ? 'bg-[#3D6436]' : 'bg-[#6B9E5E]',
+                isLight ? style.barLight : style.barDark,
               )}
             />
 
@@ -236,8 +317,8 @@ function ChapterStageComponent({
             )}
 
             {/* Action Buttons matching mockup */}
-            <div className="reveal mt-6 flex flex-wrap items-center gap-4">
-              {/* Primary Green Pill Button */}
+            <div className="reveal mt-4 sm:mt-5 flex flex-wrap items-center gap-3.5">
+              {/* Primary Pill Button */}
               {chapter.primaryCta && (
                 <button
                   type="button"
@@ -246,9 +327,7 @@ function ChapterStageComponent({
                   }}
                   className={cn(
                     'group inline-flex items-center gap-2.5 rounded-full px-5 sm:px-6 py-2.5 sm:py-3 text-xs font-bold tracking-[0.14em] text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md cursor-pointer',
-                    isLight
-                      ? 'bg-[#3D6436] hover:bg-[#2E4C29]'
-                      : 'bg-[#588B4B] hover:bg-[#46703B]',
+                    isLight ? style.primaryCtaLight : style.primaryCtaDark,
                   )}
                 >
                   <span>{chapter.primaryCta.label}</span>
@@ -266,7 +345,7 @@ function ChapterStageComponent({
                   }}
                   className={cn(
                     'group inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold transition-colors duration-200 cursor-pointer underline-offset-4 hover:underline',
-                    isLight ? 'text-[#3D6436] hover:text-[#2E4C29]' : 'text-[#6B9E5E] hover:text-white',
+                    isLight ? style.secondaryCtaLight : style.secondaryCtaDark,
                   )}
                 >
                   <span>{chapter.secondaryCta.label}</span>
@@ -277,10 +356,10 @@ function ChapterStageComponent({
 
           {/* Bottom Floating 4-Card Bar matching mockup */}
           {chapter.bottomCards && (
-            <div className="reveal mt-auto pt-4 w-full">
+            <div className="reveal mt-auto pt-2 sm:pt-3 w-full">
               <div
                 className={cn(
-                  'w-full max-w-5xl rounded-2xl p-4 sm:p-5 backdrop-blur-xl border shadow-xl transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4',
+                  'w-full max-w-5xl rounded-2xl p-3.5 sm:p-4.5 backdrop-blur-xl border shadow-xl transition-all duration-300 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5',
                   isLight
                     ? 'bg-white/95 border-gray-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.06)]'
                     : 'bg-[#0A0D0A]/90 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
@@ -293,9 +372,7 @@ function ChapterStageComponent({
                       <div
                         className={cn(
                           'grid h-10 w-10 shrink-0 place-items-center rounded-full transition-transform duration-200 group-hover:scale-105',
-                          isLight
-                            ? 'bg-[#3D6436]/10 text-[#3D6436]'
-                            : 'bg-[#588B4B]/20 text-[#6B9E5E]',
+                          isLight ? style.cardIconLight : style.cardIconDark,
                         )}
                       >
                         <Icon className="h-5 w-5" strokeWidth={1.8} />

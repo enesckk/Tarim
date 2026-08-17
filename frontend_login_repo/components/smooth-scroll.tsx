@@ -21,6 +21,8 @@ export function SmoothScroll() {
       infinite: false,
     })
 
+    ;(window as any).__lenis = lenis
+
     // drive Lenis from GSAP's ticker so ScrollTrigger stays in sync
     lenis.on('scroll', ScrollTrigger.update)
     const raf = (time: number) => lenis.raf(time * 1000)

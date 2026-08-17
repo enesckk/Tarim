@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { CHAPTERS } from '@/lib/chapters'
 import { SidebarNav } from '@/components/sidebar-nav'
 import { ProducerCta } from '@/components/producer-cta'
@@ -9,7 +9,6 @@ import { Particles } from '@/components/particles'
 import { SmoothScroll } from '@/components/smooth-scroll'
 import { Footer } from '@/components/footer'
 import { ProducerModal } from '@/components/producer-modal'
-import { Preloader } from '@/components/preloader'
 import { ThemeProvider } from '@/components/theme-context'
 
 export function Experience() {
@@ -22,17 +21,59 @@ export function Experience() {
 
   const onNavigate = useCallback((id: string) => {
     const el = document.getElementById(id)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    if (!el) return
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
+
+  // Keyboard navigation listener (Arrow keys / PageDown / PageUp)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Ignore OS shortcut combinations
+      if (e.altKey || e.metaKey || e.ctrlKey) return
+
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable)
+      ) {
+        return
+      }
+
+      // ArrowDown, PageDown -> Next Chapter
+      if (e.key === 'ArrowDown' || e.key === 'PageDown') {
+        e.preventDefault()
+        setActive((prev) => {
+          const nextIdx = prev < CHAPTERS.length ? prev + 1 : 1
+          const nextChapter = CHAPTERS.find((c) => c.index === nextIdx)
+          if (nextChapter) {
+            onNavigate(nextChapter.id)
+          }
+          return nextIdx
+        })
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+        e.preventDefault()
+        setActive((prev) => {
+          const prevIdx = prev > 1 ? prev - 1 : CHAPTERS.length
+          const prevChapter = CHAPTERS.find((c) => c.index === prevIdx)
+          if (prevChapter) {
+            onNavigate(prevChapter.id)
+          }
+          return prevIdx
+        })
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onNavigate])
 
   const progress = (active - 1) / (CHAPTERS.length - 1)
 
   return (
     <ThemeProvider>
       <div className="relative min-h-screen">
-        {/* Sinematik İlk Açılış & Yenileme Yükleme Animasyonu */}
-        <Preloader />
-
         <SmoothScroll />
 
         {/* ambient particles */}
