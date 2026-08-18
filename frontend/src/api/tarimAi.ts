@@ -331,7 +331,14 @@ export function analysisReportPdfUrl(analysisId: string) {
 export function resolveTarimAiAssetUrl(pathOrUrl: string | null | undefined): string | null {
   if (!pathOrUrl) return null
   if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl
-  if (pathOrUrl.startsWith('/drone_photos/')) return pathOrUrl
+  if (
+    pathOrUrl.startsWith('/drone_photos/') ||
+    pathOrUrl.startsWith('/satellite/') ||
+    pathOrUrl.startsWith('/chapters/') ||
+    pathOrUrl.startsWith('/images/')
+  ) {
+    return pathOrUrl
+  }
   if (pathOrUrl.startsWith('/')) return `${TARIM_AI_BASE}${pathOrUrl}`
   return `${TARIM_AI_BASE}/${pathOrUrl.replace(/^\//, '')}`
 }
