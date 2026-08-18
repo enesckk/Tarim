@@ -209,13 +209,8 @@
 }
 
 /* =========================================
-   LANDING PAGE – Scroll Snap & Chapters
+   LANDING PAGE – Chapters
    ========================================= */
-
-/* Native window scroll snap for chapters */
-html:has(section[data-chapter]) {
-  scroll-snap-type: y mandatory;
-}
 
 /* Hide scrollbar for cinematic feel on landing page */
 html:has(section[data-chapter])::-webkit-scrollbar {
@@ -224,8 +219,6 @@ html:has(section[data-chapter])::-webkit-scrollbar {
 }
 
 section[data-chapter] {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
   will-change: opacity, transform;
 }
 

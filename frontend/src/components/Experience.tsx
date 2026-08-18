@@ -22,12 +22,7 @@ export function Experience() {
   const onNavigate = useCallback((id: string) => {
     const el = document.getElementById(id)
     if (!el) return
-    const lenis = (window as any).__lenis
-    if (lenis) {
-      lenis.scrollTo(el, { offset: 0, duration: 0.8 })
-    } else {
-      el.scrollIntoView({ behavior: 'auto', block: 'start' })
-    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
 
   // Keyboard navigation listener (Arrow keys / PageDown / PageUp)

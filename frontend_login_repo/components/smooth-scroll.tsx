@@ -13,11 +13,10 @@ export function SmoothScroll() {
     if (reduce) return
 
     const lenis = new Lenis({
-      duration: 0.5,
+      duration: 0.6,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1.1,
-      touchMultiplier: 1.5,
+      smoothWheel: false, // Allows native CSS scroll-snap to snap full-page slides cleanly
+      syncTouch: false,
       infinite: false,
     })
 
@@ -38,7 +37,7 @@ export function SmoothScroll() {
       const el = document.querySelector(id)
       if (el) {
         e.preventDefault()
-        lenis.scrollTo(el as HTMLElement, { offset: 0 })
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' })
       }
     }
     document.addEventListener('click', handleAnchor)
