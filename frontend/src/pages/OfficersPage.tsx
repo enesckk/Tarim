@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-hot-toast'
 import {
   ChevronDown,
   ChevronLeft,
@@ -71,17 +72,16 @@ function validateOfficerCreateForm(form: typeof emptyForm): string | null {
   const password = form.password.trim()
   if (!password) return 'Uygulama şifresi zorunludur.'
   if (password.length < 8) return 'Uygulama şifresi en az 8 karakter olmalıdır.'
-  if (!/[a-z]/.test(password)) return 'Uygulama şifresi en az bir küçük harf içermelidir.'
-  if (!/[A-Z]/.test(password)) return 'Uygulama şifresi en az bir büyük harf içermelidir.'
-  if (!/\d/.test(password)) return 'Uygulama şifresi en az bir rakam içermelidir.'
   if (password !== form.passwordConfirm.trim()) return 'Şifreler eşleşmiyor.'
   return null
 }
 
 function unwrapId(value: unknown): string {
   if (typeof value === 'string') return value.replace(/^"|"$/g, '')
-  if (value && typeof value === 'object' && 'id' in value) {
-    return String((value as { id: string }).id)
+  if (value && typeof value === 'object') {
+    if ('id' in value) return String((value as { id: string }).id)
+    if ('value' in value) return String((value as { value: string }).value)
+    if ('userId' in value) return String((value as { userId: string }).userId)
   }
   return String(value ?? '')
 }
@@ -267,9 +267,17 @@ function OfficersListPage() {
       setForm(emptyForm)
       setFormError(null)
       setShowForm(false)
+      toast.success('Uzman başarıyla kaydedildi.')
       await queryClient.invalidateQueries({ queryKey: ['staff-officers'] })
       await queryClient.invalidateQueries({ queryKey: ['officers'] })
-      if (id) navigate(`/app/officers/${id}`)
+      if (id && id !== 'undefined' && id !== 'null' && id.length > 5) {
+        navigate(`/app/officers/${id}`)
+      }
+    },
+    onError: (err) => {
+      const msg = (err as Error)?.message || 'Uzman kaydedilirken bir hata oluştu.'
+      setFormError(msg)
+      toast.error(msg)
     },
   })
 
@@ -424,6 +432,24 @@ function OfficersListPage() {
                 Aktif uzman
               </label>
             </label>
+            {formError || create.error ? (
+              <div
+                className="alert-box error"
+                style={{
+                  gridColumn: '1 / -1',
+                  margin: '4px 0 8px 0',
+                  padding: '10px 14px',
+                  background: '#fef2f2',
+                  border: '1px solid #fecaca',
+                  borderRadius: '8px',
+                  color: '#b91c1c',
+                  fontSize: '13px',
+                  fontWeight: 500,
+                }}
+              >
+                {formError ?? (create.error as Error)?.message}
+              </div>
+            ) : null}
             <div style={{ gridColumn: '1 / -1' }}>
               <button className="primary-btn" type="submit" disabled={create.isPending}>
                 {create.isPending ? 'Kaydediliyor…' : 'Uzmanı kaydet'}
