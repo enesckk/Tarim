@@ -24,12 +24,7 @@ export function Experience() {
   const onNavigate = useCallback((id: string) => {
     const el = document.getElementById(id)
     if (!el) return
-    const lenis = (window as any).__lenis
-    if (lenis) {
-      lenis.scrollTo(el, { offset: 0, duration: 0.8, immediate: false })
-    } else {
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }, [])
 
   // Real-time viewport center scroll listener for 100% accurate sidebar sync on any scroll
