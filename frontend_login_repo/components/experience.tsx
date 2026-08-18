@@ -127,6 +127,87 @@ export function Experience() {
     }
   }, [isModalOpen, onNavigate])
 
+  // Direct touch swipe navigation (clean discrete chapter transition on touch swipe gestures)
+  useEffect(() => {
+    let touchStartY = 0
+    let touchStartX = 0
+    let touchStartTime = 0
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (isModalOpen || e.touches.length !== 1) return
+      touchStartY = e.touches[0].clientY
+      touchStartX = e.touches[0].clientX
+      touchStartTime = Date.now()
+    }
+
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (isModalOpen || !e.changedTouches || e.changedTouches.length === 0) return
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.tagName === 'BUTTON' ||
+          target.isContentEditable ||
+          target.closest('button') ||
+          target.closest('.overflow-y-auto') ||
+          target.closest('.overflow-auto'))
+      ) {
+        return
+      }
+
+      const touchEndY = e.changedTouches[0].clientY
+      const touchEndX = e.changedTouches[0].clientX
+      const deltaY = touchStartY - touchEndY // Positive = swipe up (go next), Negative = swipe down (go prev)
+      const deltaX = Math.abs(touchStartX - touchEndX)
+      const duration = Date.now() - touchStartTime
+
+      // Must be a distinct vertical swipe with sufficient distance (> 35px) and within 1000ms
+      if (Math.abs(deltaY) > 35 && Math.abs(deltaY) > deltaX * 1.15 && duration < 1000) {
+        if (isWheelLockedRef.current) return
+        isWheelLockedRef.current = true
+
+        const current = activeRef.current
+        if (deltaY > 0) {
+          // Swipe Up -> Next Chapter or Footer
+          if (current < CHAPTERS.length) {
+            const nextIdx = current + 1
+            setActive(nextIdx)
+            const nextChapter = CHAPTERS.find((c) => c.index === nextIdx)
+            if (nextChapter) onNavigate(nextChapter.id)
+          } else {
+            const footer = document.getElementById('footer')
+            if (footer) footer.scrollIntoView({ behavior: 'smooth' })
+          }
+        } else {
+          // Swipe Down -> Prev Chapter
+          if (current > 1) {
+            const prevIdx = current - 1
+            setActive(prevIdx)
+            const prevChapter = CHAPTERS.find((c) => c.index === prevIdx)
+            if (prevChapter) onNavigate(prevChapter.id)
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }
+        }
+
+        if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current)
+        wheelTimerRef.current = window.setTimeout(() => {
+          isWheelLockedRef.current = false
+        }, 500)
+      }
+    }
+
+    window.addEventListener('touchstart', handleTouchStart, { passive: true })
+    window.addEventListener('touchend', handleTouchEnd, { passive: true })
+
+    return () => {
+      window.removeEventListener('touchstart', handleTouchStart)
+      window.removeEventListener('touchend', handleTouchEnd)
+    }
+  }, [isModalOpen, onNavigate])
+
   // Keyboard navigation listener (Arrow keys / PageDown / PageUp / Tab)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
