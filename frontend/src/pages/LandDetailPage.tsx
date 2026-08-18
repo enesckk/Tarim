@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
+  Activity,
   AlertTriangle,
   ArrowLeft,
   BarChart2,
@@ -24,7 +25,6 @@ import {
   Scan,
   ShieldCheck,
   Sprout,
-  Activity,
   UserCog,
   UserRound,
   Workflow as WorkflowIcon,
@@ -34,7 +34,7 @@ import { api } from '../api/client'
 import { mediaUrl } from '../api/media'
 import { resolveTarimAiAssetUrl, tarimAi, TarimAiError } from '../api/tarimAi'
 import { getDronePhotosForParcel } from '../utils/dronePhotos'
-import { LandClimateChartCard } from '../components/LandClimateChartCard'
+import { LandProfilePanel } from '../components/LandProfilePanel'
 import type {
   ChatMessage,
   ConversationDetail,
@@ -181,8 +181,8 @@ export function LandDetailPage() {
   const [showTaskComposer, setShowTaskComposer] = useState(false)
   const [showInspectionComposer, setShowInspectionComposer] = useState(false)
   const [openSection, setOpenSection] = useState<
-    'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'climate-history' | null
-  >('climate-history')
+    'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'land-profile' | null
+  >('land-profile')
   const [landForm, setLandForm] = useState({
     name: '',
     neighborhood: '',
@@ -332,7 +332,7 @@ export function LandDetailPage() {
   const land = landQuery.data
   const localDronePhotos = land
     ? getDronePhotosForParcel(
-        land.neighborhood || land.neighborhoodName || land.name || '',
+        land.neighborhoodName || land.name || '',
         land.cadastralBlock || (land as any).block || '',
         land.parcelNumber || (land as any).parcel || '',
       )
@@ -661,10 +661,20 @@ export function LandDetailPage() {
     if (id === 'sohbet') setOpenSection('chat')
     if (id === 'notlar') setOpenSection('notes')
     if (id === 'arazi-analizi' || id === 'analiz') setOpenSection('analysis')
-    if (id === 'iklim-gecmisi' || id === 'iklim' || id === 'yagis-grafik') setOpenSection('climate-history')
+    if (
+      id === 'iklim-gecmisi' ||
+      id === 'iklim' ||
+      id === 'yagis-grafik' ||
+      id === 'arazi-bilgileri' ||
+      id === 'toprak' ||
+      id === 'uydu'
+    ) {
+      setOpenSection('land-profile')
+    }
     if (id === 'drone' || id === 'drone-goruntuler' || id === 'drone-gorseller') {
       setOpenSection('drone')
-    }    if (id === 'arazi-bilgileri') {
+    }
+    if (id === 'arazi-duzenle') {
       setOpenSection(null)
       setShowLandEdit(true)
     }
@@ -677,7 +687,7 @@ export function LandDetailPage() {
   }, [location.hash, landQuery.data, landTasksQuery.data, conversationsQuery.data])
 
   function toggleSection(
-    section: 'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'climate-history',
+    section: 'workflow' | 'tasks' | 'alerts' | 'inspections' | 'chat' | 'notes' | 'drone' | 'analysis' | 'land-profile',
   ) {
     setShowLandEdit(false)
     setOpenSection((current) => (current === section ? null : section))
@@ -752,7 +762,7 @@ export function LandDetailPage() {
   if (landQuery.error || !land) {
     return (
       <section>
-        <Link to="/lands" className="land-back-chip" style={{ marginBottom: 12 }}>
+        <Link to="/app/lands" className="land-back-chip" style={{ marginBottom: 12 }}>
           <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
           Arazilere geri dön
         </Link>
@@ -780,7 +790,7 @@ export function LandDetailPage() {
 
   return (
     <section className="land-detail-page">
-      <Link to="/lands" className="land-back-chip">
+      <Link to="/app/lands" className="land-back-chip">
         <ArrowLeft size={16} strokeWidth={1.75} aria-hidden />
         Arazilere geri dön
       </Link>
@@ -1071,12 +1081,12 @@ export function LandDetailPage() {
         </button>
         <button
           type="button"
-          className={`land-action-chip${openSection === 'climate-history' ? ' is-active' : ''}`}
-          onClick={() => toggleSection('climate-history')}
+          className={`land-action-chip${openSection === 'land-profile' ? ' is-active' : ''}`}
+          onClick={() => toggleSection('land-profile')}
         >
           <BarChart2 size={16} strokeWidth={1.75} aria-hidden />
-          <span>20-30 Yıllık İklim & Yağış</span>
-          <em>Grafik</em>
+          <span>Arazi bilgileri</span>
+          <em>İklim · Toprak · Uydu</em>
         </button>
         <button
           type="button"
@@ -1107,17 +1117,14 @@ export function LandDetailPage() {
         </button>
       </nav>
 
-      {openSection === 'climate-history' && (
-        <LandClimateChartCard
-          landName={land?.name}
-          neighborhoodName={land?.neighborhood ?? land?.neighborhoodName ?? undefined}
-          cadastralBlock={land?.cadastralBlock ?? undefined}
-          parcelNumber={land?.parcelNumber}
-          areaDekars={land?.sizeInDecares ?? land?.areaDekars}
-          latitude={land?.latitude ?? undefined}
-          longitude={land?.longitude ?? undefined}
+      {openSection === 'land-profile' && land && token ? (
+        <LandProfilePanel
+          land={land}
+          landId={landId!}
+          token={token}
+          analysisId={analysisQuery.data?.analysisId ?? null}
         />
-      )}
+      ) : null}
 
       {openSection === 'analysis' && (
         <div className="panel land-content-panel" id="arazi-analizi">
