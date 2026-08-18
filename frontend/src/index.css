@@ -115,21 +115,12 @@
     border-color: var(--border);
   }
 
-  html {
-    scroll-snap-type: y mandatory;
-  }
-
   html,
   body,
   #root {
     min-height: 100%;
     margin: 0;
     overflow-x: hidden;
-  }
-
-  section[data-chapter] {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
   }
 
   body {
@@ -212,20 +203,7 @@
    LANDING PAGE – Scroll Snap & Chapters
    ========================================= */
 
-/* Native window scroll snap for chapters */
-html:has(section[data-chapter]) {
-  scroll-snap-type: y mandatory;
-}
-
-/* Hide scrollbar for cinematic feel on landing page */
-html:has(section[data-chapter])::-webkit-scrollbar {
-  width: 0px;
-  background: transparent;
-}
-
 section[data-chapter] {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
   will-change: opacity, transform;
 }
 
