@@ -207,29 +207,23 @@ export function LandProfilePanel({
   const parcelQuery = useMemo(() => landToParcelQuery(land), [land])
   const canQuery = Boolean(parcelQuery.neighborhood && parcelQuery.parcel)
 
-  const climateQuery = useQuery({
-    queryKey: ['land-profile-climate', 'v2-yearly', landId, parcelQuery],
-    queryFn: () => tarimAi.climateProfile(parcelQuery, 30),
-    enabled: canQuery,
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
-  })
+function getLocalCache<T>(key: string): T | undefined {
+  if (typeof window === 'undefined') return undefined
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return undefined
+    return JSON.parse(raw) as T
+  } catch {
+    return undefined
+  }
+}
 
-  const terrainQuery = useQuery({
-    queryKey: ['land-profile-terrain', landId, parcelQuery],
-    queryFn: () => tarimAi.terrainProfile(parcelQuery),
-    enabled: canQuery,
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
-  })
-
-  const soilQuery = useQuery({
-    queryKey: ['land-profile-soil', landId, parcelQuery],
-    queryFn: () => tarimAi.soilProfile(parcelQuery),
-    enabled: canQuery,
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
-  })
+function setLocalCache(key: string, data: unknown) {
+  if (typeof window === 'undefined' || !data) return
+  try {
+    localStorage.setItem(key, JSON.stringify(data))
+  } catch {}
+}
 
 interface SatelliteImageResult {
   imageUrl?: string
@@ -238,6 +232,50 @@ interface SatelliteImageResult {
   cloudCoverage?: number
   [key: string]: unknown
 }
+
+  const cacheKeyPrefix = useMemo(
+    () => `tarim_land_${parcelQuery.neighborhood}_${parcelQuery.block}_${parcelQuery.parcel}`,
+    [parcelQuery],
+  )
+
+  const climateQuery = useQuery({
+    queryKey: ['land-profile-climate', 'v2-yearly', landId, parcelQuery],
+    queryFn: async () => {
+      const res = await tarimAi.climateProfile(parcelQuery, 30)
+      setLocalCache(`${cacheKeyPrefix}_climate`, res)
+      return res
+    },
+    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_climate`),
+    enabled: canQuery,
+    staleTime: WEEK_MS,
+    gcTime: WEEK_MS * 4,
+  })
+
+  const terrainQuery = useQuery({
+    queryKey: ['land-profile-terrain', landId, parcelQuery],
+    queryFn: async () => {
+      const res = await tarimAi.terrainProfile(parcelQuery)
+      setLocalCache(`${cacheKeyPrefix}_terrain`, res)
+      return res
+    },
+    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_terrain`),
+    enabled: canQuery,
+    staleTime: WEEK_MS,
+    gcTime: WEEK_MS * 4,
+  })
+
+  const soilQuery = useQuery({
+    queryKey: ['land-profile-soil', landId, parcelQuery],
+    queryFn: async () => {
+      const res = await tarimAi.soilProfile(parcelQuery)
+      setLocalCache(`${cacheKeyPrefix}_soil`, res)
+      return res
+    },
+    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_soil`),
+    enabled: canQuery,
+    staleTime: WEEK_MS,
+    gcTime: WEEK_MS * 4,
+  })
 
   const satelliteQuery = useQuery({
     queryKey: ['land-profile-satellite', landId, parcelQuery],
@@ -250,21 +288,31 @@ interface SatelliteImageResult {
         tarimAi.bestTrueColor(geometry, 60) as Promise<SatelliteImageResult>,
         tarimAi.bestNdvi(geometry, 60).catch(() => null) as Promise<SatelliteImageResult | null>,
       ])
-      return {
+      const result = {
         fetchedAt: new Date().toISOString(),
         trueColor,
         ndvi,
       }
+      setLocalCache(`${cacheKeyPrefix}_satellite`, result)
+      return result
     },
+    initialData: () =>
+      getLocalCache<{ fetchedAt: string; trueColor: SatelliteImageResult; ndvi: SatelliteImageResult | null }>(
+        `${cacheKeyPrefix}_satellite`,
+      ),
     enabled: canQuery && (tab === 'uydu' || tab === 'ozet'),
     staleTime: WEEK_MS,
     gcTime: WEEK_MS * 4,
-    refetchOnMount: true,
   })
 
   const surfaceQuery = useQuery({
     queryKey: ['land-profile-surface', landId, parcelQuery],
-    queryFn: () => tarimAi.surfaceAnalysis(parcelQuery, 12),
+    queryFn: async () => {
+      const res = await tarimAi.surfaceAnalysis(parcelQuery, 12)
+      setLocalCache(`${cacheKeyPrefix}_surface`, res)
+      return res
+    },
+    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_surface`),
     enabled: canQuery && (tab === 'uydu' || tab === 'ozet'),
     staleTime: WEEK_MS,
     gcTime: WEEK_MS * 4,
