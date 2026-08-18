@@ -208,12 +208,27 @@ export function LandProfilePanel({
   const parcelQuery = useMemo(() => landToParcelQuery(land), [land])
   const canQuery = Boolean(parcelQuery.neighborhood && parcelQuery.parcel)
 
-function getLocalCache<T>(key: string): T | undefined {
+const ONE_MONTH_MS = 30 * 24 * 60 * 60 * 1000
+
+interface CachedPayload<T> {
+  timestamp: number
+  data: T
+}
+
+function getLocalCache<T>(key: string, maxAgeMs = ONE_MONTH_MS): T | undefined {
   if (typeof window === 'undefined') return undefined
   try {
     const raw = localStorage.getItem(key)
     if (!raw) return undefined
-    return JSON.parse(raw) as T
+    const parsed = JSON.parse(raw)
+    if (parsed && typeof parsed === 'object' && 'timestamp' in parsed && 'data' in parsed) {
+      const payload = parsed as CachedPayload<T>
+      if (Date.now() - payload.timestamp < maxAgeMs) {
+        return payload.data
+      }
+      return undefined
+    }
+    return parsed as T
   } catch {
     return undefined
   }
@@ -222,7 +237,22 @@ function getLocalCache<T>(key: string): T | undefined {
 function setLocalCache(key: string, data: unknown) {
   if (typeof window === 'undefined' || !data) return
   try {
-    localStorage.setItem(key, JSON.stringify(data))
+    const payload: CachedPayload<unknown> = {
+      timestamp: Date.now(),
+      data,
+    }
+    localStorage.setItem(key, JSON.stringify(payload))
+  } catch {}
+}
+
+function clearParcelLocalCache(prefix: string) {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem(`${prefix}_climate`)
+    localStorage.removeItem(`${prefix}_terrain`)
+    localStorage.removeItem(`${prefix}_soil`)
+    localStorage.removeItem(`${prefix}_satellite`)
+    localStorage.removeItem(`${prefix}_surface`)
   } catch {}
 }
 
@@ -243,6 +273,8 @@ interface SatelliteImageResult {
   const climateQuery = useQuery({
     queryKey: ['land-profile-climate', 'v2-yearly', landId, parcelQuery],
     queryFn: async () => {
+      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_climate`, ONE_MONTH_MS)
+      if (cached) return cached
       try {
         const res = await tarimAi.climateProfile(parcelQuery, 30)
         setLocalCache(`${cacheKeyPrefix}_climate`, res)
@@ -251,15 +283,21 @@ interface SatelliteImageResult {
         return goldenFallback.climate
       }
     },
-    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_climate`) ?? goldenFallback.climate,
+    initialData: () =>
+      getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_climate`, ONE_MONTH_MS) ?? goldenFallback.climate,
     enabled: canQuery,
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
+    staleTime: ONE_MONTH_MS,
+    gcTime: ONE_MONTH_MS * 2,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   const terrainQuery = useQuery({
     queryKey: ['land-profile-terrain', landId, parcelQuery],
     queryFn: async () => {
+      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_terrain`, ONE_MONTH_MS)
+      if (cached) return cached
       try {
         const res = await tarimAi.terrainProfile(parcelQuery)
         setLocalCache(`${cacheKeyPrefix}_terrain`, res)
@@ -268,15 +306,21 @@ interface SatelliteImageResult {
         return goldenFallback.terrain
       }
     },
-    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_terrain`) ?? goldenFallback.terrain,
+    initialData: () =>
+      getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_terrain`, ONE_MONTH_MS) ?? goldenFallback.terrain,
     enabled: canQuery,
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
+    staleTime: ONE_MONTH_MS,
+    gcTime: ONE_MONTH_MS * 2,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   const soilQuery = useQuery({
     queryKey: ['land-profile-soil', landId, parcelQuery],
     queryFn: async () => {
+      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_soil`, ONE_MONTH_MS)
+      if (cached) return cached
       try {
         const res = await tarimAi.soilProfile(parcelQuery)
         setLocalCache(`${cacheKeyPrefix}_soil`, res)
@@ -285,15 +329,24 @@ interface SatelliteImageResult {
         return goldenFallback.soil
       }
     },
-    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_soil`) ?? goldenFallback.soil,
+    initialData: () =>
+      getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_soil`, ONE_MONTH_MS) ?? goldenFallback.soil,
     enabled: canQuery,
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
+    staleTime: ONE_MONTH_MS,
+    gcTime: ONE_MONTH_MS * 2,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   const satelliteQuery = useQuery({
     queryKey: ['land-profile-satellite', landId, parcelQuery],
     queryFn: async () => {
+      const cached = getLocalCache<{ fetchedAt: string; trueColor: SatelliteImageResult; ndvi: SatelliteImageResult | null }>(
+        `${cacheKeyPrefix}_satellite`,
+        ONE_MONTH_MS,
+      )
+      if (cached) return cached
       try {
         const resolved = await tarimAi.resolveParcel(parcelQuery)
         const parcel = asRecord(resolved.parcel)
@@ -317,15 +370,21 @@ interface SatelliteImageResult {
     initialData: () =>
       getLocalCache<{ fetchedAt: string; trueColor: SatelliteImageResult; ndvi: SatelliteImageResult | null }>(
         `${cacheKeyPrefix}_satellite`,
+        ONE_MONTH_MS,
       ) ?? (goldenFallback.satellite as any),
     enabled: canQuery && (tab === 'uydu' || tab === 'ozet'),
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
+    staleTime: ONE_MONTH_MS,
+    gcTime: ONE_MONTH_MS * 2,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   const surfaceQuery = useQuery({
     queryKey: ['land-profile-surface', landId, parcelQuery],
     queryFn: async () => {
+      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_surface`, ONE_MONTH_MS)
+      if (cached) return cached
       try {
         const res = await tarimAi.surfaceAnalysis(parcelQuery, 12)
         setLocalCache(`${cacheKeyPrefix}_surface`, res)
@@ -334,10 +393,14 @@ interface SatelliteImageResult {
         return goldenFallback.surface
       }
     },
-    initialData: () => getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_surface`) ?? goldenFallback.surface,
+    initialData: () =>
+      getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_surface`, ONE_MONTH_MS) ?? goldenFallback.surface,
     enabled: canQuery && (tab === 'uydu' || tab === 'ozet'),
-    staleTime: WEEK_MS,
-    gcTime: WEEK_MS * 4,
+    staleTime: ONE_MONTH_MS,
+    gcTime: ONE_MONTH_MS * 2,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   })
 
   const saveSoil = useMutation({
@@ -515,6 +578,7 @@ interface SatelliteImageResult {
     .join(' · ')
 
   function refreshAll() {
+    clearParcelLocalCache(cacheKeyPrefix)
     void climateQuery.refetch()
     void terrainQuery.refetch()
     void soilQuery.refetch()
