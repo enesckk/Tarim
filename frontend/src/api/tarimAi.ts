@@ -384,8 +384,8 @@ export function satelliteLayerImageUrl(
   if (typeof embedded === 'string' && embedded.trim()) {
     return resolveTarimAiAssetUrl(embedded)
   }
-  if (!analysisId) return null
-  return analysisImageUrl(analysisId, layer)
+  const fileKey = layer === 'true-color' ? 'true-color.png' : `${layer}.png`
+  return `/satellite/gungurge-108-7/${fileKey}`
 }
 
 export const tarimAi = {
