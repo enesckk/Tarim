@@ -254,7 +254,7 @@ function ChapterStageComponent({
         {/* Scene FX */}
         <SceneFx scene={chapter.scene} />
         {/* Main Content & Bottom Bar Container */}
-        <div className="relative z-30 flex flex-col justify-between h-full w-full pl-4 sm:pl-8 md:pl-36 lg:pl-60 xl:pl-64 pr-4 sm:pr-8 pt-16 sm:pt-20 lg:pt-16 pb-14 sm:pb-16 lg:pb-16 overflow-hidden">
+        <div className="relative z-30 flex flex-col justify-between h-full w-full pl-4 sm:pl-8 md:pl-36 lg:pl-60 xl:pl-64 pr-4 sm:pr-8 pt-14 sm:pt-18 lg:pt-16 pb-28 sm:pb-32 lg:pb-16 overflow-hidden">
           {/* Upper / Center Column: Typography & CTAs */}
           <div
             className={cn(

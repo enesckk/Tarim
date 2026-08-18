@@ -188,24 +188,23 @@ function SidebarNavComponent({
         </div>
       </aside>
 
-      {/* MOBILE NAVIGATION BAR (Positioned neatly above fixed bottom footer bar) */}
-      <div className="flex lg:hidden fixed bottom-13 sm:bottom-14 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xs sm:max-w-sm z-30 pointer-events-auto items-center justify-between gap-2 p-1.5 rounded-full border backdrop-blur-xl shadow-2xl transition-all duration-300 bg-black/90 border-[#6B9E5E]/40 text-white">
+      {/* MOBILE NAVIGATION BAR (Ultra-compact, sleek, non-intrusive) */}
+      <div className="flex lg:hidden fixed bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-30 pointer-events-auto items-center justify-center gap-1.5 px-2.5 py-1 rounded-full border backdrop-blur-xl shadow-lg transition-all duration-300 bg-black/85 border-[#6B9E5E]/40 text-white max-w-[90vw]">
         <button
           type="button"
           onClick={handlePrev}
           aria-label="Önceki Bölüm"
-          className="w-8 h-8 rounded-full flex items-center justify-center border border-white/15 active:scale-95 transition-all text-[#6B9E5E] bg-white/5 hover:bg-white/10"
+          className="w-6 h-6 rounded-full flex items-center justify-center border border-white/15 active:scale-95 transition-all text-[#6B9E5E] bg-white/5 hover:bg-white/10 shrink-0"
         >
-          <span className="font-mono text-base font-bold">‹</span>
+          <span className="font-mono text-sm font-bold leading-none">‹</span>
         </button>
 
-        <div className="flex items-center gap-2 px-2 py-1 overflow-hidden">
-          <span className="font-mono text-xs font-extrabold text-[#6B9E5E] tracking-wider shrink-0">
-            {currentItem.number} / 08
+        <div className="flex items-center gap-1.5 px-1.5 overflow-hidden">
+          <span className="font-mono text-[10.5px] font-extrabold text-[#6B9E5E] tracking-wider shrink-0">
+            {currentItem.number}/08
           </span>
           <span className="w-1 h-1 rounded-full bg-[#6B9E5E] shrink-0" />
-          {React.createElement(currentItem.icon, { className: 'w-3.5 h-3.5 shrink-0 text-[#6B9E5E]', strokeWidth: 2 })}
-          <span className="text-[11px] font-sans font-extrabold tracking-wider uppercase truncate text-slate-100">
+          <span className="text-[10px] font-sans font-extrabold tracking-wider uppercase truncate text-slate-100 max-w-[120px] xs:max-w-[160px]">
             {currentItem.label}
           </span>
         </div>
@@ -214,9 +213,9 @@ function SidebarNavComponent({
           type="button"
           onClick={handleNext}
           aria-label="Sonraki Bölüm"
-          className="w-8 h-8 rounded-full flex items-center justify-center border border-white/15 active:scale-95 transition-all text-[#6B9E5E] bg-white/5 hover:bg-white/10"
+          className="w-6 h-6 rounded-full flex items-center justify-center border border-white/15 active:scale-95 transition-all text-[#6B9E5E] bg-white/5 hover:bg-white/10 shrink-0"
         >
-          <span className="font-mono text-base font-bold">›</span>
+          <span className="font-mono text-sm font-bold leading-none">›</span>
         </button>
       </div>
     </>

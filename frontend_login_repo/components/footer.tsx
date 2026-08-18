@@ -236,14 +236,14 @@ function FooterComponent({ onOpenModal }: FooterProps) {
               }
             }}
             className={cn(
-              'hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[10.5px] font-sans font-extrabold tracking-wider uppercase transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md text-white',
+              'inline-flex items-center gap-1 sm:gap-1.5 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-full text-[9.5px] sm:text-[10.5px] font-sans font-extrabold tracking-wider uppercase transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md text-white cursor-pointer whitespace-nowrap',
               isLight
                 ? 'bg-[#3D6436] hover:bg-[#2E4C29]'
                 : 'bg-[#588B4B] hover:bg-[#46703B]',
             )}
           >
             <span>BAŞVURU YAP</span>
-            <ArrowRight className="w-3.5 h-3.5" />
+            <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
           </button>
         </div>
       </footer>
