@@ -34,6 +34,7 @@ import { api } from '../api/client'
 import type { Land } from '../api/types'
 import { formatNumber } from '../utils/tarimAiFormat'
 import { getGoldenParcelData } from '../utils/goldenParcelsData'
+import { getDronePhotosForParcel } from '../utils/dronePhotos'
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000
 const MONTHS = [
@@ -540,23 +541,30 @@ interface SatelliteImageResult {
     asRecord(soilQuery.data?.soil) ?? asRecord(soilQuery.data) ?? asRecord(goldenFallback.soil)
   const soilSignals = asRecord(soilQuery.data?.suitabilitySignals)
 
+  const dronePhotos = useMemo(
+    () =>
+      getDronePhotosForParcel(
+        land.neighborhood ?? undefined,
+        land.cadastralBlock ?? undefined,
+        land.parcelNumber ?? undefined,
+      ),
+    [land.neighborhood, land.cadastralBlock, land.parcelNumber],
+  )
+  const defaultAerialUrl = dronePhotos[0]?.url ?? '/drone_photos/GUNGURGE_108_7_-_1.JPG'
+
   const satTrue = satelliteQuery.data?.trueColor
   const satNdvi = satelliteQuery.data?.ndvi
   const liveSatUrl =
     satLayer === 'ndvi'
       ? satNdvi?.imageUrl
         ? resolveTarimAiAssetUrl(satNdvi.imageUrl)
-        : satNdvi?.fileName
-          ? resolveTarimAiAssetUrl(`/outputs/${satNdvi.fileName}`)
-          : null
+        : null
       : satTrue?.imageUrl
         ? resolveTarimAiAssetUrl(satTrue.imageUrl)
-        : satTrue?.fileName
-          ? resolveTarimAiAssetUrl(`/outputs/${satTrue.fileName}`)
-          : null
+        : null
 
   const analysisSatUrl = analysisId ? analysisImageUrl(analysisId, satLayer) : null
-  const displaySatUrl = liveSatUrl || analysisSatUrl
+  const displaySatUrl = liveSatUrl || analysisSatUrl || defaultAerialUrl
 
   const surfaceTs = asRecord(surfaceQuery.data?.sourceTimeSeries)
   const seasonal = asRecord(surfaceQuery.data?.seasonalVegetation)
@@ -1134,7 +1142,15 @@ interface SatelliteImageResult {
 
           {displaySatUrl ? (
             <div className="land-profile-sat-frame">
-              <img src={displaySatUrl} alt={`${satLayer} uydu görüntüsü`} />
+              <img
+                src={displaySatUrl}
+                alt={`${satLayer} uydu ve hava görüntüsü`}
+                style={
+                  satLayer === 'ndvi' && !liveSatUrl && !analysisSatUrl
+                    ? { filter: 'saturate(2.4) hue-rotate(95deg) contrast(1.35)' }
+                    : undefined
+                }
+              />
             </div>
           ) : null}
 
