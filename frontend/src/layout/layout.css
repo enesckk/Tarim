@@ -579,22 +579,40 @@
 .page-header {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: flex-end;
   gap: 16px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .page-header h1 {
-  font-size: 1.25rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  line-height: 1.25;
 }
 
 .page-header p {
   margin: 4px 0 0;
   color: var(--muted-foreground);
-  max-width: 40rem;
+  max-width: 42rem;
   font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .page-header h1 {
+    font-size: 1.35rem;
+  }
 }
 
 .list-search-wrap {
@@ -2835,13 +2853,19 @@ button.land-task-photo-link {
 .ops-page {
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 18px;
   width: 100%;
-  max-width: none;
+  max-width: 100%;
 }
 
 .ops-hero {
-  padding: 4px 2px 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 0;
+  padding: 0;
+  width: 100%;
 }
 
 .ops-hero-line {
@@ -2851,11 +2875,12 @@ button.land-task-photo-link {
   gap: 10px;
 }
 
+.ops-hero h1,
 .ops-hero h2 {
   margin: 0;
-  font-size: 1.35rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
   line-height: 1.25;
   color: var(--foreground);
 }
@@ -2874,11 +2899,28 @@ button.land-task-photo-link {
 }
 
 .ops-hero p {
-  margin: 6px 0 0;
-  max-width: 36rem;
+  margin: 4px 0 0;
+  max-width: 42rem;
   color: var(--muted-foreground);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .ops-page {
+    gap: 14px;
+  }
+
+  .ops-hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ops-hero h1,
+  .ops-hero h2 {
+    font-size: 1.35rem;
+  }
 }
 
 .ops-main {
@@ -5462,23 +5504,37 @@ button.land-task-photo-link {
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
+  margin-bottom: 4px;
+  width: 100%;
 }
 
 .lands-page-header h1 {
   margin: 0;
-  font-size: 1.65rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #101828;
-  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  line-height: 1.25;
 }
 
 .lands-page-header p {
-  margin: 6px 0 0;
-  max-width: 36rem;
-  color: #667085;
-  font-size: 0.9rem;
+  margin: 4px 0 0;
+  max-width: 42rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
   line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .lands-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .lands-page-header h1 {
+    font-size: 1.35rem;
+  }
 }
 
 .lands-new-btn {
@@ -6257,23 +6313,37 @@ button.land-task-photo-link {
   justify-content: space-between;
   align-items: flex-end;
   gap: 16px;
+  margin-bottom: 4px;
+  width: 100%;
 }
 
 .officers-page-header h1 {
   margin: 0;
-  font-size: 1.65rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  color: #101828;
-  line-height: 1.2;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  line-height: 1.25;
 }
 
 .officers-page-header p {
-  margin: 6px 0 0;
-  max-width: 36rem;
-  color: #667085;
-  font-size: 0.9rem;
+  margin: 4px 0 0;
+  max-width: 42rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
   line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .officers-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .officers-page-header h1 {
+    font-size: 1.35rem;
+  }
 }
 
 .officers-new-btn {

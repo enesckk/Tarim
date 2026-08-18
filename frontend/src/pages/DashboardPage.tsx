@@ -116,7 +116,7 @@ export function DashboardPage() {
     <section className="ops-page">
       <header className="ops-hero">
         <div className="ops-hero-text">
-          <h2>{title}</h2>
+          <h1>{title}</h1>
           <p>
             {admin
               ? 'Belediye Tarım Operasyon Platformu'
