@@ -188,8 +188,8 @@ function SidebarNavComponent({
         </div>
       </aside>
 
-      {/* MOBILE NAVIGATION BAR */}
-      <div className="flex lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-sm z-50 pointer-events-auto items-center justify-between gap-2 p-1.5 rounded-full border backdrop-blur-xl shadow-2xl transition-all duration-300 bg-black/90 border-[#6B9E5E]/40 text-white">
+      {/* MOBILE NAVIGATION BAR (Positioned neatly above fixed bottom footer bar) */}
+      <div className="flex lg:hidden fixed bottom-13 sm:bottom-14 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-xs sm:max-w-sm z-30 pointer-events-auto items-center justify-between gap-2 p-1.5 rounded-full border backdrop-blur-xl shadow-2xl transition-all duration-300 bg-black/90 border-[#6B9E5E]/40 text-white">
         <button
           type="button"
           onClick={handlePrev}
