@@ -7,29 +7,30 @@
    Design tokens
    -------------------------------------------------------------------------- */
 .tai2-page {
-  --tai2-bg: #f7f8f5;
-  --tai2-surface: #ffffff;
-  --tai2-text: #1f2933;
-  --tai2-muted: #6b7280;
-  --tai2-border: #e5e7eb;
-  --tai2-green: #1b5e3b;
-  --tai2-green-soft: #e8f2ec;
+  --tai2-bg: transparent;
+  --tai2-surface: var(--card, #ffffff);
+  --tai2-text: var(--foreground, #1f2933);
+  --tai2-muted: var(--muted-foreground, #6b7280);
+  --tai2-border: var(--border, #e5e7eb);
+  --tai2-green: var(--primary, #1b5e3b);
+  --tai2-green-soft: color-mix(in oklch, var(--primary, #1b5e3b) 12%, transparent);
   --tai2-orange: #c47a1a;
   --tai2-orange-soft: #fff4e5;
-  --tai2-red: #b42318;
+  --tai2-red: var(--destructive, #b42318);
   --tai2-red-soft: #fef3f2;
   --tai2-blue: #175cd3;
   --tai2-blue-soft: #eff8ff;
   --tai2-radius: 12px;
-  --tai2-max: 1360px;
+  --tai2-max: 100%;
 
   box-sizing: border-box;
-  max-width: var(--tai2-max);
+  width: 100%;
+  max-width: 100%;
   margin-inline: auto;
-  padding: 32px 24px;
+  padding: 0;
   overflow-x: hidden;
-  background: var(--tai2-bg);
-  color: var(--tai2-text);
+  background: transparent;
+  color: var(--foreground);
   font-size: 0.9375rem;
   line-height: 1.5;
 }
@@ -71,6 +72,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
+  width: 100%;
 }
 
 .tai2-secondary {
@@ -83,10 +85,11 @@
 .tai2-page-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: flex-end;
   justify-content: space-between;
-  gap: 16px 24px;
+  gap: 16px;
   margin-bottom: 20px;
+  width: 100%;
 }
 
 .tai2-page-header-titles {
@@ -94,19 +97,32 @@
 }
 
 .tai2-page-title {
-  margin: 0 0 6px;
-  font-size: 1.625rem;
+  margin: 0;
+  font-size: 1.5rem;
   font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-  color: var(--tai2-text);
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: var(--foreground);
 }
 
 .tai2-page-subtitle {
-  margin: 0;
-  max-width: 52ch;
-  color: var(--tai2-muted);
-  font-size: 0.9375rem;
+  margin: 4px 0 0;
+  max-width: 42rem;
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 640px) {
+  .tai2-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .tai2-page-title {
+    font-size: 1.35rem;
+  }
 }
 
 .tai2-page-header-actions {

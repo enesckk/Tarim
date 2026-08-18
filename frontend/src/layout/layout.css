@@ -2,8 +2,18 @@
   display: grid;
   grid-template-columns: 260px 1fr;
   min-height: 100vh;
+  width: 100%;
   background: var(--background);
   color: var(--foreground);
+  transition: grid-template-columns 200ms ease;
+}
+
+.shell.sidebar-collapsed {
+  grid-template-columns: 0px 1fr;
+}
+
+.shell.sidebar-collapsed .desktop-sidebar {
+  display: none !important;
 }
 
 .sidebar {
@@ -4741,11 +4751,18 @@ button.land-task-photo-link {
 
 @media (max-width: 960px) {
   .shell {
-    grid-template-columns: 1fr;
+    grid-template-columns: 100% !important;
+    width: 100% !important;
+  }
+
+  .main {
+    grid-column: 1 !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .desktop-sidebar {
-    display: none;
+    display: none !important;
   }
 
   .form-grid.two-col {

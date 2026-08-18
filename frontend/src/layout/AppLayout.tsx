@@ -98,9 +98,37 @@ export function AppLayout() {
   const location = useLocation()
   const admin = isAdmin(user?.roles)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem('ams_sidebar_collapsed') === 'true'
+    } catch {
+      return false
+    }
+  })
   const [menuOpen, setMenuOpen] = useState(false)
   const onFieldProcess = isFieldProcessRoute(location.pathname)
   const [fieldProcessesOpen, setFieldProcessesOpen] = useState(onFieldProcess)
+
+  // Close mobile drawer on navigation
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [location.pathname])
+
+  const toggleSidebar = () => {
+    if (window.innerWidth <= 960) {
+      setMobileOpen((v) => !v)
+    } else {
+      setSidebarCollapsed((v) => {
+        const next = !v
+        try {
+          localStorage.setItem('ams_sidebar_collapsed', String(next))
+        } catch {
+          // ignore
+        }
+        return next
+      })
+    }
+  }
 
   const pendingApprovals = useQuery({
     queryKey: ['pending-approval'],
@@ -285,7 +313,7 @@ export function AppLayout() {
   }
 
   return (
-    <div className="shell">
+    <div className={cn('shell', sidebarCollapsed && 'sidebar-collapsed')}>
       <aside className="sidebar desktop-sidebar">{renderSidebar()}</aside>
 
       {mobileOpen && (
@@ -314,9 +342,10 @@ export function AppLayout() {
         <header className="topbar">
           <button
             type="button"
-            className="icon-btn mobile-only"
-            aria-label="Menüyü aç"
-            onClick={() => setMobileOpen(true)}
+            className="icon-btn"
+            aria-label={sidebarCollapsed ? 'Menüyü aç' : 'Menüyü kapat'}
+            title={sidebarCollapsed ? 'Menüyü aç' : 'Menüyü daralt'}
+            onClick={toggleSidebar}
           >
             <Menu className="size-4" />
           </button>
