@@ -21,6 +21,7 @@
     "demo:golden:capture": "tsx src/modules/analysis-orchestrator/cli/golden-capture.ts",
     "demo:golden:verify": "tsx src/modules/analysis-orchestrator/cli/golden-verify.ts",
     "demo:readiness": "tsx src/modules/analysis-orchestrator/cli/demo-readiness.ts",
+    "verify:live-providers": "tsx scripts/verify-live-providers.ts",
     "test:demo:e2e": "vitest run src/modules/analysis-orchestrator/tests/",
     "gaez:catalog:sync": "tsx src/modules/fao-external/cli/gaez-catalog-sync.ts",
     "ecocrop:import": "tsx src/modules/fao-external/cli/ecocrop-import.ts",

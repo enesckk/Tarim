@@ -231,6 +231,14 @@ export function LandProfilePanel({
     gcTime: WEEK_MS * 4,
   })
 
+interface SatelliteImageResult {
+  imageUrl?: string
+  fileName?: string
+  datetime?: string
+  cloudCoverage?: number
+  [key: string]: unknown
+}
+
   const satelliteQuery = useQuery({
     queryKey: ['land-profile-satellite', landId, parcelQuery],
     queryFn: async () => {
@@ -239,8 +247,8 @@ export function LandProfilePanel({
       const geometry = parcel?.geometry
       if (!geometry) throw new Error('Parsel geometrisi bulunamadı')
       const [trueColor, ndvi] = await Promise.all([
-        tarimAi.bestTrueColor(geometry, 60),
-        tarimAi.bestNdvi(geometry, 60).catch(() => null),
+        tarimAi.bestTrueColor(geometry, 60) as Promise<SatelliteImageResult>,
+        tarimAi.bestNdvi(geometry, 60).catch(() => null) as Promise<SatelliteImageResult | null>,
       ])
       return {
         fetchedAt: new Date().toISOString(),

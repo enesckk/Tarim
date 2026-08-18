@@ -38,7 +38,21 @@ services:
       - key: PORT
         value: "4000"
       - key: ANALYSIS_DATA_MODE
-        value: golden
+        value: live
+      - key: COPERNICUS_CLIENT_ID
+        sync: false
+      - key: COPERNICUS_CLIENT_SECRET
+        sync: false
+      - key: PARCEL_PROVIDER
+        value: tkgm
+      - key: CLIMATE_PROVIDER
+        value: nasa-power
+      - key: SOIL_PROVIDER
+        value: soilgrids
+      - key: TERRAIN_PROVIDER
+        value: copernicus-dem
+      - key: TERRAIN_DEM_ENABLED
+        value: "true"
       - key: DATABASE_ENABLED
         value: "true"
       - key: PERSISTENCE_PROVIDER

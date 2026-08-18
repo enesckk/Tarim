@@ -556,10 +556,22 @@ export const tarimAi = {
       body: JSON.stringify({ parcelQuery }),
     }),
 
-  climateProfile: (parcelQuery: ParcelQuery) =>
+  climateProfile: (parcelQuery: ParcelQuery, years?: number) =>
     tarimAiFetch<Record<string, unknown>>('/api/environment/climate/profile', {
       method: 'POST',
-      body: JSON.stringify({ parcelQuery }),
+      body: JSON.stringify({ parcelQuery, years }),
+    }),
+
+  bestTrueColor: (geometry: unknown, days = 60) =>
+    tarimAiFetch<Record<string, unknown>>('/api/satellite/best/true-color', {
+      method: 'POST',
+      body: JSON.stringify({ geometry, days }),
+    }),
+
+  bestNdvi: (geometry: unknown, days = 60) =>
+    tarimAiFetch<Record<string, unknown>>('/api/satellite/best/ndvi', {
+      method: 'POST',
+      body: JSON.stringify({ geometry, days }),
     }),
 
   soilProfile: (parcelQuery: ParcelQuery) =>

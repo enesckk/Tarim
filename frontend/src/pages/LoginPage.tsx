@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { homePathForRoles } from "../auth/roles";
 import "../layout/layout.css";
@@ -31,8 +32,14 @@ export function LoginPage() {
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Giriş başarısız";
       setError(
-        /invalid email or password/i.test(raw)
+        err instanceof ApiError && err.status === 401
+          ? "E-posta/telefon veya şifre hatalı. Lütfen tekrar deneyin."
+          : err instanceof ApiError && err.status === 403
+            ? "Bu hesabın web uygulamasına erişim izni yok."
+          : /invalid email or password|unauthorized/i.test(raw)
           ? "E-posta veya şifre hatalı."
+          : /failed to fetch|networkerror/i.test(raw)
+            ? "Sunucuya bağlanılamadı. Lütfen kısa süre sonra tekrar deneyin."
           : raw,
       );
     } finally {

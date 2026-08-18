@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -52,23 +53,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(stored?.token ?? null)
   const [refreshToken, setRefreshToken] = useState<string | null>(stored?.refreshToken ?? null)
   const [user, setUser] = useState<AuthUser | null>(stored?.user ?? null)
+  // API requests made by a page immediately after login must see the new token.
+  // State updates are asynchronous, so keep the transport session in a ref too.
+  const sessionRef = useRef({
+    token: stored?.token ?? null,
+    refreshToken: stored?.refreshToken ?? null,
+  })
+  const userRef = useRef<AuthUser | null>(stored?.user ?? null)
 
   useEffect(() => {
     configureApiAuth({
-      getTokens: () => ({ token, refreshToken }),
+      getTokens: () => sessionRef.current,
       onRefreshed: (access, refresh) => {
+        sessionRef.current = { token: access, refreshToken: refresh }
         setToken(access)
         setRefreshToken(refresh)
-        if (user) persist({ token: access, refreshToken: refresh, user })
+        if (userRef.current) {
+          persist({ token: access, refreshToken: refresh, user: userRef.current })
+        }
       },
       onFailure: () => {
+        sessionRef.current = { token: null, refreshToken: null }
+        userRef.current = null
         setToken(null)
         setRefreshToken(null)
         setUser(null)
         persist(null)
       },
     })
-  }, [token, refreshToken, user])
+  }, [])
 
   const value = useMemo<AuthState>(
     () => ({
@@ -89,6 +102,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (!isStaff(nextUser.roles) && !isProducer(nextUser.roles)) {
           throw new Error('Bu kullanıcı rolünün web uygulamasına erişim yetkisi yok.')
         }
+        sessionRef.current = {
+          token: response.accessToken,
+          refreshToken: response.refreshToken,
+        }
+        userRef.current = nextUser
         setToken(response.accessToken)
         setRefreshToken(response.refreshToken)
         setUser(nextUser)
@@ -100,11 +118,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return nextUser
       },
       logout() {
-        if (token) {
-          void api('/api/auth/logout', { method: 'POST' }, token).catch(() => {
+        const activeToken = sessionRef.current.token
+        if (activeToken) {
+          void api('/api/auth/logout', { method: 'POST' }, activeToken).catch(() => {
             // Local credentials are cleared even if the server is temporarily unreachable.
           })
         }
+        sessionRef.current = { token: null, refreshToken: null }
+        userRef.current = null
         setToken(null)
         setRefreshToken(null)
         setUser(null)
