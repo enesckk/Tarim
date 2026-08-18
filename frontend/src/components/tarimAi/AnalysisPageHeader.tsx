@@ -32,7 +32,7 @@ export function AnalysisPageHeader({
           değerlendirme oluşturulur.
         </p>
       </div>
-      <div className="tai2-page-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+      <div className="tai2-page-header-actions">
         <NotificationBell />
         <SystemStatusPopover connected={connected} readiness={readiness} health={health} mode={readiness?.mode} />
 
