@@ -87,8 +87,8 @@
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 20px;
+  gap: 12px 16px;
+  margin-bottom: 12px;
   width: 100%;
 }
 
@@ -117,7 +117,8 @@
   .tai2-page-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 12px;
+    gap: 10px;
+    margin-bottom: 8px;
   }
 
   .tai2-page-title {
@@ -139,8 +140,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
+  margin-bottom: 14px;
+  padding-bottom: 8px;
   border-bottom: 1px solid var(--tai2-border);
 }
 
@@ -423,12 +424,13 @@
   top: calc(100% + 8px);
   right: 0;
   z-index: 40;
-  min-width: 260px;
+  min-width: 250px;
+  max-width: min(320px, calc(100vw - 32px));
   padding: 14px 16px;
   border: 1px solid var(--tai2-border);
   border-radius: var(--tai2-radius);
   background: var(--tai2-surface);
-  box-shadow: 0 4px 16px rgba(31, 41, 51, 0.08);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .tai2-status-list {
@@ -440,15 +442,17 @@
 
 .tai2-status-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 10px;
+  min-width: 0;
 }
 
 .tai2-status-row-label {
   margin: 0;
   font-size: 0.8125rem;
   color: var(--tai2-muted);
+  flex-shrink: 0;
 }
 
 .tai2-status-row-value {
@@ -456,6 +460,9 @@
   font-size: 0.8125rem;
   font-weight: 600;
   text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tai2-status-row-value-ok {

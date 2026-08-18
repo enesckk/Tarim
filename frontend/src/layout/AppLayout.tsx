@@ -356,7 +356,7 @@ export function AppLayout() {
           </div>
 
           <div className="topbar-actions">
-            <NavLink to="/notifications" className="icon-btn" aria-label="Bildirimler">
+            <NavLink to="/app/notifications" className="icon-btn" aria-label="Bildirimler">
               <Bell className="size-4" />
             </NavLink>
 
