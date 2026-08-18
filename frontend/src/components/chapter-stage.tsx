@@ -254,18 +254,18 @@ function ChapterStageComponent({
         {/* Scene FX */}
         <SceneFx scene={chapter.scene} />
         {/* Main Content & Bottom Bar Container */}
-        <div className="relative z-30 flex flex-col justify-between h-full w-full pl-4 sm:pl-8 md:pl-36 lg:pl-60 xl:pl-64 pr-4 sm:pr-8 pt-14 sm:pt-18 lg:pt-16 pb-28 sm:pb-32 lg:pb-16 overflow-hidden">
+        <div className="relative z-30 flex flex-col justify-between h-full w-full pl-5 sm:pl-8 md:pl-36 lg:pl-60 xl:pl-64 pr-5 sm:pr-8 pt-16 sm:pt-20 lg:pt-16 pb-24 sm:pb-28 lg:pb-16 overflow-hidden">
           {/* Upper / Center Column: Typography & CTAs */}
           <div
             className={cn(
-              'w-full max-w-[540px] lg:max-w-[560px] my-auto transition-all duration-300',
+              'w-full max-w-[540px] lg:max-w-[580px] my-auto transition-all duration-300',
             )}
           >
             {/* Eyebrow */}
             <div className="reveal mb-2 flex items-center gap-2.5">
               <span
                 className={cn(
-                  'text-[11px] sm:text-[12px] font-sans font-bold uppercase tracking-[0.2em] transition-colors duration-300',
+                  'text-[12px] sm:text-[13px] font-sans font-bold uppercase tracking-[0.2em] transition-colors duration-300',
                   isLight ? style.eyebrowLight : style.eyebrowDark,
                 )}
               >
@@ -276,7 +276,7 @@ function ChapterStageComponent({
             {/* Headline */}
             <h2
               className={cn(
-                'reveal text-balance text-xl sm:text-2xl lg:text-[2.5rem] xl:text-[2.85rem] font-sans font-extrabold leading-[1.14] tracking-[-0.02em] transition-colors duration-300',
+                'reveal text-balance text-[25px] xs:text-[28px] sm:text-3xl md:text-4xl lg:text-[2.5rem] xl:text-[2.85rem] font-sans font-black leading-[1.15] tracking-[-0.025em] transition-colors duration-300',
                 isLight ? 'text-[#1E1E1E]' : 'text-[#F5F3EC]',
               )}
             >
@@ -299,7 +299,7 @@ function ChapterStageComponent({
             {/* Accent underline bar */}
             <div
               className={cn(
-                'reveal mt-3 h-0.5 w-10 rounded-full transition-colors duration-300',
+                'reveal mt-3 h-1 w-12 rounded-full transition-colors duration-300',
                 isLight ? style.barLight : style.barDark,
               )}
             />
@@ -308,8 +308,8 @@ function ChapterStageComponent({
             {chapter.description && (
               <p
                 className={cn(
-                  'reveal mt-3.5 max-w-[500px] text-xs sm:text-sm lg:text-[14.5px] font-medium leading-[1.65] transition-colors duration-300',
-                  isLight ? 'text-gray-700' : 'text-slate-300',
+                  'reveal mt-3.5 max-w-[520px] text-[13.5px] xs:text-[14.5px] sm:text-[15px] lg:text-[15.5px] font-medium leading-[1.65] transition-colors duration-300',
+                  isLight ? 'text-gray-800' : 'text-slate-200',
                 )}
               >
                 {chapter.description}
@@ -326,7 +326,7 @@ function ChapterStageComponent({
                     if (onOpenModal) onOpenModal()
                   }}
                   className={cn(
-                    'group inline-flex items-center gap-2.5 rounded-full px-5 sm:px-6 py-2.5 sm:py-3 text-xs font-bold tracking-[0.14em] text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md cursor-pointer',
+                    'group inline-flex items-center gap-2.5 rounded-full px-5 sm:px-6 py-2.5 sm:py-3 text-[11.5px] sm:text-xs font-bold tracking-[0.14em] text-white transition-all duration-200 hover:scale-[1.02] active:scale-[0.98] shadow-md cursor-pointer',
                     isLight ? style.primaryCtaLight : style.primaryCtaDark,
                   )}
                 >
@@ -344,7 +344,7 @@ function ChapterStageComponent({
                     if (nextEl) nextEl.scrollIntoView({ behavior: 'smooth' })
                   }}
                   className={cn(
-                    'group inline-flex items-center gap-1.5 text-xs sm:text-[13px] font-bold transition-colors duration-200 cursor-pointer underline-offset-4 hover:underline',
+                    'group inline-flex items-center gap-1.5 text-[12.5px] sm:text-[13.5px] font-bold transition-colors duration-200 cursor-pointer underline-offset-4 hover:underline',
                     isLight ? style.secondaryCtaLight : style.secondaryCtaDark,
                   )}
                 >
@@ -359,7 +359,7 @@ function ChapterStageComponent({
             <div className="reveal mt-auto pt-2 sm:pt-3 w-full">
               <div
                 className={cn(
-                  'w-full max-w-5xl rounded-2xl p-2.5 sm:p-4.5 backdrop-blur-xl border shadow-xl transition-all duration-300 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5',
+                  'w-full max-w-5xl rounded-2xl p-3 sm:p-4.5 backdrop-blur-xl border shadow-xl transition-all duration-300 grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3.5',
                   isLight
                     ? 'bg-white/95 border-gray-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.06)]'
                     : 'bg-[#0A0D0A]/90 border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
@@ -371,16 +371,16 @@ function ChapterStageComponent({
                     <div key={i} className="flex flex-col sm:flex-row items-start gap-2 sm:gap-3.5 group">
                       <div
                         className={cn(
-                          'grid h-7 w-7 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-full transition-transform duration-200 group-hover:scale-105',
+                          'grid h-8 w-8 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-full transition-transform duration-200 group-hover:scale-105',
                           isLight ? style.cardIconLight : style.cardIconDark,
                         )}
                       >
-                        <Icon className="h-3.5 w-3.5 sm:h-5 sm:w-5" strokeWidth={1.8} />
+                        <Icon className="h-4 w-4 sm:h-5 sm:w-5" strokeWidth={1.8} />
                       </div>
                       <div className="pt-0.5">
                         <h4
                           className={cn(
-                            'text-xs sm:text-[13px] font-bold leading-tight transition-colors duration-200',
+                            'text-[12px] sm:text-[13.5px] font-bold leading-tight transition-colors duration-200',
                             isLight ? 'text-gray-900' : 'text-white',
                           )}
                         >
@@ -388,8 +388,8 @@ function ChapterStageComponent({
                         </h4>
                         <p
                           className={cn(
-                            'mt-1 text-[11px] leading-relaxed transition-colors duration-200',
-                            isLight ? 'text-gray-600' : 'text-slate-400',
+                            'mt-1 text-[11px] sm:text-[11.5px] leading-relaxed transition-colors duration-200',
+                            isLight ? 'text-gray-700' : 'text-slate-300',
                           )}
                         >
                           {card.desc}
