@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type ComponentType } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useSignalR } from '../hooks/useSignalR'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
@@ -145,6 +145,62 @@ export function AppLayout() {
     if (onFieldProcess) setFieldProcessesOpen(true)
   }, [onFieldProcess])
 
+  const queryClient = useQueryClient()
+
+  const prefetchRoute = (path: string) => {
+    if (!token) return
+    if (path === '/app') {
+      void queryClient.prefetchQuery({
+        queryKey: ['operations-center'],
+        queryFn: () => api('/api/dashboard', {}, token),
+      })
+    } else if (path === '/app/lands') {
+      void queryClient.prefetchQuery({
+        queryKey: ['lands'],
+        queryFn: () => api('/api/lands', {}, token),
+      })
+    } else if (path === '/app/producers') {
+      void queryClient.prefetchQuery({
+        queryKey: ['producers'],
+        queryFn: () => api('/api/producers', {}, token),
+      })
+    } else if (path === '/app/officers') {
+      void queryClient.prefetchQuery({
+        queryKey: ['officers'],
+        queryFn: () => api('/api/officers', {}, token),
+      })
+    } else if (path === '/app/approvals') {
+      void queryClient.prefetchQuery({
+        queryKey: ['pending-approval'],
+        queryFn: () => api('/api/tasks/pending-approval', {}, token),
+      })
+    } else if (path === '/app/workflows') {
+      void queryClient.prefetchQuery({
+        queryKey: ['workflows'],
+        queryFn: () => api('/api/workflows', {}, token),
+      })
+    } else if (path === '/app/inspections') {
+      void queryClient.prefetchQuery({
+        queryKey: ['inspections'],
+        queryFn: () => api('/api/inspections', {}, token),
+      })
+    } else if (path === '/app/harvest') {
+      void queryClient.prefetchQuery({
+        queryKey: ['harvest'],
+        queryFn: () => api('/api/harvest', {}, token),
+      })
+    }
+  }
+
+  // Pre-warm primary datasets in background on login
+  useEffect(() => {
+    if (!token) return
+    prefetchRoute('/app')
+    prefetchRoute('/app/lands')
+    prefetchRoute('/app/producers')
+    prefetchRoute('/app/approvals')
+  }, [token])
+
   function renderNavLink(link: NavItem, className?: string) {
     const Icon = link.icon
     const label = !admin && link.officerLabel ? link.officerLabel : link.label
@@ -153,11 +209,13 @@ export function AppLayout() {
         key={link.to}
         to={link.to}
         end={link.end}
+        onMouseEnter={() => prefetchRoute(link.to)}
+        onFocus={() => prefetchRoute(link.to)}
         className={({ isActive }) => cn('nav-link', className, isActive && 'active')}
       >
         <Icon className="nav-icon" />
         <span>{label}</span>
-        {link.to === '/approvals' && pendingCount > 0 ? (
+        {link.to === '/app/approvals' && pendingCount > 0 ? (
           <span className="nav-count" aria-label={`${pendingCount} bekleyen onay`}>
             {pendingCount > 99 ? '99+' : pendingCount}
           </span>

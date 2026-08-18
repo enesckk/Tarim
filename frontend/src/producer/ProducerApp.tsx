@@ -186,34 +186,53 @@ function State({
 }
 
 function useOverview() {
-  const [data, setData] = useState<Overview | null>(null),
-    [loading, setLoading] = useState(true),
-    [error, setError] = useState<string | null>(null);
+  const [data, setData] = useState<Overview | null>(() => {
+    try {
+      const cached = sessionStorage.getItem("tarim_producer_overview_cache");
+      return cached ? (JSON.parse(cached) as Overview) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [loading, setLoading] = useState(!data);
+  const [error, setError] = useState<string | null>(null);
+
   const load = useCallback(async () => {
-    setLoading(true);
+    if (!data) setLoading(true);
     setError(null);
     try {
-      const me = await api<Me>("/api/me");
-      const [today, lands, notifications] = await Promise.all([
+      // Parallel fetch of identity, today tasks, lands and notifications
+      const [me, todayTasks, lands, notifications] = await Promise.all([
+        api<Me>("/api/me"),
         api<TaskItem[]>("/api/tasks/today"),
         api<Land[]>("/api/lands"),
         api<NotificationItem[]>("/api/notifications"),
       ]);
+
       const tasks = me.producerId
         ? await api<TaskItem[]>(
             `/api/tasks?producerId=${encodeURIComponent(me.producerId)}`,
-          )
-        : today;
-      setData({ me, tasks, lands, notifications });
+          ).catch(() => todayTasks)
+        : todayTasks;
+
+      const payload: Overview = { me, tasks, lands, notifications };
+      setData(payload);
+      try {
+        sessionStorage.setItem("tarim_producer_overview_cache", JSON.stringify(payload));
+      } catch {
+        // ignore
+      }
     } catch (e) {
-      setError(errorText(e, "Bilgiler yüklenemedi."));
+      if (!data) setError(errorText(e, "Bilgiler yüklenemedi."));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [data]);
+
   useEffect(() => {
     void load();
   }, [load]);
+
   return { data, loading, error, load };
 }
 

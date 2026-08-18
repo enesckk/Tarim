@@ -11,9 +11,11 @@ registerSW({ immediate: true })
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      // Shared API with mobile producers — prefer fresh reads over long client cache.
-      staleTime: 0,
-      refetchOnWindowFocus: true,
+      // Instant panel navigation with fresh memory cache and smooth background revalidation
+      staleTime: 1000 * 60 * 3, // 3 minutes
+      gcTime: 1000 * 60 * 15, // 15 minutes
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: 'always',
       retry: 1,
     },
   },
