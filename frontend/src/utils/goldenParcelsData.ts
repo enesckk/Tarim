@@ -164,12 +164,12 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
       satellite: {
         fetchedAt: new Date().toISOString(),
         trueColor: {
-          fileName: 'gungurge_108_7_true_color.png',
+          imageUrl: '/satellite/gungurge-108-7/true-color.png',
           datetime: new Date().toISOString().split('T')[0],
           cloudCoverage: 4.2,
         },
         ndvi: {
-          fileName: 'gungurge_108_7_ndvi.png',
+          imageUrl: '/satellite/gungurge-108-7/ndvi.png',
           datetime: new Date().toISOString().split('T')[0],
           cloudCoverage: 4.2,
         },
@@ -246,12 +246,12 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
       satellite: {
         fetchedAt: new Date().toISOString(),
         trueColor: {
-          fileName: 'gungurge_131_80_true_color.png',
+          imageUrl: '/satellite/default/true-color.png',
           datetime: new Date().toISOString().split('T')[0],
           cloudCoverage: 3.8,
         },
         ndvi: {
-          fileName: 'gungurge_131_80_ndvi.png',
+          imageUrl: '/satellite/default/ndvi.png',
           datetime: new Date().toISOString().split('T')[0],
           cloudCoverage: 3.8,
         },
@@ -328,12 +328,12 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
       satellite: {
         fetchedAt: new Date().toISOString(),
         trueColor: {
-          fileName: 'sinan_0_1513_true_color.png',
+          imageUrl: '/satellite/default/true-color.png',
           datetime: new Date().toISOString().split('T')[0],
           cloudCoverage: 2.1,
         },
         ndvi: {
-          fileName: 'sinan_0_1513_ndvi.png',
+          imageUrl: '/satellite/default/ndvi.png',
           datetime: new Date().toISOString().split('T')[0],
           cloudCoverage: 2.1,
         },
@@ -409,10 +409,12 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
     satellite: {
       fetchedAt: new Date().toISOString(),
       trueColor: {
+        imageUrl: '/satellite/default/true-color.png',
         datetime: new Date().toISOString().split('T')[0],
         cloudCoverage: 3.0,
       },
       ndvi: {
+        imageUrl: '/satellite/default/ndvi.png',
         datetime: new Date().toISOString().split('T')[0],
         cloudCoverage: 3.0,
       },

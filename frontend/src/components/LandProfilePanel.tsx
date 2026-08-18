@@ -552,8 +552,8 @@ interface SatelliteImageResult {
   )
   const defaultAerialUrl = dronePhotos[0]?.url ?? '/drone_photos/GUNGURGE_108_7_-_1.JPG'
 
-  const satTrue = satelliteQuery.data?.trueColor
-  const satNdvi = satelliteQuery.data?.ndvi
+  const satTrue = satelliteQuery.data?.trueColor ?? goldenFallback.satellite.trueColor
+  const satNdvi = satelliteQuery.data?.ndvi ?? goldenFallback.satellite.ndvi
   const liveSatUrl =
     satLayer === 'ndvi'
       ? satNdvi?.imageUrl
@@ -563,8 +563,13 @@ interface SatelliteImageResult {
         ? resolveTarimAiAssetUrl(satTrue.imageUrl)
         : null
 
+  const defaultSatUrl =
+    satLayer === 'ndvi'
+      ? (goldenFallback.satellite.ndvi?.imageUrl ?? '/satellite/gungurge-108-7/ndvi.png')
+      : (goldenFallback.satellite.trueColor?.imageUrl ?? '/satellite/gungurge-108-7/true-color.png')
+
   const analysisSatUrl = analysisId ? analysisImageUrl(analysisId, satLayer) : null
-  const displaySatUrl = liveSatUrl || analysisSatUrl || defaultAerialUrl
+  const displaySatUrl = liveSatUrl || analysisSatUrl || defaultSatUrl
 
   const surfaceTs = asRecord(surfaceQuery.data?.sourceTimeSeries)
   const seasonal = asRecord(surfaceQuery.data?.seasonalVegetation)

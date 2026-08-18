@@ -6,6 +6,10 @@
       "destination": "https://tarim-pbj1.onrender.com/:path*"
     },
     {
+      "source": "/tarim-ai-api/:path*",
+      "destination": "https://tarim-ai.onrender.com/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
