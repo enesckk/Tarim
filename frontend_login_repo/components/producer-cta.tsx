@@ -35,14 +35,14 @@ export function ProducerCta({ onTabClick, onOpenModal }: ProducerCtaProps) {
       )}
     >
       {/* Brand Logo Container: Responsive static logo and text */}
-      <div className="pointer-events-auto flex items-center gap-1.5 sm:gap-3 select-none shrink-0 min-w-0">
-        <div className="relative w-6 h-6 sm:w-8 sm:h-8 shrink-0">
-          <Image
+      <div className="pointer-events-auto flex items-center gap-2 sm:gap-3 select-none shrink-0 min-w-0">
+        <div className="relative w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center shrink-0">
+          <img
             src={isLight ? '/logo/sehitkamil-logo-light.png' : '/logo/sehitkamil-logo-dark.png'}
             alt="Şehitkamil Strateji Logo"
-            width={32}
-            height={32}
             className="w-full h-full object-contain drop-shadow"
+            loading="eager"
+            decoding="sync"
           />
         </div>
         <div className="flex items-center gap-1 sm:gap-2 whitespace-nowrap min-w-0">

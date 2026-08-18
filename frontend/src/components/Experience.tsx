@@ -62,7 +62,71 @@ export function Experience() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Keyboard navigation listener (ArrowDown, ArrowUp, PageDown, PageUp, Space)
+  const isWheelLockedRef = useRef(false)
+  const wheelTimerRef = useRef<number | null>(null)
+
+  // Direct tab-like mouse wheel navigation (clean discrete chapter transition on each wheel motion)
+  useEffect(() => {
+    const handleWheel = (e: WheelEvent) => {
+      if (isModalOpen) return
+      const target = e.target as HTMLElement | null
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable ||
+          target.closest('.overflow-y-auto') ||
+          target.closest('.overflow-auto'))
+      ) {
+        return
+      }
+
+      if (Math.abs(e.deltaY) < 18) return
+
+      e.preventDefault()
+
+      if (isWheelLockedRef.current) return
+      isWheelLockedRef.current = true
+
+      const current = activeRef.current
+      if (e.deltaY > 0) {
+        // Scroll Down -> Next Chapter or Footer
+        if (current < CHAPTERS.length) {
+          const nextIdx = current + 1
+          setActive(nextIdx)
+          const nextChapter = CHAPTERS.find((c) => c.index === nextIdx)
+          if (nextChapter) onNavigate(nextChapter.id)
+        } else {
+          const footer = document.getElementById('footer')
+          if (footer) footer.scrollIntoView({ behavior: 'smooth' })
+        }
+      } else {
+        // Scroll Up -> Prev Chapter
+        if (current > 1) {
+          const prevIdx = current - 1
+          setActive(prevIdx)
+          const prevChapter = CHAPTERS.find((c) => c.index === prevIdx)
+          if (prevChapter) onNavigate(prevChapter.id)
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }
+      }
+
+      if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current)
+      wheelTimerRef.current = window.setTimeout(() => {
+        isWheelLockedRef.current = false
+      }, 550)
+    }
+
+    window.addEventListener('wheel', handleWheel, { passive: false })
+    return () => {
+      window.removeEventListener('wheel', handleWheel)
+      if (wheelTimerRef.current) clearTimeout(wheelTimerRef.current)
+    }
+  }, [isModalOpen, onNavigate])
+
+  // Keyboard navigation listener (ArrowDown, ArrowUp, PageDown, PageUp, Space, Tab)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey || e.metaKey || e.ctrlKey) return
@@ -78,7 +142,7 @@ export function Experience() {
         return
       }
 
-      if (e.key === 'ArrowDown' || e.key === 'PageDown' || (e.key === ' ' && !e.shiftKey)) {
+      if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === 'Tab' || (e.key === ' ' && !e.shiftKey)) {
         e.preventDefault()
         const current = activeRef.current
         const nextIdx = current < CHAPTERS.length ? current + 1 : 1
@@ -87,7 +151,7 @@ export function Experience() {
           setActive(nextIdx)
           onNavigate(nextChapter.id)
         }
-      } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === ' ' && e.shiftKey)) {
+      } else if (e.key === 'ArrowUp' || e.key === 'PageUp' || (e.key === 'Tab' && e.shiftKey) || (e.key === ' ' && e.shiftKey)) {
         e.preventDefault()
         const current = activeRef.current
         const prevIdx = current > 1 ? current - 1 : CHAPTERS.length
