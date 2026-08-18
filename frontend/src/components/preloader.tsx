@@ -13,25 +13,18 @@ export function Preloader() {
   const isLight = theme === 'light'
 
   useEffect(() => {
-    // Pre-cache all 8 chapter background images upfront to eliminate Vercel slide loading delays
-    [1, 2, 3, 4, 5, 6, 7, 8].forEach((n) => {
-      const img = new window.Image()
-      img.src = `/chapters/${n}.png`
-    })
-
-    // Fast high-precision progress increment
+    // Fast lightweight progress increment
     const interval = setInterval(() => {
       setProgress((prev) => {
         if (prev >= 100) {
           clearInterval(interval)
-          setTimeout(() => setIsLoaded(true), 150)
+          setTimeout(() => setIsLoaded(true), 80)
           return 100
         }
-        // Accelerating fill logic
-        const diff = Math.max(1, Math.floor((100 - prev) / 4))
+        const diff = Math.max(2, Math.floor((100 - prev) / 3))
         return Math.min(100, prev + diff)
       })
-    }, 30)
+    }, 20)
 
     return () => clearInterval(interval)
   }, [])

@@ -68,7 +68,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Atıl ve değerlendirilmeyen kaynakları üretime kazandırıyor; insanı, bilgiyi ve üretimi sürdürülebilir bir ekonomik modelde buluşturuyoruz.',
     accent: 'green',
-    image: '/chapters/1.png',
+    image: '/chapters/1.webp',
     icon: 'home',
     primaryCta: { label: 'PROJEYİ İNCELE' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -93,7 +93,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Uygun katılımcıları belirliyor, dezavantajlı bireylere öncelik veriyor ve üretim yapacakları alanları dönemlik olarak tahsis ediyoruz.',
     accent: 'green',
-    image: '/chapters/2.png',
+    image: '/chapters/2.webp',
     icon: 'sosyal',
     primaryCta: { label: 'BAŞVURU SÜRECİ' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -118,7 +118,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Modern tarım teknikleri, doğru planlama ve nitelikli tohumlarla yüksek verim hedefliyoruz. Toprağımıza değer katıyor, geleceğe güvenle üretiyoruz.',
     accent: 'amber',
-    image: '/chapters/3.png',
+    image: '/chapters/3.webp',
     icon: 'tahil',
     primaryCta: { label: 'TAHIL ÜRETİMİ SÜRECİ' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -143,7 +143,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'İlk lokomotif ürünümüz lavanta başta olmak üzere, katma değeri yüksek tıbbi ve aromatik bitkileri yerli üreticilerimizle birlikte yetiştiriyoruz.',
     accent: 'lavender',
-    image: '/chapters/4.png',
+    image: '/chapters/4.webp',
     icon: 'aromatik',
     primaryCta: { label: 'LAVANTA ÜRETİMİ' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -168,7 +168,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Kaliteli bitki materyallerini bilimsel yöntemlerle çoğaltıyor, daha güçlü ve hastalıksız bir tarımsal üretimi destekliyoruz.',
     accent: 'cyan',
-    image: '/chapters/5.png',
+    image: '/chapters/5.webp',
     icon: 'klonlama',
     primaryCta: { label: 'SÜRECİ KEŞFET' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -193,7 +193,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Lavanta bahçelerimiz ve florası zengin alanlarımızda modern arıcılık teknikleriyle katkısız, saf ve kaliteli bal üretiyoruz.',
     accent: 'amber',
-    image: '/chapters/6.png',
+    image: '/chapters/6.webp',
     icon: 'aricilik',
     primaryCta: { label: 'ARICILIK MODELİ' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -218,7 +218,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Şekabel Kooperatifi olarak; tahıldan aromatik bitkilere, arıcılık ürünlerinden fideye kadar üreticilerimizden aldığımız ürünleri modern tesislerimizde işleyip paketliyor, katma değere dönüştürüyoruz.',
     accent: 'green',
-    image: '/chapters/7.png',
+    image: '/chapters/7.webp',
     icon: 'katma',
     primaryCta: { label: 'KATMA DEĞER SÜRECİNİ İZLE' },
     secondaryCta: { label: 'Detaylı bilgi →' },
@@ -243,7 +243,7 @@ export const CHAPTERS: Chapter[] = [
     description:
       'Şekabel aracılığıyla tahıl, aromatik bitkiler, bal ve diğer üretim çıktılarımız, güvenilir ve düzenli satış ağımızla tüketiciyle buluşur.',
     accent: 'green',
-    image: '/chapters/8.png',
+    image: '/chapters/8.webp',
     icon: 'sekabel',
     primaryCta: { label: "ŞEKABEL'İ KEŞFET" },
     secondaryCta: { label: 'Detaylı bilgi →' },

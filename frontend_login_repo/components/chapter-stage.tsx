@@ -202,7 +202,8 @@ function ChapterStageComponent({
   }, [chapter.index, onActive])
 
   const isLight = theme === 'light'
-  const imageSrc = chapter.image || `/chapters/${chapter.index}.png`
+  const isFirstChapter = chapter.index === 1
+  const imageSrc = chapter.image || `/chapters/${chapter.index}.webp`
   const artDir = SECTION_ART_DIRECTION[chapter.id] || { className: 'object-right' }
 
   const style = ACCENT_STYLES[chapter.accent] || ACCENT_STYLES.green
@@ -213,7 +214,7 @@ function ChapterStageComponent({
       id={chapter.id}
       data-chapter={chapter.index}
       className={cn(
-        'relative h-screen w-full overflow-hidden gpu-accelerated flex items-center',
+        'relative min-h-screen w-full overflow-hidden gpu-accelerated flex items-center',
         isLight ? 'bg-[#F8F7F2]' : 'bg-[#060807]',
       )}
     >
@@ -221,16 +222,15 @@ function ChapterStageComponent({
       <div className="absolute inset-0 z-0">
         <div
           ref={imageLayerRef}
-          className="layer-far absolute inset-0 will-change-transform transition-opacity duration-500"
+          className="layer-far absolute inset-0 will-change-transform transition-opacity duration-300"
         >
           <Image
-            src={imageSrc || '/placeholder.svg'}
+            src={imageSrc}
             alt=""
             aria-hidden="true"
             fill
-            unoptimized
-            priority
-            quality={100}
+            priority={isFirstChapter}
+            loading={isFirstChapter ? 'eager' : 'lazy'}
             sizes="100vw"
             className={cn(
               'object-cover select-none opacity-100 transition-all duration-300',
