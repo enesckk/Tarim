@@ -4934,11 +4934,13 @@ button.land-task-photo-link {
    Onaylar (Approvals) — kart temelli tasarım
 --------------------------------------------------------------------------- */
 .approvals-page {
-  max-width: 820px;
+  width: 100%;
+  max-width: 100%;
 }
 
 .approvals-header {
   align-items: flex-start;
+  width: 100%;
 }
 
 .approvals-count-pill {

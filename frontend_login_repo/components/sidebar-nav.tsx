@@ -188,23 +188,50 @@ function SidebarNavComponent({
         </div>
       </aside>
 
-      {/* MOBILE NAVIGATION BAR (Ultra-compact, sleek, non-intrusive) */}
-      <div className="flex lg:hidden fixed bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-30 pointer-events-auto items-center justify-center gap-1.5 px-2.5 py-1 rounded-full border backdrop-blur-xl shadow-lg transition-all duration-300 bg-black/85 border-[#6B9E5E]/40 text-white max-w-[90vw]">
+      {/* MOBILE NAVIGATION BAR (Ultra-compact, sleek, theme-aware) */}
+      <div
+        className={cn(
+          'flex lg:hidden fixed bottom-12 sm:bottom-14 left-1/2 -translate-x-1/2 z-30 pointer-events-auto items-center justify-center gap-1.5 px-2.5 py-1 rounded-full border backdrop-blur-xl shadow-lg transition-all duration-300 max-w-[90vw]',
+          isLight
+            ? 'bg-white/95 border-[#3D6436]/30 text-[#1E1E1E] shadow-[0_8px_30px_rgba(61,100,54,0.15)]'
+            : 'bg-black/85 border-[#6B9E5E]/40 text-white shadow-[0_8px_30px_rgba(0,0,0,0.5)]',
+        )}
+      >
         <button
           type="button"
           onClick={handlePrev}
           aria-label="Önceki Bölüm"
-          className="w-6 h-6 rounded-full flex items-center justify-center border border-white/15 active:scale-95 transition-all text-[#6B9E5E] bg-white/5 hover:bg-white/10 shrink-0"
+          className={cn(
+            'w-6 h-6 rounded-full flex items-center justify-center border active:scale-95 transition-all shrink-0',
+            isLight
+              ? 'border-[#3D6436]/20 text-[#3D6436] bg-[#3D6436]/5 hover:bg-[#3D6436]/15'
+              : 'border-white/15 text-[#6B9E5E] bg-white/5 hover:bg-white/10',
+          )}
         >
           <span className="font-mono text-sm font-bold leading-none">‹</span>
         </button>
 
         <div className="flex items-center gap-1.5 px-1.5 overflow-hidden">
-          <span className="font-mono text-[10.5px] font-extrabold text-[#6B9E5E] tracking-wider shrink-0">
+          <span
+            className={cn(
+              'font-mono text-[10.5px] font-extrabold tracking-wider shrink-0',
+              isLight ? 'text-[#3D6436]' : 'text-[#6B9E5E]',
+            )}
+          >
             {currentItem.number}/08
           </span>
-          <span className="w-1 h-1 rounded-full bg-[#6B9E5E] shrink-0" />
-          <span className="text-[10px] font-sans font-extrabold tracking-wider uppercase truncate text-slate-100 max-w-[120px] xs:max-w-[160px]">
+          <span
+            className={cn(
+              'w-1 h-1 rounded-full shrink-0',
+              isLight ? 'bg-[#3D6436]' : 'bg-[#6B9E5E]',
+            )}
+          />
+          <span
+            className={cn(
+              'text-[10px] font-sans font-extrabold tracking-wider uppercase truncate max-w-[120px] xs:max-w-[160px]',
+              isLight ? 'text-gray-900' : 'text-slate-100',
+            )}
+          >
             {currentItem.label}
           </span>
         </div>
@@ -213,7 +240,12 @@ function SidebarNavComponent({
           type="button"
           onClick={handleNext}
           aria-label="Sonraki Bölüm"
-          className="w-6 h-6 rounded-full flex items-center justify-center border border-white/15 active:scale-95 transition-all text-[#6B9E5E] bg-white/5 hover:bg-white/10 shrink-0"
+          className={cn(
+            'w-6 h-6 rounded-full flex items-center justify-center border active:scale-95 transition-all shrink-0',
+            isLight
+              ? 'border-[#3D6436]/20 text-[#3D6436] bg-[#3D6436]/5 hover:bg-[#3D6436]/15'
+              : 'border-white/15 text-[#6B9E5E] bg-white/5 hover:bg-white/10',
+          )}
         >
           <span className="font-mono text-sm font-bold leading-none">›</span>
         </button>

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { ApiError } from "../api/client";
+import { api, ApiError } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { homePathForRoles } from "../auth/roles";
 import "../layout/layout.css";
@@ -28,6 +28,14 @@ export function LoginPage() {
     setError(null);
     try {
       const nextUser = await login(email, password);
+      // Pre-warm dashboard cache in background so it renders in 0ms on redirect
+      api<unknown>('/api/dashboard')
+        .then((dash) => {
+          if (dash) {
+            sessionStorage.setItem('ams_dashboard_summary_cache', JSON.stringify(dash))
+          }
+        })
+        .catch(() => {})
       navigate(homePathForRoles(nextUser.roles), { replace: true });
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Giriş başarısız";

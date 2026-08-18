@@ -67,8 +67,27 @@ export function DashboardPage() {
     queryKey: ['operations-center'],
     queryFn: () => api<OperationsSummary>('/api/dashboard', {}, token),
     enabled: Boolean(token),
+    initialData: () => {
+      try {
+        const cached = sessionStorage.getItem('ams_dashboard_summary_cache')
+        return cached ? (JSON.parse(cached) as OperationsSummary) : undefined
+      } catch {
+        return undefined
+      }
+    },
     refetchInterval: 60_000,
   })
+
+  // Save to cache when fresh data arrives
+  useEffect(() => {
+    if (data) {
+      try {
+        sessionStorage.setItem('ams_dashboard_summary_cache', JSON.stringify(data))
+      } catch {
+        // ignore
+      }
+    }
+  }, [data])
 
   const pendingApprovals = useQuery({
     queryKey: ['pending-approval'],
@@ -107,7 +126,11 @@ export function DashboardPage() {
       </header>
 
       {error && <p className="error">{(error as Error).message}</p>}
-      {isLoading && <p className="empty">Yükleniyor…</p>}
+      {isLoading && !data && (
+        <div className="ops-loading-skeleton" style={{ padding: '24px', textAlign: 'center', opacity: 0.7 }}>
+          <p className="empty">Operasyon verileri yükleniyor…</p>
+        </div>
+      )}
 
       {data && (
         <>
