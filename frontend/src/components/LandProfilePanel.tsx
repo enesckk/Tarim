@@ -428,7 +428,7 @@ interface SatelliteImageResult {
     },
   })
 
-  const climate = climateQuery.data
+  const climate = asRecord(climateQuery.data) ?? asRecord(goldenFallback.climate)
   const temperature = asRecord(climate?.temperature)
   const precipitation = asRecord(climate?.precipitation)
   const water = asRecord(climate?.water)
@@ -527,14 +527,17 @@ interface SatelliteImageResult {
     }
   }, [activeMonthlyRaw])
 
-  const terrainRoot = asRecord(terrainQuery.data?.terrain) ?? asRecord(terrainQuery.data)
+  const terrainRoot =
+    asRecord(terrainQuery.data?.terrain) ?? asRecord(terrainQuery.data) ?? asRecord(goldenFallback.terrain)
   const elevation = asRecord(terrainRoot?.elevation)
   const slope = asRecord(terrainRoot?.slope)
   const aspect = asRecord(terrainRoot?.aspect)
   const ruggedness = asRecord(terrainRoot?.ruggedness)
-  const mechanization = asRecord(terrainRoot?.mechanization)
+  const mechanization =
+    asRecord(terrainRoot?.mechanizationSuitability) ?? asRecord(terrainRoot?.mechanization)
 
-  const soilRoot = asRecord(soilQuery.data?.soil) ?? asRecord(soilQuery.data)
+  const soilRoot =
+    asRecord(soilQuery.data?.soil) ?? asRecord(soilQuery.data) ?? asRecord(goldenFallback.soil)
   const soilSignals = asRecord(soilQuery.data?.suitabilitySignals)
 
   const satTrue = satelliteQuery.data?.trueColor
@@ -647,7 +650,6 @@ interface SatelliteImageResult {
         {TABS.find((t) => t.id === tab)?.hint}
       </p>
 
-      {errorMsg ? <p className="land-profile-error">{errorMsg}</p> : null}
       {loadingAny && !climate ? <p className="empty">Veriler yükleniyor…</p> : null}
 
       {tab === 'ozet' && climate ? (
