@@ -351,6 +351,22 @@ export function createAnalysisRouter(
 
     const result = await orchestrator.getResult(req.params.analysisId as string);
     if (!result) {
+      if (record.status === 'failed') {
+        res.json({
+          analysisId: record.id,
+          status: 'failed',
+          parcel: {
+            province: record.province,
+            district: record.district,
+            neighborhood: record.neighborhood,
+            block: record.block,
+            parcel: record.parcel,
+          },
+          limitations: [record.errorSummary || 'Analiz tamamlanamadı.'],
+          cropRecommendations: [],
+        });
+        return;
+      }
       const e = createAnalysisError('ANALYSIS_NOT_FOUND', correlationId ?? '');
       res.status(e.status).json(e.body);
       return;
