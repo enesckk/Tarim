@@ -110,6 +110,11 @@ internal static class AuthEndpoints
             AgricultureDbContext db) =>
         {
             var officers = await userManager.GetUsersInRoleAsync(AppRoles.Officer);
+            if (officers.Count == 0)
+            {
+                await DatabaseInitializer.EnsureDefaultOfficersAsync(userManager);
+                officers = await userManager.GetUsersInRoleAsync(AppRoles.Officer);
+            }
             return Results.Ok(await BuildOfficerDtosAsync(officers, db));
         }).WithTags("Staff").RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator));
 
@@ -171,6 +176,11 @@ internal static class AuthEndpoints
             AgricultureDbContext db) =>
         {
             var officers = await userManager.GetUsersInRoleAsync(AppRoles.Officer);
+            if (officers.Count == 0)
+            {
+                await DatabaseInitializer.EnsureDefaultOfficersAsync(userManager);
+                officers = await userManager.GetUsersInRoleAsync(AppRoles.Officer);
+            }
             return Results.Ok(await BuildOfficerDtosAsync(officers, db));
         }).WithTags("Identity").RequireAuthorization(policy => policy.RequireRole(AppRoles.Administrator, AppRoles.Officer));
 

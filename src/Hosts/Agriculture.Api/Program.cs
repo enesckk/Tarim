@@ -825,6 +825,9 @@ internal static partial class DatabaseInitializer
 
         await BootstrapProductionAdminAsync(scope.ServiceProvider, configuration);
 
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        await EnsureDefaultOfficersAsync(userManager);
+
         if (seedVerifiedParcels)
             await SeedVerifiedParcelDataAsync(
                 agricultureDb,
@@ -833,9 +836,18 @@ internal static partial class DatabaseInitializer
         if (!seedDemo)
             return;
 
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         await EnsureUserAsync(userManager, "admin@agriculture.local", "Admin123!", "System", "Administrator",
             AppRoles.Administrator, null);
+        await EnsureUserAsync(userManager, "uretici@agriculture.local", "Producer123!", "Mehmet", "Çiftçi",
+            AppRoles.Producer, DemoProducerUserId, phone: "5537472823");
+        await EnsureUserAsync(userManager, "denetci@agriculture.local", "Inspector123!", "Ali", "Denetçi",
+            AppRoles.Inspector, null);
+
+        await SeedDemoAgricultureDataAsync(agricultureDb, DemoProducerUserId);
+    }
+
+    public static async Task EnsureDefaultOfficersAsync(UserManager<ApplicationUser> userManager)
+    {
         await EnsureUserAsync(userManager, "uzman@agriculture.local", "Officer123!", "Ayşe", "Uzman",
             AppRoles.Officer, DemoOfficerUserId, phone: "05551112233",
             specialization: "Bitki Koruma Uzmanı", neighborhood: "Değirmiçem", isActive: true);
@@ -848,12 +860,6 @@ internal static partial class DatabaseInitializer
         await EnsureUserAsync(userManager, "uzman3@agriculture.local", "Officer123!", "Can", "Özer",
             AppRoles.Officer, DemoOfficer3UserId, phone: "05551112203",
             specialization: "Hasat ve Kalite Uzmanı", neighborhood: "Mücahitler", isActive: true);
-        await EnsureUserAsync(userManager, "uretici@agriculture.local", "Producer123!", "Mehmet", "Çiftçi",
-            AppRoles.Producer, DemoProducerUserId, phone: "5537472823");
-        await EnsureUserAsync(userManager, "denetci@agriculture.local", "Inspector123!", "Ali", "Denetçi",
-            AppRoles.Inspector, null);
-
-        await SeedDemoAgricultureDataAsync(agricultureDb, DemoProducerUserId);
     }
 
     private static async Task BootstrapProductionAdminAsync(
