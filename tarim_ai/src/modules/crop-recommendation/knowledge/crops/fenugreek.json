@@ -1,0 +1,50 @@
+{
+  "id": "fenugreek",
+  "name": "Çemen Otu (Boyotu)",
+  "scientificName": "Trigonella foenum-graecum",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -6,
+      "optimalMinC": 15,
+      "optimalMaxC": 28,
+      "absoluteMaxC": 36
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 500,
+      "maximum": 700
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 6.8,
+      "optimalMax": 7.8,
+      "absoluteMax": 8.4
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 1.0,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Hem toprağa azot bağlayan hem de baharat ve pastırma sanayisinde yüksek değerli baklagil."
+  }
+}

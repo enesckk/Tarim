@@ -1,0 +1,50 @@
+{
+  "id": "araban_garlic",
+  "name": "Araban Sarımsağı (Coğrafi İşaretli)",
+  "scientificName": "Allium sativum var. Araban",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -12,
+      "optimalMinC": 14,
+      "optimalMaxC": 26,
+      "absoluteMaxC": 35
+    },
+    "annualPrecipitationMm": {
+      "minimum": 300,
+      "optimalMin": 450,
+      "optimalMax": 650,
+      "maximum": 850
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "medium_high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 6.6,
+      "optimalMax": 7.6,
+      "absoluteMax": 8.2
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "silt_loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "salinityTolerance": "low",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "medium_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Bölgenin AB coğrafi işaret tescilli beyaz başlı, yüksek allisin oranlı dev sarımsağı."
+  }
+}

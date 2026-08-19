@@ -1,0 +1,51 @@
+{
+  "id": "terebinth",
+  "name": "Menengiç (Çitlembik / Bıttım)",
+  "scientificName": "Pistacia terebinthus",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -16,
+      "optimalMinC": 16,
+      "optimalMaxC": 36,
+      "absoluteMaxC": 46
+    },
+    "annualPrecipitationMm": {
+      "minimum": 200,
+      "optimalMin": 300,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "very_high",
+    "droughtTolerance": "extreme",
+    "irrigationDependency": "none"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.5,
+      "optimalMin": 7.2,
+      "optimalMax": 8.5,
+      "absoluteMax": 9.0
+    },
+    "preferredTextures": [
+      "stony",
+      "sandy_loam",
+      "loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam",
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 0.5,
+    "salinityTolerance": "high",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Menengiç kahvesi, bıttım sabunu ve Antep fıstığı aşılamasında bölgenin temel anaç ağacı."
+  }
+}

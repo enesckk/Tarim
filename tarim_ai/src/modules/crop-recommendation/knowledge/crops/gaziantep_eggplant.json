@@ -1,0 +1,49 @@
+{
+  "id": "gaziantep_eggplant",
+  "name": "Antep Dolmalık Patlıcanı",
+  "scientificName": "Solanum melongena var. Antep",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 12,
+      "optimalMinC": 22,
+      "optimalMaxC": 33,
+      "absoluteMaxC": 40
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 400,
+      "optimalMax": 650,
+      "maximum": 850
+    },
+    "frostTolerance": "none",
+    "heatTolerance": "high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "high"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.4,
+      "absoluteMax": 8.0
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.8,
+    "salinityTolerance": "low_medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Gaziantep mutfağının vazgeçilmezi; oyularak güneşte kurutulan tescilli dolmalık kuru patlıcan."
+  }
+}

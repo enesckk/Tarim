@@ -1,0 +1,50 @@
+{
+  "id": "sour_cherry",
+  "name": "Vişne (Kütahya)",
+  "scientificName": "Prunus cerasus",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -22,
+      "optimalMinC": 13,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 350,
+      "optimalMin": 500,
+      "optimalMax": 750,
+      "maximum": 1000
+    },
+    "frostTolerance": "very_high",
+    "heatTolerance": "medium",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.6,
+      "absoluteMax": 8.2
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "salinityTolerance": "low",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 80,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Şehitkamil yüksek rakımlı yayla köylerinde meyve suyu ve dondurulmuş gıda pazarına uygun."
+  }
+}

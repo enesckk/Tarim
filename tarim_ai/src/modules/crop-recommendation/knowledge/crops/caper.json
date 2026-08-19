@@ -1,0 +1,50 @@
+{
+  "id": "caper",
+  "name": "Kapari (Gebre Otu)",
+  "scientificName": "Capparis spinosa",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -12,
+      "optimalMinC": 18,
+      "optimalMaxC": 38,
+      "absoluteMaxC": 48
+    },
+    "annualPrecipitationMm": {
+      "minimum": 150,
+      "optimalMin": 250,
+      "optimalMax": 450,
+      "maximum": 650
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "extreme",
+    "droughtTolerance": "extreme",
+    "irrigationDependency": "none"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.8,
+      "optimalMin": 7.5,
+      "optimalMax": 8.6,
+      "absoluteMax": 9.2
+    },
+    "preferredTextures": [
+      "stony",
+      "sandy_loam",
+      "loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 0.4,
+    "salinityTolerance": "very_high",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Erozyon kontrolü ve kıraç alanlarda ihracata yönelik salamura tomurcuk üretimi."
+  }
+}

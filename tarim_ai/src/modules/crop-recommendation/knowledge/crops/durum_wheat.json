@@ -1,0 +1,50 @@
+{
+  "id": "durum_wheat",
+  "name": "Makarnalık Sert Buğday (Svevo & Burgos)",
+  "scientificName": "Triticum durum",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -16,
+      "optimalMinC": 14,
+      "optimalMaxC": 28,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 280,
+      "optimalMin": 400,
+      "optimalMax": 600,
+      "maximum": 800
+    },
+    "frostTolerance": "very_high",
+    "heatTolerance": "high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low_medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 7.0,
+      "optimalMax": 8.0,
+      "absoluteMax": 8.6
+    },
+    "preferredTextures": [
+      "clay_loam",
+      "clay",
+      "loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.2,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 70,
+    "calciumCarbonateTolerance": "high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Gaziantep bulgur ve makarna sanayisinin dünyaca ünlü yüksek proteinli altın sarısı buğdayı."
+  }
+}

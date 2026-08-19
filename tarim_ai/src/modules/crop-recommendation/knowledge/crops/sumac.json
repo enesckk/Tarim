@@ -1,0 +1,51 @@
+{
+  "id": "sumac",
+  "name": "Gaziantep Dağ Sumağı",
+  "scientificName": "Rhus coriaria",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -15,
+      "optimalMinC": 16,
+      "optimalMaxC": 36,
+      "absoluteMaxC": 45
+    },
+    "annualPrecipitationMm": {
+      "minimum": 200,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 800
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "very_high",
+    "droughtTolerance": "very_high",
+    "irrigationDependency": "none"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.5,
+      "optimalMin": 7.0,
+      "optimalMax": 8.2,
+      "absoluteMax": 8.8
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "stony"
+    ],
+    "acceptedTextures": [
+      "clay_loam",
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 0.6,
+    "salinityTolerance": "high",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 50,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Kıraç, eğimli ve taşlık yamaçlarda sıfır sulama ile en yüksek katma değerli baharat üretimi."
+  }
+}

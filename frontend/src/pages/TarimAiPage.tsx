@@ -43,6 +43,7 @@ import {
   ParcelSelectionCard,
   SatelliteTerrainTab,
   SourcesConfidenceTab,
+  PlantCatalogTab,
   Toast,
   type ToastMessage,
 } from '../components/tarimAi'
@@ -55,7 +56,7 @@ import {
 import '../components/tarimAi/tarimAi.css'
 import '../layout/layout.css'
 
-type ShellTab = 'analysis' | 'tools' | 'status'
+type ShellTab = 'analysis' | 'catalog' | 'tools' | 'status'
 type ToolId = 'resolve' | 'crops' | 'terrain' | 'climate' | 'soil' | 'usability' | 'surface'
 type Phase = 'setup' | 'running' | 'result'
 
@@ -606,6 +607,7 @@ export function TarimAiPage() {
         {(
           [
             ['analysis', 'Analiz'],
+            ['catalog', '🌿 Bitki & Meyve Kataloğu'],
             ['tools', 'Hızlı araçlar'],
             ['status', 'Bağlantı'],
           ] as const
@@ -865,6 +867,10 @@ export function TarimAiPage() {
             <ToolResultCard toolId={activeTool} result={toolResult} parcelQuery={toolParcel} selectedLand={selectedToolLand} />
           </section>
         </div>
+      ) : null}
+
+      {shellTab === 'catalog' ? (
+        <PlantCatalogTab />
       ) : null}
 
       {shellTab === 'status' ? (

@@ -1,0 +1,50 @@
+{
+  "id": "quince",
+  "name": "Ayva (Eşme & Yerli)",
+  "scientificName": "Cydonia oblonga",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -18,
+      "optimalMinC": 15,
+      "optimalMaxC": 32,
+      "absoluteMaxC": 41
+    },
+    "annualPrecipitationMm": {
+      "minimum": 300,
+      "optimalMin": 450,
+      "optimalMax": 700,
+      "maximum": 950
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 6.8,
+      "optimalMax": 7.8,
+      "absoluteMax": 8.4
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "sandy_clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 1.2,
+    "salinityTolerance": "low_medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 80,
+    "calciumCarbonateTolerance": "medium_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Killi-tınlı topraklarda düzenli damla sulamayla üstün rekolte ve depolama kalitesi."
+  }
+}

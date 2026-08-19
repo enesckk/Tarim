@@ -1,0 +1,50 @@
+{
+  "id": "sesame",
+  "name": "Susam (Gaziantep Tahinlik)",
+  "scientificName": "Sesamum indicum",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 15,
+      "optimalMinC": 25,
+      "optimalMaxC": 36,
+      "absoluteMaxC": 44
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "frostTolerance": "none",
+    "heatTolerance": "very_high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low_medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 5.8,
+      "optimalMin": 6.5,
+      "optimalMax": 7.8,
+      "absoluteMax": 8.4
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 0.9,
+    "salinityTolerance": "low_medium",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Buğday ve arpa hasadı sonrası ikinci ürün olarak ekilen, helva ve tahin sanayisinin ana girdisi."
+  }
+}

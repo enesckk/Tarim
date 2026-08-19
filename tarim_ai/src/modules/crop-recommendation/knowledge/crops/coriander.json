@@ -1,0 +1,50 @@
+{
+  "id": "coriander",
+  "name": "Kişniş (Aşotu)",
+  "scientificName": "Coriandrum sativum",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -8,
+      "optimalMinC": 15,
+      "optimalMaxC": 27,
+      "absoluteMaxC": 35
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "medium_high",
+    "droughtTolerance": "medium_high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 6.7,
+      "optimalMax": 7.6,
+      "absoluteMax": 8.2
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "silt_loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.2,
+    "salinityTolerance": "low_medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "medium_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Tohumu baharat, yaprakları taze sebze olarak çift yönlü kazanç sağlayan mahsul."
+  }
+}

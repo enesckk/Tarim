@@ -1,0 +1,49 @@
+{
+  "id": "cherry",
+  "name": "Kiraz (0900 Ziraat)",
+  "scientificName": "Prunus avium",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -18,
+      "optimalMinC": 14,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 400,
+      "optimalMin": 550,
+      "optimalMax": 800,
+      "maximum": 1100
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "medium",
+    "droughtTolerance": "low_medium",
+    "irrigationDependency": "high"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.5,
+      "absoluteMax": 8.0
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.8,
+    "salinityTolerance": "low",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 100,
+    "calciumCarbonateTolerance": "low_medium"
+  },
+  "sourceMetadata": {
+    "regionalNote": "İhracatlık standartta iri meyve tutumu için mikroklimalı vadilerde sulama ile ideal."
+  }
+}

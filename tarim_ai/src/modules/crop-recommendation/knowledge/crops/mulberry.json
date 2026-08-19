@@ -1,0 +1,50 @@
+{
+  "id": "mulberry",
+  "name": "Dut (Beyaz & Karadut)",
+  "scientificName": "Morus alba / Morus nigra",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -20,
+      "optimalMinC": 15,
+      "optimalMaxC": 34,
+      "absoluteMaxC": 44
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 400,
+      "optimalMax": 650,
+      "maximum": 900
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.8,
+      "absoluteMax": 8.5
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 1.0,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 80,
+    "calciumCarbonateTolerance": "high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Gaziantep pekmez, pestil ve kuru dut üretiminde yüksek ekonomik getiri sağlar."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "turnip",
+  "name": "Şalgam (Mor Havuç / Şalgam Turpu)",
+  "scientificName": "Brassica rapa subsp. rapa",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -7,
+      "optimalMinC": 13,
+      "optimalMaxC": 24,
+      "absoluteMaxC": 32
+    },
+    "annualPrecipitationMm": {
+      "minimum": 300,
+      "optimalMin": 400,
+      "optimalMax": 600,
+      "maximum": 800
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "medium",
+    "droughtTolerance": "low_medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.5,
+      "absoluteMax": 8.0
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "silt_loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 45,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Sonbahar ekimiyle geleneksel şalgam suyu üretiminde yüksek hacimli endüstriyel kök bitkisi."
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "id": "rosemary",
+  "name": "Biberiye",
+  "scientificName": "Salvia rosmarinus",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -10,
+      "optimalMinC": 16,
+      "optimalMaxC": 35,
+      "absoluteMaxC": 44
+    },
+    "annualPrecipitationMm": {
+      "minimum": 200,
+      "optimalMin": 300,
+      "optimalMax": 500,
+      "maximum": 750
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "very_high",
+    "droughtTolerance": "very_high",
+    "irrigationDependency": "none"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.5,
+      "optimalMin": 7.0,
+      "optimalMax": 8.4,
+      "absoluteMax": 8.8
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "stony"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 0.8,
+    "salinityTolerance": "medium_high",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 45,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Uçucu yağ ve kozmetik sanayisinde yüksek katma değerli çok yıllık aromatik çalı."
+  }
+}

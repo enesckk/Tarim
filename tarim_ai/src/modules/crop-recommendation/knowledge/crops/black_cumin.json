@@ -1,0 +1,50 @@
+{
+  "id": "black_cumin",
+  "name": "Çörek Otu (Nigella)",
+  "scientificName": "Nigella sativa",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -8,
+      "optimalMinC": 16,
+      "optimalMaxC": 30,
+      "absoluteMaxC": 38
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 350,
+      "optimalMax": 500,
+      "maximum": 700
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 6.8,
+      "optimalMax": 7.9,
+      "absoluteMax": 8.5
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 1.0,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 40,
+    "calciumCarbonateTolerance": "high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Tıbbi aromatik ve unlu mamuller sanayisinde kıraç şartlarda yüksek karlı alternatif."
+  }
+}

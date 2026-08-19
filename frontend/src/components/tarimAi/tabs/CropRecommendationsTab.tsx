@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { ChevronDown, Info } from 'lucide-react'
+import { ChevronDown, Info, Trees, Wheat } from 'lucide-react'
 import type { AnalysisResult, CropRecommendationItem } from '../../../api/tarimAi'
 import { cn } from '../../../lib/utils'
 import {
@@ -137,14 +137,27 @@ export function CropRecommendationsTab({
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const items = result.cropRecommendations ?? []
 
-  const getCropType = (cropId: string) => {
-    if (!cropsList) return 'seasonal'
-    const match = cropsList.find(c => c.id === cropId)
-    return match?.seasonalOrPerennial || 'seasonal'
+  const isPerennialCrop = (cropId: string, name?: string) => {
+    const cid = (cropId || '').toLowerCase()
+    const cname = (name || '').toLowerCase()
+    const perennialKeywords = [
+      'pistachio', 'fıstık', 'olive', 'zeytin', 'almond', 'badem', 'walnut', 'ceviz',
+      'grape', 'bağ', 'üzüm', 'pomegranate', 'nar', 'fig', 'incir', 'mulberry', 'dut',
+      'sumac', 'sumak', 'apple', 'elma', 'pear', 'armut', 'apricot', 'kayısı',
+      'peach', 'şeftali', 'plum', 'erik', 'cherry', 'kiraz', 'sour_cherry', 'vişne',
+      'persimmon', 'hurma', 'quince', 'ayva', 'mahaleb', 'mahlep', 'hawthorn', 'alıç',
+      'lavender', 'lavanta', 'thyme', 'kekik', 'sage', 'adaçayı', 'rosemary', 'biberiye',
+      'caper', 'kapari', 'terebinth', 'menengiç'
+    ]
+    return perennialKeywords.some((kw) => cid.includes(kw) || cname.includes(kw))
   }
 
-  const seasonalItems = items.filter(i => getCropType(i.cropId) !== 'perennial')
-  const perennialItems = items.filter(i => getCropType(i.cropId) === 'perennial')
+  const perennialItems = items.filter((i) =>
+    isPerennialCrop(i.cropId, typeof i.cropName === 'string' ? i.cropName : undefined),
+  )
+  const seasonalItems = items.filter(
+    (i) => !isPerennialCrop(i.cropId, typeof i.cropName === 'string' ? i.cropName : undefined),
+  )
 
   if (items.length === 0) {
     return (
@@ -154,116 +167,200 @@ export function CropRecommendationsTab({
     )
   }
 
-  const renderGroup = (title: string, groupItems: CropRecommendationItem[]) => {
-    if (groupItems.length === 0) return null;
-    const topThree = groupItems.slice(0, 3)
-    const rest = groupItems.slice(3)
-    return (
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4">{title}</h3>
-        <div className="tai2-top-crop-cards">
-          {topThree.map((item, index) => {
-            const row = normalizeCropRow(item, index)
-            const tone = statusTone(row.classification)
-            const planting = row.id ? plantingByCropId?.[row.id] : undefined
-            const isExpanded = expandedId === row.id
-            return (
-              <article key={`${row.id}-${row.rank}`} className="tai2-crop-card">
-                <div className="tai2-crop-card-head">
-                  <span className="tai2-crop-card-rank">#{row.rank}</span>
-                  <h4 className="tai2-crop-card-name">{row.name}</h4>
-                </div>
-                {row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : null}
-                <ScoreBar score={row.score} tone={tone} />
-                <span className="tai2-crop-card-score-value">
-                  {typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}
-                </span>
-                {planting ? <p className="tai2-crop-card-planting">Ekim dönemi: {planting}</p> : null}
-                <p className="tai2-crop-card-note">{row.note}</p>
-                <button
-                  type="button"
-                  className="tai2-crop-card-expand-toggle"
-                  onClick={() => setExpandedId(isExpanded ? null : row.id)}
-                  aria-expanded={isExpanded}
-                >
-                  {isExpanded ? 'Detayı gizle' : 'Detayı göster'}
-                  <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={14} aria-hidden="true" />
-                </button>
-                {isExpanded ? <CropDetail item={item} onViewGuide={onViewGuide} /> : null}
-              </article>
-            )
-          })}
-        </div>
+  const renderSideSection = (
+    title: string,
+    badgeText: string,
+    badgeColor: string,
+    icon: any,
+    groupItems: CropRecommendationItem[],
+    accentColor: string,
+  ) => {
+    const IconComponent = icon
+    const topItems = groupItems.slice(0, 3)
+    const otherItems = groupItems.slice(3)
 
-        {rest.length > 0 ? (
-          <div className="tai2-card tai2-crops-table-card mt-4">
-            <div className="tai2-card-header">
-              <h3 className="tai2-card-title">Diğer öneriler</h3>
+    return (
+      <div
+        style={{
+          flex: 1,
+          minWidth: '320px',
+          background: '#ffffff',
+          border: `1px solid ${accentColor}30`,
+          borderRadius: '14px',
+          padding: '20px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: '16px',
+            borderBottom: '1px solid #f1f5f9',
+            paddingBottom: '12px',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{ padding: '6px', borderRadius: '8px', background: `${accentColor}15`, color: accentColor }}>
+              <IconComponent size={18} />
             </div>
-            <div className="tai2-table-wrap">
-              <table className="tai2-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Ürün</th>
-                    <th>Skor</th>
-                    <th>Sınıf</th>
-                    <th>Ekim dönemi</th>
-                    <th aria-label="Detay" />
-                  </tr>
-                </thead>
-                <tbody>
-                  {rest.map((item, index) => {
-                    const row = normalizeCropRow(item, index + 3)
-                    const tone = statusTone(row.classification)
-                    const planting = row.id ? plantingByCropId?.[row.id] : undefined
-                    const isExpanded = expandedId === row.id
-                    return (
-                      <Fragment key={`${row.id}-${row.rank}`}>
-                        <tr className={cn('tai2-crop-row', isExpanded && 'is-expanded')}>
-                          <td>{row.rank}</td>
-                          <td>
-                            <strong>{row.name}</strong>
-                            <ScoreBar score={row.score} tone={tone} />
-                          </td>
-                          <td>{typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}</td>
-                          <td>{row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : '—'}</td>
-                          <td>{planting ?? '—'}</td>
-                          <td>
-                            <button
-                              type="button"
-                              className="tai2-icon-btn"
-                              onClick={() => setExpandedId(isExpanded ? null : row.id)}
-                              aria-expanded={isExpanded}
-                              aria-label="Detayı göster"
-                            >
-                              <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={16} aria-hidden="true" />
-                            </button>
-                          </td>
-                        </tr>
-                        {isExpanded ? (
-                          <tr className="tai2-crop-row-detail">
-                            <td colSpan={6}>
-                              <CropDetail item={item} onViewGuide={onViewGuide} />
-                            </td>
-                          </tr>
-                        ) : null}
-                      </Fragment>
-                    )
-                  })}
-                </tbody>
-              </table>
+            <div>
+              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>{title}</h3>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>{groupItems.length} Uygun Çeşit Değerlendirildi</span>
             </div>
           </div>
-        ) : null}
+          <span
+            style={{
+              padding: '3px 10px',
+              borderRadius: '12px',
+              fontSize: '11px',
+              fontWeight: 700,
+              background: `${badgeColor}15`,
+              color: badgeColor,
+            }}
+          >
+            {badgeText}
+          </span>
+        </div>
+
+        {groupItems.length === 0 ? (
+          <p style={{ fontSize: '13px', color: '#94a3b8', textAlign: 'center', padding: '30px 0' }}>
+            Bu kategori için toprak ve iklim gereksinimlerini karşılayan ürün bulunamadı.
+          </p>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {topItems.map((item, index) => {
+              const row = normalizeCropRow(item, index)
+              const tone = statusTone(row.classification)
+              const planting = row.id ? plantingByCropId?.[row.id] : undefined
+              const isExpanded = expandedId === row.id
+
+              return (
+                <article
+                  key={`${row.id}-${row.rank}`}
+                  style={{
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '10px',
+                    padding: '14px',
+                    background: index === 0 ? '#f0fdf4' : '#fafafa',
+                    borderLeft: `4px solid ${index === 0 ? '#16a34a' : '#94a3b8'}`,
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '12px', fontWeight: 800, color: index === 0 ? '#15803d' : '#475569' }}>
+                        #{index + 1}
+                      </span>
+                      <strong style={{ fontSize: '14px', color: '#0f172a' }}>{row.name}</strong>
+                    </div>
+                    {row.classification ? <StatusBadge label={formatRisk(row.classification)} tone={tone} /> : null}
+                  </div>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+                    <div style={{ flex: 1 }}>
+                      <ScoreBar score={row.score} tone={tone} />
+                    </div>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', minWidth: '40px', textAlign: 'right' }}>
+                      {typeof row.score === 'number' ? `%${formatNumber(row.score, 1)}` : '—'}
+                    </span>
+                  </div>
+
+                  {planting ? (
+                    <p style={{ margin: '4px 0', fontSize: '12px', color: '#0369a1', fontWeight: 600 }}>
+                      📅 Ekim / Dikim: {planting}
+                    </p>
+                  ) : null}
+
+                  <p style={{ margin: '4px 0 8px', fontSize: '12px', color: '#475569', lineHeight: '1.4' }}>
+                    {row.note}
+                  </p>
+
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(isExpanded ? null : row.id)}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: accentColor,
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      padding: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px',
+                    }}
+                  >
+                    {isExpanded ? 'Detayları gizle' : 'Agronomik gerekçeyi göster'}
+                    <ChevronDown className={cn('tai2-chevron', isExpanded && 'is-open')} size={13} aria-hidden="true" />
+                  </button>
+
+                  {isExpanded ? <CropDetail item={item} onViewGuide={onViewGuide} /> : null}
+                </article>
+              )
+            })}
+
+            {otherItems.length > 0 && (
+              <div style={{ marginTop: '8px', borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
+                <h4 style={{ margin: '0 0 8px', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>
+                  Diğer Alternatifler ({otherItems.length})
+                </h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {otherItems.map((item, idx) => {
+                    const row = normalizeCropRow(item, idx + 3)
+                    const tone = statusTone(row.classification)
+                    const isExpanded = expandedId === row.id
+                    return (
+                      <div key={row.id} style={{ padding: '8px', borderRadius: '6px', background: '#f8fafc', border: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <span style={{ fontSize: '12px', fontWeight: 600, color: '#1e293b' }}>{row.name}</span>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#475569' }}>
+                              %{formatNumber(row.score, 0)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setExpandedId(isExpanded ? null : row.id)}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '2px', color: '#64748b' }}
+                            >
+                              <ChevronDown size={14} className={cn(isExpanded && 'rotate-180')} />
+                            </button>
+                          </div>
+                        </div>
+                        {isExpanded ? <CropDetail item={item} onViewGuide={onViewGuide} /> : null}
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     )
   }
 
   return (
     <div className="tai2-crops-tab">
-      {renderGroup('🌾 Mevsimlik Ürünler', seasonalItems)}
-      {renderGroup('🌳 Uzun Dönem Ürünler', perennialItems)}
+      <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
+        {renderSideSection(
+          '🌳 Çok Yıllık Öneriler (Ağaç, Meyve & Bağ)',
+          'Uzun Vadeli Yatırım',
+          '#15803d',
+          Trees,
+          perennialItems,
+          '#16a34a',
+        )}
+        {renderSideSection(
+          '🌾 Dönemlik Ekilebilecekler (Tarla & Sebze)',
+          'Cari Sezon Önerisi',
+          '#0284c7',
+          Wheat,
+          seasonalItems,
+          '#0284c7',
+        )}
+      </div>
     </div>
   )
 }

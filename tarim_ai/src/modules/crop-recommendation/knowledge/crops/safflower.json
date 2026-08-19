@@ -1,0 +1,50 @@
+{
+  "id": "safflower",
+  "name": "Aspir (Yağlık & Boyalık)",
+  "scientificName": "Carthamus tinctorius",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -12,
+      "optimalMinC": 17,
+      "optimalMaxC": 34,
+      "absoluteMaxC": 42
+    },
+    "annualPrecipitationMm": {
+      "minimum": 220,
+      "optimalMin": 300,
+      "optimalMax": 500,
+      "maximum": 700
+    },
+    "frostTolerance": "high",
+    "heatTolerance": "very_high",
+    "droughtTolerance": "extreme",
+    "irrigationDependency": "none"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.8,
+      "optimalMax": 8.2,
+      "absoluteMax": 8.8
+    },
+    "preferredTextures": [
+      "clay_loam",
+      "loam",
+      "clay"
+    ],
+    "acceptedTextures": [
+      "sandy_loam"
+    ],
+    "minimumOrganicMatterPercent": 0.8,
+    "salinityTolerance": "high",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 80,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Derin kök sistemiyle kurak tarlalarda ve nadas alanlarında nadası azaltan yağ bitkisi."
+  }
+}

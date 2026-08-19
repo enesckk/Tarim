@@ -1,0 +1,50 @@
+{
+  "id": "snake_melon",
+  "name": "Gaziantep Acuru",
+  "scientificName": "Cucumis melo var. flexuosus",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 12,
+      "optimalMinC": 22,
+      "optimalMaxC": 34,
+      "absoluteMaxC": 42
+    },
+    "annualPrecipitationMm": {
+      "minimum": 200,
+      "optimalMin": 350,
+      "optimalMax": 550,
+      "maximum": 750
+    },
+    "frostTolerance": "none",
+    "heatTolerance": "very_high",
+    "droughtTolerance": "high",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.8,
+      "absoluteMax": 8.3
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 1.0,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 50,
+    "calciumCarbonateTolerance": "high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Gaziantep turşuluk ve taze dolmalık üretiminde yüksek pazar talebi olan yerli çeşit."
+  }
+}

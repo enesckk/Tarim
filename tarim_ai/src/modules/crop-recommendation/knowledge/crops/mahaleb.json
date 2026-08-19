@@ -1,0 +1,50 @@
+{
+  "id": "mahaleb",
+  "name": "Mahlep (İdris Ağacı)",
+  "scientificName": "Prunus mahaleb",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -22,
+      "optimalMinC": 14,
+      "optimalMaxC": 34,
+      "absoluteMaxC": 42
+    },
+    "annualPrecipitationMm": {
+      "minimum": 220,
+      "optimalMin": 350,
+      "optimalMax": 600,
+      "maximum": 850
+    },
+    "frostTolerance": "very_high",
+    "heatTolerance": "high",
+    "droughtTolerance": "very_high",
+    "irrigationDependency": "low"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.5,
+      "optimalMin": 7.2,
+      "optimalMax": 8.3,
+      "absoluteMax": 8.9
+    },
+    "preferredTextures": [
+      "loam",
+      "stony_loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "clay_loam"
+    ],
+    "minimumOrganicMatterPercent": 0.8,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "very_good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Kireçli zeminlerde hem sert çekirdekli meyvelere anaç hem de değerli tohum baharatı."
+  }
+}

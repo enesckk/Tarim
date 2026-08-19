@@ -1,0 +1,51 @@
+{
+  "id": "hawthorn",
+  "name": "Alıç (Sarı & Kırmızı)",
+  "scientificName": "Crataegus azarolus / monogyna",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -25,
+      "optimalMinC": 13,
+      "optimalMaxC": 33,
+      "absoluteMaxC": 43
+    },
+    "annualPrecipitationMm": {
+      "minimum": 200,
+      "optimalMin": 300,
+      "optimalMax": 500,
+      "maximum": 750
+    },
+    "frostTolerance": "very_high",
+    "heatTolerance": "high",
+    "droughtTolerance": "very_high",
+    "irrigationDependency": "none"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.2,
+      "optimalMin": 7.0,
+      "optimalMax": 8.4,
+      "absoluteMax": 8.9
+    },
+    "preferredTextures": [
+      "sandy_loam",
+      "loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay",
+      "stony"
+    ],
+    "minimumOrganicMatterPercent": 0.5,
+    "salinityTolerance": "medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 50,
+    "calciumCarbonateTolerance": "very_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Şehitkamil kıraç tepelerinde doğal yetişen, tıbbi sirke ve ekstrakt sanayisinde yüksek primli meyve."
+  }
+}

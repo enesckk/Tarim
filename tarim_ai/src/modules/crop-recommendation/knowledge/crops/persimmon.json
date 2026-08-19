@@ -1,0 +1,50 @@
+{
+  "id": "persimmon",
+  "name": "Trabzon Hurması (Cennet Meyvesi)",
+  "scientificName": "Diospyros kaki",
+  "category": "perennial",
+  "growingType": "perennial",
+  "seasonalOrPerennial": "perennial",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": -14,
+      "optimalMinC": 15,
+      "optimalMaxC": 32,
+      "absoluteMaxC": 40
+    },
+    "annualPrecipitationMm": {
+      "minimum": 350,
+      "optimalMin": 500,
+      "optimalMax": 800,
+      "maximum": 1100
+    },
+    "frostTolerance": "medium",
+    "heatTolerance": "high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "medium"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.5,
+      "absoluteMax": 8.2
+    },
+    "preferredTextures": [
+      "loam",
+      "clay_loam",
+      "sandy_loam"
+    ],
+    "acceptedTextures": [
+      "silt_loam"
+    ],
+    "minimumOrganicMatterPercent": 1.2,
+    "salinityTolerance": "low_medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 90,
+    "calciumCarbonateTolerance": "medium"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Kurutmalık ve taze tüketimde Gaziantep ve çevresinde hızla yayılan karlı alternatif."
+  }
+}

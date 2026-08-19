@@ -1,0 +1,50 @@
+{
+  "id": "gaziantep_pepper",
+  "name": "Antep Biberi (İsot & Salçalık)",
+  "scientificName": "Capsicum annuum var. Gaziantep",
+  "category": "annual",
+  "growingType": "annual",
+  "seasonalOrPerennial": "seasonal",
+  "climate": {
+    "temperature": {
+      "absoluteMinC": 10,
+      "optimalMinC": 20,
+      "optimalMaxC": 32,
+      "absoluteMaxC": 39
+    },
+    "annualPrecipitationMm": {
+      "minimum": 250,
+      "optimalMin": 400,
+      "optimalMax": 600,
+      "maximum": 800
+    },
+    "frostTolerance": "low",
+    "heatTolerance": "high",
+    "droughtTolerance": "medium",
+    "irrigationDependency": "high"
+  },
+  "soil": {
+    "ph": {
+      "absoluteMin": 6.0,
+      "optimalMin": 6.5,
+      "optimalMax": 7.5,
+      "absoluteMax": 8.2
+    },
+    "preferredTextures": [
+      "loam",
+      "sandy_loam",
+      "clay_loam"
+    ],
+    "acceptedTextures": [
+      "clay"
+    ],
+    "minimumOrganicMatterPercent": 1.5,
+    "salinityTolerance": "low_medium",
+    "requiredDrainage": "good",
+    "minimumSoilDepthCm": 60,
+    "calciumCarbonateTolerance": "medium_high"
+  },
+  "sourceMetadata": {
+    "regionalNote": "Coğrafi işaretli Gaziantep kurutmalık, pul biber (isot) ve salça sanayisinin ana hammaddesi."
+  }
+}
