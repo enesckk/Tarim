@@ -28,14 +28,15 @@ export function LoginPage() {
     setError(null);
     try {
       const nextUser = await login(email, password);
-      // Pre-warm dashboard cache in background so it renders in 0ms on redirect
-      api<unknown>('/api/dashboard')
-        .then((dash) => {
-          if (dash) {
-            sessionStorage.setItem('ams_dashboard_summary_cache', JSON.stringify(dash))
-          }
-        })
-        .catch(() => {})
+      // Pre-warm primary app caches in background so pages render in 0ms on redirect
+      void Promise.allSettled([
+        api<unknown>('/api/dashboard').then((dash) => {
+          if (dash) sessionStorage.setItem('ams_dashboard_summary_cache', JSON.stringify(dash))
+        }),
+        api<unknown>('/api/lands').then((lands) => {
+          if (lands) sessionStorage.setItem('ams_lands_summary_cache', JSON.stringify(lands))
+        }),
+      ])
       navigate(homePathForRoles(nextUser.roles), { replace: true });
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Giriş başarısız";

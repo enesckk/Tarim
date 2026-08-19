@@ -581,6 +581,18 @@ export const tarimAi = {
       body: JSON.stringify({ geometry, days }),
     }),
 
+  bestNdmi: (geometry: unknown, days = 60) =>
+    tarimAiFetch<Record<string, unknown>>('/api/satellite/best/ndmi', {
+      method: 'POST',
+      body: JSON.stringify({ geometry, days }),
+    }),
+
+  bestBsi: (geometry: unknown, days = 60) =>
+    tarimAiFetch<Record<string, unknown>>('/api/satellite/best/bsi', {
+      method: 'POST',
+      body: JSON.stringify({ geometry, days }),
+    }),
+
   soilProfile: (parcelQuery: ParcelQuery) =>
     tarimAiFetch<Record<string, unknown>>('/api/environment/soil/profile', {
       method: 'POST',

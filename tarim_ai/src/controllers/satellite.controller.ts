@@ -18,6 +18,8 @@ import { ndviStatisticsService } from '../services/ndvi-statistics.service.js';
 import { timeSeriesService } from '../services/time-series.service.js';
 import { TRUE_COLOR_EVALSCRIPT } from '../evalscripts/true-color.evalscript.js';
 import { NDVI_EVALSCRIPT } from '../evalscripts/ndvi.evalscript.js';
+import { NDMI_EVALSCRIPT } from '../evalscripts/ndmi.evalscript.js';
+import { BSI_EVALSCRIPT } from '../evalscripts/bsi.evalscript.js';
 import {
   computeImageDimensions,
   normalizeGeoJsonGeometry,
@@ -107,6 +109,66 @@ export async function bestNdvi(
     const body = satelliteSearchSchema.parse(req.body);
     const geometry = normalizeGeoJsonGeometry(body.geometry);
     const result = await renderSelectedImage(geometry, body.days, 'ndvi', 'best');
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function bestNdmi(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const body = satelliteSearchSchema.parse(req.body);
+    const geometry = normalizeGeoJsonGeometry(body.geometry);
+    const result = await renderSelectedImage(geometry, body.days, 'ndmi', 'best');
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function bestBsi(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const body = satelliteSearchSchema.parse(req.body);
+    const geometry = normalizeGeoJsonGeometry(body.geometry);
+    const result = await renderSelectedImage(geometry, body.days, 'bsi', 'best');
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function latestNdmi(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const body = satelliteSearchSchema.parse(req.body);
+    const geometry = normalizeGeoJsonGeometry(body.geometry);
+    const result = await renderSelectedImage(geometry, body.days, 'ndmi', 'latest');
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function latestBsi(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> {
+  try {
+    const body = satelliteSearchSchema.parse(req.body);
+    const geometry = normalizeGeoJsonGeometry(body.geometry);
+    const result = await renderSelectedImage(geometry, body.days, 'bsi', 'latest');
     res.json(result);
   } catch (error) {
     next(error);
@@ -259,7 +321,7 @@ export function createSurfaceAnalysisHandlers(
 async function renderSelectedImage(
   geometry: NormalizedGeometry,
   days: number,
-  type: 'true-color' | 'ndvi',
+  type: 'true-color' | 'ndvi' | 'ndmi' | 'bsi',
   mode: 'latest' | 'best',
 ): Promise<ImageOutputResult | BestImageOutputResult> {
   const products = await copernicusCatalogService.search({ geometry, days });
@@ -289,7 +351,14 @@ async function renderSelectedImage(
   }
 
   const { width, height } = computeImageDimensions(geometry);
-  const evalscript = type === 'true-color' ? TRUE_COLOR_EVALSCRIPT : NDVI_EVALSCRIPT;
+  const evalscript =
+    type === 'true-color'
+      ? TRUE_COLOR_EVALSCRIPT
+      : type === 'ndvi'
+        ? NDVI_EVALSCRIPT
+        : type === 'ndmi'
+          ? NDMI_EVALSCRIPT
+          : BSI_EVALSCRIPT;
 
   const imageBuffer = await copernicusProcessService.processImage({
     geometry,

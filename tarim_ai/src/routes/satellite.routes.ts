@@ -5,8 +5,12 @@ import {
   searchSatellite,
   latestTrueColor,
   latestNdvi,
+  latestNdmi,
+  latestBsi,
   bestTrueColor,
   bestNdvi,
+  bestNdmi,
+  bestBsi,
   bestNdviStatistics,
   bestNdmiStatistics,
   bestBsiStatistics,
@@ -24,8 +28,12 @@ export function createSatelliteRouter(parcelQueryService: ParcelQueryService): R
   router.post('/search', searchSatellite);
   router.post('/latest/true-color', latestTrueColor);
   router.post('/latest/ndvi', latestNdvi);
+  router.post('/latest/ndmi', latestNdmi);
+  router.post('/latest/bsi', latestBsi);
   router.post('/best/true-color', bestTrueColor);
   router.post('/best/ndvi', bestNdvi);
+  router.post('/best/ndmi', bestNdmi);
+  router.post('/best/bsi', bestBsi);
   router.post('/best/ndvi-statistics', bestNdviStatistics);
   router.post('/best/ndmi-statistics', bestNdmiStatistics);
   router.post('/best/bsi-statistics', bestBsiStatistics);

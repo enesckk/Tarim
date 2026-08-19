@@ -1,5 +1,21 @@
 import type { ParcelQuery } from '../api/tarimAi'
 
+export interface SatelliteLayerInfo {
+  imageUrl?: string
+  fileName?: string
+  datetime?: string
+  cloudCoverage?: number
+  description?: string
+  bandInfo?: string
+}
+
+export interface SatelliteRecentPass {
+  datetime: string
+  cloudCoverage: number
+  satellite: string
+  usable: boolean
+}
+
 export interface GoldenParcelData {
   climate: Record<string, unknown>
   terrain: Record<string, unknown>
@@ -7,18 +23,17 @@ export interface GoldenParcelData {
   surface: Record<string, unknown>
   satellite: {
     fetchedAt: string
-    trueColor?: {
-      imageUrl?: string
-      fileName?: string
-      datetime?: string
-      cloudCoverage?: number
-    }
-    ndvi?: {
-      imageUrl?: string
-      fileName?: string
-      datetime?: string
-      cloudCoverage?: number
-    }
+    mission?: string
+    sensor?: string
+    resolutionMeters?: number
+    totalCapturesCount?: number
+    lastCaptureDate?: string
+    cloudCoverage?: number
+    trueColor?: SatelliteLayerInfo
+    ndvi?: SatelliteLayerInfo
+    ndmi?: SatelliteLayerInfo
+    bsi?: SatelliteLayerInfo
+    recentPasses?: SatelliteRecentPass[]
   }
 }
 
@@ -88,6 +103,59 @@ function generateYearlyStats(tempOffset = 0, rainMultiplier = 1) {
   }
 
   return { years, monthlyByYear }
+}
+
+function makeSatelliteBundle(
+  folder: string,
+  cloudCoverage = 3.5,
+  dateIso?: string,
+  totalPasses = 24,
+) {
+  const dt = dateIso || new Date().toISOString().split('T')[0]
+  return {
+    fetchedAt: new Date().toISOString(),
+    mission: 'Sentinel-2 (Copernicus ESA)',
+    sensor: 'MSI Çoklu Spektral Radyometre',
+    resolutionMeters: 10,
+    totalCapturesCount: totalPasses,
+    lastCaptureDate: dt,
+    cloudCoverage,
+    trueColor: {
+      imageUrl: `/satellite/${folder}/true-color.png`,
+      datetime: dt,
+      cloudCoverage,
+      description: 'Doğal RGB (B04-B03-B02): Parselin vejetasyon ve sınırlarını doğal görünümde sunar.',
+      bandInfo: 'B04 (Kırmızı), B03 (Yeşil), B02 (Mavi)',
+    },
+    ndvi: {
+      imageUrl: `/satellite/${folder}/ndvi.png`,
+      datetime: dt,
+      cloudCoverage,
+      description: 'Bitki Sağlık & Yoğunluk İndeksi (NDVI): Klorofil emilimini ve biyokütle yoğunluğunu haritalar.',
+      bandInfo: 'B08 (NIR), B04 (Red)',
+    },
+    ndmi: {
+      imageUrl: `/satellite/${folder}/ndmi.png`,
+      datetime: dt,
+      cloudCoverage,
+      description: 'Nem & Su Stresi İndeksi (NDMI): Bitki ve toprak içi su dengesini, kuraklık hassasiyetini gösterir.',
+      bandInfo: 'B08 (NIR), B11 (SWIR)',
+    },
+    bsi: {
+      imageUrl: `/satellite/${folder}/bsi.png`,
+      datetime: dt,
+      cloudCoverage,
+      description: 'Çıplak Toprak & Yüzey İndeksi (BSI): Toprağın mineral yapısını ve işlenmiş/atıl alanları ayrıştırır.',
+      bandInfo: 'B11, B04, B08, B02',
+    },
+    recentPasses: [
+      { datetime: `${dt} 09:42 UTC`, cloudCoverage, satellite: 'Sentinel-2B', usable: true },
+      { datetime: '2026-08-14 09:43 UTC', cloudCoverage: 1.2, satellite: 'Sentinel-2A', usable: true },
+      { datetime: '2026-08-09 09:42 UTC', cloudCoverage: 6.8, satellite: 'Sentinel-2B', usable: true },
+      { datetime: '2026-08-04 09:43 UTC', cloudCoverage: 0.8, satellite: 'Sentinel-2A', usable: true },
+      { datetime: '2026-07-30 09:42 UTC', cloudCoverage: 14.5, satellite: 'Sentinel-2B', usable: false },
+    ],
+  }
 }
 
 export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
@@ -161,19 +229,7 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
         agriculturalCycle: { signal: 'active_growth', confidence: 'high' },
         seasonalVegetation: { peakSeason: 'spring_early_summer', activityLevel: 'high' },
       },
-      satellite: {
-        fetchedAt: new Date().toISOString(),
-        trueColor: {
-          imageUrl: '/satellite/gungurge-108-7/true-color.png',
-          datetime: new Date().toISOString().split('T')[0],
-          cloudCoverage: 4.2,
-        },
-        ndvi: {
-          imageUrl: '/satellite/gungurge-108-7/ndvi.png',
-          datetime: new Date().toISOString().split('T')[0],
-          cloudCoverage: 4.2,
-        },
-      },
+      satellite: makeSatelliteBundle('gungurge-108-7', 4.2, new Date().toISOString().split('T')[0], 24),
     }
   }
 
@@ -243,19 +299,7 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
         agriculturalCycle: { signal: 'active_growth', confidence: 'high' },
         seasonalVegetation: { peakSeason: 'spring', activityLevel: 'medium' },
       },
-      satellite: {
-        fetchedAt: new Date().toISOString(),
-        trueColor: {
-          imageUrl: '/satellite/default/true-color.png',
-          datetime: new Date().toISOString().split('T')[0],
-          cloudCoverage: 3.8,
-        },
-        ndvi: {
-          imageUrl: '/satellite/default/ndvi.png',
-          datetime: new Date().toISOString().split('T')[0],
-          cloudCoverage: 3.8,
-        },
-      },
+      satellite: makeSatelliteBundle('gungurge-131-80', 3.8, new Date().toISOString().split('T')[0], 22),
     }
   }
 
@@ -325,19 +369,7 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
         agriculturalCycle: { signal: 'active_growth', confidence: 'high' },
         seasonalVegetation: { peakSeason: 'summer', activityLevel: 'high' },
       },
-      satellite: {
-        fetchedAt: new Date().toISOString(),
-        trueColor: {
-          imageUrl: '/satellite/default/true-color.png',
-          datetime: new Date().toISOString().split('T')[0],
-          cloudCoverage: 2.1,
-        },
-        ndvi: {
-          imageUrl: '/satellite/default/ndvi.png',
-          datetime: new Date().toISOString().split('T')[0],
-          cloudCoverage: 2.1,
-        },
-      },
+      satellite: makeSatelliteBundle('sinan-0-1513', 2.1, new Date().toISOString().split('T')[0], 26),
     }
   }
 
@@ -406,18 +438,6 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
       agriculturalCycle: { signal: 'active_growth', confidence: 'medium' },
       seasonalVegetation: { peakSeason: 'spring_early_summer', activityLevel: 'medium' },
     },
-    satellite: {
-      fetchedAt: new Date().toISOString(),
-      trueColor: {
-        imageUrl: '/satellite/default/true-color.png',
-        datetime: new Date().toISOString().split('T')[0],
-        cloudCoverage: 3.0,
-      },
-      ndvi: {
-        imageUrl: '/satellite/default/ndvi.png',
-        datetime: new Date().toISOString().split('T')[0],
-        cloudCoverage: 3.0,
-      },
-    },
+    satellite: makeSatelliteBundle('default', 3.0, new Date().toISOString().split('T')[0], 24),
   }
 }

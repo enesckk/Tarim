@@ -47,9 +47,7 @@ import {
   type ToastMessage,
 } from '../components/tarimAi'
 import { deriveDecisionSummary } from '../utils/tarimAiDecision'
-import { FieldLogDashboard } from '../components/field-logs/FieldLogDashboard'
 import { ToolResultCard } from '../components/tarimAi/ToolResultCard'
-import { FieldLogEntryForm } from '../components/field-logs/FieldLogEntryForm'
 import {
   formatPlantingWindow,
   userFacingError,
@@ -57,7 +55,7 @@ import {
 import '../components/tarimAi/tarimAi.css'
 import '../layout/layout.css'
 
-type ShellTab = 'analysis' | 'tools' | 'status' | 'field-logs'
+type ShellTab = 'analysis' | 'tools' | 'status'
 type ToolId = 'resolve' | 'crops' | 'terrain' | 'climate' | 'soil' | 'usability' | 'surface'
 type Phase = 'setup' | 'running' | 'result'
 
@@ -609,7 +607,6 @@ export function TarimAiPage() {
           [
             ['analysis', 'Analiz'],
             ['tools', 'Hızlı araçlar'],
-            ['field-logs', 'Tarla Günlüğü'],
             ['status', 'Bağlantı'],
           ] as const
         ).map(([id, label]) => (
@@ -627,15 +624,6 @@ export function TarimAiPage() {
       {!connected ? (
         <div className="tai2-alert tai2-alert-bad" role="alert">
           Analiz servisine bağlanılamadı. Servis ayakta olduğunda sayfayı yenileyin.
-        </div>
-      ) : null}
-
-      {shellTab === 'field-logs' ? (
-        <div className="tai2-stack">
-          <FieldLogDashboard 
-            producerId={user?.id || '00000000-0000-0000-0000-000000000001'} 
-            onAddLog={() => {}} 
-          />
         </div>
       ) : null}
 
