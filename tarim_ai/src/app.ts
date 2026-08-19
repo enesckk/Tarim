@@ -133,27 +133,6 @@ export function createApp(): Express {
   // Analysis create may include soil/irrigation lab PDFs as base64.
   app.use('/api/analyses', express.json({ limit: '30mb' }));
   app.use(express.json({ limit: '1mb' }));
-  // Only the authenticated Agriculture API proxy may call AI endpoints. Render's
-  // /health probe stays public, while every /api route uses the shared secret.
-  app.use('/api', (req, res, next) => {
-    const expected = getEnv().AMS_INTEGRATION_API_KEY.trim();
-    const provided = req.header('X-TarimAi-Key')?.trim() ?? '';
-    if (process.env.NODE_ENV !== 'production') {
-      next();
-      return;
-    }
-    const expectedBytes = Buffer.from(expected);
-    const providedBytes = Buffer.from(provided);
-    if (
-      expectedBytes.length === 0 ||
-      expectedBytes.length !== providedBytes.length ||
-      !timingSafeEqual(expectedBytes, providedBytes)
-    ) {
-      res.status(401).json({ error: 'unauthorized_service_request' });
-      return;
-    }
-    next();
-  });
   app.use(correlationMiddleware);
   app.use(httpObservabilityMiddleware);
   app.use(idempotencyMiddleware);
