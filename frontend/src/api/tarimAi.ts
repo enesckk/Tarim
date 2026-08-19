@@ -5,8 +5,9 @@
  */
 import { API_BASE, currentAccessToken, refreshTokenAvailable, tryRefresh } from './client'
 
+const isVercel = typeof window !== 'undefined' && window.location.hostname.endsWith('.vercel.app')
 const TARIM_AI_BASE = (import.meta.env.VITE_TARIM_AI_URL as string | undefined)?.replace(/\/$/, '')
-  || (API_BASE ? `${API_BASE}/api/tarim-ai` : '/tarim-ai-api')
+  || (isVercel ? '/tarim-ai-api' : (API_BASE ? `${API_BASE}/api/tarim-ai` : '/tarim-ai-api'))
 
 export { TARIM_AI_BASE }
 

@@ -16,25 +16,33 @@ internal static class TarimAiProxyEndpoints
             ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
             async (HttpContext context, IHttpClientFactory clients, string? path, CancellationToken ct) =>
             {
-                var baseUrl = configuration["TarimAi:BaseUrl"];
+                var baseUrl = configuration["TarimAi:BaseUrl"] ?? "https://tarim-ai.onrender.com";
                 if (!Uri.TryCreate(baseUrl, UriKind.Absolute, out var serviceUri))
-                    return Results.Problem("Tarım AI servisi yapılandırılmamış.", statusCode: 503);
+                    serviceUri = new Uri("https://tarim-ai.onrender.com");
 
                 var target = new Uri(serviceUri, $"/{path ?? string.Empty}{context.Request.QueryString}");
                 using var request = new HttpRequestMessage(new HttpMethod(context.Request.Method), target);
-                var integrationKey = configuration["TarimAi:IntegrationApiKey"];
-                if (string.IsNullOrWhiteSpace(integrationKey))
-                    return Results.Problem("Tarım AI servis anahtarı yapılandırılmamış.", statusCode: 503);
+                var integrationKey = configuration["TarimAi:IntegrationApiKey"] ?? "dev-tarim-ai-integration-key";
                 request.Headers.TryAddWithoutValidation("X-TarimAi-Key", integrationKey);
 
-                if (context.Request.ContentLength > 0 || context.Request.Headers.ContainsKey("Transfer-Encoding"))
-                    request.Content = new StreamContent(context.Request.Body);
+                if (context.Request.ContentLength > 0 || context.Request.Headers.ContainsKey("Transfer-Encoding") || HttpMethods.IsPost(context.Request.Method) || HttpMethods.IsPut(context.Request.Method) || HttpMethods.IsPatch(context.Request.Method))
+                {
+                    var memoryStream = new MemoryStream();
+                    await context.Request.Body.CopyToAsync(memoryStream, ct);
+                    memoryStream.Position = 0;
+                    request.Content = new StreamContent(memoryStream);
+                    if (!string.IsNullOrWhiteSpace(context.Request.ContentType))
+                    {
+                        request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(context.Request.ContentType);
+                    }
+                }
 
                 foreach (var header in context.Request.Headers)
                 {
                     if (HopByHopHeaders.Contains(header.Key)
                         || header.Key.Equals("Authorization", StringComparison.OrdinalIgnoreCase)
-                        || header.Key.Equals("X-TarimAi-Key", StringComparison.OrdinalIgnoreCase))
+                        || header.Key.Equals("X-TarimAi-Key", StringComparison.OrdinalIgnoreCase)
+                        || header.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
                         continue;
                     if (!request.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray()))
                         request.Content?.Headers.TryAddWithoutValidation(header.Key, header.Value.ToArray());

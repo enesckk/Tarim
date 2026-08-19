@@ -656,12 +656,15 @@ export function mapStepsToStages(steps: Array<{ key: string; status: string }>):
 /** Friendly Turkish error copy for the UI. Never surfaces raw stack traces or technical details. */
 export function userFacingError(err: unknown): string {
   if (err instanceof TarimAiError) {
-    if (err.status === 0) return err.message || 'AI Destekli Analiz servisine bağlanılamadı.'
+    if (err.message && err.message !== `İstek başarısız (${err.status})` && !err.message.includes('fetch failed')) {
+      return err.message
+    }
+    if (err.status === 0) return 'AI Destekli Analiz servisine bağlanılamadı. Lütfen bağlantınızı kontrol edin.'
     if (err.status === 401 || err.status === 403) return 'Bu işlem için yetkiniz bulunmuyor.'
-    if (err.status === 404) return 'İlgili kayıt bulunamadı.'
+    if (err.status === 404) return 'İlgili parsel veya analiz kaydı bulunamadı.'
     if (err.status === 409) return err.message || 'İşlem mevcut durumla çakışıyor.'
     if (err.status === 422 || err.status === 400) return err.message || 'Girilen bilgiler işlenemedi.'
-    if (err.status >= 500) return 'Sunucu tarafında bir hata oluştu. Lütfen daha sonra tekrar deneyin.'
+    if (err.status >= 500) return err.message || 'Sunucu tarafında bir hata oluştu. Lütfen daha sonra tekrar deneyin.'
     return err.message || 'İşlem sırasında bir hata oluştu.'
   }
   if (err instanceof Error) return err.message || 'Beklenmeyen bir hata oluştu.'
