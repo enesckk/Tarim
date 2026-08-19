@@ -777,7 +777,7 @@ export function TarimAiPage() {
                 pdfBusy={pdfBusy}
               />
 
-              <DecisionSummaryCards summary={decision} />
+              <DecisionSummaryCards summary={decision} result={analysisResult} />
 
               <CriticalDecisionBanner
                 note={decision.criticalNote}

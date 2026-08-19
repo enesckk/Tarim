@@ -84,26 +84,36 @@ export function OverviewTab({
 
       <section className="tai2-card">
         <div className="tai2-card-header">
-          <h3 className="tai2-card-title">En uygun 3 ürün</h3>
+          <h3 className="tai2-card-title">En Uygun Ürün Tavsiyeleri</h3>
         </div>
         {topCrops.length === 0 ? (
           <p className="tai2-muted">Ürün önerisi yok.</p>
         ) : (
           <ul className="tai2-top-crops-list">
-            {topCrops.map((row) => {
+            {topCrops.map((row, index) => {
               const planting = row.id ? plantingByCropId?.[row.id] : undefined
+              const perennialKw = ['pistachio', 'fıstık', 'olive', 'zeytin', 'almond', 'badem', 'walnut', 'ceviz', 'grape', 'bağ', 'üzüm', 'pomegranate', 'nar', 'fig', 'incir', 'mulberry', 'dut']
+              const isPeren = perennialKw.some((kw) => ((row.id || '') + ' ' + (row.name || '')).toLowerCase().includes(kw))
+              const badgeLabel = index === 0 ? '🏆 Genel Şampiyon' : isPeren ? '🌳 Çok Yıllık (Ağaç/Meyve)' : '🌾 Dönemlik (Tarla/Sebze)'
+              const badgeTone = index === 0 ? 'good' : isPeren ? 'info' : 'good'
+
               return (
                 <li key={`${row.id}-${row.rank}`} className="tai2-top-crop-row">
                   <span className="tai2-top-crop-rank">{row.rank}</span>
                   <div className="tai2-top-crop-body">
-                    <strong>{row.name}</strong>
-                    {planting ? <span className="tai2-top-crop-planting">Ekim dönemi: {planting}</span> : null}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                      <strong>{row.name}</strong>
+                      <span style={{ fontSize: '11px', padding: '2px 8px', borderRadius: '10px', background: index === 0 ? '#fef9c3' : isPeren ? '#dcfce7' : '#e0f2fe', color: index === 0 ? '#854d0e' : isPeren ? '#166534' : '#0369a1', fontWeight: 700 }}>
+                        {badgeLabel}
+                      </span>
+                    </div>
+                    {planting ? <span className="tai2-top-crop-planting">Ekim / Dikim Dönemi: {planting}</span> : null}
                   </div>
                   {row.classification ? (
                     <StatusBadge label={formatRisk(row.classification)} tone={statusTone(row.classification)} />
                   ) : null}
                   <span className="tai2-top-crop-score">
-                    {typeof row.score === 'number' ? formatNumber(row.score, 1) : '—'}
+                    {typeof row.score === 'number' ? `%${formatNumber(row.score, 1)}` : '—'}
                   </span>
                 </li>
               )

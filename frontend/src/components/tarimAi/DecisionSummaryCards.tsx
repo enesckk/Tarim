@@ -34,7 +34,31 @@ function ScoreExplanation() {
  * irrigation-water status, and data-confidence level. Purely presentational —
  * all numbers/labels come from the already-derived DecisionSummary.
  */
-export function DecisionSummaryCards({ summary }: { summary: DecisionSummary }) {
+import type { AnalysisResult } from '../../api/tarimAi'
+import { Trees, Wheat } from 'lucide-react'
+
+const PERENNIAL_KEYWORDS = [
+  'pistachio', 'fıstık', 'olive', 'zeytin', 'almond', 'badem', 'walnut', 'ceviz',
+  'grape', 'bağ', 'üzüm', 'pomegranate', 'nar', 'fig', 'incir', 'mulberry', 'dut',
+  'sumac', 'sumak', 'apple', 'elma', 'pear', 'armut', 'apricot', 'kayısı',
+  'peach', 'şeftali', 'plum', 'erik', 'cherry', 'kiraz', 'sour_cherry', 'vişne',
+]
+
+function isPerennial(cropId?: string, name?: string): boolean {
+  const s = ((cropId || '') + ' ' + (name || '')).toLowerCase()
+  return PERENNIAL_KEYWORDS.some((kw) => s.includes(kw))
+}
+
+export function DecisionSummaryCards({
+  summary,
+  result,
+}: {
+  summary: DecisionSummary
+  result?: AnalysisResult | null
+}) {
+  const allCrops = result?.cropRecommendations ?? []
+  const topPerennial = allCrops.find((c) => isPerennial(c.cropId, c.cropName))
+  const topSeasonal = allCrops.find((c) => !isPerennial(c.cropId, c.cropName))
   return (
     <div className="tai2-decision-cards">
       <article className={cn('tai2-decision-card', `tai2-decision-card-${summary.usabilityTone}`)}>
@@ -53,24 +77,54 @@ export function DecisionSummaryCards({ summary }: { summary: DecisionSummary }) 
         </div>
       </article>
 
-      <article className="tai2-decision-card">
+      <article className="tai2-decision-card" style={{ minWidth: '240px' }}>
         <div className="tai2-decision-card-icon">
-          <Sprout size={18} aria-hidden="true" />
+          <Trees size={18} aria-hidden="true" style={{ color: '#16a34a' }} />
         </div>
         <div className="tai2-decision-card-body">
-          <span className="tai2-decision-card-label">En uygun ürün</span>
-          {summary.topCrop ? (
+          <span className="tai2-decision-card-label" style={{ color: '#166534', fontWeight: 700 }}>
+            🌳 Çok Yıllık Öneri
+          </span>
+          {topPerennial ? (
             <>
-              <div className="tai2-decision-card-score">
-                <strong>{summary.topCrop.name}</strong>
+              <div className="tai2-decision-card-score" style={{ color: '#14532d' }}>
+                <strong>{topPerennial.cropName}</strong>
               </div>
-              {summary.topCrop.score != null ? (
-                <span className="tai2-decision-card-subvalue">Skor: {formatNumber(summary.topCrop.score, 1)}</span>
-              ) : null}
-              <p className="tai2-decision-card-blurb">{summary.topCrop.blurb}</p>
+              <span className="tai2-decision-card-subvalue" style={{ color: '#15803d', fontWeight: 700 }}>
+                Skor: %{formatNumber(topPerennial.score, 1)} (Uzun Vadeli)
+              </span>
+              <p className="tai2-decision-card-blurb" style={{ fontSize: '11px', marginTop: '4px' }}>
+                Meyve, Ağaç & Bağ yatırımı için en uygun çeşit.
+              </p>
             </>
           ) : (
-            <p className="tai2-decision-card-blurb tai2-muted">Ürün önerisi yok</p>
+            <p className="tai2-decision-card-blurb tai2-muted">Çok yıllık öneri yok</p>
+          )}
+        </div>
+      </article>
+
+      <article className="tai2-decision-card" style={{ minWidth: '240px' }}>
+        <div className="tai2-decision-card-icon">
+          <Wheat size={18} aria-hidden="true" style={{ color: '#0284c7' }} />
+        </div>
+        <div className="tai2-decision-card-body">
+          <span className="tai2-decision-card-label" style={{ color: '#075985', fontWeight: 700 }}>
+            🌾 Dönemlik Öneri
+          </span>
+          {topSeasonal ? (
+            <>
+              <div className="tai2-decision-card-score" style={{ color: '#0c4a6e' }}>
+                <strong>{topSeasonal.cropName}</strong>
+              </div>
+              <span className="tai2-decision-card-subvalue" style={{ color: '#0284c7', fontWeight: 700 }}>
+                Skor: %{formatNumber(topSeasonal.score, 1)} (Cari Sezon)
+              </span>
+              <p className="tai2-decision-card-blurb" style={{ fontSize: '11px', marginTop: '4px' }}>
+                Tarla, hububat & sebze için en yüksek verimli çeşit.
+              </p>
+            </>
+          ) : (
+            <p className="tai2-decision-card-blurb tai2-muted">Dönemlik öneri yok</p>
           )}
         </div>
       </article>
