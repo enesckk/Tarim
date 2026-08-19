@@ -1356,10 +1356,19 @@ interface SatelliteImageResult {
             </div>
             <div className="land-profile-kpi">
               <span>
-                <Satellite size={14} aria-hidden /> Taranan Geçiş Sayısı
+                <Layers size={14} aria-hidden /> Son Çekimde Taranan Görsel
               </span>
               <strong>
-                {satelliteQuery.data?.totalCapturesCount ?? 24} Çekim
+                4 Spektral Kare
+              </strong>
+              <em>Doğal RGB, NDVI, NDMI, BSI</em>
+            </div>
+            <div className="land-profile-kpi">
+              <span>
+                <Satellite size={14} aria-hidden /> Taranan Geçiş & Görsel
+              </span>
+              <strong>
+                {satelliteQuery.data?.totalCapturesCount ?? 24} Çekim ({(satelliteQuery.data?.totalCapturesCount ?? 24) * 4} Görsel)
               </strong>
               <em>Son 12 ay Sentinel-2 geçişi</em>
             </div>
