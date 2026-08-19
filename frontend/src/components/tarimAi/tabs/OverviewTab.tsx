@@ -94,7 +94,7 @@ export function OverviewTab({
               const planting = row.id ? plantingByCropId?.[row.id] : undefined
               const perennialKw = ['pistachio', 'fıstık', 'olive', 'zeytin', 'almond', 'badem', 'walnut', 'ceviz', 'grape', 'bağ', 'üzüm', 'pomegranate', 'nar', 'fig', 'incir', 'mulberry', 'dut']
               const isPeren = perennialKw.some((kw) => ((row.id || '') + ' ' + (row.name || '')).toLowerCase().includes(kw))
-              const badgeLabel = index === 0 ? '🏆 Genel Şampiyon' : isPeren ? '🌳 Çok Yıllık (Ağaç/Meyve)' : '🌾 Dönemlik (Tarla/Sebze)'
+              const badgeLabel = index === 0 ? 'Genel Şampiyon' : isPeren ? 'Çok Yıllık (Ağaç/Meyve)' : 'Dönemlik (Tarla/Sebze)'
               const badgeTone = index === 0 ? 'good' : isPeren ? 'info' : 'good'
 
               return (

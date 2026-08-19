@@ -83,7 +83,7 @@ export function DecisionSummaryCards({
         </div>
         <div className="tai2-decision-card-body">
           <span className="tai2-decision-card-label" style={{ color: '#166534', fontWeight: 700 }}>
-            🌳 Çok Yıllık Öneri
+            Çok Yıllık Öneri (Uzun Dönem)
           </span>
           {topPerennial ? (
             <>
@@ -109,7 +109,7 @@ export function DecisionSummaryCards({
         </div>
         <div className="tai2-decision-card-body">
           <span className="tai2-decision-card-label" style={{ color: '#075985', fontWeight: 700 }}>
-            🌾 Dönemlik Öneri
+            Dönemlik Öneri (Kısa Dönem)
           </span>
           {topSeasonal ? (
             <>

@@ -268,7 +268,7 @@ export function CropRecommendationsTab({
 
                   {planting ? (
                     <p style={{ margin: '4px 0', fontSize: '12px', color: '#0369a1', fontWeight: 600 }}>
-                      📅 Ekim / Dikim: {planting}
+                      Ekim / Dikim Dönemi: {planting}
                     </p>
                   ) : null}
 
@@ -372,7 +372,7 @@ export function CropRecommendationsTab({
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
               <span style={{ fontSize: '11px', color: '#a16207' }}>
-                {isPerennialCrop(topOverall.id, topOverall.name) ? '🌳 Çok Yıllık Yatırım' : '🌾 Dönemsel Üretim'}
+                {isPerennialCrop(topOverall.id, topOverall.name) ? 'Çok Yıllık Yatırım' : 'Dönemsel Üretim'}
               </span>
               <strong style={{ fontSize: '15px', fontWeight: 900, color: '#854d0e' }}>
                 %{formatNumber(topOverall.score, 1)}
@@ -444,7 +444,7 @@ export function CropRecommendationsTab({
 
       <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {renderSideSection(
-          '🌳 Çok Yıllık Öneriler (Ağaç, Meyve & Bağ)',
+          'Çok Yıllık Öneriler (Ağaç, Meyve & Bağ)',
           'Uzun Vadeli Yatırım',
           '#15803d',
           Trees,
@@ -452,7 +452,7 @@ export function CropRecommendationsTab({
           '#16a34a',
         )}
         {renderSideSection(
-          '🌾 Dönemlik Ekilebilecekler (Tarla & Sebze)',
+          'Dönemlik Ekilebilecekler (Tarla & Sebze)',
           'Cari Sezon Önerisi',
           '#0284c7',
           Wheat,
@@ -463,4 +463,5 @@ export function CropRecommendationsTab({
     </div>
   )
 }
+
 
