@@ -2,7 +2,7 @@
   "id": "sesame",
   "name": "Susam (Gaziantep Tahinlik)",
   "scientificName": "Sesamum indicum",
-  "category": "annual",
+  "category": "field_crop",
   "growingType": "annual",
   "seasonalOrPerennial": "seasonal",
   "climate": {

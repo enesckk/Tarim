@@ -2,7 +2,7 @@
   "id": "fenugreek",
   "name": "Çemen Otu (Boyotu)",
   "scientificName": "Trigonella foenum-graecum",
-  "category": "annual",
+  "category": "field_crop",
   "growingType": "annual",
   "seasonalOrPerennial": "seasonal",
   "climate": {

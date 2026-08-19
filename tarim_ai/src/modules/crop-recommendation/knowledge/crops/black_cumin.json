@@ -2,7 +2,7 @@
   "id": "black_cumin",
   "name": "Çörek Otu (Nigella)",
   "scientificName": "Nigella sativa",
-  "category": "annual",
+  "category": "field_crop",
   "growingType": "annual",
   "seasonalOrPerennial": "seasonal",
   "climate": {

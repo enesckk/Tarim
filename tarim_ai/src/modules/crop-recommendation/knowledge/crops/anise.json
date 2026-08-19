@@ -2,7 +2,7 @@
   "id": "anise",
   "name": "Anason",
   "scientificName": "Pimpinella anisum",
-  "category": "annual",
+  "category": "field_crop",
   "growingType": "annual",
   "seasonalOrPerennial": "seasonal",
   "climate": {

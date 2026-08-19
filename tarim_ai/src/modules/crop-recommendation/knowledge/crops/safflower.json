@@ -2,7 +2,7 @@
   "id": "safflower",
   "name": "Aspir (Yağlık & Boyalık)",
   "scientificName": "Carthamus tinctorius",
-  "category": "annual",
+  "category": "field_crop",
   "growingType": "annual",
   "seasonalOrPerennial": "seasonal",
   "climate": {

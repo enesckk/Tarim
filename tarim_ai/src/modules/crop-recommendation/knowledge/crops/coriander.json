@@ -2,7 +2,7 @@
   "id": "coriander",
   "name": "Kişniş (Aşotu)",
   "scientificName": "Coriandrum sativum",
-  "category": "annual",
+  "category": "field_crop",
   "growingType": "annual",
   "seasonalOrPerennial": "seasonal",
   "climate": {
