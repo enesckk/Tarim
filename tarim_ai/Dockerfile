@@ -16,7 +16,7 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=4000
-ENV ANALYSIS_DATA_MODE=golden
+ENV ANALYSIS_DATA_MODE=live
 COPY --from=production-dependencies /app/node_modules ./node_modules
 COPY --from=build /app/package.json ./package.json
 COPY --from=build /app/dist ./dist
