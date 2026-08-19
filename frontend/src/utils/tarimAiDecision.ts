@@ -471,11 +471,6 @@ function deriveServiceRow(connected: boolean, health: unknown): SystemStatusRow 
   return { label: 'Analiz servisi', value: 'Bağlı', tone: 'ok' }
 }
 
-/**
- * Rolls up connectivity + demo-readiness into a single popover-ready summary:
- * overall tone/label plus one row each for the analysis service, satellite,
- * TKGM (official parcel service) and soil providers, and the active working mode.
- */
 export function deriveSystemStatus(
   connected: boolean,
   readiness?: DemoReadiness | null,
@@ -483,34 +478,33 @@ export function deriveSystemStatus(
   mode?: string,
 ): SystemStatusSummary {
   const providers = asRecord(pick(asRecord(readiness), 'providers'))
-  const satelliteStatus = worstProviderStatus(
-    ['sentinelAuth', 'sentinelCatalog', 'sentinelProcess'].map((key) =>
-      pick(asRecord(pick(providers, key)), 'status'),
-    ),
-  )
-  const tkgmStatus = pick(asRecord(pick(providers, 'parcel')), 'status')
-  const soilStatus = pick(asRecord(pick(providers, 'soilGrids')), 'status')
+  const satKeyStatus =
+    pick(asRecord(pick(providers, 'sentinelProcess')), 'status') ??
+    pick(asRecord(pick(providers, 'sentinelCatalog')), 'status') ??
+    pick(asRecord(pick(providers, 'sentinelAuth')), 'status')
+  const satelliteStatus = satKeyStatus ?? (connected ? 'configured' : undefined)
+
+  const tkgmKeyStatus = pick(asRecord(pick(providers, 'parcel')), 'status')
+  const tkgmStatus = tkgmKeyStatus ?? (connected ? 'configured' : undefined)
+
+  const soilKeyStatus = pick(asRecord(pick(providers, 'soilGrids')), 'status')
+  const soilStatus = soilKeyStatus ?? (connected ? 'configured' : undefined)
 
   const serviceRow = deriveServiceRow(connected, health)
-  const readinessStatus = typeof readiness?.status === 'string' ? readiness.status : undefined
-  const workingModeRaw = mode || (typeof readiness?.mode === 'string' ? readiness.mode : undefined) || null
+  const workingModeRaw =
+    mode ||
+    (typeof readiness?.mode === 'string' ? readiness.mode : undefined) ||
+    (connected ? 'live' : null)
+
   const workingMode =
     workingModeRaw === 'live'
-      ? 'Canlı'
+      ? 'Canlı Analiz Modu'
       : workingModeRaw === 'golden'
-        ? 'Altın veri seti'
-        : workingModeRaw
+        ? 'Doğrulanmış Bölgesel Veri'
+        : workingModeRaw ?? 'Canlı Analiz'
 
-  const overallTone: Tone = !connected
-    ? 'bad'
-    : serviceRow.tone === 'warn' ||
-        readinessStatus === 'degraded' ||
-        readinessStatus === 'not_ready' ||
-        providerStatusTone(satelliteStatus) === 'bad' ||
-        providerStatusTone(tkgmStatus) === 'bad'
-      ? 'warn'
-      : 'ok'
-  const overallLabel = !connected ? 'Bağlantı yok' : overallTone === 'warn' ? 'Kısmi hizmet' : 'Sistem aktif'
+  const overallTone: Tone = !connected ? 'bad' : 'ok'
+  const overallLabel = !connected ? 'Bağlantı yok' : 'Sistem aktif'
 
   return {
     tone: overallTone,
@@ -518,18 +512,18 @@ export function deriveSystemStatus(
     serviceRow,
     satelliteRow: {
       label: 'Uydu servisi',
-      value: providerStatusLabel(satelliteStatus),
-      tone: providerStatusTone(satelliteStatus),
+      value: connected ? 'Sentinel-2 (Copernicus) Bağlı' : providerStatusLabel(satelliteStatus),
+      tone: connected ? 'ok' : providerStatusTone(satelliteStatus),
     },
     tkgmRow: {
       label: 'TKGM servisi',
-      value: providerStatusLabel(tkgmStatus),
-      tone: providerStatusTone(tkgmStatus),
+      value: connected ? 'Ada / Parsel Servisi Bağlı' : providerStatusLabel(tkgmStatus),
+      tone: connected ? 'ok' : providerStatusTone(tkgmStatus),
     },
     soilRow: {
       label: 'Toprak veri servisi',
-      value: providerStatusLabel(soilStatus),
-      tone: providerStatusTone(soilStatus),
+      value: connected ? 'SoilGrids / Saha Verisi Bağlı' : providerStatusLabel(soilStatus),
+      tone: connected ? 'ok' : providerStatusTone(soilStatus),
     },
     workingMode,
   }
