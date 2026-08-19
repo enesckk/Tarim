@@ -1382,7 +1382,7 @@ export class AnalysisOrchestratorService {
             parcelQuery: request,
             options: {
               timeSeriesMonths: 6,
-              topN: 5,
+              topN: 40,
               climateYears: 10,
               analysisDays: 90,
               maxCloudCoverage: 30,

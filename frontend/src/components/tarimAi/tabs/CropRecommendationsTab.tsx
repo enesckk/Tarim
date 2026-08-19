@@ -176,8 +176,8 @@ export function CropRecommendationsTab({
     accentColor: string,
   ) => {
     const IconComponent = icon
-    const topItems = groupItems.slice(0, 3)
-    const otherItems = groupItems.slice(3)
+    const topItems = groupItems.slice(0, 5)
+    const otherItems = groupItems.slice(5)
 
     return (
       <div

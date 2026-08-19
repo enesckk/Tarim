@@ -1,0 +1,19 @@
+{
+  "id": "melissa",
+  "name": "Melisa (Oğul Otu)",
+  "scientificName": "Melissa officinalis",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "melissa",
+  "internalCropCode": "melissa",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Tıbbi ve aromatik bitki"
+    ]
+  }
+}

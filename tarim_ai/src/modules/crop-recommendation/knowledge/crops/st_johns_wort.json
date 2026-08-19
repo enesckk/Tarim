@@ -1,0 +1,19 @@
+{
+  "id": "st_johns_wort",
+  "name": "Sarı Kantaron",
+  "scientificName": "Hypericum perforatum",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "st_johns_wort",
+  "internalCropCode": "st_johns_wort",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Tıbbi ve aromatik bitki"
+    ]
+  }
+}

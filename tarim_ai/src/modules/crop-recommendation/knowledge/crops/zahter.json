@@ -1,0 +1,19 @@
+{
+  "id": "zahter",
+  "name": "Zahter (Dağ Kekiği)",
+  "scientificName": "Thymbra spicata",
+  "category": "field_crop",
+  "growingType": "perennial",
+  "profileStatus": "identity_only",
+  "slug": "zahter",
+  "internalCropCode": "zahter",
+  "seasonalOrPerennial": "perennial",
+  "sourceMetadata": {
+    "version": "1.0",
+    "reviewStatus": "development",
+    "sources": [],
+    "notes": [
+      "Gaziantep yöresine özgü yüksek katma değerli tıbbi ve aromatik bitki"
+    ]
+  }
+}
