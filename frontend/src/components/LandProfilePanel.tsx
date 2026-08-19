@@ -596,7 +596,19 @@ interface SatelliteImageResult {
         ? 'gungurge-108-7'
         : normHoodSlug.includes('sinan') || parcelQuery.parcel === '1513'
           ? 'sinan-0-1513'
-          : 'default'
+          : normHoodSlug.includes('subogazi') && parcelQuery.parcel === '51'
+            ? 'subogazi-106-51'
+            : normHoodSlug.includes('subogazi') && (parcelQuery.parcel === '40' || parcelQuery.block === '142')
+              ? 'subogazi-142-40'
+              : normHoodSlug.includes('subogazi')
+                ? 'subogazi-106-31'
+                : normHoodSlug.includes('yalangoz') || parcelQuery.parcel === '85'
+                  ? 'yalangoz-103-85'
+                  : normHoodSlug.includes('isikli') && parcelQuery.block === '216'
+                    ? 'isikli-216-1'
+                    : normHoodSlug.includes('isikli')
+                      ? 'isikli-151-1'
+                      : 'gungurge-108-7'
 
   const defaultSatUrl =
     currentLayerObj?.imageUrl || `/satellite/${parcelFolder}/${satLayer}.png`

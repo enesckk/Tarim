@@ -373,6 +373,146 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
     }
   }
 
+  // 4. Suboğazı (106/31, 106/51, 142/40)
+  if (normHood.includes('subogazi') || normHood.includes('suboğazı')) {
+    const { years, monthlyByYear } = generateYearlyStats(0.4, 0.98)
+    const folder = parcel === '51' ? 'subogazi-106-51' : (parcel === '40' || block === '142') ? 'subogazi-142-40' : 'subogazi-106-31'
+    return {
+      climate: {
+        source: 'nasa-power',
+        period: { years: 30 },
+        temperature: {
+          annualMeanC: 16.1,
+          summerMeanC: 28.1,
+          winterMeanC: 4.1,
+          annualMinC: -13.0,
+          annualMaxC: 45.5,
+          frostRisk: 'high',
+          extremeHeatRisk: 'high',
+        },
+        precipitation: {
+          annualTotalMm: 452.0,
+          summerTotalMm: 13.0,
+          seasonality: 'high',
+        },
+        water: {
+          droughtRisk: 'medium',
+        },
+        climatology: {
+          monthly: MONTHLY_AVG_BASE,
+          yearly: years,
+          monthlyByYear: monthlyByYear,
+        },
+      },
+      terrain: {
+        elevation: { meanMeters: 842.0, minMeters: 835.0, maxMeters: 849.0 },
+        slope: { classification: 'flat', meanDegrees: 3.5, meanPercent: 4.2 },
+        aspect: { dominantDirection: 'south' },
+        ruggedness: { classification: 'low' },
+        mechanizationSuitability: { classification: 'suitable' },
+      },
+      soil: {
+        soil: {
+          texture: 'Tınlı Killi',
+          ph: 7.30,
+          organicMatterPercent: 2.3,
+          clayPercent: 43.0,
+          sandPercent: 24.0,
+          siltPercent: 33.0,
+        },
+      },
+      surface: {
+        sourceTimeSeries: { ndviMean: 0.395 },
+        agriculturalCycle: { signal: 'active_growth', confidence: 'high' },
+        seasonalVegetation: { peakSeason: 'spring_early_summer', activityLevel: 'high' },
+      },
+      satellite: makeSatelliteBundle(folder, 3.2, new Date().toISOString().split('T')[0], 23),
+    }
+  }
+
+  // 5. Yalangoz 103/85
+  if (normHood.includes('yalangoz') || parcel === '85' || block === '103') {
+    const { years, monthlyByYear } = generateYearlyStats(0.2, 1.02)
+    return {
+      climate: {
+        source: 'nasa-power',
+        period: { years: 30 },
+        temperature: {
+          annualMeanC: 15.9,
+          summerMeanC: 27.9,
+          winterMeanC: 4.0,
+          annualMinC: -13.2,
+          annualMaxC: 45.7,
+          frostRisk: 'high',
+          extremeHeatRisk: 'high',
+        },
+        precipitation: {
+          annualTotalMm: 456.0,
+          summerTotalMm: 12.5,
+          seasonality: 'high',
+        },
+        water: { droughtRisk: 'medium' },
+        climatology: { monthly: MONTHLY_AVG_BASE, yearly: years, monthlyByYear: monthlyByYear },
+      },
+      terrain: {
+        elevation: { meanMeters: 849.0, minMeters: 841.0, maxMeters: 857.0 },
+        slope: { classification: 'gentle', meanDegrees: 4.1, meanPercent: 4.8 },
+        aspect: { dominantDirection: 'east' },
+        ruggedness: { classification: 'low' },
+        mechanizationSuitability: { classification: 'suitable' },
+      },
+      soil: {
+        soil: { texture: 'Killi', ph: 7.22, organicMatterPercent: 2.2, clayPercent: 45.0, sandPercent: 23.0, siltPercent: 32.0 },
+      },
+      surface: {
+        sourceTimeSeries: { ndviMean: 0.408 },
+        agriculturalCycle: { signal: 'active_growth', confidence: 'high' },
+        seasonalVegetation: { peakSeason: 'summer', activityLevel: 'high' },
+      },
+      satellite: makeSatelliteBundle('yalangoz-103-85', 3.0, new Date().toISOString().split('T')[0], 25),
+    }
+  }
+
+  // 6. Işıklı (151/1, 216/1)
+  if (normHood.includes('isikli') || normHood.includes('ışıklı')) {
+    const { years, monthlyByYear } = generateYearlyStats(0.5, 0.94)
+    const folder = (parcel === '1' && block === '216') ? 'isikli-216-1' : 'isikli-151-1'
+    return {
+      climate: {
+        source: 'nasa-power',
+        period: { years: 30 },
+        temperature: {
+          annualMeanC: 16.4,
+          summerMeanC: 28.5,
+          winterMeanC: 4.2,
+          annualMinC: -13.4,
+          annualMaxC: 45.9,
+          frostRisk: 'high',
+          extremeHeatRisk: 'high',
+        },
+        precipitation: { annualTotalMm: 442.0, summerTotalMm: 11.8, seasonality: 'high' },
+        water: { droughtRisk: 'medium_high' },
+        climatology: { monthly: MONTHLY_AVG_BASE, yearly: years, monthlyByYear: monthlyByYear },
+      },
+      terrain: {
+        elevation: { meanMeters: 835.0, minMeters: 828.0, maxMeters: 842.0 },
+        slope: { classification: 'flat', meanDegrees: 2.8, meanPercent: 3.5 },
+        aspect: { dominantDirection: 'west' },
+        ruggedness: { classification: 'very_low' },
+        mechanizationSuitability: { classification: 'suitable' },
+      },
+      soil: {
+        soil: { texture: 'Killi Tınlı', ph: 7.18, organicMatterPercent: 2.1, clayPercent: 42.5, sandPercent: 25.5, siltPercent: 32.0 },
+      },
+      surface: {
+        sourceTimeSeries: { ndviMean: 0.392 },
+        agriculturalCycle: { signal: 'active_growth', confidence: 'high' },
+        seasonalVegetation: { peakSeason: 'spring', activityLevel: 'medium' },
+      },
+      satellite: makeSatelliteBundle(folder, 2.7, new Date().toISOString().split('T')[0], 24),
+    }
+  }
+
   // Generic Regional Default for any other Şehitkamil parcel
   const { years, monthlyByYear } = generateYearlyStats(0, 1.0)
   return {
@@ -438,6 +578,6 @@ export function getGoldenParcelData(query: ParcelQuery): GoldenParcelData {
       agriculturalCycle: { signal: 'active_growth', confidence: 'medium' },
       seasonalVegetation: { peakSeason: 'spring_early_summer', activityLevel: 'medium' },
     },
-    satellite: makeSatelliteBundle('default', 3.0, new Date().toISOString().split('T')[0], 24),
+    satellite: makeSatelliteBundle('gungurge-108-7', 3.0, new Date().toISOString().split('T')[0], 24),
   }
 }
