@@ -62,7 +62,7 @@ export interface ImageOutputResult {
   fileSizeBytes: number;
   width: number;
   height: number;
-  type: 'true-color' | 'ndvi';
+  type: 'true-color' | 'ndvi' | 'ndmi' | 'bsi';
 }
 
 export interface BestImageOutputResult extends ImageOutputResult {
