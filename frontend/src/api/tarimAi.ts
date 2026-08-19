@@ -3,7 +3,7 @@
  * In Vite dev/preview, requests go through the `/tarim-ai-api` proxy to avoid CORS.
  * Override with VITE_TARIM_AI_URL (e.g. http://localhost:4000) when not using the proxy.
  */
-import { API_BASE, currentAccessToken } from './client'
+import { API_BASE, currentAccessToken, refreshTokenAvailable, tryRefresh } from './client'
 
 const TARIM_AI_BASE = (import.meta.env.VITE_TARIM_AI_URL as string | undefined)?.replace(/\/$/, '')
   || (API_BASE ? `${API_BASE}/api/tarim-ai` : '/tarim-ai-api')
@@ -301,6 +301,22 @@ export async function tarimAiFetch<T>(
       0,
       { code: 'CONNECTION_REFUSED' },
     )
+  }
+
+  if (response.status === 401 && refreshTokenAvailable()) {
+    const next = await tryRefresh()
+    if (next) {
+      headers.set('Authorization', `Bearer ${next}`)
+      try {
+        response = await fetch(`${TARIM_AI_BASE}${path}`, {
+          ...options,
+          headers,
+          credentials: 'include',
+        })
+      } catch {
+        // ignore
+      }
+    }
   }
 
   if (!response.ok && !acceptStatuses.includes(response.status)) {

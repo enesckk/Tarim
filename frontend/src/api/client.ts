@@ -56,7 +56,11 @@ export function currentAccessToken(): string | null {
   return tokenGetter?.().token ?? null
 }
 
-async function tryRefresh(): Promise<string | null> {
+export function refreshTokenAvailable(): boolean {
+  return Boolean(tokenGetter?.().refreshToken)
+}
+
+export async function tryRefresh(): Promise<string | null> {
   if (!tokenGetter || !onTokensRefreshed) return null
   const { refreshToken } = tokenGetter()
   if (!refreshToken) return null
@@ -115,10 +119,6 @@ export async function api<T>(
   }
 
   return parseResponse<T>(response)
-}
-
-function refreshTokenAvailable() {
-  return Boolean(tokenGetter?.().refreshToken)
 }
 
 async function parseResponse<T>(response: Response): Promise<T> {

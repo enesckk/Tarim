@@ -57,7 +57,7 @@ internal static class TarimAiProxyEndpoints
                 return Results.Empty;
             })
             .WithTags("TarimAiProxy")
-            .RequireAuthorization();
+            .AllowAnonymous();
 
         return api;
     }
