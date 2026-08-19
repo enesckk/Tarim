@@ -288,6 +288,7 @@ export async function tarimAiFetch<T>(
   }
   const accessToken = currentAccessToken()
   if (accessToken) headers.set('Authorization', `Bearer ${accessToken}`)
+  headers.set('X-TarimAi-Key', 'dev-tarim-ai-integration-key')
 
   let response: Response
   try {
