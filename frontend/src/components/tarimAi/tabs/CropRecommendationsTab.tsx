@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react'
-import { ChevronDown, Info, Trees, Wheat } from 'lucide-react'
+import { Award, ChevronDown, Info, Sparkles, Trees, Trophy, Wheat } from 'lucide-react'
 import type { AnalysisResult, CropRecommendationItem } from '../../../api/tarimAi'
 import { cn } from '../../../lib/utils'
 import {
@@ -341,8 +341,107 @@ export function CropRecommendationsTab({
     )
   }
 
+  const topOverall = items.length > 0 ? normalizeCropRow(items[0], 0) : null
+  const topPerennial = perennialItems.length > 0 ? normalizeCropRow(perennialItems[0], 0) : null
+  const topSeasonal = seasonalItems.length > 0 ? normalizeCropRow(seasonalItems[0], 0) : null
+
   return (
     <div className="tai2-crops-tab">
+      {/* 3 Ana Tavsiye Özeti */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '14px', marginBottom: '22px' }}>
+        {topOverall && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)',
+              border: '1px solid #fde047',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 2px 8px rgba(202,138,4,0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ padding: '6px', borderRadius: '8px', background: '#eab308', color: '#ffffff' }}>
+                <Trophy size={16} />
+              </div>
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#854d0e', textTransform: 'uppercase' }}>
+                  En Yüksek Skorlu Öneri
+                </span>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#713f12' }}>{topOverall.name}</h4>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <span style={{ fontSize: '11px', color: '#a16207' }}>
+                {isPerennialCrop(topOverall.id, topOverall.name) ? '🌳 Çok Yıllık Yatırım' : '🌾 Dönemsel Üretim'}
+              </span>
+              <strong style={{ fontSize: '15px', fontWeight: 900, color: '#854d0e' }}>
+                %{formatNumber(topOverall.score, 1)}
+              </strong>
+            </div>
+          </div>
+        )}
+
+        {topPerennial && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+              border: '1px solid #86efac',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 2px 8px rgba(22,163,74,0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ padding: '6px', borderRadius: '8px', background: '#16a34a', color: '#ffffff' }}>
+                <Trees size={16} />
+              </div>
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#166534', textTransform: 'uppercase' }}>
+                  En İyi Çok Yıllık Öneri
+                </span>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#14532d' }}>{topPerennial.name}</h4>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <span style={{ fontSize: '11px', color: '#15803d' }}>Meyve, Ağaç & Bağ</span>
+              <strong style={{ fontSize: '15px', fontWeight: 900, color: '#166534' }}>
+                %{formatNumber(topPerennial.score, 1)}
+              </strong>
+            </div>
+          </div>
+        )}
+
+        {topSeasonal && (
+          <div
+            style={{
+              background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
+              border: '1px solid #7dd3fc',
+              borderRadius: '12px',
+              padding: '16px',
+              boxShadow: '0 2px 8px rgba(2,132,199,0.08)',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <div style={{ padding: '6px', borderRadius: '8px', background: '#0284c7', color: '#ffffff' }}>
+                <Wheat size={16} />
+              </div>
+              <div>
+                <span style={{ fontSize: '11px', fontWeight: 800, color: '#075985', textTransform: 'uppercase' }}>
+                  En İyi Dönemlik Öneri
+                </span>
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0c4a6e' }}>{topSeasonal.name}</h4>
+              </div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+              <span style={{ fontSize: '11px', color: '#0369a1' }}>Tarla, Tahıl & Sebze</span>
+              <strong style={{ fontSize: '15px', fontWeight: 900, color: '#075985' }}>
+                %{formatNumber(topSeasonal.score, 1)}
+              </strong>
+            </div>
+          </div>
+        )}
+      </div>
+
       <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap', alignItems: 'flex-start' }}>
         {renderSideSection(
           '🌳 Çok Yıllık Öneriler (Ağaç, Meyve & Bağ)',
@@ -364,3 +463,4 @@ export function CropRecommendationsTab({
     </div>
   )
 }
+
