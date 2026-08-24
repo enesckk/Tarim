@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { api, ApiError } from "../api/client";
@@ -14,6 +14,12 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [takingLonger, setTakingLonger] = useState(false);
+
+  useEffect(() => {
+    // Early server ping/wake-up so backend spins up while user types
+    void api('/health/live').catch(() => {});
+  }, []);
 
   function onLogout() {
     logout();
@@ -25,9 +31,16 @@ export function LoginPage() {
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     setLoading(true);
+    setTakingLonger(false);
     setError(null);
+
+    const timer = setTimeout(() => {
+      setTakingLonger(true);
+    }, 2500);
+
     try {
       const nextUser = await login(email, password);
+      clearTimeout(timer);
       // Pre-warm primary app caches in background so pages render in 0ms on redirect
       try {
         const rawAuth = localStorage.getItem('agriculture.auth');
@@ -47,6 +60,7 @@ export function LoginPage() {
       }
       navigate(homePathForRoles(nextUser.roles), { replace: true });
     } catch (err) {
+      clearTimeout(timer);
       const raw = err instanceof Error ? err.message : "Giriş başarısız";
       setError(
         err instanceof ApiError && err.status === 401
@@ -155,6 +169,11 @@ export function LoginPage() {
           <button className="primary-btn" type="submit" disabled={loading}>
             {loading ? "Giriş yapılıyor…" : "Giriş yap"}
           </button>
+          {loading && takingLonger && (
+            <p style={{ fontSize: '12px', color: '#166534', margin: '8px 0 0', textAlign: 'center' }}>
+              Bağlantı kuruluyor, sunucu hazırlanıyor…
+            </p>
+          )}
         </form>
         {import.meta.env.DEV ? (
           <div className="login-hint">
