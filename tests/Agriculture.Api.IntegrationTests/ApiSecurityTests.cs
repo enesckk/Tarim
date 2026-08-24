@@ -164,9 +164,9 @@ public sealed class ApiSecurityTests(ApiFactory factory) : IClassFixture<ApiFact
             $"/api/files/uploads/guidance/missing.png?access_token={Uri.EscapeDataString(login.AccessToken)}");
         Assert.Equal(HttpStatusCode.Unauthorized, queryJwt.StatusCode);
 
-        using var aiQueryJwt = await noCookieClient.GetAsync(
-            $"/api/tarim-ai/health?access_token={Uri.EscapeDataString(login.AccessToken)}");
-        Assert.Equal(HttpStatusCode.Unauthorized, aiQueryJwt.StatusCode);
+        using var protectedQueryJwt = await noCookieClient.GetAsync(
+            $"/api/me?access_token={Uri.EscapeDataString(login.AccessToken)}");
+        Assert.Equal(HttpStatusCode.Unauthorized, protectedQueryJwt.StatusCode);
     }
 
     [Fact]

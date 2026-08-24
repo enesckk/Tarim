@@ -71,7 +71,7 @@ function validateOfficerCreateForm(form: typeof emptyForm): string | null {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) return 'Geçerli bir e-posta girin.'
   const password = form.password.trim()
   if (!password) return 'Uygulama şifresi zorunludur.'
-  if (password.length < 8) return 'Uygulama şifresi en az 8 karakter olmalıdır.'
+  if (password.length < 3) return 'Uygulama şifresi en az 3 karakter olmalıdır.'
   if (password !== form.passwordConfirm.trim()) return 'Şifreler eşleşmiyor.'
   return null
 }
@@ -375,9 +375,9 @@ function OfficersListPage() {
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 required
-                minLength={8}
+                minLength={3}
                 autoComplete="new-password"
-                placeholder="En az 8 karakter; büyük/küçük harf ve rakam"
+                placeholder="En az 3 karakter (ör. 123456)"
               />
             </label>
             <label>
@@ -387,7 +387,7 @@ function OfficersListPage() {
                 value={form.passwordConfirm}
                 onChange={(e) => setForm({ ...form, passwordConfirm: e.target.value })}
                 required
-                minLength={8}
+                minLength={3}
                 autoComplete="new-password"
                 placeholder="Şifreyi tekrar girin"
               />

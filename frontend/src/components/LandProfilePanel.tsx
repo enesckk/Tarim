@@ -258,6 +258,7 @@ function clearParcelLocalCache(prefix: string) {
     localStorage.removeItem(`${prefix}_terrain`)
     localStorage.removeItem(`${prefix}_soil`)
     localStorage.removeItem(`${prefix}_satellite`)
+    localStorage.removeItem(`${prefix}_satellite_v4`)
     localStorage.removeItem(`${prefix}_surface`)
   } catch {}
 }
@@ -279,14 +280,13 @@ interface SatelliteImageResult {
   const climateQuery = useQuery({
     queryKey: ['land-profile-climate', 'v2-yearly', landId, parcelQuery],
     queryFn: async () => {
-      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_climate`, ONE_MONTH_MS)
-      if (cached) return cached
       try {
         const res = await tarimAi.climateProfile(parcelQuery, 30)
         setLocalCache(`${cacheKeyPrefix}_climate`, res)
         return res
       } catch (err) {
-        return goldenFallback.climate
+        const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_climate`, ONE_MONTH_MS)
+        return cached ?? goldenFallback.climate
       }
     },
     initialData: () =>
@@ -302,14 +302,13 @@ interface SatelliteImageResult {
   const terrainQuery = useQuery({
     queryKey: ['land-profile-terrain', landId, parcelQuery],
     queryFn: async () => {
-      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_terrain`, ONE_MONTH_MS)
-      if (cached) return cached
       try {
         const res = await tarimAi.terrainProfile(parcelQuery)
         setLocalCache(`${cacheKeyPrefix}_terrain`, res)
         return res
       } catch (err) {
-        return goldenFallback.terrain
+        const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_terrain`, ONE_MONTH_MS)
+        return cached ?? goldenFallback.terrain
       }
     },
     initialData: () =>
@@ -325,14 +324,13 @@ interface SatelliteImageResult {
   const soilQuery = useQuery({
     queryKey: ['land-profile-soil', landId, parcelQuery],
     queryFn: async () => {
-      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_soil`, ONE_MONTH_MS)
-      if (cached) return cached
       try {
         const res = await tarimAi.soilProfile(parcelQuery)
         setLocalCache(`${cacheKeyPrefix}_soil`, res)
         return res
       } catch (err) {
-        return goldenFallback.soil
+        const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_soil`, ONE_MONTH_MS)
+        return cached ?? goldenFallback.soil
       }
     },
     initialData: () =>
@@ -348,11 +346,6 @@ interface SatelliteImageResult {
   const satelliteQuery = useQuery({
     queryKey: ['land-profile-satellite', 'v4-multi-spectral', landId, parcelQuery],
     queryFn: async () => {
-      const cached = getLocalCache<typeof goldenFallback.satellite>(
-        `${cacheKeyPrefix}_satellite_v4`,
-        WEEK_MS,
-      )
-      if (cached) return cached
       try {
         const resolved = await tarimAi.resolveParcel(parcelQuery)
         const parcel = asRecord(resolved.parcel)
@@ -383,7 +376,11 @@ interface SatelliteImageResult {
         setLocalCache(`${cacheKeyPrefix}_satellite_v4`, result)
         return result
       } catch (err) {
-        return goldenFallback.satellite as any
+        const cached = getLocalCache<typeof goldenFallback.satellite>(
+          `${cacheKeyPrefix}_satellite_v4`,
+          WEEK_MS,
+        )
+        return cached ?? (goldenFallback.satellite as any)
       }
     },
     initialData: () =>
@@ -402,14 +399,13 @@ interface SatelliteImageResult {
   const surfaceQuery = useQuery({
     queryKey: ['land-profile-surface', landId, parcelQuery],
     queryFn: async () => {
-      const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_surface`, ONE_MONTH_MS)
-      if (cached) return cached
       try {
         const res = await tarimAi.surfaceAnalysis(parcelQuery, 12)
         setLocalCache(`${cacheKeyPrefix}_surface`, res)
         return res
       } catch (err) {
-        return goldenFallback.surface
+        const cached = getLocalCache<Record<string, unknown>>(`${cacheKeyPrefix}_surface`, ONE_MONTH_MS)
+        return cached ?? goldenFallback.surface
       }
     },
     initialData: () =>
@@ -623,6 +619,13 @@ interface SatelliteImageResult {
   const seasonal = asRecord(surfaceQuery.data?.seasonalVegetation)
   const agCycle = asRecord(surfaceQuery.data?.agriculturalCycle)
 
+  const isFetchingAny =
+    climateQuery.isFetching ||
+    terrainQuery.isFetching ||
+    soilQuery.isFetching ||
+    satelliteQuery.isFetching ||
+    surfaceQuery.isFetching
+
   const loadingAny =
     climateQuery.isLoading || terrainQuery.isLoading || soilQuery.isLoading
   const errorMsg =
@@ -641,13 +644,15 @@ interface SatelliteImageResult {
     .filter(Boolean)
     .join(' · ')
 
-  function refreshAll() {
+  async function refreshAll() {
     clearParcelLocalCache(cacheKeyPrefix)
-    void climateQuery.refetch()
-    void terrainQuery.refetch()
-    void soilQuery.refetch()
-    void satelliteQuery.refetch()
-    void surfaceQuery.refetch()
+    await Promise.all([
+      climateQuery.refetch(),
+      terrainQuery.refetch(),
+      soilQuery.refetch(),
+      satelliteQuery.refetch(),
+      surfaceQuery.refetch(),
+    ])
   }
 
   if (!canQuery) {
@@ -683,10 +688,15 @@ interface SatelliteImageResult {
           type="button"
           className="ghost-btn"
           onClick={refreshAll}
-          disabled={loadingAny || satelliteQuery.isFetching}
+          disabled={isFetchingAny}
         >
-          <RefreshCw size={14} strokeWidth={1.75} aria-hidden />
-          Yenile
+          <RefreshCw
+            size={14}
+            strokeWidth={1.75}
+            className={isFetchingAny ? 'animate-spin' : ''}
+            aria-hidden
+          />
+          {isFetchingAny ? 'Yenileniyor…' : 'Yenile'}
         </button>
       </div>
 
@@ -1204,12 +1214,23 @@ interface SatelliteImageResult {
                 }}
               >
                 <Zap size={13} aria-hidden />
-                <span>Önbellekten anında yüklendi (7 Günlük Otomatik Kontrol)</span>
+                <span>
+                  {satelliteQuery.isFetching
+                    ? 'Canlı uydu verisi alınıyor…'
+                    : 'Önbellekten anında yüklendi (7 Günlük Otomatik Kontrol)'}
+                </span>
               </div>
               <button
                 type="button"
                 className="ghost-btn"
-                onClick={() => void satelliteQuery.refetch()}
+                onClick={async () => {
+                  try {
+                    localStorage.removeItem(`${cacheKeyPrefix}_satellite_v4`)
+                    await satelliteQuery.refetch()
+                  } catch (e) {
+                    console.error('Uydu verisi güncellenemedi:', e)
+                  }
+                }}
                 disabled={satelliteQuery.isFetching}
               >
                 <RefreshCw size={13} className={satelliteQuery.isFetching ? 'animate-spin' : ''} aria-hidden />

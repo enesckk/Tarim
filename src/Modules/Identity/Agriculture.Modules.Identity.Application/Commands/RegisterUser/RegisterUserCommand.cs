@@ -24,7 +24,7 @@ public sealed class RegisterUserCommandValidator : AbstractValidator<RegisterUse
             .EmailAddress().WithMessage("Geçerli bir e-posta girin.");
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Uygulama şifresi zorunludur.")
-            .MinimumLength(8).WithMessage("Uygulama şifresi en az 8 karakter olmalıdır.");
+            .MinimumLength(3).WithMessage("Uygulama şifresi en az 3 karakter olmalıdır.");
         RuleFor(x => x.FirstName)
             .NotEmpty().WithMessage("Ad zorunludur.");
         RuleFor(x => x.LastName)

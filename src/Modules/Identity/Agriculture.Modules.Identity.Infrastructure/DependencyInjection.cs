@@ -44,16 +44,11 @@ public static class DependencyInjection
         services
             .AddIdentity<ApplicationUser, IdentityRole<Guid>>(options =>
             {
-                // Development: kısa demo şifrelerine izin (ör. üretici "asd").
-                var isDev = string.Equals(
-                    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"),
-                    "Development",
-                    StringComparison.OrdinalIgnoreCase);
-                options.Password.RequiredLength = isDev ? 3 : 8;
+                options.Password.RequiredLength = 3;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireDigit = !isDev;
-                options.Password.RequireLowercase = !isDev;
-                options.Password.RequireUppercase = !isDev;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase = false;
                 options.User.RequireUniqueEmail = true;
                 options.Lockout.AllowedForNewUsers = true;
                 options.Lockout.MaxFailedAccessAttempts = 5;
