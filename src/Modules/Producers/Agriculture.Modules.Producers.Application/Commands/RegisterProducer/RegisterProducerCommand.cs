@@ -22,7 +22,7 @@ public sealed class RegisterProducerCommandValidator : AbstractValidator<Registe
     {
         RuleFor(x => x.FirstName).NotEmpty().MaximumLength(100);
         RuleFor(x => x.LastName).NotEmpty().MaximumLength(100);
-        RuleFor(x => x.NationalId).NotEmpty().Length(11);
+        RuleFor(x => x.NationalId).MaximumLength(30);
         RuleFor(x => x.Phone).NotEmpty().MaximumLength(20);
         RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
     }

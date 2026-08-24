@@ -463,12 +463,11 @@ function ProducersListPage() {
               />
             </label>
             <label>
-              T.C. Kimlik No <span className="required-mark">*</span>
+              T.C. Kimlik No
               <input
                 value={form.nationalId}
                 onChange={(e) => setForm({ ...form, nationalId: e.target.value })}
-                required
-                maxLength={11}
+                placeholder="İsteğe bağlı kimlik no"
               />
             </label>
             <label>

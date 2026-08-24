@@ -48,8 +48,7 @@ public sealed class AgricultureDbContext(DbContextOptions<AgricultureDbContext> 
             e.HasKey(x => x.Id);
             e.Property(x => x.FirstName).HasMaxLength(100).IsRequired();
             e.Property(x => x.LastName).HasMaxLength(100).IsRequired();
-            e.Property(x => x.NationalId).HasMaxLength(11).IsRequired();
-            e.HasIndex(x => x.NationalId).IsUnique();
+            e.Property(x => x.NationalId).HasMaxLength(50);
             e.Ignore(x => x.DomainEvents);
         });
 
