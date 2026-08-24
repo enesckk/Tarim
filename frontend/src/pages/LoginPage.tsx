@@ -29,14 +29,22 @@ export function LoginPage() {
     try {
       const nextUser = await login(email, password);
       // Pre-warm primary app caches in background so pages render in 0ms on redirect
-      void Promise.allSettled([
-        api<unknown>('/api/dashboard').then((dash) => {
-          if (dash) sessionStorage.setItem('ams_dashboard_summary_cache', JSON.stringify(dash))
-        }),
-        api<unknown>('/api/lands').then((lands) => {
-          if (lands) sessionStorage.setItem('ams_lands_summary_cache', JSON.stringify(lands))
-        }),
-      ])
+      try {
+        const rawAuth = localStorage.getItem('agriculture.auth');
+        const activeToken = rawAuth ? JSON.parse(rawAuth).token : null;
+        if (activeToken) {
+          void Promise.allSettled([
+            api<unknown>('/api/dashboard', {}, activeToken).then((dash) => {
+              if (dash) sessionStorage.setItem('ams_dashboard_summary_cache', JSON.stringify(dash));
+            }),
+            api<unknown>('/api/lands', {}, activeToken).then((lands) => {
+              if (lands) sessionStorage.setItem('ams_lands_summary_cache', JSON.stringify(lands));
+            }),
+          ]);
+        }
+      } catch {
+        // ignore pre-warm error
+      }
       navigate(homePathForRoles(nextUser.roles), { replace: true });
     } catch (err) {
       const raw = err instanceof Error ? err.message : "Giriş başarısız";

@@ -172,5 +172,36 @@ export default defineConfig(({ mode }) => {
         "/hubs": { target: apiTarget, changeOrigin: true, ws: true },
       },
     },
+    build: {
+      target: "esnext",
+      chunkSizeWarningLimit: 600,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes("node_modules")) {
+              if (
+                id.includes("react") ||
+                id.includes("react-dom") ||
+                id.includes("react-router-dom")
+              ) {
+                return "vendor-react";
+              }
+              if (id.includes("leaflet") || id.includes("proj4")) {
+                return "vendor-gis";
+              }
+              if (id.includes("lucide-react")) {
+                return "vendor-icons";
+              }
+              if (id.includes("@tanstack/react-query")) {
+                return "vendor-query";
+              }
+              if (id.includes("microsoft/signalr")) {
+                return "vendor-signalr";
+              }
+            }
+          },
+        },
+      },
+    },
   };
 });
